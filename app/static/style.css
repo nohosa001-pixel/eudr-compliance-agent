@@ -115,6 +115,7 @@ header {
   letter-spacing: -0.02em;
   background: linear-gradient(90deg, #ffffff, #94a3b8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -637,21 +638,47 @@ pre.code-viewer {
   to { transform: rotate(360deg); }
 }
 
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* Responsive Rules for Mobile */
+@media (max-width: 900px) {
+  header {
+    padding: 0.75rem 1rem;
+  }
 
-::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-}
+  .header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.5);
-  border-radius: 3px;
-}
+  .logo-group {
+    justify-content: space-between;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.8);
+  .logo-title p {
+    display: none;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .header-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .preset-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .preset-buttons {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
 }

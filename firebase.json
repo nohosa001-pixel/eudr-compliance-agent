@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "eudr-compliance-agent",
+          "region": "asia-northeast3"
+        }
+      }
+    ]
+  }
+}

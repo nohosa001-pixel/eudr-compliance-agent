@@ -64,19 +64,20 @@
       backdrop-filter: blur(16px);
       background: rgba(9, 13, 22, 0.85);
       border-bottom: 1px solid var(--border-color);
-      padding: 16px 0;
+      padding: 14px 0;
     }
 
     .nav-wrapper {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
     }
 
     .brand-logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: #fff;
     }
@@ -91,14 +92,16 @@
       justify-content: center;
       font-size: 1.2rem;
       box-shadow: 0 0 16px var(--emerald-glow);
+      flex-shrink: 0;
     }
 
     .brand-name {
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       font-weight: 800;
       letter-spacing: -0.5px;
       background: linear-gradient(to right, #ffffff, #94a3b8);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -135,7 +138,26 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      font-size: 1.3rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .mobile-toggle:hover {
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .btn {
@@ -235,6 +257,7 @@
     .hero-title .gradient-text {
       background: linear-gradient(135deg, #34d399 0%, #3b82f6 50%, #818cf8 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -369,16 +392,163 @@
       grid-template-columns: 1fr 1fr;
       min-height: 420px;
     }
+    /* Mobile & Responsive Rules */
+    @media (max-width: 880px) {
+      .mobile-toggle {
+        display: inline-flex;
+      }
 
-    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(10, 15, 26, 0.98);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        gap: 12px;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+        margin-top: 10px;
+        backdrop-filter: blur(20px);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links a {
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.95rem;
+      }
+
+      .nav-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .nav-actions .btn-ghost {
+        display: none; /* Hide secondary login button on small screens to save space */
+      }
+
+      .nav-actions .btn-primary {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+      }
+
       .sandbox-body {
         grid-template-columns: 1fr;
       }
+
+      .hero-section {
+        padding: 48px 0 36px;
+      }
+
+      .hero-title {
+        font-size: 2.2rem;
+        letter-spacing: -0.8px;
+        line-height: 1.25;
+      }
+
+      .hero-subtitle {
+        font-size: 0.98rem;
+        margin-bottom: 28px;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+        gap: 12px;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 36px;
+      }
+
+      .hero-cta .btn {
+        width: 100%;
+      }
+
       .stats-row {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 16px;
       }
+
+      .stat-val {
+        font-size: 1.4rem;
+      }
+
+      .stat-label {
+        font-size: 0.72rem;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .brand-name {
+        font-size: 1.15rem;
+      }
+
+      .brand-tag {
+        display: none;
+      }
+
+      .hero-badge {
+        font-size: 0.72rem;
+        padding: 5px 12px;
+        line-height: 1.4;
+      }
+
       .hero-title {
-        font-size: 2.4rem;
+        font-size: 1.85rem;
+        letter-spacing: -0.5px;
+      }
+
+      .hero-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .stat-val {
+        font-size: 1.2rem;
+      }
+
+      .stat-label {
+        font-size: 0.68rem;
+      }
+
+      .sandbox-header {
+        padding: 12px 16px;
+      }
+
+      .sandbox-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .sandbox-tab {
+        text-align: center;
+        padding: 6px 8px;
+        font-size: 0.75rem;
+      }
+
+      .section-title {
+        font-size: 1.7rem;
       }
     }
 
@@ -676,7 +846,7 @@
         </div>
       </a>
       
-      <ul class="nav-links">
+      <ul class="nav-links" id="nav-links">
         <li><a href="#features">Pillars</a></li>
         <li><a href="#sandbox">Live Radar Demo</a></li>
         <li><a href="#pricing">Pricing</a></li>
@@ -686,6 +856,9 @@
       <div class="nav-actions">
         <a href="/dashboard" class="btn btn-ghost">Operator Login</a>
         <a href="/dashboard" class="btn btn-primary">Launch Console &rarr;</a>
+        <button class="mobile-toggle" id="mobile-menu-btn" aria-label="Toggle navigation menu">
+          ☰
+        </button>
       </div>
     </div>
   </nav>
@@ -1126,6 +1299,32 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSandboxMap();
+
+      // Mobile Menu Toggle
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const navLinks = document.getElementById('nav-links');
+      if (mobileBtn && navLinks) {
+        mobileBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = navLinks.classList.toggle('active');
+          mobileBtn.textContent = isOpen ? '✕' : '☰';
+        });
+
+        // Close menu when clicking outside or on a link
+        document.addEventListener('click', (e) => {
+          if (!navLinks.contains(e.target) && e.target !== mobileBtn) {
+            navLinks.classList.remove('active');
+            mobileBtn.textContent = '☰';
+          }
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            mobileBtn.textContent = '☰';
+          });
+        });
+      }
     });
   </script>
 </body>

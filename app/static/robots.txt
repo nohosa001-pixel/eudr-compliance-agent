@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /dashboard
+Allow: /supplier-portal
+Allow: /docs
+
+Sitemap: https://eudragent.com/sitemap.xml

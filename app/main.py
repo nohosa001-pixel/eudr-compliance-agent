@@ -110,6 +110,22 @@ async def serve_supplier_portal():
         return FileResponse(str(portal_file))
     return HTMLResponse("<h2>Supplier Portal is running.</h2>")
 
+@app.get("/robots.txt", include_in_schema=False)
+async def serve_robots():
+    """Serves robots.txt for search engine crawlers."""
+    robots_file = STATIC_DIR / "robots.txt"
+    if robots_file.exists():
+        return FileResponse(str(robots_file), media_type="text/plain")
+    return Response(content="User-agent: *\nAllow: /\nSitemap: https://eudragent.com/sitemap.xml\n", media_type="text/plain")
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def serve_sitemap():
+    """Serves sitemap.xml for search engines."""
+    sitemap_file = STATIC_DIR / "sitemap.xml"
+    if sitemap_file.exists():
+        return FileResponse(str(sitemap_file), media_type="application/xml")
+    return Response(content="""<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://eudragent.com/</loc></url></urlset>""", media_type="application/xml")
+
 @app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])
 async def health_check():
     """Health check endpoint."""

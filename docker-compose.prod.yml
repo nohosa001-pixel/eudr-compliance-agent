@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # 1. High-Performance PostgreSQL 16 + PostGIS 3.4 Spatial Database
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: eudr-prod-postgis
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
+      POSTGRES_DB: ${POSTGRES_DB:-eudr_compliance}
+    volumes:
+      - prod_postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - eudr_internal
+
+  # 2. Redis Message Broker & Caching Cluster
+  redis:
+    image: redis:7-alpine
+    container_name: eudr-prod-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
+    volumes:
+      - prod_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispassword}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - eudr_internal
+
+  # 3. FastAPI EUDR Backend (Multi-Worker Uvicorn)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eudr-prod-web
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:5432/${POSTGRES_DB:-eudr_compliance}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
+      - USE_DISTRIBUTED_QUEUE=true
+      - SECRET_KEY_FOR_SIGNING=${SECRET_KEY_FOR_SIGNING:-eudr-prod-traces-secret-2026}
+      - COPERNICUS_CLIENT_ID=${COPERNICUS_CLIENT_ID:-}
+      - COPERNICUS_CLIENT_SECRET=${COPERNICUS_CLIENT_SECRET:-}
+      - USE_LIVE_COPERNICUS_API=${USE_LIVE_COPERNICUS_API:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - eudr_internal
+    expose:
+      - "8000"
+
+  # 4. Celery Distributed Background Worker (Scale-out: --scale worker=4)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eudr-prod-worker
+    restart: always
+    command: celery -A app.core.celery_app.celery_app worker --loglevel=info --concurrency=4 -Q celery
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:5432/${POSTGRES_DB:-eudr_compliance}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
+      - USE_DISTRIBUTED_QUEUE=true
+      - SECRET_KEY_FOR_SIGNING=${SECRET_KEY_FOR_SIGNING:-eudr-prod-traces-secret-2026}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - eudr_internal
+
+  # 5. Production Nginx Reverse Proxy (SSL / HTTPS for eudragent.com)
+  nginx:
+    image: nginx:alpine
+    container_name: eudr-prod-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/eudragent.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot_etc:/etc/letsencrypt
+      - certbot_var:/var/lib/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - web
+    networks:
+      - eudr_internal
+
+  # 6. Certbot for Automatic SSL Certificates & Renewal (eudragent.com)
+  certbot:
+    image: certbot/certbot:latest
+    container_name: eudr-prod-certbot
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_var:/var/lib/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - eudr_internal
+
+networks:
+  eudr_internal:
+    driver: bridge
+
+volumes:
+  prod_postgis_data:
+  prod_redis_data:
+  certbot_etc:
+  certbot_var:
+  certbot_www:

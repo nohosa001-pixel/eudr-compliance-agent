@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supplier EUDR Pre-Clearance Portal | EUDRAgent.com</title>
+  <meta name="description" content="Global Supplier & Smallholder Farm Onboarding Portal for EU Deforestation Regulation (Regulation (EU) 2023/1115) Compliance Verification." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --border: rgba(255, 255, 255, 0.1);
+      --emerald: #10b981;
+      --emerald-light: #34d399;
+      --blue: #3b82f6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    .header {
+      background: rgba(9, 13, 22, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 30px auto 0;
+      padding: 0 20px;
+    }
+
+    .hero-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #34d399, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--emerald);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    #supplier-map {
+      height: 280px;
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      background: #020617;
+    }
+
+    .badge-result {
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .badge-pass {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald-light);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="/" class="brand">
+      <span>🌲</span>
+      <span>EUDRAgent.com</span>
+      <span style="font-size: 0.7rem; background: rgba(59,130,246,0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px;">Supplier Portal</span>
+    </a>
+    <div>
+      <a href="/dashboard" class="btn" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-size: 0.8rem; padding: 6px 12px;">
+        Operator Console &rarr;
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero-box">
+      <h1 class="hero-title">Supplier EUDR Pre-Clearance Verification</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Generate your Verified Farm Plot Certificate to supply EU Buyers under Regulation (EU) 2023/1115.
+      </p>
+    </div>
+
+    <div class="grid">
+      <!-- Left: Input Form -->
+      <div class="card">
+        <div class="card-title">📝 1. Farm &amp; Production Details</div>
+        
+        <div class="form-group">
+          <label class="form-label">Cooperative / Producer Name</label>
+          <input type="text" id="sup-name" class="form-input" value="Da Lat Arabica Smallholder Farmers Group" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Commodity</label>
+            <select id="sup-commodity" class="form-select">
+              <option value="COFFEE" selected>☕ Coffee (0901)</option>
+              <option value="COCOA">🍫 Cocoa (1801)</option>
+              <option value="OIL_PALM">🌴 Palm Oil (1511)</option>
+              <option value="WOOD">🪵 Timber / Wood (4407)</option>
+              <option value="RUBBER">🚲 Rubber (4001)</option>
+              <option value="SOYA">🌱 Soya (1201)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country of Origin</label>
+            <select id="sup-country" class="form-select">
+              <option value="VN" selected>Vietnam (VN)</option>
+              <option value="ID">Indonesia (ID)</option>
+              <option value="CI">Ivory Coast (CI)</option>
+              <option value="BR">Brazil (BR)</option>
+              <option value="GH">Ghana (GH)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Production Area (Hectares)</label>
+          <input type="number" id="sup-area" class="form-input" value="12.5" step="0.1" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Land Title / Right of Use Certificate #</label>
+          <input type="text" id="sup-title" class="form-input" value="LURC-VN-2019-7729" />
+        </div>
+
+        <button id="btn-sup-verify" class="btn btn-primary" onclick="runSupplierPrecheck()">
+          🛰️ Run Live Satellite &amp; Spatial Pre-Check
+        </button>
+      </div>
+
+      <!-- Right: Map & Results -->
+      <div class="card">
+        <div class="card-title">🗺️ 2. Geodesic Radar &amp; Pre-Clearance Badge</div>
+        <div id="supplier-map"></div>
+
+        <div id="supplier-badge" class="badge-result badge-pass">
+          <div style="font-weight: 800; font-size: 1rem; margin-bottom: 4px;">✅ EUDR PRE-CLEARANCE PASS</div>
+          <div style="font-size: 0.78rem; opacity: 0.9;">
+            • Article 9(1)(d) 4ha Spatial Polygon: <strong>VALID</strong> (12.50 ha)<br/>
+            • 2020/12/31 Cut-off Satellite Radar: <strong>0.00% Deforestation</strong><br/>
+            • Origin Legality Check: <strong>VERIFIED</strong>
+          </div>
+          <div style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 4px;">
+            SUPPLIER-VERIFIED-PASS-EUDR-2026-VN-8821
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let supMap;
+    let currentPoly;
+
+    function initSupplierMap() {
+      supMap = L.map('supplier-map').setView([11.94, 108.44], 13);
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Esri World Imagery'
+      }).addTo(supMap);
+
+      const poly = [
+        [11.9400, 108.4380],
+        [11.9400, 108.4420],
+        [11.9435, 108.4420],
+        [11.9435, 108.4380],
+        [11.9400, 108.4380]
+      ];
+
+      currentPoly = L.polygon(poly, {
+        color: '#10b981',
+        fillColor: '#10b981',
+        fillOpacity: 0.35,
+        weight: 3
+      }).addTo(supMap);
+    }
+
+    function runSupplierPrecheck() {
+      const badge = document.getElementById('supplier-badge');
+      badge.style.display = 'block';
+      badge.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSupplierMap);
+  </script>
+</body>
+</html>

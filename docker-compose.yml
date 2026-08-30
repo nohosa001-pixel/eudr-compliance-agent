@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL 16 + PostGIS 3.4 Spatial Database
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: eudr-postgis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: eudr_compliance
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 2. Redis Message Broker & Result Backend
+  redis:
+    image: redis:7-alpine
+    container_name: eudr-redis-broker
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. FastAPI EUDR Compliance Web API Server
+  web:
+    build: .
+    container_name: eudr-fastapi-web
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "80:8000"
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/eudr_compliance
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - USE_DISTRIBUTED_QUEUE=true
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+
+  # 4. Celery Distributed Background Worker (Scale-out: docker-compose up --scale worker=3)
+  worker:
+    build: .
+    container_name: eudr-celery-worker
+    restart: unless-stopped
+    command: celery -A app.core.celery_app.celery_app worker --loglevel=info --concurrency=4 -Q celery
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/eudr_compliance
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - USE_DISTRIBUTED_QUEUE=true
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+
+volumes:
+  postgis_data:
+  redis_data:

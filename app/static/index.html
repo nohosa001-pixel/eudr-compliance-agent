@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EUDR Compliance & 5-Pillar Verification Agent | Regulation (EU) 2023/1115</title>
+  
+  <!-- Google Fonts & Leaflet CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo-group">
+        <div class="logo-badge">EUDR SAAS PRO</div>
+        <div class="logo-title">
+          <h1>EUDR Compliance, Verification &amp; TRACES-NT Agent</h1>
+          <p>Bulk Parser &bull; Multi-Satellite Triangulation &bull; DB Persistence &bull; TRACES B2G Direct Connector</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          🏠 Home
+        </a>
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+          <span style="font-size: 0.78rem; color: var(--text-muted);">🌐 Report Lang:</span>
+          <select id="report-lang-select" style="background: transparent; color: #f8fafc; border: none; font-size: 0.78rem; font-weight: 600; cursor: pointer; outline: none;">
+            <option value="en" style="background:#0f172a; color:#fff;">🇬🇧 EN (English)</option>
+            <option value="ko" style="background:#0f172a; color:#fff;" selected>🇰🇷 KO (한국어)</option>
+            <option value="fr" style="background:#0f172a; color:#fff;">🇫🇷 FR (Français)</option>
+            <option value="es" style="background:#0f172a; color:#fff;">🇪🇸 ES (Español)</option>
+            <option value="de" style="background:#0f172a; color:#fff;">🇩🇪 DE (Deutsch)</option>
+            <option value="pt" style="background:#0f172a; color:#fff;">🇧🇷 PT (Português)</option>
+          </select>
+        </div>
+        <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc;">
+          🔑 API Keys
+        </button>
+        <button id="btn-run-benchmark" class="btn btn-emerald" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
+          🧪 Run Golden Benchmark (10 Cases)
+        </button>
+        <button id="btn-view-html-report" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
+          📄 View Printable Report
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Preset Toolbar -->
+    <div class="preset-bar">
+      <div class="preset-title">
+        <span>⚡ <strong>Quick Scenario Presets:</strong></span>
+      </div>
+      <div class="preset-buttons">
+        <button class="btn-preset active" data-preset="compliant_vietnam">🟢 1. Compliant Coffee (Vietnam)</button>
+        <button class="btn-preset" data-preset="deforestation_indonesia">🔴 2. Deforestation Detected (Indonesia)</button>
+        <button class="btn-preset" data-preset="spatial_violation_brazil">🟡 3. 4ha Point Violation (Brazil)</button>
+        <button class="btn-preset" data-preset="legal_violation_ghana">🟠 4. Expired Permit (Ghana)</button>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Left Column: Input Payload Editor, Bulk Ingest & HS Code Quick Checker -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- Bulk File Ingestion Dropzone -->
+        <div class="card" style="border: 1px dashed rgba(59,130,246,0.4); background: rgba(30,41,59,0.5);">
+          <div class="card-header">
+            <div class="card-title">📁 Bulk File Ingestion (Drag &amp; Drop)</div>
+            <span style="font-size: 0.72rem; color: #60a5fa;">.csv, .xlsx, .geojson, .kml</span>
+          </div>
+          <div id="dropzone" style="border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+            <input type="file" id="bulk-file-input" accept=".csv,.xlsx,.geojson,.json,.kml" style="display: none;" />
+            <div style="font-size: 1.8rem; margin-bottom: 6px;">📂</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc;">Click to Browse or Drag File Here</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Automatically parses farm plots, WGS84 coordinates &amp; documents</div>
+          </div>
+          <div id="file-upload-status" style="display: none; margin-top: 8px; font-size: 0.75rem; color: #34d399; font-weight: 600;"></div>
+        </div>
+
+        <!-- HS Code Quick Checker -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔍 Annex I HS Code Classifier</div>
+          </div>
+          <div class="hs-lookup-group">
+            <input type="text" id="hs-code-input" placeholder="e.g. 0901.11, 1511.10, 1801.00, 4407.10" value="0901.11" />
+            <button id="btn-hs-lookup" class="btn btn-secondary" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">Classify</button>
+          </div>
+          <div id="hs-result-badge" class="hs-result-badge">
+            ✅ <strong>EUDR Regulated</strong>: <span style="color:#60a5fa">COFFEE</span> (HS: 0901.11)
+          </div>
+        </div>
+
+        <!-- Supply Chain Payload Editor -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📦 Supply Chain JSON Payload</div>
+            <span style="font-size: 0.72rem; color: var(--text-muted);">5-Pillar Verifiable Input</span>
+          </div>
+          <div class="form-group">
+            <textarea id="payload-editor" spellcheck="false"></textarea>
+          </div>
+          <button id="btn-evaluate" class="btn btn-primary">
+            ⚡ Run 5-Pillar EUDR Compliance Evaluation
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Map Visualizer & Step Pipeline Evaluation -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- Interactive GIS Map -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🗺️ GIS Production Plot Visualizer (WGS84)</div>
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">High-Resolution Satellite &amp; Dual-Claim Overlap Detection</span>
+          </div>
+          <div class="map-wrapper">
+            <div id="map"></div>
+            <div class="map-overlay-legend">
+              <div class="legend-item">
+                <span class="legend-color" style="background: #10b981;"></span>
+                <span>Compliant / Forest Preserved</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: #f43f5e;"></span>
+                <span>Post-2020 Forest Loss Flagged</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: #f59e0b;"></span>
+                <span>Spatial / 4ha Rule / Overlap Collision</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline Steps Stepper -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🛡️ 5-Pillar Verification Assurance Progress</div>
+            <div id="confidence-badge" style="font-size: 0.75rem; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.15); padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid #10b981;">
+              Confidence: 98% (Auto-Approved)
+            </div>
+          </div>
+
+          <!-- Overall Status Banner -->
+          <div id="overall-status-card" class="overall-status-banner COMPLIANT" style="display: none; align-items: center; justify-content: space-between;">
+            <div class="status-left">
+              <div id="status-icon-lg" class="status-icon-large">🛡️</div>
+              <div>
+                <div id="status-title-text" class="status-title">EUDR COMPLIANT (PASSED)</div>
+                <div id="status-sub-text" class="status-subtitle">All 5 verification pillars passed with high confidence.</div>
+              </div>
+            </div>
+            <div>
+              <button id="btn-submit-traces" class="btn btn-emerald" style="display: none; font-size: 0.8rem; padding: 0.45rem 0.9rem; font-weight: 700;">
+                🚀 Submit to EU TRACES-NT (B2G)
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Step Boxes -->
+          <div class="pipeline-stepper">
+            <div id="step-1" class="step-box">
+              <div class="step-header">
+                <span class="step-num">PILLAR 2</span>
+                <span id="step-1-status" class="step-status-icon">⏳</span>
+              </div>
+              <div class="step-name">1. Spatial &amp; Overlap</div>
+              <div id="step-1-detail" class="step-detail">Awaiting execution</div>
+            </div>
+
+            <div id="step-2" class="step-box">
+              <div class="step-header">
+                <span class="step-num">PILLAR 1</span>
+                <span id="step-2-status" class="step-status-icon">⏳</span>
+              </div>
+              <div class="step-name">2. 3-Way Satellite</div>
+              <div id="step-2-detail" class="step-detail">Awaiting execution</div>
+            </div>
+
+            <div id="step-3" class="step-box">
+              <div class="step-header">
+                <span class="step-num">LEGAL</span>
+                <span id="step-3-status" class="step-status-icon">⏳</span>
+              </div>
+              <div class="step-name">3. Origin Permits</div>
+              <div id="step-3-detail" class="step-detail">Awaiting execution</div>
+            </div>
+
+            <div id="step-4" class="step-box">
+              <div class="step-header">
+                <span class="step-num">PILLAR 3</span>
+                <span id="step-4-status" class="step-status-icon">⏳</span>
+              </div>
+              <div class="step-name">4. TRACES &amp; Evidence</div>
+              <div id="step-4-detail" class="step-detail">Awaiting execution</div>
+            </div>
+          </div>
+
+          <!-- Tabs for Output Details -->
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-traces">📋 TRACES-NT DDS</button>
+            <button class="tab-btn" data-tab="tab-evidence">🛡️ Evidence Bundle</button>
+            <button class="tab-btn" data-tab="tab-satellite-triangulation">🛰️ Satellite Triangulation</button>
+            <button class="tab-btn" data-tab="tab-history">📜 Audit History (DB)</button>
+            <button class="tab-btn" data-tab="tab-full-report">📊 Full Audit JSON</button>
+          </div>
+
+          <div id="tab-traces" class="tab-content active">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+              <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('traces-json-viewer')">📋 Copy DDS JSON</button>
+            </div>
+            <pre id="traces-json-viewer" class="code-viewer">// TRACES-NT DDS Statement will appear here upon evaluation</pre>
+          </div>
+
+          <div id="tab-evidence" class="tab-content">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+              <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('evidence-json-viewer')">📋 Copy Evidence Bundle</button>
+            </div>
+            <pre id="evidence-json-viewer" class="code-viewer">// Cryptographic Non-repudiation Evidence Bundle will appear here</pre>
+          </div>
+
+          <div id="tab-satellite-triangulation" class="tab-content">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+              <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('satellite-consensus-viewer')">📋 Copy Consensus</button>
+            </div>
+            <pre id="satellite-consensus-viewer" class="code-viewer">// Multi-sensor Satellite Consensus (JRC 2020 + Hansen + Sentinel-2 + Planet NICFI) will appear here</pre>
+          </div>
+
+          <div id="tab-history" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; color: #94a3b8;">Database Persistence: SQLite / PostgreSQL</span>
+              <button id="btn-refresh-history" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">🔄 Refresh History</button>
+            </div>
+            <div id="history-table-container" style="max-height: 280px; overflow-y: auto;">
+              <p style="font-size: 0.8rem; color: #94a3b8;">Loading audit history...</p>
+            </div>
+          </div>
+
+          <div id="tab-full-report" class="tab-content">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+              <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('raw-report-viewer')">📋 Copy Full Report</button>
+            </div>
+            <pre id="raw-report-viewer" class="code-viewer">// Full Evaluation Output will appear here</pre>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- HTML Report Modal -->
+  <div id="html-report-modal" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">📄 Printable EUDR Compliance Audit Statement</h2>
+        <button id="btn-close-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="report-iframe"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benchmark Modal -->
+  <div id="benchmark-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-height: 85vh;">
+      <div class="modal-header">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">🧪 Golden Benchmark Suite (10 Ground-Truth Scenarios)</h2>
+        <button id="btn-close-benchmark-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+      </div>
+      <div class="modal-body" style="padding: 1.25rem; background: #0f172a; color: #f8fafc; overflow-y: auto;">
+        <div id="benchmark-metrics-container">
+          <p>Running benchmark suite...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACES-NT Customs Clearance Receipt Modal -->
+  <div id="traces-b2g-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-width: 650px;">
+      <div class="modal-header" style="background: #064e3b;">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #34d399;">🏛️ EU TRACES-NT Official Customs Clearance Receipt</h2>
+        <button id="btn-close-traces-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+      </div>
+      <div id="traces-receipt-body" class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- API Keys Management Modal -->
+  <div id="api-keys-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-width: 650px;">
+      <div class="modal-header" style="background: rgba(99, 102, 241, 0.2);">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #c7d2fe;">🔑 B2B SaaS API Keys &amp; ERP Integration</h2>
+        <button id="btn-close-keys-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.25rem;">
+          Generate high-security API keys to connect SAP, Oracle SCM, or in-house customs software to the <code>eudragent.com</code> engine.
+        </p>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff;">Generate New API Key</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div>
+              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Company / Operator Name</label>
+              <input type="text" id="apikey-company-input" placeholder="e.g. Global Agri Commodities Ltd" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Contact Email</label>
+              <input type="email" id="apikey-email-input" placeholder="compliance@company.com" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.78rem; color: #94a3b8;">Tier:</span>
+              <select id="apikey-tier-select" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 0.8rem;">
+                <option value="STARTER">Starter (5,000 plots/mo)</option>
+                <option value="PRO" selected>Pro (50,000 plots/mo)</option>
+                <option value="ENTERPRISE">Enterprise (1,000,000 plots/mo)</option>
+              </select>
+            </div>
+            <button id="btn-generate-api-key" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.82rem;">
+              ⚡ Generate Key
+            </button>
+          </div>
+        </div>
+
+        <div id="apikey-result-container" style="display: none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: #34d399; margin-bottom: 6px;">
+            ✅ API Key Generated (Copy now; will not be shown again):
+          </div>
+          <div id="generated-key-display" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #fff; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 6px; word-break: break-all; margin-bottom: 8px; user-select: all;">
+          </div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">
+            Usage Endpoint: <code>POST https://api.eudragent.com/api/v1/eudr/evaluate</code>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+          <h4 style="font-size: 0.82rem; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">cURL Quick Integration Snippet</h4>
+          <pre style="background: #020617; padding: 10px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #38bdf8; overflow-x: auto;">
+curl -X POST "https://api.eudragent.com/api/v1/eudr/evaluate" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: eudr_live_YOUR_KEY_HERE" \
+  -d @payload.json</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS & App JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

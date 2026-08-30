@@ -1,0 +1,12 @@
+.gcloudignore
+.git
+.gitignore
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+project.tar.gz
+*.md
+deploy_gcp.ps1
+deploy_gcp.bat

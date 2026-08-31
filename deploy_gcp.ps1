@@ -21,14 +21,28 @@ if ([string]::IsNullOrEmpty($currentProject)) {
 }
 
 Write-Host "Project ID: $currentProject" -ForegroundColor Green
-Write-Host "Region: asia-northeast3 (Seoul)" -ForegroundColor Green
+Write-Host "Regions: us-central1 (Custom Domain: eudragent.com) & asia-northeast3 (Seoul)" -ForegroundColor Green
 
 # 3. Enable Required APIs
-Write-Host "`n[1/2] Enabling required GCP APIs (run, cloudbuild, artifactregistry)..." -ForegroundColor Yellow
+Write-Host "`n[1/3] Enabling required GCP APIs (run, cloudbuild, artifactregistry)..." -ForegroundColor Yellow
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --quiet
 
-# 4. Deploy to Cloud Run
-Write-Host "`n[2/2] Deploying container to Cloud Run (eudr-compliance-agent)..." -ForegroundColor Yellow
+# 4. Deploy to Cloud Run (us-central1 - Domain Mapping Target)
+Write-Host "`n[2/3] Deploying to Cloud Run [us-central1] (Custom Domain eudragent.com target)..." -ForegroundColor Yellow
+gcloud run deploy eudr-compliance-agent `
+    --source . `
+    --region us-central1 `
+    --platform managed `
+    --allow-unauthenticated `
+    --memory 1Gi `
+    --cpu 1 `
+    --min-instances 0 `
+    --max-instances 10 `
+    --set-env-vars="PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false" `
+    --quiet
+
+# 5. Deploy to Cloud Run (asia-northeast3 - Seoul Secondary)
+Write-Host "`n[3/3] Deploying to Cloud Run [asia-northeast3] (Seoul)..." -ForegroundColor Yellow
 gcloud run deploy eudr-compliance-agent `
     --source . `
     --region asia-northeast3 `
@@ -43,14 +57,12 @@ gcloud run deploy eudr-compliance-agent `
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n========================================================" -ForegroundColor Green
-    Write-Host "  [SUCCESS] Cloud Run deployment successful!" -ForegroundColor Green
+    Write-Host "  [SUCCESS] Multi-region Cloud Run deployment successful!" -ForegroundColor Green
     Write-Host "========================================================" -ForegroundColor Green
-    $serviceUrl = (gcloud run services describe eudr-compliance-agent --region asia-northeast3 --format="value(status.url)").Trim()
-    Write-Host "Landing Page: $serviceUrl" -ForegroundColor Cyan
-    Write-Host "Console Dashboard: $serviceUrl/dashboard" -ForegroundColor Cyan
-    Write-Host "Supplier Portal: $serviceUrl/supplier-portal" -ForegroundColor Cyan
-    Write-Host "Swagger Docs: $serviceUrl/docs" -ForegroundColor Cyan
-    Write-Host "Health Check: $serviceUrl/api/v1/eudr/health" -ForegroundColor Cyan
+    Write-Host "Custom Domain: https://eudragent.com" -ForegroundColor Cyan
+    Write-Host "Console Dashboard: https://eudragent.com/dashboard" -ForegroundColor Cyan
+    Write-Host "Supplier Portal: https://eudragent.com/supplier-portal" -ForegroundColor Cyan
+    Write-Host "Swagger Docs: https://eudragent.com/docs" -ForegroundColor Cyan
 } else {
     Write-Host "`n[ERROR] Deployment failed. Check the logs above." -ForegroundColor Red
 }

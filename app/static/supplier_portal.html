@@ -49,12 +49,35 @@
 
     .brand {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: baseline;
+      gap: 8px;
       text-decoration: none;
-      color: #fff;
-      font-weight: 800;
       font-size: 1.2rem;
+    }
+
+    .brand-name {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+
+    .brand-eudr {
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-agent {
+      color: var(--emerald-light);
+      font-weight: 500;
+      text-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+    }
+
+    .brand-tld {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 400;
+      margin-left: -2px;
     }
 
     .container {
@@ -74,6 +97,7 @@
       margin-bottom: 8px;
       background: linear-gradient(135deg, #34d399, #3b82f6);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
@@ -185,8 +209,8 @@
   <header class="header">
     <a href="/" class="brand">
       <span>🌲</span>
-      <span>EUDRAgent.com</span>
-      <span style="font-size: 0.7rem; background: rgba(59,130,246,0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px;">Supplier Portal</span>
+      <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span><span class="brand-tld">.com</span></span>
+      <span style="font-size: 0.7rem; background: rgba(59,130,246,0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px; align-self: center;">Supplier Portal</span>
     </a>
     <div>
       <a href="/dashboard" class="btn" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-size: 0.8rem; padding: 6px 12px;">

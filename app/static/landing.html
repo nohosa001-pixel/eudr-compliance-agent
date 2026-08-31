@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EUDRAgent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation</title>
+  <title>EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation</title>
   <meta name="description" content="Enterprise Regulation (EU) 2023/1115 compliance engine. Sub-second 4ha polygon spatial verification, multi-satellite deforestation radar (Sentinel-2, GFW, JRC), and cryptographically signed TRACES-NT DDS generation." />
   <meta name="keywords" content="EUDR, EU Deforestation Regulation, TRACES-NT, Due Diligence Statement, DDS, Satellite Radar, Geodesic Validation, 4ha Rule, Supply Chain Compliance, ESG, Regulation EU 2023/1115" />
   <meta name="author" content="EUDRAgent Inc." />
@@ -13,9 +13,9 @@
   <!-- Open Graph / Facebook / LinkedIn / KakaoTalk -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://eudragent.com/" />
-  <meta property="og:title" content="EUDRAgent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation" />
+  <meta property="og:title" content="EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation" />
   <meta property="og:description" content="Production-ready EU Deforestation Regulation (EU 2023/1115) compliance automation engine. 4ha spatial verification, multi-satellite radar, legal audit, and automated TRACES-NT DDS submission." />
-  <meta property="og:site_name" content="EUDRAgent" />
+  <meta property="og:site_name" content="EUDR Agent" />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
@@ -145,13 +145,30 @@
     }
 
     .brand-name {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.35rem;
       font-size: 1.3rem;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-eudr {
+      color: #ffffff;
       font-weight: 800;
       letter-spacing: -0.5px;
-      background: linear-gradient(to right, #ffffff, #94a3b8);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-agent {
+      color: var(--emerald-light);
+      font-weight: 500;
+      text-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+    }
+
+    .brand-tld {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 400;
+      margin-left: -2px;
     }
 
     .brand-tag {
@@ -890,7 +907,7 @@
       <a href="/" class="brand-logo">
         <div class="brand-icon">🌲</div>
         <div>
-          <span class="brand-name">EUDRAgent</span>
+          <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span></span>
           <span class="brand-tag">v1.2 SaaS</span>
         </div>
       </a>
@@ -1146,7 +1163,7 @@
         <div style="max-width: 380px;">
           <div class="brand-logo" style="margin-bottom: 12px;">
             <div class="brand-icon">🌲</div>
-            <span class="brand-name">EUDRAgent.com</span>
+            <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span><span class="brand-tld">.com</span></span>
           </div>
           <p style="font-size: 0.82rem; line-height: 1.6;">
             The enterprise-grade standard for Regulation (EU) 2023/1115 compliance automation, geodesic spatial validation, and TRACES-NT digital DDS submission.

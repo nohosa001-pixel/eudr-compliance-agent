@@ -28,35 +28,42 @@
   <header>
     <div class="header-container">
       <div class="logo-group">
-        <div class="logo-badge">EUDR SAAS PRO</div>
+        <div class="logo-icon-box">🌲</div>
         <div class="logo-title">
-          <h1><strong style="color: #ffffff; font-weight: 800;">EUDR</strong> Compliance, Verification &amp; TRACES-NT <span style="color: var(--accent-emerald); font-weight: 600;">Agent</span></h1>
-          <p>Bulk Parser &bull; Multi-Satellite Triangulation &bull; DB Persistence &bull; TRACES B2G Direct Connector</p>
+          <h1><strong>EUDR</strong> Compliance, Verification &amp; TRACES-NT <span class="accent">Agent</span></h1>
+          <p>Autonomous 5-Pillar Spatial Verification, Multi-Satellite Radar &amp; TRACES-NT DDS</p>
         </div>
       </div>
       <div class="header-actions">
-        <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-          🏠 Home
+        <div class="badge-gateway">
+          <span class="pulse-dot"></span>
+          <span>TRACES-NT Gateway Ready</span>
+        </div>
+        <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
+          🏠 Landing Page
         </a>
-        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--border-color);">
-          <span style="font-size: 0.78rem; color: var(--text-muted);">🌐 Report Lang:</span>
+        <a href="/supplier-portal" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(52, 211, 153, 0.4); color: #34d399;">
+          🌾 Supplier Portal
+        </a>
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+          <span style="font-size: 0.78rem; color: var(--text-muted);">🌐 Lang:</span>
           <select id="report-lang-select" style="background: transparent; color: #f8fafc; border: none; font-size: 0.78rem; font-weight: 600; cursor: pointer; outline: none;">
-            <option value="en" style="background:#0f172a; color:#fff;">🇬🇧 EN (English)</option>
-            <option value="ko" style="background:#0f172a; color:#fff;" selected>🇰🇷 KO (한국어)</option>
-            <option value="fr" style="background:#0f172a; color:#fff;">🇫🇷 FR (Français)</option>
-            <option value="es" style="background:#0f172a; color:#fff;">🇪🇸 ES (Español)</option>
-            <option value="de" style="background:#0f172a; color:#fff;">🇩🇪 DE (Deutsch)</option>
-            <option value="pt" style="background:#0f172a; color:#fff;">🇧🇷 PT (Português)</option>
+            <option value="en" style="background:#0f172a; color:#fff;">🇬🇧 EN</option>
+            <option value="ko" style="background:#0f172a; color:#fff;" selected>🇰🇷 KO</option>
+            <option value="fr" style="background:#0f172a; color:#fff;">🇫🇷 FR</option>
+            <option value="es" style="background:#0f172a; color:#fff;">🇪🇸 ES</option>
+            <option value="de" style="background:#0f172a; color:#fff;">🇩🇪 DE</option>
+            <option value="pt" style="background:#0f172a; color:#fff;">🇧🇷 PT</option>
           </select>
         </div>
-        <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc;">
+        <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc;">
           🔑 API Keys
         </button>
-        <button id="btn-run-benchmark" class="btn btn-emerald" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
-          🧪 Run Golden Benchmark (10 Cases)
+        <button id="btn-run-benchmark" class="btn btn-emerald" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;">
+          🧪 Run Benchmark (10 Cases)
         </button>
-        <button id="btn-view-html-report" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;">
-          📄 View Printable Report
+        <button id="btn-view-html-report" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
+          📄 Printable Report
         </button>
       </div>
     </div>

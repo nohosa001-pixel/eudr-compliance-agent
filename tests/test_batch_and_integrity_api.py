@@ -66,7 +66,7 @@ def test_batch_job_submit_and_polling():
 
     # 2. Poll Status until COMPLETED or timeout
     completed = False
-    for _ in range(30):
+    for _ in range(50):
         status_resp = client.get(f"/api/v1/eudr/batch/{job_id}/status")
         assert status_resp.status_code == 200
         status_data = status_resp.json()

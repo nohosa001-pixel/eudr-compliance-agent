@@ -103,7 +103,7 @@ class PaymentManager:
                 tx_hash=order["tx_hash"],
                 plan_tier=order["plan_tier"],
                 api_key_issued=order["api_key_issued"],
-                monthly_quota_plots=5000 if order["plan_tier"] == "PRO" else 50000,
+                monthly_quota_plots=50000 if order["plan_tier"] == "PRO" else (1000000 if order["plan_tier"] == "ENTERPRISE" else 5000),
                 invoice_number=order["invoice_number"],
                 receipt_url=f"/api/v1/payment/invoice/{order_id}",
                 message="Subscription already confirmed and active."
@@ -114,7 +114,7 @@ class PaymentManager:
         if not tx_hash:
             raise ValueError("Valid blockchain transaction hash (Tx Hash) is required.")
 
-        # Provision Pro API Key with 5,000 monthly plot quota
+        # Provision Pro API Key with 50,000 monthly plot quota
         if db_session is None:
             from app.db.session import SessionLocal
             db = SessionLocal() if SessionLocal else None
@@ -142,7 +142,7 @@ class PaymentManager:
             monthly_quota_plots=record.monthly_quota_plots,
             invoice_number=order["invoice_number"],
             receipt_url=f"/api/v1/payment/invoice/{order_id}",
-            message="USDC Payment verified! Pro License activated with 5,000 monthly plot validations."
+            message="USDC Payment verified! Pro License activated with 50,000 monthly plot validations."
         )
 
     @classmethod

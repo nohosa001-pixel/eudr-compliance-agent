@@ -402,3 +402,69 @@ class ApiKeyValidationResponse(BaseModel):
     remaining_quota_plots: Optional[int] = None
     message: str
 
+
+# --- B2B USDC Payment & Subscription Schemas ---
+
+class SupportedCryptoChainEnum(str, Enum):
+    BASE = "Base (Low Gas $0.01)"
+    POLYGON = "Polygon (PoS)"
+    SOLANA = "Solana (SPL-USDC)"
+    ETHEREUM = "Ethereum (ERC-20)"
+    ARBITRUM = "Arbitrum One"
+
+class PaymentOrderStatusEnum(str, Enum):
+    PENDING = "PENDING"
+    CONFIRMED = "CONFIRMED"
+    EXPIRED = "EXPIRED"
+
+class PaymentOrderCreateRequest(BaseModel):
+    plan_tier: str = "PRO"  # PRO ($299), ENTERPRISE
+    company_name: str
+    contact_email: str
+    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.BASE
+    billing_country: Optional[str] = "DE"  # EU / Global Country Code
+    vat_number: Optional[str] = None
+
+class PaymentOrderResponse(BaseModel):
+    order_id: str
+    plan_tier: str
+    amount_usdc: float
+    chain: str
+    deposit_wallet_address: str
+    status: PaymentOrderStatusEnum
+    expires_at_utc: str
+    qr_code_payload: str
+    invoice_number: str
+    instructions: str
+
+class PaymentOrderConfirmRequest(BaseModel):
+    order_id: str
+    tx_hash: str
+    sender_wallet: Optional[str] = None
+
+class PaymentOrderConfirmResponse(BaseModel):
+    order_id: str
+    status: PaymentOrderStatusEnum
+    tx_hash: str
+    plan_tier: str
+    api_key_issued: Optional[str] = None
+    monthly_quota_plots: int
+    invoice_number: str
+    receipt_url: str
+    message: str
+
+class InvoiceReceiptResponse(BaseModel):
+    invoice_number: str
+    order_id: str
+    issued_date_utc: str
+    company_name: str
+    contact_email: str
+    plan_tier: str
+    amount_usdc: float
+    payment_method: str
+    tx_hash: str
+    hmac_audit_signature: str
+    vat_tax_statement: str
+    seller_legal_info: Dict[str, str]
+
+

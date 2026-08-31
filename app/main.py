@@ -669,3 +669,66 @@ async def verify_api_key(
         message="API Key is valid and active."
     )
 
+
+# --- B2B USDC Payment & Subscription API Endpoints ---
+
+from app.modules.payment_manager import PaymentManager
+from app.schemas import (
+    PaymentOrderCreateRequest,
+    PaymentOrderResponse,
+    PaymentOrderConfirmRequest,
+    PaymentOrderConfirmResponse,
+    InvoiceReceiptResponse
+)
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/orders",
+    response_model=PaymentOrderResponse,
+    tags=["B2B USDC Payments & Subscriptions"],
+    summary="Create a new B2B USDC subscription order"
+)
+async def create_payment_order(req: PaymentOrderCreateRequest):
+    """
+    Creates an immutable B2B subscription order for Pro ($299/mo) or Enterprise tiers.
+    Returns deposit wallet addresses on Base, Polygon, Solana, or Ethereum with QR payload.
+    """
+    return PaymentManager.create_order(req)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/confirm",
+    response_model=PaymentOrderConfirmResponse,
+    tags=["B2B USDC Payments & Subscriptions"],
+    summary="Verify blockchain transaction hash and auto-provision Pro API Key"
+)
+async def confirm_payment_order(
+    req: PaymentOrderConfirmRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Verifies the on-chain USDC payment transaction hash, activates the Pro License,
+    and provisions a high-security API key with 5,000 monthly plot validations.
+    """
+    try:
+        return PaymentManager.confirm_order(req, db_session=db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/invoice/{{order_id}}",
+    response_model=InvoiceReceiptResponse,
+    tags=["B2B USDC Payments & Subscriptions"],
+    summary="Retrieve EU-compliant B2B tax invoice and HMAC audit proof"
+)
+async def get_invoice_receipt(order_id: str):
+    """
+    Returns an official VAT-compliant B2B invoice receipt with cryptographic HMAC-SHA256 signature
+    for European and international corporate accounting.
+    """
+    try:
+        return PaymentManager.get_invoice_receipt(order_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+

@@ -1131,7 +1131,7 @@
           <div>
             <div class="plan-name">Professional</div>
             <div class="plan-desc">For active EU importers &amp; trading houses</div>
-            <div class="plan-price">$299 <span>/ month</span></div>
+            <div class="plan-price">$299 <span>USDC / month</span></div>
             <ul class="plan-features">
               <li><span>✓</span> 5,000 Plot Validations / month</li>
               <li><span>✓</span> High-Res Sentinel-2 &amp; Hansen Radar</li>
@@ -1141,7 +1141,7 @@
               <li><span>✓</span> API Keys &amp; ERP Webhooks</li>
             </ul>
           </div>
-          <a href="/dashboard" class="btn btn-primary" style="width: 100%;">Get Started with Pro</a>
+          <button onclick="openPaymentModal('PRO')" class="btn btn-primary" style="width: 100%;">⚡ Subscribe with USDC ($299)</button>
         </div>
 
         <!-- Enterprise -->
@@ -1220,8 +1220,197 @@
     </div>
   </footer>
 
+  <!-- B2B USDC Payment Modal -->
+  <div id="payment-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-width: 620px; height: auto; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">⚡</span>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff;">B2B USDC Subscription &bull; <span style="color: #34d399;" id="modal-plan-title">PRO ($299/mo)</span></h3>
+        </div>
+        <button onclick="closePaymentModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+      </div>
+      <div style="padding: 1.5rem; background: #0b1120; display: flex; flex-direction: column; gap: 1rem;">
+        
+        <!-- Step 1: Customer Details -->
+        <div id="payment-step-1" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div>
+            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Company Name</label>
+            <input type="text" id="pay-company-name" placeholder="e.g. Hamburg Coffee Trading GmbH" style="margin-top: 4px;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Corporate Billing Email (for API Key &amp; Tax Invoice)</label>
+            <input type="email" id="pay-contact-email" placeholder="compliance@yourcompany.com" style="margin-top: 4px;" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Select USDC Settlement Network</label>
+            <select id="pay-chain" style="margin-top: 4px;">
+              <option value="Base (Low Gas $0.01)" selected>🔵 Base (USDC - Gas &lt; $0.01 Recommended)</option>
+              <option value="Polygon (PoS)">🟣 Polygon (USDC)</option>
+              <option value="Solana (SPL-USDC)">🟣 Solana (SPL-USDC)</option>
+              <option value="Arbitrum One">🔷 Arbitrum One (USDC)</option>
+              <option value="Ethereum (ERC-20)">🔷 Ethereum (ERC-20)</option>
+            </select>
+          </div>
+          <button onclick="submitCreatePaymentOrder()" class="btn btn-primary" style="margin-top: 0.5rem; padding: 10px;">
+            ⚡ Generate Deposit Address &amp; Order
+          </button>
+        </div>
+
+        <!-- Step 2: Deposit Address & Tx Confirmation -->
+        <div id="payment-step-2" style="display: none; flex-direction: column; gap: 1rem;">
+          <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 12px;">
+            <div style="font-size: 0.78rem; color: #34d399; font-weight: 700;">ORDER CREATED: <span id="pay-order-id">ORD-XXXX</span></div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: #fff; margin-top: 2px;">
+              Transfer Exactly <span style="color: #38bdf8;" id="pay-amount-display">299.00 USDC</span>
+            </div>
+            <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;" id="pay-chain-display">Network: Base</div>
+          </div>
+
+          <div>
+            <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Deposit Wallet Address</label>
+            <div style="display: flex; gap: 6px; margin-top: 4px;">
+              <input type="text" id="pay-deposit-address" readonly style="font-family: monospace; font-size: 0.78rem; background: #060913; color: #38bdf8;" />
+              <button onclick="copyDepositAddress()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;">📋 Copy</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Blockchain Transaction Hash (Tx Hash)</label>
+            <input type="text" id="pay-tx-hash" placeholder="e.g. 0x8f3c7b... or Solana Tx ID" style="font-family: monospace; font-size: 0.8rem; margin-top: 4px;" />
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 3px;">Enter the transaction hash from your wallet after transferring USDC.</div>
+          </div>
+
+          <button onclick="submitConfirmPayment()" id="btn-confirm-pay" class="btn btn-emerald" style="padding: 11px;">
+            ✅ Verify Transaction &amp; Activate License
+          </button>
+        </div>
+
+        <!-- Step 3: Success Screen -->
+        <div id="payment-step-3" style="display: none; flex-direction: column; gap: 1rem; text-align: center;">
+          <div style="font-size: 2.5rem;">🎉</div>
+          <h4 style="font-size: 1.1rem; font-weight: 800; color: #34d399;">Pro License Activated!</h4>
+          <p style="font-size: 0.82rem; color: #94a3b8;">5,000 monthly plot validation quota has been allocated.</p>
+          
+          <div style="background: #060913; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; text-align: left;">
+            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">YOUR PRO API KEY (Store securely):</div>
+            <div id="pay-success-api-key" style="font-family: monospace; font-size: 0.82rem; color: #38bdf8; word-break: break-all; margin-top: 4px; font-weight: 700;"></div>
+          </div>
+
+          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;">
+            <a id="pay-invoice-link" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.82rem;">📄 View EU Tax Invoice</a>
+            <a href="/dashboard" class="btn btn-primary" style="font-size: 0.82rem;">🚀 Open Compliance Console</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet JS & Interactive Sandbox Logic -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    let currentOrderId = null;
+
+    function openPaymentModal(plan) {
+      const modal = document.getElementById('payment-modal');
+      if (modal) {
+        modal.classList.add('open');
+        document.getElementById('payment-step-1').style.display = 'flex';
+        document.getElementById('payment-step-2').style.display = 'none';
+        document.getElementById('payment-step-3').style.display = 'none';
+      }
+    }
+
+    function closePaymentModal() {
+      const modal = document.getElementById('payment-modal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    async function submitCreatePaymentOrder() {
+      const company = document.getElementById('pay-company-name').value.trim();
+      const email = document.getElementById('pay-contact-email').value.trim();
+      const chain = document.getElementById('pay-chain').value;
+
+      if (!company || !email) {
+        alert("Please enter both company name and corporate email.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/v1/payment/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan_tier: 'PRO',
+            company_name: company,
+            contact_email: email,
+            chain: chain
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentOrderId = data.order_id;
+          document.getElementById('pay-order-id').textContent = data.order_id;
+          document.getElementById('pay-amount-display').textContent = `${data.amount_usdc.toFixed(2)} USDC`;
+          document.getElementById('pay-chain-display').textContent = `Network: ${data.chain}`;
+          document.getElementById('pay-deposit-address').value = data.deposit_wallet_address;
+          
+          document.getElementById('payment-step-1').style.display = 'none';
+          document.getElementById('payment-step-2').style.display = 'flex';
+        } else {
+          alert("Order error: " + (data.detail || "Failed to create order."));
+        }
+      } catch (err) {
+        alert("Connection error: " + err.message);
+      }
+    }
+
+    function copyDepositAddress() {
+      const input = document.getElementById('pay-deposit-address');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      alert("Deposit address copied to clipboard!");
+    }
+
+    async function submitConfirmPayment() {
+      const txHash = document.getElementById('pay-tx-hash').value.trim();
+      if (!txHash) {
+        alert("Please enter the blockchain transaction hash (Tx Hash).");
+        return;
+      }
+
+      const btn = document.getElementById('btn-confirm-pay');
+      btn.disabled = true;
+      btn.textContent = "Verifying On-chain Tx...";
+
+      try {
+        const res = await fetch('/api/v1/payment/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: currentOrderId,
+            tx_hash: txHash
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('pay-success-api-key').textContent = data.api_key_issued;
+          document.getElementById('pay-invoice-link').href = data.receipt_url;
+          
+          document.getElementById('payment-step-2').style.display = 'none';
+          document.getElementById('payment-step-3').style.display = 'flex';
+        } else {
+          alert("Verification error: " + (data.detail || "Transaction verification failed."));
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "✅ Verify Transaction & Activate License";
+      }
+    }
+  </script>
   <script>
     let sandboxMap = null;
     let currentLayer = null;

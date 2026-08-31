@@ -81,16 +81,22 @@ STATIC_DIR = Path(__file__).parent / "static"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0"
+}
+
 @app.get("/", include_in_schema=False)
 async def serve_landing():
     """Serves the eudragent.com Official SaaS Landing Page."""
     landing_file = STATIC_DIR / "landing.html"
     if landing_file.exists():
-        return FileResponse(str(landing_file))
+        return FileResponse(str(landing_file), headers=NO_CACHE_HEADERS)
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
-    return HTMLResponse("<h2>EUDRAgent SaaS Platform is running. Visit /docs for Swagger UI.</h2>")
+        return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>EUDR Agent Platform is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
 @app.get("/dashboard", include_in_schema=False)
 @app.get("/app", include_in_schema=False)
@@ -98,8 +104,8 @@ async def serve_dashboard():
     """Serves the interactive EUDR Compliance Console & Operator Workbench."""
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
-    return HTMLResponse("<h2>EUDR Compliance Console is running. Visit /docs for Swagger UI.</h2>")
+        return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>EUDR Compliance Console is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
 @app.get("/supplier-portal", include_in_schema=False)
 @app.get("/supplier", include_in_schema=False)
@@ -107,8 +113,8 @@ async def serve_supplier_portal():
     """Serves the Supplier EUDR Pre-Clearance & Onboarding Portal."""
     portal_file = STATIC_DIR / "supplier_portal.html"
     if portal_file.exists():
-        return FileResponse(str(portal_file))
-    return HTMLResponse("<h2>Supplier Portal is running.</h2>")
+        return FileResponse(str(portal_file), headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>Supplier Portal is running.</h2>", headers=NO_CACHE_HEADERS)
 
 @app.get("/robots.txt", include_in_schema=False)
 async def serve_robots():

@@ -27,6 +27,18 @@ Write-Host "Regions: us-central1 (Custom Domain: eudragent.com) & asia-northeast
 Write-Host "`n[1/3] Enabling required GCP APIs (run, cloudbuild, artifactregistry)..." -ForegroundColor Yellow
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --quiet
 
+# 4. Read Environment Variables from .env
+$tgToken = ""
+$tgChatId = ""
+if (Test-Path ".env") {
+    Get-Content ".env" | ForEach-Object {
+        if ($_ -match "^TELEGRAM_BOT_TOKEN=(.+)$") { $tgToken = $matches[1].Trim() }
+        if ($_ -match "^TELEGRAM_CHAT_ID=(.+)$") { $tgChatId = $matches[1].Trim() }
+    }
+}
+
+$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId"
+
 # 4. Deploy to Cloud Run (us-central1 - Domain Mapping Target)
 Write-Host "`n[2/3] Deploying to Cloud Run [us-central1] (Custom Domain eudragent.com target)..." -ForegroundColor Yellow
 gcloud run deploy eudr-compliance-agent `
@@ -38,7 +50,7 @@ gcloud run deploy eudr-compliance-agent `
     --cpu 1 `
     --min-instances 0 `
     --max-instances 10 `
-    --set-env-vars="PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false" `
+    --set-env-vars="$envVars" `
     --quiet
 
 # 5. Deploy to Cloud Run (asia-northeast3 - Seoul Secondary)
@@ -52,7 +64,7 @@ gcloud run deploy eudr-compliance-agent `
     --cpu 1 `
     --min-instances 0 `
     --max-instances 10 `
-    --set-env-vars="PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false" `
+    --set-env-vars="$envVars" `
     --quiet
 
 if ($LASTEXITCODE -eq 0) {

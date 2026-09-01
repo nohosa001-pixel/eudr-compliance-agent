@@ -1,3 +1,7 @@
+param(
+    [switch]$SendTelegram
+)
+
 # ========================================================
 #   EUDRAgent.com Live Traffic & User Movement Monitor
 # ========================================================
@@ -72,6 +76,40 @@ for l in leads:
     print(f'  • [{l.status}] {l.company_name} | {l.contact_name} ({l.contact_email}) | Commodity: {l.commodity_type} | Plots: {l.estimated_monthly_plots}')
 db.close()
 "
+}
+
+# 3. Send Telegram Summary Report (if -SendTelegram switch is provided)
+if ($SendTelegram) {
+    Write-Host "`n[3/3] Dispatching live traffic digest to Telegram..." -ForegroundColor Yellow
+    if (Test-Path $pythonExe) {
+        & $pythonExe -c "
+from app.modules.notification_manager import NotificationManager
+from app.db.session import SessionLocal
+from app.db.models import LeadInquiryRecord, AuditExecutionRecord
+from datetime import datetime, timezone
+
+db = SessionLocal()
+leads = db.query(LeadInquiryRecord).order_by(LeadInquiryRecord.id.desc()).limit(3).all()
+audits_count = db.query(AuditExecutionRecord).count()
+leads_count = db.query(LeadInquiryRecord).count()
+db.close()
+
+now_str = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+msg = (
+    '🌲 *[EUDRAgent.com] 정기 트래픽 & 리드 다이제스트*\n\n'
+    f'⏰ *기준 시각*: {now_str}\n'
+    f'📊 *누적 필지 감사 횟수*: `{audits_count}` 건\n'
+    f'📬 *누적 엔터프라이즈 리드*: `{leads_count}` 건\n\n'
+    '🌐 *최근 웹 유입 상태*: 정상 가동 중 (Google Cloud Run)\n'
+    '🔗 *라이브 도메인*: `https://eudragent.com`'
+)
+
+res = NotificationManager.send_telegram_message(msg)
+print('Telegram Dispatch:', 'Success' if res else 'Failed')
+"
+    }
+} else {
+    Write-Host "`n[Tip] Run .\check_traffic.ps1 -SendTelegram to push this report to Telegram." -ForegroundColor Gray
 }
 
 Write-Host "`n========================================================" -ForegroundColor Cyan

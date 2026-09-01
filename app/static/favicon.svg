@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="eudrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="satGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0f172a"/>
+  <!-- Glowing Leaf (Deforestation-Free Forest) -->
+  <path d="M32 10 C46 10 54 22 52 38 C50 50 38 54 32 54 C26 54 14 50 12 38 C10 22 18 10 32 10 Z" fill="url(#eudrGrad)"/>
+  <!-- Leaf Stem -->
+  <path d="M32 20 L32 46 M32 28 L40 22 M32 36 L24 30 M32 42 L38 38" stroke="#d1fae5" stroke-width="2" stroke-linecap="round"/>
+  <!-- Satellite Orbit Arc & Badge -->
+  <circle cx="48" cy="16" r="6" fill="url(#satGrad)" stroke="#ffffff" stroke-width="1.5"/>
+  <path d="M48 10 A 24 24 0 0 0 16 38" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="2 3" fill="none"/>
+</svg>

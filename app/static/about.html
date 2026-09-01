@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us & Compliance Architecture | EUDRAgent.com</title>
+  <meta name="description" content="EUDRAgent.com provides enterprise-grade EU Deforestation Regulation (EUDR 2023/1115) automated compliance, Sentinel-2 satellite radar verification, and TRACES-NT DDS generation.">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --emerald: #10b981;
+      --sky: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; }
+    .logo { font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .logo i { color: var(--emerald); }
+    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s; }
+    .nav-link:hover { color: #fff; }
+    .hero { text-align: center; margin-bottom: 60px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--emerald); font-size: 13px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+    h1 { font-size: 40px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; background: linear-gradient(135deg, #fff 40%, var(--emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p.lead { font-size: 18px; color: var(--text-muted); max-width: 760px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 32px; backdrop-filter: blur(12px); }
+    .card-icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: var(--emerald); font-size: 20px; margin-bottom: 20px; }
+    .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .card p { font-size: 14px; color: var(--text-muted); }
+    .spec-box { background: rgba(15, 23, 42, 0.9); border: 1px solid var(--card-border); border-radius: 16px; padding: 36px; margin-bottom: 60px; }
+    .spec-box h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #fff; }
+    .spec-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .spec-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; color: var(--text-muted); }
+    .spec-list li i { color: var(--emerald); margin-top: 4px; }
+    .cta-box { text-align: center; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(56, 189, 248, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; padding: 48px 24px; }
+    .btn { display: inline-flex; align-items: center; gap: 10px; background: var(--emerald); color: #090d16; font-weight: 700; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-size: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="logo"><i class="fa-solid fa-seedling"></i> EUDRAgent.com</a>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="/supplier-portal" class="nav-link"><i class="fa-solid fa-tractor"></i> Supplier Portal</a>
+        <a href="/docs" class="nav-link"><i class="fa-solid fa-code"></i> API Docs</a>
+      </div>
+    </header>
+
+    <div class="hero">
+      <div class="badge"><i class="fa-solid fa-shield-halved"></i> Institutional Trust & Architecture</div>
+      <h1>About EUDRAgent Platform</h1>
+      <p class="lead">Built for global commodity traders, European importers, and farming cooperatives to eliminate EUDR compliance complexity with automated satellite audit verification.</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+        <h3>Copernicus Sentinel-2 Live</h3>
+        <p>Multi-spectral satellite radar imagery (B4/B8 NDVI) at 10m resolution, cross-referenced with JRC Global Forest Cover and Hansen Global Forest Change datasets.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-fingerprint"></i></div>
+        <h3>Cryptographic Audit Chain</h3>
+        <p>Every Due Diligence Statement (DDS) is signed with an immutable SHA-256 digital hash, compliant with EU Regulation 2023/1115 Art. 9, 10, and 12.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Sub-Second Verification</h3>
+        <p>Processes complex multi-polygon farm geometries (WGS84 EPSG:4326), performing 4ha area checks and topological validation in under 200 milliseconds.</p>
+      </div>
+    </div>
+
+    <div class="spec-box">
+      <h2>Regulatory & Compliance Guarantee</h2>
+      <ul class="spec-list">
+        <li><i class="fa-solid fa-circle-check"></i> <strong>Cut-Off Date Baseline:</strong> Rigorous satellite comparison against the EUDR cutoff date of December 31, 2020.</li>
+        <li><i class="fa-solid fa-circle-check"></i> <strong>Seven Regulated Commodities:</strong> Full HS-Code coverage for Cattle, Cocoa, Coffee, Oil Palm, Rubber, Soya, and Wood products.</li>
+        <li><i class="fa-solid fa-circle-check"></i> <strong>TRACES-NT Ready:</strong> Direct output export formatted to European Commission TRACES-NT JSON schema standards.</li>
+        <li><i class="fa-solid fa-circle-check"></i> <strong>Global Cloud Infrastructure:</strong> Deployed on Google Cloud Run multi-region infrastructure (US & Asia) ensuring 99.99% uptime and enterprise data privacy.</li>
+      </ul>
+    </div>
+
+    <div class="cta-box">
+      <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 12px;">Ready to automate your EUDR supply chain?</h2>
+      <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">Experience the zero-barrier live tester or request dedicated enterprise API integration.</p>
+      <a href="/" class="btn"><i class="fa-solid fa-play"></i> Test Live Sandbox on Home</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -119,6 +119,24 @@ async def serve_supplier_portal():
         return FileResponse(str(portal_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>Supplier Portal is running.</h2>", headers=NO_CACHE_HEADERS)
 
+@app.get("/about", include_in_schema=False)
+@app.get("/team", include_in_schema=False)
+@app.get("/company", include_in_schema=False)
+async def serve_about():
+    """Serves the Institutional About & Architecture Page."""
+    about_file = STATIC_DIR / "about.html"
+    if about_file.exists():
+        return FileResponse(str(about_file), headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>About EUDRAgent Platform</h2>", headers=NO_CACHE_HEADERS)
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def serve_favicon():
+    """Serves favicon."""
+    svg_fav = STATIC_DIR / "favicon.svg"
+    if svg_fav.exists():
+        return FileResponse(str(svg_fav), media_type="image/svg+xml")
+    return Response(status_code=204)
+
 @app.get("/robots.txt", include_in_schema=False)
 async def serve_robots():
     """Serves robots.txt for search engine crawlers."""

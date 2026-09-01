@@ -9,6 +9,7 @@
   <meta name="author" content="EUDRAgent Inc." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://eudragent.com/" />
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 
   <!-- Anti-cache meta tags -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -920,12 +921,22 @@
       <ul class="nav-links" id="nav-links">
         <li><a href="#features">Pillars</a></li>
         <li><a href="#sandbox">Live Radar Demo</a></li>
-        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="/about" style="color: #38bdf8; font-weight: 600;">🏛️ Architecture & Trust</a></li>
         <li><a href="/supplier-portal" style="color: #34d399; font-weight: 600;">🌾 Supplier Portal</a></li>
+        <li><a href="#pricing">Pricing</a></li>
         <li><a href="/docs" target="_blank">API Docs</a></li>
       </ul>
 
       <div class="nav-actions">
+        <select id="lang-selector" onchange="changeLanguage(this.value)" style="background: rgba(15, 23, 42, 0.8); color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; outline: none;">
+          <option value="en">🇬🇧 English</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="pt">🇧🇷 Português</option>
+          <option value="vi">🇻🇳 Tiếng Việt</option>
+          <option value="ko">🇰🇷 한국어</option>
+        </select>
         <a href="/supplier-portal" class="btn btn-ghost" style="border-color: rgba(52, 211, 153, 0.4); color: #34d399;">Supplier Portal</a>
         <button onclick="openLeadModal('Enterprise Demo')" class="btn btn-secondary" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer; padding: 7px 16px;">📅 Book Demo</button>
         <a href="/dashboard" class="btn btn-primary">Launch Console &rarr;</a>
@@ -1975,8 +1986,87 @@
       URL.revokeObjectURL(url);
     }
 
+    const I18N = {
+      en: {
+        title: 'Autonomous <span class="gradient-text">EUDR Compliance</span> & Geodesic Radar Platform',
+        sub: 'Eliminate deforestation compliance bottlenecks. Sub-second 4ha spatial verification, multi-satellite post-2020 cut-off triangulation, and cryptographically signed TRACES-NT DDS generation.',
+        badge: '🌍 Live Production Platform • Regulation (EU) 2023/1115 TRACES-NT Gateway',
+        launch: '🚀 Launch Console',
+        demo: '📅 Book Enterprise Demo & Pilot',
+        supplier: '🌾 Supplier Portal'
+      },
+      de: {
+        title: 'Autonome <span class="gradient-text">EUDR-Konformität</span> & Satelliten-Radar-Plattform',
+        sub: 'Beseitigen Sie EUDR-Engpässe. Räumliche 4-ha-Prüfung in Sekundenbruchteilen, Multi-Satelliten-Triangulation nach dem Stichtag 2020 und kryptografisch signierte TRACES-NT-DDS-Erstellung.',
+        badge: '🌍 Live-Produktionsplattform • Verordnung (EU) 2023/1115 TRACES-NT Gateway',
+        launch: '🚀 Konsole starten',
+        demo: '📅 Demo & Pilotprojekt buchen',
+        supplier: '🌾 Lieferantenportal'
+      },
+      fr: {
+        title: 'Plateforme Autonome de <span class="gradient-text">Conformité RDUE</span> et Radar Géodésique',
+        sub: 'Éliminez les goulots d\'étranglement de la déforestation. Vérification spatiale 4ha en une fraction de seconde, triangulation multi-satellites post-2020 et génération DDS TRACES-NT signée.',
+        badge: '🌍 Plateforme de Production • Passerelle TRACES-NT Règlement (UE) 2023/1115',
+        launch: '🚀 Lancer la Console',
+        demo: '📅 Réserver une Démo',
+        supplier: '🌾 Portail Fournisseur'
+      },
+      es: {
+        title: 'Plataforma Autónoma de <span class="gradient-text">Cumplimiento EUDR</span> y Radar Satelital',
+        sub: 'Elimine las barreras de cumplimiento de deforestación. Verificación espacial de 4ha en subsegundos, triangulación multisatélite posterior a 2020 y generación de DDS TRACES-NT firmada.',
+        badge: '🌍 Plataforma en Producción • Pasarela TRACES-NT Reglamento (UE) 2023/1115',
+        launch: '🚀 Iniciar Consola',
+        demo: '📅 Solicitar Demostración',
+        supplier: '🌾 Portal de Proveedores'
+      },
+      pt: {
+        title: 'Plataforma Autônoma de <span class="gradient-text">Conformidade EUDR</span> e Radar Geodésico',
+        sub: 'Elimine gargalos regulatórios de desmatamento. Verificação espacial de 4ha em subsegundos, triangulação multi-satélite pós-2020 e geração de DDS TRACES-NT com assinatura digital.',
+        badge: '🌍 Plataforma em Produção • Gateway TRACES-NT Regulamento (UE) 2023/1115',
+        launch: '🚀 Abrir Console',
+        demo: '📅 Agendar Demonstração',
+        supplier: '🌾 Portal do Fornecedor'
+      },
+      vi: {
+        title: 'Nền tảng Tự động <span class="gradient-text">Tuân thủ EUDR</span> & Radar Vệ tinh Địa không',
+        sub: 'Loại bỏ rào cản quy định phá rừng EU. Xác minh đa giác 4ha dưới 1 giây, đối chiếu vệ tinh Sentinel-2 sau mốc 31/12/2020 và xuất chứng chỉ DDS TRACES-NT ký số.',
+        badge: '🌍 Nền tảng Vận hành Thực tế • Cổng TRACES-NT Quy định (EU) 2023/1115',
+        launch: '🚀 Mở Bảng điều khiển',
+        demo: '📅 Đăng ký Bản thử nghiệm',
+        supplier: '🌾 Cổng Nhà cung cấp'
+      },
+      ko: {
+        title: '자율형 <span class="gradient-text">EUDR 산림벌채방지법</span> 규제 준수 & 레이더 플랫폼',
+        sub: '유럽 공급망 규제 병목을 0.1초 만에 해결합니다. 4ha 초과 다각형 측지 검증, 2020년 기준선 다중 위성 산림벌채 분석 및 TRACES-NT 공인 DDS 자동 발행.',
+        badge: '🌍 실시간 운영 플랫폼 • EU 규정 2023/1115 TRACES-NT 공인 게이트웨이',
+        launch: '🚀 운영 콘솔 실행',
+        demo: '📅 엔터프라이즈 데모 신청',
+        supplier: '🌾 공급업체 자가진단'
+      }
+    };
+
+    function changeLanguage(lang) {
+      const data = I18N[lang] || I18N.en;
+      const titleEl = document.querySelector('.hero-title');
+      const subEl = document.querySelector('.hero-subtitle');
+      const badgeEl = document.querySelector('.hero-badge span:last-child');
+      
+      if (titleEl) titleEl.innerHTML = data.title;
+      if (subEl) subEl.textContent = data.sub;
+      if (badgeEl) badgeEl.textContent = data.badge;
+      
+      localStorage.setItem('eudr_preferred_lang', lang);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       initSandboxMap();
+
+      const savedLang = localStorage.getItem('eudr_preferred_lang');
+      if (savedLang && I18N[savedLang]) {
+        const sel = document.getElementById('lang-selector');
+        if (sel) sel.value = savedLang;
+        changeLanguage(savedLang);
+      }
 
       // Mobile Menu Toggle
       const mobileBtn = document.getElementById('mobile-menu-btn');

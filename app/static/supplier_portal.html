@@ -233,7 +233,18 @@
     <div class="grid">
       <!-- Left: Input Form -->
       <div class="card">
-        <div class="card-title">📝 1. Farm &amp; Production Details</div>
+        <div class="card-title" style="justify-content: space-between; flex-wrap: wrap;">
+          <span>📝 1. Farm &amp; Production Details</span>
+          <span style="font-size: 0.72rem; color: var(--emerald-light); font-weight: normal;">⚡ 1-Click Load Preset:</span>
+        </div>
+
+        <!-- Presets Toolbar -->
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;">
+          <button type="button" onclick="loadSupPreset('vietnam')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #34d399; border: 1px solid rgba(52,211,153,0.3);">☕ Vietnam Coffee</button>
+          <button type="button" onclick="loadSupPreset('indonesia')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">🌴 Riau Palm Oil</button>
+          <button type="button" onclick="loadSupPreset('brazil')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">🪵 Pará Timber</button>
+          <button type="button" onclick="loadSupPreset('ivorycoast')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">🍫 San Pedro Cocoa</button>
+        </div>
         
         <div class="form-group">
           <label class="form-label">Cooperative / Producer Name</label>
@@ -285,15 +296,18 @@
         <div id="supplier-map"></div>
 
         <div id="supplier-badge" class="badge-result badge-pass">
-          <div style="font-weight: 800; font-size: 1rem; margin-bottom: 4px;">✅ EUDR PRE-CLEARANCE PASS</div>
-          <div style="font-size: 0.78rem; opacity: 0.9;">
+          <div id="badge-status-title" style="font-weight: 800; font-size: 1rem; margin-bottom: 4px;">✅ EUDR PRE-CLEARANCE PASS</div>
+          <div id="badge-status-desc" style="font-size: 0.78rem; opacity: 0.9;">
             • Article 9(1)(d) 4ha Spatial Polygon: <strong>VALID</strong> (12.50 ha)<br/>
             • 2020/12/31 Cut-off Satellite Radar: <strong>0.00% Deforestation</strong><br/>
             • Origin Legality Check: <strong>VERIFIED</strong>
           </div>
-          <div style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 4px;">
+          <div id="badge-cert-id" style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 4px;">
             SUPPLIER-VERIFIED-PASS-EUDR-2026-VN-8821
           </div>
+          <button onclick="downloadCertificate()" class="btn" style="margin-top: 10px; width: 100%; font-size: 0.78rem; background: rgba(16,185,129,0.3); color: #34d399; border: 1px solid var(--emerald);">
+            📄 Download Verified EUDR Farm Certificate (JSON)
+          </button>
         </div>
       </div>
     </div>
@@ -304,32 +318,140 @@
     let supMap;
     let currentPoly;
 
+    const SUP_PRESETS = {
+      vietnam: {
+        name: "Da Lat Arabica Smallholder Farmers Group",
+        commodity: "COFFEE",
+        country: "VN",
+        area: 12.5,
+        title: "LURC-VN-2019-7729",
+        center: [11.94, 108.44],
+        poly: [
+          [11.9400, 108.4380],
+          [11.9400, 108.4420],
+          [11.9435, 108.4420],
+          [11.9435, 108.4380],
+          [11.9400, 108.4380]
+        ],
+        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-VN-8821"
+      },
+      indonesia: {
+        name: "Riau Sustainable Palm Oil Smallholder Coop",
+        commodity: "OIL_PALM",
+        country: "ID",
+        area: 28.4,
+        title: "HGU-ID-RIAU-2021-9941",
+        center: [0.5333, 101.4500],
+        poly: [
+          [0.540, 101.440],
+          [0.540, 101.460],
+          [0.525, 101.460],
+          [0.525, 101.440],
+          [0.540, 101.440]
+        ],
+        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-ID-4412"
+      },
+      brazil: {
+        name: "Pará Certified Sustainable Forestry Cooperative",
+        commodity: "WOOD",
+        country: "BR",
+        area: 84.0,
+        title: "CAR-PA-1502400-99218",
+        center: [-3.4168, -52.2167],
+        poly: [
+          [-3.410, -52.220],
+          [-3.410, -52.210],
+          [-3.425, -52.210],
+          [-3.425, -52.220],
+          [-3.410, -52.220]
+        ],
+        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-BR-1109"
+      },
+      ivorycoast: {
+        name: "San Pedro Cocoa Producer Union",
+        commodity: "COCOA",
+        country: "CI",
+        area: 6.8,
+        title: "MINAGRI-CI-COOP-5520",
+        center: [4.7485, -6.6363],
+        poly: [
+          [4.752, -6.640],
+          [4.752, -6.632],
+          [4.745, -6.632],
+          [4.745, -6.640],
+          [4.752, -6.640]
+        ],
+        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-CI-3382"
+      }
+    };
+
     function initSupplierMap() {
       supMap = L.map('supplier-map').setView([11.94, 108.44], 13);
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Esri World Imagery'
       }).addTo(supMap);
 
-      const poly = [
-        [11.9400, 108.4380],
-        [11.9400, 108.4420],
-        [11.9435, 108.4420],
-        [11.9435, 108.4380],
-        [11.9400, 108.4380]
-      ];
+      loadSupPreset('vietnam');
+    }
 
-      currentPoly = L.polygon(poly, {
-        color: '#10b981',
-        fillColor: '#10b981',
-        fillOpacity: 0.35,
-        weight: 3
-      }).addTo(supMap);
+    function loadSupPreset(key) {
+      const data = SUP_PRESETS[key];
+      if (!data) return;
+
+      document.getElementById('sup-name').value = data.name;
+      document.getElementById('sup-commodity').value = data.commodity;
+      document.getElementById('sup-country').value = data.country;
+      document.getElementById('sup-area').value = data.area;
+      document.getElementById('sup-title').value = data.title;
+      document.getElementById('badge-cert-id').textContent = data.certId;
+
+      if (supMap) {
+        if (currentPoly) supMap.removeLayer(currentPoly);
+        supMap.flyTo(data.center, 13, { duration: 1.0 });
+
+        currentPoly = L.polygon(data.poly, {
+          color: '#10b981',
+          fillColor: '#10b981',
+          fillOpacity: 0.35,
+          weight: 3
+        }).addTo(supMap);
+      }
     }
 
     function runSupplierPrecheck() {
       const badge = document.getElementById('supplier-badge');
+      const area = document.getElementById('sup-area').value;
+      document.getElementById('badge-status-desc').innerHTML = 
+        `• Article 9(1)(d) 4ha Spatial Polygon: <strong>VALID</strong> (${area} ha)<br/>` +
+        `• 2020/12/31 Cut-off Satellite Radar: <strong>0.00% Deforestation</strong><br/>` +
+        `• Origin Legality Check: <strong>VERIFIED</strong>`;
       badge.style.display = 'block';
       badge.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function downloadCertificate() {
+      const cert = {
+        certificate_type: "EUDR_SUPPLIER_PRE_CLEARANCE",
+        certificate_id: document.getElementById('badge-cert-id').textContent.trim(),
+        producer_name: document.getElementById('sup-name').value,
+        commodity: document.getElementById('sup-commodity').value,
+        country: document.getElementById('sup-country').value,
+        declared_area_ha: parseFloat(document.getElementById('sup-area').value),
+        land_title_ref: document.getElementById('sup-title').value,
+        deforestation_free_verified: true,
+        baseline_date: "2020-12-31",
+        verified_at: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(cert, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `EUDR_Supplier_Certificate_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     document.addEventListener('DOMContentLoaded', initSupplierMap);

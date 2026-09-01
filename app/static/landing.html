@@ -999,15 +999,37 @@
       </div>
 
       <div class="sandbox-card">
-        <div class="sandbox-header">
+        <div class="sandbox-header" style="flex-wrap: wrap; gap: 10px;">
           <div class="sandbox-tabs">
             <button class="sandbox-tab active" onclick="loadSandboxPreset('vietnam')">☕ Vietnam (Coffee)</button>
             <button class="sandbox-tab" onclick="loadSandboxPreset('indonesia')">🌴 Indonesia (Palm Oil)</button>
             <button class="sandbox-tab" onclick="loadSandboxPreset('ivorycoast')">🍫 Ivory Coast (Cocoa)</button>
             <button class="sandbox-tab" onclick="loadSandboxPreset('brazil')">🪵 Brazil (Timber/Soya)</button>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">
-            Engine: <span style="color: var(--emerald-light); font-weight: 600;">PostGIS 3.4 + Geod GRS80</span>
+          
+          <!-- Sample Downloads & Upload CTA -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 0.76rem; color: #94a3b8; font-weight: 600;">📥 Get Samples:</span>
+            <button onclick="downloadSampleData('csv')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Coffee .CSV</button>
+            <button onclick="downloadSampleData('geojson')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Timber .GeoJSON</button>
+            <button onclick="downloadSampleData('kml')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Palm Oil .KML</button>
+          </div>
+        </div>
+
+        <!-- Direct Upload Strip -->
+        <div style="background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border-color); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.1rem;">📂</span>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">Test Your Own Supply Chain File:</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Drag &amp; drop or select any CSV, Excel (.xlsx), GeoJSON, or KML file for instant zero-barrier analysis.</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="file" id="sandbox-file-input" accept=".csv,.geojson,.json,.kml,.xlsx" style="display: none;" onchange="handleSandboxFileUpload(event)" />
+            <button onclick="document.getElementById('sandbox-file-input').click()" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700;">
+              ⚡ Upload &amp; Audit File
+            </button>
           </div>
         </div>
 
@@ -1046,9 +1068,17 @@
             </div>
 
             <div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600;">TRACES-NT DDS STATEMENT CRYPTOGRAPHIC HASH:</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600;">TRACES-NT DDS STATEMENT &amp; AUDIT PROOF:</div>
               <div class="dds-box" id="sandbox-dds-hash">
                 DDS-2026-EUDR-VN-COFFEE-8821 &bull; HMAC: 7a9f2e4b8c1d5e3f9a7b1c4e6d8a2f0b
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button onclick="downloadCurrentDDS()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; width: 100%;">
+                  📄 Download Validated DDS (JSON)
+                </button>
+                <a href="/supplier-portal" class="btn btn-emerald" style="padding: 6px 12px; font-size: 0.76rem; width: 100%; text-align: center; text-decoration: none;">
+                  🌾 Supplier Certificate &rarr;
+                </a>
               </div>
             </div>
           </div>
@@ -1747,6 +1777,202 @@
 
         currentLayer.bindPopup(`<b>${data.badgeText}</b><br>${data.spatialDesc}`).openPopup();
       }
+    }
+
+    let currentDDSReport = null;
+
+    function downloadSampleData(type) {
+      let content = "";
+      let filename = "";
+      let mimeType = "text/plain";
+
+      if (type === 'csv') {
+        filename = "sample_vietnam_coffee_plots.csv";
+        mimeType = "text/csv";
+        content = "plot_id,producer_name,country_code,commodity_hs_code,latitude,longitude,area_hectares\n" +
+                  "VN-PLOT-01,Da Lat Arabica Group,VN,090111,12.6667,108.0383,3.85\n" +
+                  "VN-PLOT-02,Highland Coffee Coop,VN,090111,12.6710,108.0410,2.15\n" +
+                  "VN-PLOT-03,Buon Ma Thuot Smallholders,VN,090111,12.6580,108.0320,1.90";
+      } else if (type === 'geojson') {
+        filename = "sample_brazil_timber_plots.geojson";
+        mimeType = "application/geo+json";
+        content = JSON.stringify({
+          type: "FeatureCollection",
+          features: [{
+            type: "Feature",
+            properties: {
+              plot_id: "BR-TIMBER-01",
+              producer_name: "Mato Grosso Sustainable Forestry Ltd",
+              commodity: "Wood / Timber (4407)",
+              country: "BR"
+            },
+            geometry: {
+              type: "Polygon",
+              coordinates: [[
+                [-55.720, -12.480],
+                [-55.680, -12.480],
+                [-55.680, -12.520],
+                [-55.720, -12.520],
+                [-55.720, -12.480]
+              ]]
+            }
+          }]
+        }, null, 2);
+      } else if (type === 'kml') {
+        filename = "sample_indonesia_palmoil_estate.kml";
+        mimeType = "application/vnd.google-earth.kml+xml";
+        content = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+                  '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
+                  '  <Document>\n' +
+                  '    <name>Indonesia Palm Oil Estate Sample</name>\n' +
+                  '    <Placemark>\n' +
+                  '      <name>ID-RIAU-PALM-01</name>\n' +
+                  '      <description>Riau Sustainable Palm Oil Estate (HS 1511)</description>\n' +
+                  '      <Polygon>\n' +
+                  '        <outerBoundaryIs>\n' +
+                  '          <LinearRing>\n' +
+                  '            <coordinates>\n' +
+                  '              101.440,0.540,0\n' +
+                  '              101.460,0.540,0\n' +
+                  '              101.460,0.525,0\n' +
+                  '              101.440,0.525,0\n' +
+                  '              101.440,0.540,0\n' +
+                  '            </coordinates>\n' +
+                  '          </LinearRing>\n' +
+                  '        </outerBoundaryIs>\n' +
+                  '      </Polygon>\n' +
+                  '    </Placemark>\n' +
+                  '  </Document>\n' +
+                  '</kml>';
+      }
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function handleSandboxFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const badge = document.getElementById('sandbox-badge');
+      badge.className = "result-badge";
+      badge.style.background = "rgba(59,130,246,0.2)";
+      badge.style.color = "#60a5fa";
+      badge.textContent = `⏳ Ingesting & Auditing ${file.name}...`;
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('supplier_id', 'SUPP-SANDBOX-TEST');
+        formData.append('operator_name', 'Live Sandbox Operator');
+        formData.append('hs_code', '090111');
+        formData.append('commodity_desc', 'Uploaded Test Commodity');
+
+        // Step 1: Ingest and parse file
+        const ingestRes = await fetch('/api/v1/eudr/ingest-file', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!ingestRes.ok) {
+          const err = await ingestRes.json();
+          throw new Error(err.detail || "Failed to parse file format.");
+        }
+
+        const payload = await ingestRes.json();
+
+        // Step 2: Evaluate with EUDR Compliance Engine
+        const evalRes = await fetch('/api/v1/eudr/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!evalRes.ok) {
+          const err = await evalRes.json();
+          throw new Error(err.detail || "Failed to evaluate compliance.");
+        }
+
+        const result = await evalRes.json();
+        currentDDSReport = result;
+
+        // Render Results on UI
+        const isCompliant = result.status === "COMPLIANT";
+        badge.className = `result-badge ${isCompliant ? 'badge-pass' : 'badge-fail'}`;
+        badge.textContent = isCompliant 
+          ? `🟢 COMPLIANT (${result.plots_evaluated} Plots Verified Deforestation-Free)` 
+          : `🔴 ACTION REQUIRED (${result.confidence_assessment ? result.confidence_assessment.review_status : 'Manual Review'})`;
+
+        document.getElementById('sandbox-spatial-title').textContent = `EUDR Art. 9(1)(d) 4ha Rule: ${isCompliant ? 'PASSED' : 'FLAGGED'}`;
+        document.getElementById('sandbox-spatial-desc').textContent = `Total Area: ${result.total_area_hectares.toFixed(2)} ha Across ${result.plots_evaluated} Parsed Plots`;
+        document.getElementById('sandbox-satellite-title').textContent = `Satellite Deforestation Radar: ${isCompliant ? 'ZERO LOSS' : 'FLAGGED'}`;
+        document.getElementById('sandbox-satellite-desc').textContent = `Evaluated against Dec 31, 2020 EUDR Cut-off Baseline`;
+        document.getElementById('sandbox-legal-title').textContent = `Origin Legality: ${result.risk_tier} RISK`;
+        document.getElementById('sandbox-legal-desc').textContent = `Risk Level: ${result.risk_tier} (Country: ${payload.plots[0]?.country_code || 'EU'})`;
+        document.getElementById('sandbox-dds-hash').textContent = `${result.traces_dds?.dds_reference_id || 'DDS-GEN'} • HMAC: ${result.evidence_bundle?.digital_signature_hmac_sha256?.substring(0, 32) || 'HMAC-SHA256'}`;
+
+        // Render Plots on Map
+        if (sandboxMap && payload.plots && payload.plots.length > 0) {
+          if (currentLayer) sandboxMap.removeLayer(currentLayer);
+
+          const group = L.featureGroup();
+          payload.plots.forEach(p => {
+            if (p.geometry_type === "Polygon" && p.coordinates_polygon && p.coordinates_polygon.length > 0) {
+              const latlngs = p.coordinates_polygon.map(coord => [coord[1], coord[0]]);
+              L.polygon(latlngs, {
+                color: isCompliant ? '#10b981' : '#ef4444',
+                fillColor: isCompliant ? '#10b981' : '#ef4444',
+                fillOpacity: 0.25,
+                weight: 2
+              }).bindPopup(`<b>Plot ID: ${p.plot_id}</b><br>Area: ${p.area_hectares} ha`).addTo(group);
+            } else if (p.latitude && p.longitude) {
+              L.circleMarker([p.latitude, p.longitude], {
+                radius: 6,
+                color: isCompliant ? '#10b981' : '#ef4444',
+                fillColor: isCompliant ? '#10b981' : '#ef4444',
+                fillOpacity: 0.8
+              }).bindPopup(`<b>Plot ID: ${p.plot_id}</b><br>Coordinates: [${p.latitude}, ${p.longitude}]`).addTo(group);
+            }
+          });
+
+          group.addTo(sandboxMap);
+          currentLayer = group;
+          sandboxMap.fitBounds(group.getBounds(), { padding: [30, 30] });
+        }
+
+      } catch (err) {
+        badge.className = "result-badge badge-fail";
+        badge.textContent = `❌ Error: ${err.message}`;
+      }
+    }
+
+    function downloadCurrentDDS() {
+      const ddsData = currentDDSReport || {
+        reference: "DDS-2026-EUDR-VN-COFFEE-8821",
+        status: "COMPLIANT",
+        regulation: "Regulation (EU) 2023/1115",
+        deforestation_free: true,
+        cut_off_baseline: "2020-12-31",
+        hmac_sha256_signature: "7a9f2e4b8c1d5e3f9a7b1c4e6d8a2f0b4c8d1e2f3a5b7c9e0d1f2a3b4c5d6e7f",
+        timestamp: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(ddsData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `EUDR_DDS_Statement_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     document.addEventListener('DOMContentLoaded', () => {

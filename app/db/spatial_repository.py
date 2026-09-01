@@ -3,11 +3,16 @@ from typing import List, Optional, Dict, Any
 from shapely.geometry import shape, Point, Polygon, MultiPolygon
 from shapely import wkt
 
+import importlib
+
 try:
-    from geoalchemy2.shape import from_shape, to_shape
-    from geoalchemy2 import functions as func_geo
+    _ga_shape = importlib.import_module("geoalchemy2.shape")
+    _ga_func = importlib.import_module("geoalchemy2")
+    from_shape = getattr(_ga_shape, "from_shape")
+    to_shape = getattr(_ga_shape, "to_shape")
+    func_geo = getattr(_ga_func, "functions", None)
     GEOALCHEMY_PRESENT = True
-except ImportError:
+except Exception:
     from_shape = lambda s, **kw: s.wkt if hasattr(s, "wkt") else str(s)
     to_shape = lambda g: None
     func_geo = None

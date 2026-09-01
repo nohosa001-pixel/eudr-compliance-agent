@@ -73,10 +73,11 @@ class BatchJobRecord(Base):
 
 
 try:
-    from geoalchemy2 import Geometry
+    _ga = importlib.import_module("geoalchemy2")
+    Geometry = getattr(_ga, "Geometry", None)
     from app.db.session import DATABASE_URL
     GEOALCHEMY_AVAILABLE = True and DATABASE_URL.startswith("postgresql")
-except ImportError:
+except Exception:
     Geometry = None
     GEOALCHEMY_AVAILABLE = False
 

@@ -10,6 +10,21 @@ client = TestClient(app)
 @pytest.fixture(autouse=True)
 def setup_database():
     init_db()
+    yield
+    # Cleanup test records so production DB remains pure
+    db = SessionLocal()
+    try:
+        from app.db.models import LeadInquiryRecord
+        db.query(LeadInquiryRecord).filter(
+            LeadInquiryRecord.contact_email.in_([
+                "lars@nordicwood.se",
+                "sophie.v@eurococoa.nl",
+                "carlos@bioenergy.br"
+            ])
+        ).delete(synchronize_session=False)
+        db.commit()
+    finally:
+        db.close()
 
 def test_lead_repository_create_and_list():
     db = SessionLocal()
@@ -60,6 +75,13 @@ def test_submit_lead_inquiry_api():
     assert "Thank you" in data["message"]
 
 def test_list_lead_inquiries_api():
+    client.post("/api/v1/leads", json={
+        "company_name": "Test Listing Corp",
+        "contact_name": "Tester",
+        "contact_email": "sophie.v@eurococoa.nl",
+        "commodity_type": "Timber",
+        "estimated_monthly_plots": "500 - 5,000"
+    })
     response = client.get("/api/v1/leads")
     assert response.status_code == 200
     data = response.json()

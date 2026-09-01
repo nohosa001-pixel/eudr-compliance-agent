@@ -158,7 +158,30 @@ class LeadInquiryRecord(Base):
     
     ip_address = Column(String(64), nullable=True)
     user_agent = Column(String(256), nullable=True)
-    status = Column(String(32), default="NEW", index=True)  # NEW, CONTACTED, QUALIFIED, CLOSED
-    
+    status = Column(String(32), default="NEW")  # NEW, CONTACTED, CONVERTED, CLOSED
     created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
+
+class PaymentOrderRecord(Base):
+    """
+    Persistent B2B Payment & Subscription Order Record.
+    Prevents ephemeral memory loss across multi-instance Cloud Run containers.
+    """
+    __tablename__ = "payment_orders"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    order_id = Column(String(64), unique=True, index=True, nullable=False)
+    company_name = Column(String(128), nullable=False)
+    contact_email = Column(String(128), index=True, nullable=False)
+    plan_tier = Column(String(32), default="PRO")
+    amount_usdc = Column(Float, default=299.00)
+    chain = Column(String(64), default="Base (Low Gas $0.01)")
+    deposit_wallet_address = Column(String(128), nullable=False)
+    status = Column(String(32), default="PENDING")  # PENDING, CONFIRMED, EXPIRED
+    invoice_number = Column(String(64), nullable=False)
+    billing_country = Column(String(32), default="EU")
+    vat_number = Column(String(64), nullable=True)
+    tx_hash = Column(String(256), nullable=True)
+    api_key_issued = Column(String(128), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    confirmed_at = Column(DateTime, nullable=True)

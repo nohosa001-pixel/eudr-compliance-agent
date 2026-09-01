@@ -136,3 +136,28 @@ class ApiKeyRecord(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
     expires_at = Column(DateTime, nullable=True)
 
+
+class LeadInquiryRecord(Base):
+    """
+    Enterprise Lead Capture & Demo Request Record.
+    """
+    __tablename__ = "lead_inquiries"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    inquiry_id = Column(String(64), unique=True, index=True, nullable=False)
+    
+    company_name = Column(String(128), nullable=False)
+    contact_name = Column(String(128), nullable=False)
+    contact_email = Column(String(128), index=True, nullable=False)
+    phone = Column(String(64), nullable=True)
+    
+    commodity_type = Column(String(64), default="Timber")
+    estimated_monthly_plots = Column(String(64), default="500 - 5,000")
+    message = Column(Text, nullable=True)
+    
+    ip_address = Column(String(64), nullable=True)
+    user_agent = Column(String(256), nullable=True)
+    status = Column(String(32), default="NEW", index=True)  # NEW, CONTACTED, QUALIFIED, CLOSED
+    
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+

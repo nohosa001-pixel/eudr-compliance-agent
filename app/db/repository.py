@@ -8,7 +8,7 @@ try:
     Session = getattr(_sa_orm, "Session")
 except Exception:
     Session = Any  # type: ignore
-from app.db.models import AuditExecutionRecord, BatchJobRecord, ApiKeyRecord
+from app.db.models import AuditExecutionRecord, BatchJobRecord, ApiKeyRecord, LeadInquiryRecord
 from app.schemas import EUDRSupplyChainPayload, FullComplianceReport
 
 
@@ -236,4 +236,60 @@ class ApiKeyRepository:
             ApiKeyRecord.is_active == True
         ).first()
         return record
+
+
+class LeadRepository:
+    """
+    Repository for managing enterprise leads and demo inquiries.
+    """
+
+    @classmethod
+    def create_inquiry(
+        cls,
+        db: Session,
+        company_name: str,
+        contact_name: str,
+        contact_email: str,
+        phone: Optional[str] = None,
+        commodity_type: str = "Timber",
+        estimated_monthly_plots: str = "500 - 5,000",
+        message: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None
+    ) -> LeadInquiryRecord:
+        inquiry_id = f"lead_{uuid.uuid4().hex[:12]}"
+        record = LeadInquiryRecord(
+            inquiry_id=inquiry_id,
+            company_name=company_name.strip(),
+            contact_name=contact_name.strip(),
+            contact_email=contact_email.strip().lower(),
+            phone=phone.strip() if phone else None,
+            commodity_type=commodity_type,
+            estimated_monthly_plots=estimated_monthly_plots,
+            message=message.strip() if message else None,
+            ip_address=ip_address,
+            user_agent=user_agent[:250] if user_agent else None,
+            status="NEW",
+            created_at=datetime.datetime.now(datetime.timezone.utc)
+        )
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+        return record
+
+    @classmethod
+    def list_inquiries(
+        cls,
+        db: Session,
+        limit: int = 50,
+        status: Optional[str] = None
+    ) -> List[LeadInquiryRecord]:
+        query = db.query(LeadInquiryRecord)
+        if status:
+            query = query.filter(LeadInquiryRecord.status == status)
+        return query.order_by(LeadInquiryRecord.id.desc()).limit(limit).all()
+
+    @classmethod
+    def get_by_inquiry_id(cls, db: Session, inquiry_id: str) -> Optional[LeadInquiryRecord]:
+        return db.query(LeadInquiryRecord).filter(LeadInquiryRecord.inquiry_id == inquiry_id).first()
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends
+from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,11 +34,13 @@ from app.schemas import (
     IntegrityVerificationResult,
     ApiKeyCreateRequest,
     ApiKeyResponse,
-    ApiKeyValidationResponse
+    ApiKeyValidationResponse,
+    LeadInquiryCreateRequest,
+    LeadInquiryResponse
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.traceability_collector import TraceabilityCollector
-from app.modules.deforestation_simulator import DeforestationSimulator, DeforestationAnalyzer
+from app.modules.deforestation_simulator import DeforestationAnalyzer, DeforestationSimulator
 from app.modules.legal_document_auditor import LegalAuditor
 from app.modules.dds_generator import DDSGenerator
 from app.modules.dds_prebuilder import DDSPrebuilder
@@ -46,8 +48,9 @@ from app.modules.bulk_file_parser import BulkFileParser
 from app.modules.traces_b2g_client import TracesNTB2GClient, TRACESB2GSubmissionResponse
 from app.modules.batch_job_manager import BatchJobManager
 from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
+from app.modules.notification_manager import NotificationManager
 from app.db.session import init_db, get_db
-from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository
+from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository
 from app.core.config import settings
 
 
@@ -730,5 +733,92 @@ async def get_invoice_receipt(order_id: str):
         return PaymentManager.get_invoice_receipt(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+# --- Enterprise Lead Capture & Demo Requests ---
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/leads",
+    response_model=LeadInquiryResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Enterprise Inquiries & Leads"],
+    summary="Submit an Enterprise Demo or Pilot Assessment Request"
+)
+async def submit_lead_inquiry(
+    req: LeadInquiryCreateRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Captures inbound enterprise inquiries, demo requests, and high-volume pilot applications.
+    Persists data to PostgreSQL/SQLite and triggers real-time alert notifications.
+    """
+    client_ip = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    record = LeadRepository.create_inquiry(
+        db=db,
+        company_name=req.company_name,
+        contact_name=req.contact_name,
+        contact_email=req.contact_email,
+        phone=req.phone,
+        commodity_type=req.commodity_type,
+        estimated_monthly_plots=req.estimated_monthly_plots,
+        message=req.message,
+        ip_address=client_ip,
+        user_agent=user_agent
+    )
+
+    # Trigger Instant Notification (Console & Telegram/Webhook if configured)
+    NotificationManager.notify_lead_received(
+        company_name=record.company_name,
+        contact_name=record.contact_name,
+        contact_email=record.contact_email,
+        phone=record.phone,
+        commodity_type=record.commodity_type,
+        estimated_monthly_plots=record.estimated_monthly_plots,
+        message=record.message,
+        inquiry_id=record.inquiry_id
+    )
+
+    return LeadInquiryResponse(
+        inquiry_id=record.inquiry_id,
+        status="NEW",
+        company_name=record.company_name,
+        contact_email=record.contact_email,
+        created_at_utc=record.created_at.isoformat() if record.created_at else datetime.now(timezone.utc).isoformat(),
+        message="Thank you! Your enterprise demo request has been received. Our EUDR compliance team will contact you within 24 hours."
+    )
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/leads",
+    tags=["Enterprise Inquiries & Leads"],
+    summary="List received enterprise demo and pilot inquiries"
+)
+async def list_lead_inquiries(
+    limit: int = 50,
+    status_filter: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Administrative endpoint to view recent inbound enterprise leads and demo requests.
+    """
+    records = LeadRepository.list_inquiries(db=db, limit=limit, status=status_filter)
+    return [
+        {
+            "inquiry_id": r.inquiry_id,
+            "company_name": r.company_name,
+            "contact_name": r.contact_name,
+            "contact_email": r.contact_email,
+            "phone": r.phone,
+            "commodity_type": r.commodity_type,
+            "estimated_monthly_plots": r.estimated_monthly_plots,
+            "message": r.message,
+            "status": r.status,
+            "created_at": r.created_at.isoformat() if r.created_at else None
+        }
+        for r in records
+    ]
 
 

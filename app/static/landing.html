@@ -927,6 +927,7 @@
 
       <div class="nav-actions">
         <a href="/supplier-portal" class="btn btn-ghost" style="border-color: rgba(52, 211, 153, 0.4); color: #34d399;">Supplier Portal</a>
+        <button onclick="openLeadModal('Enterprise Demo')" class="btn btn-secondary" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer; padding: 7px 16px;">📅 Book Demo</button>
         <a href="/dashboard" class="btn btn-primary">Launch Console &rarr;</a>
         <button class="mobile-toggle" id="mobile-menu-btn" aria-label="Toggle navigation menu">
           ☰
@@ -952,14 +953,17 @@
       </p>
 
       <div class="hero-cta">
-        <a href="/dashboard" class="btn btn-primary" style="padding: 13px 28px; font-size: 0.96rem;">
-          🚀 Launch Compliance Console
+        <a href="/dashboard" class="btn btn-primary" style="padding: 13px 26px; font-size: 0.96rem;">
+          🚀 Launch Console
         </a>
-        <a href="/supplier-portal" class="btn btn-glow" style="padding: 13px 26px; font-size: 0.96rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
-          🌾 Supplier Pre-Clearance Portal
+        <button onclick="openLeadModal('Enterprise Pilot Assessment')" class="btn btn-secondary" style="padding: 13px 26px; font-size: 0.96rem; border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; cursor: pointer;">
+          📅 Book Enterprise Demo &amp; Pilot
+        </button>
+        <a href="/supplier-portal" class="btn btn-glow" style="padding: 13px 24px; font-size: 0.96rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+          🌾 Supplier Portal
         </a>
-        <a href="#sandbox" class="btn btn-ghost" style="padding: 13px 24px; font-size: 0.96rem;">
-          🧪 Try Live Sandbox &darr;
+        <a href="#sandbox" class="btn btn-ghost" style="padding: 13px 20px; font-size: 0.96rem;">
+          🧪 Live Radar &darr;
         </a>
       </div>
 
@@ -1159,7 +1163,7 @@
               <li><span>✓</span> On-Premise / VPC Deployment</li>
             </ul>
           </div>
-          <a href="mailto:contact@eudragent.com" class="btn btn-ghost" style="width: 100%;">Contact Enterprise Sales</a>
+          <button onclick="openLeadModal('Enterprise Custom')" class="btn btn-ghost" style="width: 100%; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer;">📅 Request Enterprise Demo &amp; Pilot</button>
         </div>
       </div>
     </div>
@@ -1307,10 +1311,194 @@
     </div>
   </div>
 
+  <!-- Enterprise Demo & Pilot Assessment Modal -->
+  <div id="lead-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-width: 640px; height: auto; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">📅</span>
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff;">Book Enterprise Demo &amp; Pilot Audit</h3>
+            <div style="font-size: 0.75rem; color: #94a3b8;">Regulation (EU) 2023/1115 TRACES-NT Automation Consultation</div>
+          </div>
+        </div>
+        <button onclick="closeLeadModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
+      </div>
+      
+      <div style="padding: 1.5rem; background: #0b1120; display: flex; flex-direction: column; gap: 1.1rem;">
+        
+        <!-- Form Fields -->
+        <div id="lead-form-view" style="display: flex; flex-direction: column; gap: 0.9rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Company / Organization *</label>
+              <input type="text" id="lead-company" placeholder="e.g. Nordic Pulp &amp; Timber AB" style="margin-top: 4px; width: 100%;" required />
+            </div>
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Contact Name *</label>
+              <input type="text" id="lead-name" placeholder="e.g. Lars Svensson" style="margin-top: 4px; width: 100%;" required />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Corporate Work Email *</label>
+              <input type="email" id="lead-email" placeholder="compliance@nordicpulp.se" style="margin-top: 4px; width: 100%;" required />
+            </div>
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Phone / WhatsApp (Optional)</label>
+              <input type="text" id="lead-phone" placeholder="+46 8 123 4567" style="margin-top: 4px; width: 100%;" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Primary EUDR Commodity</label>
+              <select id="lead-commodity" style="margin-top: 4px; width: 100%;">
+                <option value="Timber">🪵 Timber &amp; Wood Products (Ch 44/47/48)</option>
+                <option value="Palm Oil">🌴 Oil Palm &amp; Derivatives (Ch 15/29/38)</option>
+                <option value="Cocoa">🍫 Cocoa &amp; Chocolate (Ch 18)</option>
+                <option value="Coffee">☕ Coffee (Ch 09)</option>
+                <option value="Soya">🌱 Soya Beans &amp; Meal (Ch 12/23)</option>
+                <option value="Rubber">🚗 Natural Rubber &amp; Tyres (Ch 40)</option>
+                <option value="Cattle">🥩 Cattle / Bovine Leather (Ch 01/02/41)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Monthly Plot Volume</label>
+              <select id="lead-volume" style="margin-top: 4px; width: 100%;">
+                <option value="< 500 plots">&lt; 500 plots / month (Starter Pilot)</option>
+                <option value="500 - 5,000 plots" selected>500 - 5,000 plots / month (Mid-market)</option>
+                <option value="5,000 - 50,000 plots">5,000 - 50,000 plots / month (High volume)</option>
+                <option value="50,000+ plots">50,000+ plots / month (Global Enterprise)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Specific Requirements or Questions</label>
+            <textarea id="lead-message" rows="3" placeholder="Describe your supply chain regions (e.g. Brazil, Indonesia, Sweden), ERP systems (SAP, Oracle), or target go-live date..." style="margin-top: 4px; width: 100%; background: #060913; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #f8fafc; padding: 10px; font-family: inherit; font-size: 0.85rem; resize: vertical;"></textarea>
+          </div>
+
+          <div id="lead-error-msg" style="display: none; color: #f87171; font-size: 0.8rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 8px;"></div>
+
+          <button onclick="submitLeadInquiry()" id="btn-submit-lead" class="btn btn-primary" style="margin-top: 6px; padding: 12px; font-size: 0.92rem; font-weight: 700;">
+            🚀 Submit Demo Request &amp; Start Free Pilot Audit
+          </button>
+          
+          <div style="font-size: 0.72rem; color: #64748b; text-align: center;">
+            🔒 Confidential enterprise NDA &amp; GDPR compliant. Our EUDR specialists respond within 24 hours.
+          </div>
+        </div>
+
+        <!-- Success View -->
+        <div id="lead-success-view" style="display: none; flex-direction: column; gap: 1rem; text-align: center; padding: 1rem 0;">
+          <div style="font-size: 3rem;">🎉</div>
+          <h4 style="font-size: 1.2rem; font-weight: 800; color: #34d399;">Request Successfully Received!</h4>
+          <p style="font-size: 0.88rem; color: #94a3b8; max-width: 480px; margin: 0 auto;">
+            Thank you, <strong id="lead-success-name" style="color: #fff;"></strong>. Your reference ID is <code id="lead-success-id" style="color: #38bdf8; background: #060913; padding: 2px 6px; border-radius: 4px;"></code>.
+          </p>
+          <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px; text-align: left; max-width: 480px; margin: 0 auto;">
+            <div style="font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 4px;">✅ Next Steps:</div>
+            <ul style="font-size: 0.78rem; color: #cbd5e1; list-style: disc; margin-left: 18px; line-height: 1.6;">
+              <li>Our EUDR compliance lead is reviewing your supply chain profile.</li>
+              <li>A custom 14-day Enterprise sandbox environment will be provisioned.</li>
+              <li>We will email meeting details and access credentials to <strong id="lead-success-email" style="color: #fff;"></strong>.</li>
+            </ul>
+          </div>
+          <button onclick="closeLeadModal()" class="btn btn-secondary" style="margin-top: 10px; align-self: center;">
+            Close Window
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet JS & Interactive Sandbox Logic -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     let currentOrderId = null;
+
+    function openLeadModal(intentContext) {
+      const modal = document.getElementById('lead-modal');
+      if (modal) {
+        modal.classList.add('open');
+        document.getElementById('lead-form-view').style.display = 'flex';
+        document.getElementById('lead-success-view').style.display = 'none';
+        document.getElementById('lead-error-msg').style.display = 'none';
+        if (intentContext && intentContext.includes('Timber')) {
+          document.getElementById('lead-commodity').value = 'Timber';
+        }
+      }
+    }
+
+    function closeLeadModal() {
+      const modal = document.getElementById('lead-modal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    async function submitLeadInquiry() {
+      const company = document.getElementById('lead-company').value.trim();
+      const name = document.getElementById('lead-name').value.trim();
+      const email = document.getElementById('lead-email').value.trim();
+      const phone = document.getElementById('lead-phone').value.trim();
+      const commodity = document.getElementById('lead-commodity').value;
+      const volume = document.getElementById('lead-volume').value;
+      const message = document.getElementById('lead-message').value.trim();
+      const errBox = document.getElementById('lead-error-msg');
+      const btn = document.getElementById('btn-submit-lead');
+
+      if (!company || !name || !email) {
+        errBox.textContent = "Please fill in all required fields: Company, Name, and Corporate Email.";
+        errBox.style.display = 'block';
+        return;
+      }
+
+      if (!email.includes('@') || !email.includes('.')) {
+        errBox.textContent = "Please enter a valid work email address.";
+        errBox.style.display = 'block';
+        return;
+      }
+
+      errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = "Submitting Inquiry...";
+
+      try {
+        const res = await fetch('/api/v1/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_name: company,
+            contact_name: name,
+            contact_email: email,
+            phone: phone || null,
+            commodity_type: commodity,
+            estimated_monthly_plots: volume,
+            message: message || null
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('lead-success-name').textContent = name;
+          document.getElementById('lead-success-id').textContent = data.inquiry_id;
+          document.getElementById('lead-success-email').textContent = email;
+
+          document.getElementById('lead-form-view').style.display = 'none';
+          document.getElementById('lead-success-view').style.display = 'flex';
+        } else {
+          errBox.textContent = "Submission error: " + (data.detail || "Unable to submit inquiry.");
+          errBox.style.display = 'block';
+        }
+      } catch (err) {
+        errBox.textContent = "Network error: " + err.message;
+        errBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🚀 Submit Demo Request & Start Free Pilot Audit";
+      }
+    }
 
     function openPaymentModal(plan) {
       const modal = document.getElementById('payment-modal');

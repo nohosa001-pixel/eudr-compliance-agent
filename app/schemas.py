@@ -468,3 +468,23 @@ class InvoiceReceiptResponse(BaseModel):
     seller_legal_info: Dict[str, str]
 
 
+# --- Enterprise Lead Capture & Demo Request Schemas ---
+
+class LeadInquiryCreateRequest(BaseModel):
+    company_name: str = Field(..., min_length=2, max_length=128, description="Company / Organization Name")
+    contact_name: str = Field(..., min_length=2, max_length=128, description="Full Name of Contact Person")
+    contact_email: str = Field(..., min_length=5, max_length=128, description="Work Email Address")
+    phone: Optional[str] = Field(None, max_length=64, description="Contact Phone / WhatsApp")
+    commodity_type: str = Field("Timber", description="Primary EUDR Commodity (e.g. Timber, Palm Oil, Cocoa, Coffee, Soy, Rubber, Cattle)")
+    estimated_monthly_plots: str = Field("500 - 5,000", description="Estimated Monthly Plot Verification Volume")
+    message: Optional[str] = Field(None, max_length=2000, description="Custom compliance requirements or questions")
+
+class LeadInquiryResponse(BaseModel):
+    inquiry_id: str
+    status: str
+    company_name: str
+    contact_email: str
+    created_at_utc: str
+    message: str
+
+

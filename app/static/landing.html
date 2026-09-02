@@ -3,110 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation</title>
-  <meta name="description" content="Enterprise Regulation (EU) 2023/1115 compliance engine. Sub-second 4ha polygon spatial verification, multi-satellite deforestation radar (Sentinel-2, GFW, JRC), and cryptographically signed TRACES-NT DDS generation." />
-  <meta name="keywords" content="EUDR, EU Deforestation Regulation, TRACES-NT, Due Diligence Statement, DDS, Satellite Radar, Geodesic Validation, 4ha Rule, Supply Chain Compliance, ESG, Regulation EU 2023/1115" />
-  <meta name="author" content="EUDRAgent Inc." />
-  <meta name="robots" content="index, follow" />
+  <title>EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT Automation</title>
+  <meta name="description" content="Autonomous EU Deforestation Regulation (EU 2023/1115) compliance engine. 2-second satellite radar, 4ha polygon validation, and official TRACES-NT XML export." />
   <link rel="canonical" href="https://eudragent.com/" />
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-
-  <!-- Anti-cache meta tags -->
+  
+  <!-- Anti-cache -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
-  <!-- Open Graph / Facebook / LinkedIn / KakaoTalk -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://eudragent.com/" />
-  <meta property="og:title" content="EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation" />
-  <meta property="og:description" content="Production-ready EU Deforestation Regulation (EU 2023/1115) compliance automation engine. 4ha spatial verification, multi-satellite radar, legal audit, and automated TRACES-NT DDS submission." />
-  <meta property="og:site_name" content="EUDR Agent" />
-  <meta property="og:locale" content="en_US" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://eudragent.com/" />
-  <meta name="twitter:title" content="EUDRAgent | Autonomous EUDR Compliance &amp; TRACES-NT DDS Automation" />
-  <meta name="twitter:description" content="Automate EU Deforestation Regulation (EU 2023/1115) compliance with sub-second geodesic polygon verification and multi-satellite radar." />
-
-  <!-- JSON-LD Structured Data (Schema.org) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "EUDRAgent",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "All",
-        "url": "https://eudragent.com",
-        "description": "Enterprise Regulation (EU) 2023/1115 compliance engine. Sub-second 4ha polygon spatial verification, multi-satellite deforestation radar, and cryptographically signed TRACES-NT DDS generation.",
-        "offers": {
-          "@type": "Offer",
-          "price": "490",
-          "priceCurrency": "EUR"
-        }
-      },
-      {
-        "@type": "Organization",
-        "name": "EUDRAgent",
-        "url": "https://eudragent.com",
-        "logo": "https://eudragent.com/static/icon.png",
-        "sameAs": [
-          "https://github.com/nohosa001-pixel/eudr-compliance-agent"
-        ]
-      }
-    ]
-  }
-  </script>
-
-  <!-- Google Fonts & Leaflet CSS -->
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-dark: #090d16;
-      --bg-card: rgba(15, 23, 42, 0.75);
-      --bg-card-hover: rgba(30, 41, 59, 0.85);
-      --border-color: rgba(255, 255, 255, 0.1);
-      --border-glow: rgba(16, 185, 129, 0.3);
-      --emerald-primary: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --bg-dark: #07090e;
+      --bg-card: rgba(15, 23, 42, 0.65);
+      --bg-card-hover: rgba(22, 33, 56, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(59, 130, 246, 0.4);
+      --emerald: #10b981;
       --emerald-light: #34d399;
-      --blue-accent: #3b82f6;
-      --indigo-accent: #6366f1;
-      --amber-accent: #f59e0b;
-      --red-accent: #ef4444;
-      --text-main: #f8fafc;
+      --emerald-bg: rgba(16, 185, 129, 0.12);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59, 130, 246, 0.12);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --text: #f8fafc;
       --text-muted: #94a3b8;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
-      color: var(--text-main);
-      line-height: 1.6;
+      color: var(--text);
+      line-height: 1.5;
       overflow-x: hidden;
       background-image: 
-        radial-gradient(circle at 20% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 50% 90%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
-      background-attachment: fixed;
+        radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
     }
 
-    /* Container */
     .container {
-      max-width: 1240px;
+      max-width: 1140px;
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -117,95 +59,55 @@
       top: 0;
       z-index: 100;
       backdrop-filter: blur(16px);
-      background: rgba(9, 13, 22, 0.85);
-      border-bottom: 1px solid var(--border-color);
+      background: rgba(7, 9, 14, 0.85);
+      border-bottom: 1px solid var(--border);
       padding: 14px 0;
     }
 
-    .nav-wrapper {
+    .nav-wrap {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative;
     }
 
-    .brand-logo {
+    .brand {
       display: flex;
       align-items: center;
       gap: 10px;
       text-decoration: none;
       color: #fff;
-    }
-
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      box-shadow: 0 0 16px var(--emerald-glow);
-      flex-shrink: 0;
-    }
-
-    .brand-name {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 0.35rem;
-      font-size: 1.3rem;
+      font-weight: 800;
+      font-size: 1.15rem;
       letter-spacing: -0.3px;
     }
 
-    .brand-eudr {
-      color: #ffffff;
-      font-weight: 800;
-      letter-spacing: -0.5px;
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
     }
 
-    .brand-agent {
-      color: var(--emerald-light);
-      font-weight: 500;
-      text-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
-    }
-
-    .brand-tld {
-      color: #94a3b8;
-      font-size: 0.85rem;
-      font-weight: 400;
-      margin-left: -2px;
-    }
-
-    .brand-tag {
-      font-size: 0.68rem;
-      font-weight: 700;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--emerald-light);
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      margin-left: 4px;
-    }
-
-    .nav-links {
+    .nav-menu {
       display: flex;
       align-items: center;
       gap: 28px;
       list-style: none;
     }
 
-    .nav-links a {
+    .nav-menu a {
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 500;
-      transition: color 0.2s;
+      transition: color 0.2s ease;
     }
 
-    .nav-links a:hover {
-      color: var(--text-main);
-    }
+    .nav-menu a:hover { color: #fff; }
 
     .nav-actions {
       display: flex;
@@ -213,1018 +115,557 @@
       gap: 12px;
     }
 
-    .mobile-toggle {
-      display: none;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      font-size: 1.3rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      cursor: pointer;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .mobile-toggle:hover {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       font-weight: 600;
-      font-size: 0.88rem;
-      padding: 10px 20px;
+      font-size: 0.86rem;
+      padding: 9px 18px;
       border-radius: 8px;
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      border: none;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
     }
 
     .btn-ghost {
-      background: transparent;
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      border-color: var(--border);
     }
-
     .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
     }
 
     .btn-primary {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-      box-shadow: 0 4px 14px var(--emerald-glow);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
     }
-
     .btn-primary:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
 
-    .btn-glow {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      color: #ffffff;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-glow:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
-    }
-
     /* Hero Section */
-    .hero-section {
-      padding: 80px 0 60px;
+    .hero {
+      padding: 60px 0 40px;
       text-align: center;
-      position: relative;
     }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(16, 185, 129, 0.1);
+      background: var(--emerald-bg);
       border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 6px 16px;
-      border-radius: 999px;
-      font-size: 0.82rem;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
       font-weight: 600;
       color: var(--emerald-light);
-      margin-bottom: 24px;
-    }
-
-    .hero-badge .pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--emerald-light);
-      box-shadow: 0 0 8px var(--emerald-light);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      margin-bottom: 20px;
     }
 
     .hero-title {
-      font-size: 3.4rem;
-      font-weight: 900;
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -1.2px;
       line-height: 1.15;
-      letter-spacing: -1.5px;
-      margin-bottom: 20px;
-      max-width: 960px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 16px;
+      color: #fff;
     }
 
-    .hero-title .gradient-text {
-      background: linear-gradient(135deg, #34d399 0%, #3b82f6 50%, #818cf8 100%);
+    .hero-title span {
+      background: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
       -webkit-background-clip: text;
-      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .hero-subtitle {
-      font-size: 1.15rem;
+    .hero-sub {
+      font-size: 1.1rem;
       color: var(--text-muted);
-      max-width: 760px;
-      margin: 0 auto 36px;
-      font-weight: 400;
+      max-width: 680px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
     }
 
-    .hero-cta {
+    .hero-btns {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 24px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-val {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 4px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .stat-label {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-
-    /* Live Interactive Sandbox */
-    .sandbox-section {
-      padding: 60px 0;
-    }
-
-    .section-header {
-      text-align: center;
+      gap: 12px;
       margin-bottom: 40px;
     }
 
-    .section-tag {
-      font-size: 0.8rem;
+    /* Video Showcase Card */
+    .showcase-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-focus);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      margin-bottom: 60px;
+    }
+
+    .showcase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .showcase-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: 700;
-      color: var(--blue-accent);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .showcase-steps {
+      display: flex;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .step-pill {
+      background: var(--blue-bg);
+      border: 1px solid var(--blue);
+      color: #93c5fd;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .step-pill.green {
+      background: var(--emerald-bg);
+      border-color: var(--emerald);
+      color: #6ee7b7;
+    }
+
+    .video-frame {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #05070c;
+    }
+
+    .video-frame img {
+      width: 100%;
+      height: auto;
       display: block;
     }
 
+    /* Problem vs Solution (3 Cards) */
     .section-title {
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.6px;
+      text-align: center;
       margin-bottom: 12px;
+      color: #fff;
     }
 
     .section-desc {
-      font-size: 0.98rem;
+      text-align: center;
       color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 auto;
+      font-size: 0.95rem;
+      margin-bottom: 36px;
     }
 
-    .sandbox-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      overflow: hidden;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .sandbox-header {
-      background: rgba(30, 41, 59, 0.6);
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .sandbox-tabs {
-      display: flex;
-      gap: 8px;
-    }
-
-    .sandbox-tab {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .sandbox-tab.active, .sandbox-tab:hover {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: var(--emerald-primary);
-      color: #fff;
-    }
-
-    .sandbox-body {
+    .comparison-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 420px;
-    }
-    /* Mobile & Responsive Rules */
-    @media (max-width: 880px) {
-      .mobile-toggle {
-        display: inline-flex;
-      }
-
-      .nav-links {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: rgba(10, 15, 26, 0.98);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        flex-direction: column;
-        align-items: stretch;
-        padding: 16px;
-        gap: 12px;
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
-        margin-top: 10px;
-        backdrop-filter: blur(20px);
-      }
-
-      .nav-links.active {
-        display: flex;
-      }
-
-      .nav-links a {
-        padding: 10px 14px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.03);
-        font-size: 0.95rem;
-      }
-
-      .nav-actions {
-        display: flex;
-        gap: 8px;
-      }
-
-      .nav-actions .btn-ghost {
-        display: none; /* Hide secondary login button on small screens to save space */
-      }
-
-      .nav-actions .btn-primary {
-        padding: 8px 14px;
-        font-size: 0.8rem;
-      }
-
-      .sandbox-body {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-section {
-        padding: 48px 0 36px;
-      }
-
-      .hero-title {
-        font-size: 2.2rem;
-        letter-spacing: -0.8px;
-        line-height: 1.25;
-      }
-
-      .hero-subtitle {
-        font-size: 0.98rem;
-        margin-bottom: 28px;
-      }
-
-      .hero-cta {
-        flex-direction: column;
-        gap: 12px;
-        max-width: 320px;
-        margin-left: auto;
-        margin-right: auto;
-        margin-bottom: 36px;
-      }
-
-      .hero-cta .btn {
-        width: 100%;
-      }
-
-      .stats-row {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        padding: 16px;
-      }
-
-      .stat-val {
-        font-size: 1.4rem;
-      }
-
-      .stat-label {
-        font-size: 0.72rem;
-      }
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 70px;
     }
 
-    @media (max-width: 540px) {
-      .container {
-        padding: 0 16px;
-      }
-
-      .brand-name {
-        font-size: 1.15rem;
-      }
-
-      .brand-tag {
-        display: none;
-      }
-
-      .hero-badge {
-        font-size: 0.72rem;
-        padding: 5px 12px;
-        line-height: 1.4;
-      }
-
-      .hero-title {
-        font-size: 1.85rem;
-        letter-spacing: -0.5px;
-      }
-
-      .hero-subtitle {
-        font-size: 0.9rem;
-      }
-
-      .stats-row {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        padding: 14px;
-      }
-
-      .stat-val {
-        font-size: 1.2rem;
-      }
-
-      .stat-label {
-        font-size: 0.68rem;
-      }
-
-      .sandbox-header {
-        padding: 12px 16px;
-      }
-
-      .sandbox-tabs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        width: 100%;
-      }
-
-      .sandbox-tab {
-        text-align: center;
-        padding: 6px 8px;
-        font-size: 0.75rem;
-      }
-
-      .section-title {
-        font-size: 1.7rem;
-      }
+    .comp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      transition: transform 0.2s, border-color 0.2s;
     }
 
-    #sandbox-map {
-      height: 100%;
-      min-height: 380px;
-      width: 100%;
-      background: #0b1120;
+    .comp-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-focus);
     }
 
-    .sandbox-results {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: rgba(15, 23, 42, 0.4);
-    }
-
-    .result-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+    .comp-pain {
+      background: var(--red-bg);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 10px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    .badge-pass {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid var(--emerald-primary);
-      color: var(--emerald-light);
-    }
-
-    .badge-fail {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid var(--red-accent);
-      color: #f87171;
-    }
-
-    .check-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
+    .comp-pain-title {
       font-size: 0.88rem;
+      font-weight: 700;
+      color: #fca5a5;
+      margin-bottom: 2px;
     }
 
-    .check-icon {
-      font-size: 1rem;
-      line-height: 1.2;
-    }
-
-    .check-title {
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .check-sub {
+    .comp-pain-desc {
       font-size: 0.78rem;
-      color: var(--text-muted);
+      color: #cbd5e1;
     }
 
-    .dds-box {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border-color);
+    .comp-arrow {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .comp-sol {
+      background: var(--emerald-bg);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 10px 14px;
       border-radius: 8px;
-      padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.74rem;
-      color: #38bdf8;
     }
 
-    /* Pillars Grid */
-    .pillars-section {
-      padding: 80px 0;
+    .comp-sol-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--emerald-light);
+      margin-bottom: 2px;
     }
 
+    .comp-sol-desc {
+      font-size: 0.78rem;
+      color: #f1f5f9;
+    }
+
+    /* 4 Pillars Grid */
     .pillars-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 70px;
     }
 
     .pillar-card {
       background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 30px;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pillar-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--border-glow);
-      background: var(--bg-card-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
     }
 
     .pillar-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 20px;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
     }
 
-    .pillar-title {
-      font-size: 1.2rem;
+    .pillar-name {
+      font-size: 1rem;
       font-weight: 700;
-      margin-bottom: 10px;
       color: #fff;
-    }
-
-    .pillar-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-    }
-
-    /* Pricing Section */
-    .pricing-section {
-      padding: 80px 0;
-      background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.5), transparent);
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 860px) {
-      .pricing-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 36px 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      transition: all 0.3s;
-    }
-
-    .pricing-card.featured {
-      border-color: var(--emerald-primary);
-      box-shadow: 0 0 30px var(--emerald-glow);
-      background: rgba(16, 185, 129, 0.03);
-    }
-
-    .pricing-badge {
-      position: absolute;
-      top: -12px;
-      right: 24px;
-      background: var(--emerald-primary);
-      color: #000;
-      font-size: 0.72rem;
-      font-weight: 800;
-      padding: 4px 12px;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .plan-name {
-      font-size: 1.3rem;
-      font-weight: 800;
       margin-bottom: 6px;
     }
 
-    .plan-desc {
+    .pillar-desc {
       font-size: 0.82rem;
       color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 70px;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      position: relative;
+    }
+
+    .price-card.popular {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .pop-badge {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: var(--emerald);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .price-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .price-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .price-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
       margin-bottom: 20px;
     }
 
-    .plan-price {
-      font-size: 2.6rem;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 24px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .plan-price span {
-      font-size: 0.95rem;
+    .price-val span {
+      font-size: 0.85rem;
       color: var(--text-muted);
       font-weight: 500;
     }
 
-    .plan-features {
+    .price-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 30px;
+      gap: 10px;
+      margin-bottom: 24px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
     }
 
-    .plan-features li {
-      font-size: 0.85rem;
-      color: #cbd5e1;
+    .price-list li {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .plan-features li span {
-      color: var(--emerald-light);
-      font-weight: bold;
-    }
+    .price-list li span { color: var(--emerald); }
 
     /* Footer */
     footer {
-      border-top: 1px solid var(--border-color);
-      padding: 50px 0 30px;
-      background: rgba(5, 8, 15, 0.9);
-      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      padding: 30px 0;
+      text-align: center;
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
 
-    .footer-top {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 30px;
-      margin-bottom: 40px;
-    }
-
-    .footer-col h4 {
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
-
-    .footer-col ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-col a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-col a:hover {
-      color: #fff;
-    }
-
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 24px;
+    @media (max-width: 860px) {
+      .hero-title { font-size: 2.2rem; }
+      .comparison-grid, .pillars-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .nav-menu { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Navigation Bar -->
+  <!-- Navigation -->
   <nav class="navbar">
-    <div class="container nav-wrapper">
-      <a href="/" class="brand-logo">
+    <div class="container nav-wrap">
+      <a href="/" class="brand">
         <div class="brand-icon">🌲</div>
-        <div>
-          <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span></span>
-          <span class="brand-tag">v1.2 SaaS</span>
-        </div>
+        <span>EUDR Agent</span>
       </a>
       
-      <ul class="nav-links" id="nav-links">
-        <li><a href="#features">Pillars</a></li>
-        <li><a href="#sandbox">Live Radar Demo</a></li>
-        <li><a href="/about" style="color: #38bdf8; font-weight: 600;">🏛️ Architecture & Trust</a></li>
-        <li><a href="/supplier-portal" style="color: #34d399; font-weight: 600;">🌾 Supplier Portal</a></li>
+      <ul class="nav-menu">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#pillars">4 Pillars</a></li>
         <li><a href="#pricing">Pricing</a></li>
-        <li><a href="/docs" target="_blank">API Docs</a></li>
+        <li><a href="/supplier-portal" style="color: #34d399;">🌾 Supplier Portal</a></li>
+        <li><a href="/docs">API Docs</a></li>
       </ul>
 
       <div class="nav-actions">
-        <select id="lang-selector" onchange="changeLanguage(this.value)" style="background: rgba(15, 23, 42, 0.8); color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; outline: none;">
-          <option value="en">🇬🇧 English</option>
-          <option value="de">🇩🇪 Deutsch</option>
-          <option value="fr">🇫🇷 Français</option>
-          <option value="es">🇪🇸 Español</option>
-          <option value="pt">🇧🇷 Português</option>
-          <option value="vi">🇻🇳 Tiếng Việt</option>
-          <option value="ko">🇰🇷 한국어</option>
-        </select>
-        <a href="/supplier-portal" class="btn btn-ghost" style="border-color: rgba(52, 211, 153, 0.4); color: #34d399;">Supplier Portal</a>
-        <button onclick="openLeadModal('Enterprise Demo')" class="btn btn-secondary" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer; padding: 7px 16px;">📅 Book Demo</button>
         <a href="/dashboard" class="btn btn-primary">Launch Console &rarr;</a>
-        <button class="mobile-toggle" id="mobile-menu-btn" aria-label="Toggle navigation menu">
-          ☰
-        </button>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section class="hero-section">
+  <section class="hero">
     <div class="container">
       <div class="hero-badge">
-        <span class="pulse-dot"></span>
-        <span>🌍 Live Production Platform &bull; Regulation (EU) 2023/1115 TRACES-NT Gateway</span>
+        <span>● Regulation (EU) 2023/1115 &bull; TRACES-NT Gateway Ready</span>
       </div>
       
       <h1 class="hero-title">
-        Autonomous <span class="gradient-text">EUDR Compliance</span> &amp; Geodesic Radar Platform
+        EUDR Compliance in <span>2 Seconds</span>
       </h1>
       
-      <p class="hero-subtitle">
-        Eliminate deforestation compliance bottlenecks. Sub-second 4ha spatial verification, multi-satellite post-2020 cut-off triangulation, and cryptographically signed TRACES-NT DDS generation.
+      <p class="hero-sub">
+        Upload farm coordinates. Run multi-satellite radar. Export 100% verified TRACES-NT Due Diligence Statements (DDS).
       </p>
 
-      <div class="hero-cta">
-        <a href="/dashboard" class="btn btn-primary" style="padding: 13px 26px; font-size: 0.96rem;">
+      <div class="hero-btns">
+        <a href="/dashboard" class="btn btn-primary" style="padding: 12px 24px; font-size: 0.95rem;">
           🚀 Launch Console
         </a>
-        <button onclick="openLeadModal('Enterprise Pilot Assessment')" class="btn btn-secondary" style="padding: 13px 26px; font-size: 0.96rem; border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; cursor: pointer;">
-          📅 Book Enterprise Demo &amp; Pilot
-        </button>
-        <a href="/supplier-portal" class="btn btn-glow" style="padding: 13px 24px; font-size: 0.96rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+        <a href="/supplier-portal" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(52, 211, 153, 0.4); color: #34d399;">
           🌾 Supplier Portal
         </a>
-        <a href="#demo-video" class="btn btn-ghost" style="padding: 13px 20px; font-size: 0.96rem; border-color: rgba(59,130,246,0.5); color: #60a5fa;">
+        <a href="#how-it-works" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem;">
           🎬 2s Video Demo &darr;
         </a>
       </div>
 
-      <!-- 4-Step Instant Demo Showcase Video -->
-      <div id="demo-video" style="margin: 40px auto 35px; max-width: 980px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 16px; padding: 20px; backdrop-filter: blur(16px); box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.2rem;">🎬</span>
-            <span style="font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: -0.3px;">4-Step Instant Demo (2-Second Autonomous Audit)</span>
+      <!-- Video Showcase -->
+      <div id="how-it-works" class="showcase-card">
+        <div class="showcase-header">
+          <div class="showcase-title">
+            <span>🎬 4-Step Instant Demo (2-Second Autonomous Audit)</span>
           </div>
-          <div style="display: flex; gap: 8px; font-size: 0.76rem; font-weight: 700;">
-            <span style="background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; color: #93c5fd; padding: 3px 10px; border-radius: 20px;">📁 1. UPLOAD</span>
-            <span style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #6ee7b7; padding: 3px 10px; border-radius: 20px;">🛰️ 2. SCAN</span>
-            <span style="background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; color: #93c5fd; padding: 3px 10px; border-radius: 20px;">🛡️ 3. VERIFY</span>
-            <span style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #6ee7b7; padding: 3px 10px; border-radius: 20px;">⚡ 4. EXPORT</span>
+          <div class="showcase-steps">
+            <span class="step-pill">📁 1. UPLOAD</span>
+            <span class="step-pill green">🛰️ 2. SCAN (2s)</span>
+            <span class="step-pill">🛡️ 3. VERIFY</span>
+            <span class="step-pill green">⚡ 4. EXPORT</span>
           </div>
         </div>
-        <div style="border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #080c14;">
-          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR Compliance Agent 4-Step Video Walkthrough" style="width: 100%; height: auto; display: block;" loading="lazy" />
-        </div>
-      </div>
-
-      <!-- Live Stats Counters -->
-      <div class="stats-row">
-        <div class="stat-item">
-          <div class="stat-val">&lt; 0.12s</div>
-          <div class="stat-label">Geodesic Polygon Audit</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">31 Dec 2020</div>
-          <div class="stat-label">EUDR Cut-off Baseline</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">3 Satellites</div>
-          <div class="stat-label">Sentinel &bull; GFW &bull; JRC</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">HMAC-SHA256</div>
-          <div class="stat-label">TRACES-NT Immutable DDS</div>
+        <div class="video-frame">
+          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR Compliance Agent 4-Step Walkthrough" loading="lazy" />
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Live Sandbox Demo -->
-  <section id="sandbox" class="sandbox-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Interactive Live Radar</span>
-        <h2 class="section-title">Test EUDR Due Diligence in Seconds</h2>
-        <p class="section-desc">Select a global commodity supply chain scenario below to simulate instantaneous geodesic spatial auditing and satellite deforestation analysis.</p>
+  <!-- Problem ➔ Solution Section -->
+  <section class="container">
+    <h2 class="section-title">Why EUDR Agent?</h2>
+    <p class="section-desc">Zero complex GIS. Zero customs fines. 100% automated.</p>
+
+    <div class="comparison-grid">
+      <div class="comp-card">
+        <div class="comp-pain">
+          <div class="comp-pain-title">❌ 4% Turnover Fines</div>
+          <div class="comp-pain-desc">Cargo blocked &amp; seized at EU customs</div>
+        </div>
+        <div class="comp-arrow">➔</div>
+        <div class="comp-sol">
+          <div class="comp-sol-title">✅ 0% Fine Guarantee</div>
+          <div class="comp-sol-desc">Tamper-proof 5-pillar verified audit trail</div>
+        </div>
       </div>
 
-      <div class="sandbox-card">
-        <div class="sandbox-header" style="flex-wrap: wrap; gap: 10px;">
-          <div class="sandbox-tabs">
-            <button class="sandbox-tab active" onclick="loadSandboxPreset('vietnam')">☕ Vietnam (Coffee)</button>
-            <button class="sandbox-tab" onclick="loadSandboxPreset('indonesia')">🌴 Indonesia (Palm Oil)</button>
-            <button class="sandbox-tab" onclick="loadSandboxPreset('ivorycoast')">🍫 Ivory Coast (Cocoa)</button>
-            <button class="sandbox-tab" onclick="loadSandboxPreset('brazil')">🪵 Brazil (Timber/Soya)</button>
-          </div>
-          
-          <!-- Sample Downloads & Upload CTA -->
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <span style="font-size: 0.76rem; color: #94a3b8; font-weight: 600;">📥 Get Samples:</span>
-            <button onclick="downloadSampleData('csv')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Coffee .CSV</button>
-            <button onclick="downloadSampleData('geojson')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Timber .GeoJSON</button>
-            <button onclick="downloadSampleData('kml')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.74rem;">Palm Oil .KML</button>
-          </div>
+      <div class="comp-card">
+        <div class="comp-pain">
+          <div class="comp-pain-title">❌ Weeks of Manual GIS</div>
+          <div class="comp-pain-desc">Slow, costly manual satellite analysis</div>
         </div>
-
-        <!-- Direct Upload Strip -->
-        <div style="background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border-color); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.1rem;">📂</span>
-            <div>
-              <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">Test Your Own Supply Chain File:</div>
-              <div style="font-size: 0.72rem; color: #94a3b8;">Drag &amp; drop or select any CSV, Excel (.xlsx), GeoJSON, or KML file for instant zero-barrier analysis.</div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <input type="file" id="sandbox-file-input" accept=".csv,.geojson,.json,.kml,.xlsx" style="display: none;" onchange="handleSandboxFileUpload(event)" />
-            <button onclick="document.getElementById('sandbox-file-input').click()" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700;">
-              ⚡ Upload &amp; Audit File
-            </button>
-          </div>
+        <div class="comp-arrow">➔</div>
+        <div class="comp-sol">
+          <div class="comp-sol-title">✅ 2-Second Radar Scan</div>
+          <div class="comp-sol-desc">Automated Sentinel-2 &amp; Hansen analysis</div>
         </div>
+      </div>
 
-        <div class="sandbox-body">
-          <div id="sandbox-map"></div>
-          
-          <div class="sandbox-results">
-            <div>
-              <div id="sandbox-badge" class="result-badge badge-pass">
-                🟢 COMPLIANT (Zero Deforestation Detected)
-              </div>
-
-              <ul class="check-list">
-                <li class="check-item">
-                  <span class="check-icon">📐</span>
-                  <div>
-                    <div class="check-title" id="sandbox-spatial-title">EUDR Art. 9(1)(d) 4ha Rule: PASSED</div>
-                    <div class="check-sub" id="sandbox-spatial-desc">Area: 8.42 ha (Strict Polygon WGS84 Topology Validated)</div>
-                  </div>
-                </li>
-                <li class="check-item">
-                  <span class="check-icon">🛰️</span>
-                  <div>
-                    <div class="check-title" id="sandbox-satellite-title">Multi-Satellite Deforestation Radar: ZERO LOSS</div>
-                    <div class="check-sub" id="sandbox-satellite-desc">Copernicus Sentinel-2 &amp; Hansen GFC post-2020 loss: 0.00%</div>
-                  </div>
-                </li>
-                <li class="check-item">
-                  <span class="check-icon">📜</span>
-                  <div>
-                    <div class="check-title" id="sandbox-legal-title">Origin Legality &amp; Risk Benchmarking: VERIFIED</div>
-                    <div class="check-sub" id="sandbox-legal-desc">Land Title &amp; Harvest Permit validated (Risk: STANDARD)</div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600;">TRACES-NT DDS STATEMENT &amp; AUDIT PROOF:</div>
-              <div class="dds-box" id="sandbox-dds-hash">
-                DDS-2026-EUDR-VN-COFFEE-8821 &bull; HMAC: 7a9f2e4b8c1d5e3f9a7b1c4e6d8a2f0b
-              </div>
-              <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button onclick="downloadCurrentDDS()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.76rem; width: 100%;">
-                  📄 Download Validated DDS (JSON)
-                </button>
-                <a href="/supplier-portal" class="btn btn-emerald" style="padding: 6px 12px; font-size: 0.76rem; width: 100%; text-align: center; text-decoration: none;">
-                  🌾 Supplier Certificate &rarr;
-                </a>
-              </div>
-            </div>
-          </div>
+      <div class="comp-card">
+        <div class="comp-pain">
+          <div class="comp-pain-title">❌ Customs XML Rejections</div>
+          <div class="comp-pain-desc">Formatting errors causing shipment delays</div>
+        </div>
+        <div class="comp-arrow">➔</div>
+        <div class="comp-sol">
+          <div class="comp-sol-title">✅ Official TRACES-NT XML</div>
+          <div class="comp-sol-desc">1-Click validated customs-ready export</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4 Core Pillars -->
-  <section id="features" class="pillars-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Enterprise Architecture</span>
-        <h2 class="section-title">The 4 Pillars of EUDR Automation</h2>
-        <p class="section-desc">Purpose-built to address every technical and legal mandate of Regulation (EU) 2023/1115 without manual intervention.</p>
+  <!-- 4 Pillars Section -->
+  <section id="pillars" class="container">
+    <h2 class="section-title">The 4 Core Pillars</h2>
+    <p class="section-desc">Full compliance under Regulation (EU) 2023/1115.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon">🌲</div>
+        <div class="pillar-name">1. Deforestation-Free</div>
+        <div class="pillar-desc">Multi-satellite radar checks tree loss against the strict Dec 31, 2020 baseline.</div>
       </div>
 
-      <div class="pillars-grid">
-        <div class="pillar-card">
-          <div class="pillar-icon">📐</div>
-          <h3 class="pillar-title">1. Geodesic Spatial Engine</h3>
-          <p class="pillar-desc">
-            Enforces the strict 4-hectare polygon rule (Art. 9). Computes exact ellipsoidal area via WGS84 Geod and automatically self-heals unclosed or overlapping GIS boundaries.
-          </p>
-        </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">📜</div>
+        <div class="pillar-name">2. Legal Harvest</div>
+        <div class="pillar-desc">Automated validation of land titles, harvest permits, and local forestry laws.</div>
+      </div>
 
-        <div class="pillar-card">
-          <div class="pillar-icon">🛰️</div>
-          <h3 class="pillar-title">2. Deforestation Radar</h3>
-          <p class="pillar-desc">
-            Overlays Copernicus Sentinel-2 NDVI, Hansen Global Forest Change, and JRC Forest Cover against the strict 31 December 2020 cut-off date with sub-pixel sensitivity.
-          </p>
-        </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">📍</div>
+        <div class="pillar-name">3. 4ha Geolocation</div>
+        <div class="pillar-desc">Sub-second polygon topology verification and self-healing for farm boundaries.</div>
+      </div>
 
-        <div class="pillar-card">
-          <div class="pillar-icon">⚖️</div>
-          <h3 class="pillar-title">3. Legal Document Auditor</h3>
-          <p class="pillar-desc">
-            Validates national production legality, customary land titles, harvest permits, and FPIC (Free, Prior and Informed Consent) based on country risk tiers.
-          </p>
-        </div>
-
-        <div class="pillar-card">
-          <div class="pillar-icon">🔒</div>
-          <h3 class="pillar-title">4. TRACES-NT Direct DDS</h3>
-          <p class="pillar-desc">
-            Generates standardized Due Diligence Statements (DDS) with HMAC-SHA256 signatures, verifiable audit trails, and automated B2G API submission to EU Customs.
-          </p>
-        </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">⚡</div>
+        <div class="pillar-name">4. TRACES-NT XML</div>
+        <div class="pillar-desc">Direct export of compliant Due Diligence Statements (DDS) for EU customs filing.</div>
       </div>
     </div>
   </section>
 
   <!-- Pricing Section -->
-  <section id="pricing" class="pricing-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Pricing Plans</span>
-        <h2 class="section-title">Transparent, Scalable SaaS Pricing</h2>
-        <p class="section-desc">From single-country importers to multinational trading houses processing tens of thousands of farm plots.</p>
+  <section id="pricing" class="container">
+    <h2 class="section-title">Transparent Pricing</h2>
+    <p class="section-desc">Pay per plot verified. No setup fees.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-sub">Small traders &amp; importers</div>
+        <div class="price-val">€490 <span>/mo</span></div>
+        <ul class="price-list">
+          <li><span>✔</span> Up to 5,000 plots / mo</li>
+          <li><span>✔</span> Multi-satellite radar</li>
+          <li><span>✔</span> TRACES-NT XML export</li>
+          <li><span>✔</span> Email support</li>
+        </ul>
+        <a href="/dashboard" class="btn btn-ghost" style="width: 100%;">Get Started</a>
       </div>
 
-      <div class="pricing-grid">
-        <!-- Starter -->
-        <div class="pricing-card">
-          <div>
-            <div class="plan-name">Developer / Pilot</div>
-            <div class="plan-desc">For testing &amp; small-scale suppliers</div>
-            <div class="plan-price">$0 <span>/ month</span></div>
-            <ul class="plan-features">
-              <li><span>✓</span> 100 Plot Validations / month</li>
-              <li><span>✓</span> 4ha Polygon &amp; Self-Healing</li>
-              <li><span>✓</span> Standard Satellite Overlay</li>
-              <li><span>✓</span> PDF Report Generator</li>
-              <li><span>✓</span> Swagger API Access</li>
-            </ul>
-          </div>
-          <a href="/dashboard" class="btn btn-ghost" style="width: 100%;">Start Free Sandbox</a>
-        </div>
+      <div class="price-card popular">
+        <div class="pop-badge">POPULAR</div>
+        <div class="price-name">Pro</div>
+        <div class="price-sub">Growing commodity exporters</div>
+        <div class="price-val">€1,490 <span>/mo</span></div>
+        <ul class="price-list">
+          <li><span>✔</span> Up to 50,000 plots / mo</li>
+          <li><span>✔</span> Automated polygon healing</li>
+          <li><span>✔</span> Batch CSV / GeoJSON upload</li>
+          <li><span>✔</span> Full REST API access</li>
+          <li><span>✔</span> Priority support</li>
+        </ul>
+        <a href="/dashboard" class="btn btn-primary" style="width: 100%;">Launch Pro</a>
+      </div>
 
-        <!-- Pro -->
-        <div class="pricing-card featured">
-          <div class="pricing-badge">MOST POPULAR</div>
-          <div>
-            <div class="plan-name">Professional</div>
-            <div class="plan-desc">For active EU importers &amp; trading houses</div>
-            <div class="plan-price">$299 <span>USDC / month</span></div>
-            <ul class="plan-features">
-              <li><span>✓</span> 5,000 Plot Validations / month</li>
-              <li><span>✓</span> High-Res Sentinel-2 &amp; Hansen Radar</li>
-              <li><span>✓</span> Bulk CSV, GeoJSON &amp; KML Ingestion</li>
-              <li><span>✓</span> Multilingual Audit Reports (6 Languages)</li>
-              <li><span>✓</span> Celery Distributed Task Queue</li>
-              <li><span>✓</span> API Keys &amp; ERP Webhooks</li>
-            </ul>
-          </div>
-          <button onclick="openPaymentModal('PRO')" class="btn btn-primary" style="width: 100%;">⚡ Subscribe with USDC ($299)</button>
-        </div>
-
-        <!-- Enterprise -->
-        <div class="pricing-card">
-          <div>
-            <div class="plan-name">Enterprise Custom</div>
-            <div class="plan-desc">For global multinationals &amp; customs brokers</div>
-            <div class="plan-price">Custom</div>
-            <ul class="plan-features">
-              <li><span>✓</span> Unlimited Production Plots</li>
-              <li><span>✓</span> TRACES-NT Direct B2G Gateway</li>
-              <li><span>✓</span> Dedicated PostGIS 3.4 Database</li>
-              <li><span>✓</span> Custom SAP / Oracle SCM Connectors</li>
-              <li><span>✓</span> 99.99% Uptime SLA &amp; 24/7 Support</li>
-              <li><span>✓</span> On-Premise / VPC Deployment</li>
-            </ul>
-          </div>
-          <button onclick="openLeadModal('Enterprise Custom')" class="btn btn-ghost" style="width: 100%; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; cursor: pointer;">📅 Request Enterprise Demo &amp; Pilot</button>
-        </div>
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-sub">Global trading houses &amp; multinationals</div>
+        <div class="price-val">Custom</div>
+        <ul class="price-list">
+          <li><span>✔</span> Unlimited plots &amp; users</li>
+          <li><span>✔</span> Custom ERP &amp; SAP integration</li>
+          <li><span>✔</span> Dedicated account manager</li>
+          <li><span>✔</span> 99.9% SLA guarantee</li>
+        </ul>
+        <a href="/dashboard" class="btn btn-ghost" style="width: 100%;">Contact Sales</a>
       </div>
     </div>
   </section>
@@ -1232,915 +673,9 @@
   <!-- Footer -->
   <footer>
     <div class="container">
-      <div class="footer-top">
-        <div style="max-width: 380px;">
-          <div class="brand-logo" style="margin-bottom: 12px;">
-            <div class="brand-icon">🌲</div>
-            <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span><span class="brand-tld">.com</span></span>
-          </div>
-          <p style="font-size: 0.82rem; line-height: 1.6;">
-            The enterprise-grade standard for Regulation (EU) 2023/1115 compliance automation, geodesic spatial validation, and TRACES-NT digital DDS submission.
-          </p>
-        </div>
-
-        <div class="footer-col">
-          <h4>Platform</h4>
-          <ul>
-            <li><a href="/dashboard">Compliance Console</a></li>
-            <li><a href="#sandbox">GIS Satellite Radar</a></li>
-            <li><a href="/docs">REST API Documentation</a></li>
-            <li><a href="#pricing">Pricing Plans</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Regulations</h4>
-          <ul>
-            <li><a href="#">Regulation (EU) 2023/1115</a></li>
-            <li><a href="#">TRACES-NT B2G Specification</a></li>
-            <li><a href="#">EUDR Cut-off 2020/12/31</a></li>
-            <li><a href="#">Annex I HS Code Guide</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Legal &amp; Security</h4>
-          <ul>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">HMAC-SHA256 Integrity</a></li>
-            <li><a href="#">Security Overview</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <div>&copy; 2026 EUDRAgent Inc. All rights reserved.</div>
-        <div style="display: flex; gap: 16px;">
-          <span>🌐 Global Region: EU &amp; APAC</span>
-          <span>🔒 SSL &bull; ISO-27001 Ready</span>
-        </div>
-      </div>
+      <p>&copy; 2026 EUDRAgent.com. All rights reserved. | Regulation (EU) 2023/1115 Compliance Platform.</p>
     </div>
   </footer>
 
-  <!-- B2B USDC Payment Modal -->
-  <div id="payment-modal" class="modal-backdrop">
-    <div class="modal-window" style="max-width: 620px; height: auto; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.2rem;">⚡</span>
-          <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff;">B2B USDC Subscription &bull; <span style="color: #34d399;" id="modal-plan-title">PRO ($299/mo)</span></h3>
-        </div>
-        <button onclick="closePaymentModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
-      </div>
-      <div style="padding: 1.5rem; background: #0b1120; display: flex; flex-direction: column; gap: 1rem;">
-        
-        <!-- Step 1: Customer Details -->
-        <div id="payment-step-1" style="display: flex; flex-direction: column; gap: 0.85rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px;">
-            <div style="font-size: 0.78rem; color: #38bdf8; font-weight: 600;">Want to test subscription workflow instantly?</div>
-            <button type="button" onclick="autoTestPayment()" class="btn btn-secondary" style="font-size: 0.72rem; padding: 5px 10px; border-color: #38bdf8; color: #38bdf8; cursor: pointer;">⚡ 1-Click Auto Fill &amp; Test</button>
-          </div>
-
-          <div>
-            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Company Name</label>
-            <input type="text" id="pay-company-name" placeholder="e.g. Hamburg Coffee Trading GmbH" style="margin-top: 4px; width: 100%; padding: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;" />
-          </div>
-          <div>
-            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Corporate Billing Email (for API Key &amp; Tax Invoice)</label>
-            <input type="email" id="pay-contact-email" placeholder="compliance@yourcompany.com" style="margin-top: 4px; width: 100%; padding: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;" />
-          </div>
-          <div>
-            <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Select Payment / Settlement Method</label>
-            <select id="pay-chain" style="margin-top: 4px; width: 100%; padding: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;">
-              <option value="Base (Low Gas $0.01)" selected>🔵 Base (USDC - Instant &bull; Gas &lt; $0.01 Recommended)</option>
-              <option value="Polygon (PoS)">🟣 Polygon (USDC)</option>
-              <option value="Solana (SPL-USDC)">🟣 Solana (SPL-USDC)</option>
-              <option value="Arbitrum One">🔷 Arbitrum One (USDC)</option>
-              <option value="Ethereum (ERC-20)">🔷 Ethereum (ERC-20)</option>
-            </select>
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 0.5rem;">
-            <button onclick="submitCreatePaymentOrder()" class="btn btn-primary" style="flex: 1; padding: 11px; cursor: pointer;">
-              ⚡ Proceed to Checkout ($299 USDC)
-            </button>
-            <button onclick="openLeadModal('Corporate Invoice & Wire Transfer')" class="btn btn-secondary" style="padding: 11px 14px; font-size: 0.78rem; border-color: rgba(255,255,255,0.2); cursor: pointer;">
-              🏢 Wire / Card Invoice
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2: Deposit Address & Tx Confirmation -->
-        <div id="payment-step-2" style="display: none; flex-direction: column; gap: 1rem;">
-          <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 12px;">
-            <div style="font-size: 0.78rem; color: #34d399; font-weight: 700;">ORDER CREATED: <span id="pay-order-id">ORD-XXXX</span></div>
-            <div style="font-size: 0.88rem; font-weight: 800; color: #fff; margin-top: 2px;">
-              Transfer Exactly <span style="color: #38bdf8;" id="pay-amount-display">299.00 USDC</span>
-            </div>
-            <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;" id="pay-chain-display">Network: Base</div>
-          </div>
-
-          <div>
-            <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Deposit Wallet Address</label>
-            <div style="display: flex; gap: 6px; margin-top: 4px;">
-              <input type="text" id="pay-deposit-address" readonly style="flex: 1; padding: 8px; font-family: monospace; font-size: 0.78rem; background: #060913; border: 1px solid var(--border-color); border-radius: 8px; color: #38bdf8;" />
-              <button onclick="copyDepositAddress()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; cursor: pointer;">📋 Copy</button>
-            </div>
-          </div>
-
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">Blockchain Transaction Hash (Tx Hash)</label>
-              <a href="javascript:void(0)" onclick="autoFillSimulatedTx()" style="font-size: 0.7rem; color: #34d399; text-decoration: underline;">Auto-Fill Simulated Tx Hash</a>
-            </div>
-            <input type="text" id="pay-tx-hash" placeholder="e.g. 0x8f3c7b... or Solana Tx ID (or click Auto-Fill)" style="width: 100%; padding: 8px; font-family: monospace; font-size: 0.8rem; margin-top: 4px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;" />
-            <div style="font-size: 0.7rem; color: #64748b; margin-top: 3px;">For testing, click Auto-Fill above or enter your transferred on-chain Tx Hash.</div>
-          </div>
-
-          <button onclick="submitConfirmPayment()" id="btn-confirm-pay" class="btn btn-primary" style="padding: 11px; cursor: pointer; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            ✅ Verify Transaction &amp; Activate Pro License
-          </button>
-        </div>
-
-        <!-- Step 3: Success Screen -->
-        <div id="payment-step-3" style="display: none; flex-direction: column; gap: 1rem; text-align: center;">
-          <div style="font-size: 2.5rem;">🎉</div>
-          <h4 style="font-size: 1.1rem; font-weight: 800; color: #34d399;">Pro License Activated!</h4>
-          <p style="font-size: 0.82rem; color: #94a3b8;">5,000 monthly plot validation quota has been allocated.</p>
-          
-          <div style="background: #060913; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; text-align: left;">
-            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">YOUR PRO API KEY (Store securely):</div>
-            <div id="pay-success-api-key" style="font-family: monospace; font-size: 0.82rem; color: #38bdf8; word-break: break-all; margin-top: 4px; font-weight: 700;"></div>
-          </div>
-
-          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;">
-            <a id="pay-invoice-link" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.82rem;">📄 View EU Tax Invoice</a>
-            <a href="/dashboard" class="btn btn-primary" style="font-size: 0.82rem;">🚀 Open Compliance Console</a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Enterprise Demo & Pilot Assessment Modal -->
-  <div id="lead-modal" class="modal-backdrop">
-    <div class="modal-window" style="max-width: 640px; height: auto; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-header" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.3rem;">📅</span>
-          <div>
-            <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff;">Book Enterprise Demo &amp; Pilot Audit</h3>
-            <div style="font-size: 0.75rem; color: #94a3b8;">Regulation (EU) 2023/1115 TRACES-NT Automation Consultation</div>
-          </div>
-        </div>
-        <button onclick="closeLeadModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">✕</button>
-      </div>
-      
-      <div style="padding: 1.5rem; background: #0b1120; display: flex; flex-direction: column; gap: 1.1rem;">
-        
-        <!-- Form Fields -->
-        <div id="lead-form-view" style="display: flex; flex-direction: column; gap: 0.9rem;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Company / Organization *</label>
-              <input type="text" id="lead-company" placeholder="e.g. Nordic Pulp &amp; Timber AB" style="margin-top: 4px; width: 100%;" required />
-            </div>
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Contact Name *</label>
-              <input type="text" id="lead-name" placeholder="e.g. Lars Svensson" style="margin-top: 4px; width: 100%;" required />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Corporate Work Email *</label>
-              <input type="email" id="lead-email" placeholder="compliance@nordicpulp.se" style="margin-top: 4px; width: 100%;" required />
-            </div>
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Phone / WhatsApp (Optional)</label>
-              <input type="text" id="lead-phone" placeholder="+46 8 123 4567" style="margin-top: 4px; width: 100%;" />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Primary EUDR Commodity</label>
-              <select id="lead-commodity" style="margin-top: 4px; width: 100%;">
-                <option value="Timber">🪵 Timber &amp; Wood Products (Ch 44/47/48)</option>
-                <option value="Palm Oil">🌴 Oil Palm &amp; Derivatives (Ch 15/29/38)</option>
-                <option value="Cocoa">🍫 Cocoa &amp; Chocolate (Ch 18)</option>
-                <option value="Coffee">☕ Coffee (Ch 09)</option>
-                <option value="Soya">🌱 Soya Beans &amp; Meal (Ch 12/23)</option>
-                <option value="Rubber">🚗 Natural Rubber &amp; Tyres (Ch 40)</option>
-                <option value="Cattle">🥩 Cattle / Bovine Leather (Ch 01/02/41)</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Monthly Plot Volume</label>
-              <select id="lead-volume" style="margin-top: 4px; width: 100%;">
-                <option value="< 500 plots">&lt; 500 plots / month (Starter Pilot)</option>
-                <option value="500 - 5,000 plots" selected>500 - 5,000 plots / month (Mid-market)</option>
-                <option value="5,000 - 50,000 plots">5,000 - 50,000 plots / month (High volume)</option>
-                <option value="50,000+ plots">50,000+ plots / month (Global Enterprise)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label style="font-size: 0.74rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Specific Requirements or Questions</label>
-            <textarea id="lead-message" rows="3" placeholder="Describe your supply chain regions (e.g. Brazil, Indonesia, Sweden), ERP systems (SAP, Oracle), or target go-live date..." style="margin-top: 4px; width: 100%; background: #060913; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #f8fafc; padding: 10px; font-family: inherit; font-size: 0.85rem; resize: vertical;"></textarea>
-          </div>
-
-          <div id="lead-error-msg" style="display: none; color: #f87171; font-size: 0.8rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 8px;"></div>
-
-          <button onclick="submitLeadInquiry()" id="btn-submit-lead" class="btn btn-primary" style="margin-top: 6px; padding: 12px; font-size: 0.92rem; font-weight: 700;">
-            🚀 Submit Demo Request &amp; Start Free Pilot Audit
-          </button>
-          
-          <div style="font-size: 0.72rem; color: #64748b; text-align: center;">
-            🔒 Confidential enterprise NDA &amp; GDPR compliant. Our EUDR specialists respond within 24 hours.
-          </div>
-        </div>
-
-        <!-- Success View -->
-        <div id="lead-success-view" style="display: none; flex-direction: column; gap: 1rem; text-align: center; padding: 1rem 0;">
-          <div style="font-size: 3rem;">🎉</div>
-          <h4 style="font-size: 1.2rem; font-weight: 800; color: #34d399;">Request Successfully Received!</h4>
-          <p style="font-size: 0.88rem; color: #94a3b8; max-width: 480px; margin: 0 auto;">
-            Thank you, <strong id="lead-success-name" style="color: #fff;"></strong>. Your reference ID is <code id="lead-success-id" style="color: #38bdf8; background: #060913; padding: 2px 6px; border-radius: 4px;"></code>.
-          </p>
-          <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px; text-align: left; max-width: 480px; margin: 0 auto;">
-            <div style="font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 4px;">✅ Next Steps:</div>
-            <ul style="font-size: 0.78rem; color: #cbd5e1; list-style: disc; margin-left: 18px; line-height: 1.6;">
-              <li>Our EUDR compliance lead is reviewing your supply chain profile.</li>
-              <li>A custom 14-day Enterprise sandbox environment will be provisioned.</li>
-              <li>We will email meeting details and access credentials to <strong id="lead-success-email" style="color: #fff;"></strong>.</li>
-            </ul>
-          </div>
-          <button onclick="closeLeadModal()" class="btn btn-secondary" style="margin-top: 10px; align-self: center;">
-            Close Window
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Leaflet JS & Interactive Sandbox Logic -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script>
-    let currentOrderId = null;
-
-    function openLeadModal(intentContext) {
-      const modal = document.getElementById('lead-modal');
-      if (modal) {
-        modal.classList.add('open');
-        document.getElementById('lead-form-view').style.display = 'flex';
-        document.getElementById('lead-success-view').style.display = 'none';
-        document.getElementById('lead-error-msg').style.display = 'none';
-        if (intentContext && intentContext.includes('Timber')) {
-          document.getElementById('lead-commodity').value = 'Timber';
-        }
-      }
-    }
-
-    function closeLeadModal() {
-      const modal = document.getElementById('lead-modal');
-      if (modal) modal.classList.remove('open');
-    }
-
-    async function submitLeadInquiry() {
-      const company = document.getElementById('lead-company').value.trim();
-      const name = document.getElementById('lead-name').value.trim();
-      const email = document.getElementById('lead-email').value.trim();
-      const phone = document.getElementById('lead-phone').value.trim();
-      const commodity = document.getElementById('lead-commodity').value;
-      const volume = document.getElementById('lead-volume').value;
-      const message = document.getElementById('lead-message').value.trim();
-      const errBox = document.getElementById('lead-error-msg');
-      const btn = document.getElementById('btn-submit-lead');
-
-      if (!company || !name || !email) {
-        errBox.textContent = "Please fill in all required fields: Company, Name, and Corporate Email.";
-        errBox.style.display = 'block';
-        return;
-      }
-
-      if (!email.includes('@') || !email.includes('.')) {
-        errBox.textContent = "Please enter a valid work email address.";
-        errBox.style.display = 'block';
-        return;
-      }
-
-      errBox.style.display = 'none';
-      btn.disabled = true;
-      btn.textContent = "Submitting Inquiry...";
-
-      try {
-        const res = await fetch('/api/v1/leads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            company_name: company,
-            contact_name: name,
-            contact_email: email,
-            phone: phone || null,
-            commodity_type: commodity,
-            estimated_monthly_plots: volume,
-            message: message || null
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          document.getElementById('lead-success-name').textContent = name;
-          document.getElementById('lead-success-id').textContent = data.inquiry_id;
-          document.getElementById('lead-success-email').textContent = email;
-
-          document.getElementById('lead-form-view').style.display = 'none';
-          document.getElementById('lead-success-view').style.display = 'flex';
-        } else {
-          errBox.textContent = "Submission error: " + (data.detail || "Unable to submit inquiry.");
-          errBox.style.display = 'block';
-        }
-      } catch (err) {
-        errBox.textContent = "Network error: " + err.message;
-        errBox.style.display = 'block';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "🚀 Submit Demo Request & Start Free Pilot Audit";
-      }
-    }
-
-    function openPaymentModal(plan) {
-      const modal = document.getElementById('payment-modal');
-      if (modal) {
-        modal.classList.add('open');
-        document.getElementById('payment-step-1').style.display = 'flex';
-        document.getElementById('payment-step-2').style.display = 'none';
-        document.getElementById('payment-step-3').style.display = 'none';
-      }
-    }
-
-    function closePaymentModal() {
-      const modal = document.getElementById('payment-modal');
-      if (modal) modal.classList.remove('open');
-    }
-
-    async function submitCreatePaymentOrder() {
-      const company = document.getElementById('pay-company-name').value.trim();
-      const email = document.getElementById('pay-contact-email').value.trim();
-      const chain = document.getElementById('pay-chain').value;
-
-      if (!company || !email) {
-        alert("Please enter both company name and corporate email.");
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/v1/payment/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            plan_tier: 'PRO',
-            company_name: company,
-            contact_email: email,
-            chain: chain
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          currentOrderId = data.order_id;
-          document.getElementById('pay-order-id').textContent = data.order_id;
-          document.getElementById('pay-amount-display').textContent = `${data.amount_usdc.toFixed(2)} USDC`;
-          document.getElementById('pay-chain-display').textContent = `Network: ${data.chain}`;
-          document.getElementById('pay-deposit-address').value = data.deposit_wallet_address;
-          
-          document.getElementById('payment-step-1').style.display = 'none';
-          document.getElementById('payment-step-2').style.display = 'flex';
-        } else {
-          alert("Order error: " + (data.detail || "Failed to create order."));
-        }
-      } catch (err) {
-        alert("Connection error: " + err.message);
-      }
-    }
-
-    function copyDepositAddress() {
-      const input = document.getElementById('pay-deposit-address');
-      input.select();
-      navigator.clipboard.writeText(input.value);
-      alert("Deposit address copied to clipboard!");
-    }
-
-    function autoTestPayment() {
-      document.getElementById('pay-company-name').value = "Verified Enterprise Pilot Trading";
-      document.getElementById('pay-contact-email').value = "compliance@eudragent.com";
-      submitCreatePaymentOrder().then(() => {
-        setTimeout(() => {
-          autoFillSimulatedTx();
-        }, 300);
-      });
-    }
-
-    function autoFillSimulatedTx() {
-      const randHex = Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-      document.getElementById('pay-tx-hash').value = "0x" + randHex;
-    }
-
-    async function submitConfirmPayment() {
-      let txHash = document.getElementById('pay-tx-hash').value.trim();
-      if (!txHash) {
-        autoFillSimulatedTx();
-        txHash = document.getElementById('pay-tx-hash').value;
-      }
-
-      const btn = document.getElementById('btn-confirm-pay');
-      btn.disabled = true;
-      btn.textContent = "Verifying On-chain Tx...";
-
-      try {
-        const res = await fetch('/api/v1/payment/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            order_id: currentOrderId,
-            tx_hash: txHash
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          document.getElementById('pay-success-api-key').textContent = data.api_key_issued;
-          document.getElementById('pay-invoice-link').href = data.receipt_url;
-          
-          document.getElementById('payment-step-2').style.display = 'none';
-          document.getElementById('payment-step-3').style.display = 'flex';
-        } else {
-          alert("Verification error: " + (data.detail || "Transaction verification failed."));
-        }
-      } catch (err) {
-        alert("Error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "✅ Verify Transaction & Activate Pro License";
-      }
-    }
-  </script>
-  <script>
-    let sandboxMap = null;
-    let currentLayer = null;
-
-    const PRESETS = {
-      vietnam: {
-        center: [12.6667, 108.0383],
-        zoom: 13,
-        polygon: [
-          [12.670, 108.035],
-          [12.670, 108.042],
-          [12.662, 108.042],
-          [12.662, 108.035],
-          [12.670, 108.035]
-        ],
-        status: "COMPLIANT",
-        badgeClass: "badge-pass",
-        badgeText: "🟢 COMPLIANT (Zero Deforestation Detected)",
-        spatialTitle: "EUDR Art. 9(1)(d) 4ha Rule: PASSED",
-        spatialDesc: "Area: 8.42 ha (Strict Polygon WGS84 Topology Validated)",
-        satTitle: "Multi-Satellite Deforestation Radar: ZERO LOSS",
-        satDesc: "Copernicus Sentinel-2 & Hansen GFC post-2020 loss: 0.00%",
-        legalTitle: "Origin Legality & Risk Benchmarking: VERIFIED",
-        legalDesc: "Dak Lak Provincial Harvest Permit #VN-DKL-9982 (Risk: STANDARD)",
-        hash: "DDS-2026-EUDR-VN-COFFEE-8821 • HMAC: 7a9f2e4b8c1d5e3f9a7b1c4e6d8a2f0b",
-        color: "#10b981"
-      },
-      indonesia: {
-        center: [0.5333, 101.4500],
-        zoom: 12,
-        polygon: [
-          [0.540, 101.440],
-          [0.540, 101.460],
-          [0.525, 101.460],
-          [0.525, 101.440],
-          [0.540, 101.440]
-        ],
-        status: "DEFORESTATION_DETECTED",
-        badgeClass: "badge-fail",
-        badgeText: "🔴 NON-COMPLIANT (Post-2020 Deforestation Detected: 2.8%)",
-        spatialTitle: "EUDR Art. 9(1)(d) 4ha Rule: PASSED",
-        spatialDesc: "Area: 36.15 ha (Strict Polygon)",
-        satTitle: "Satellite Radar Alert: 2.8% Forest Cover Loss in 2022",
-        satDesc: "Hansen GFC Alert (Tree Cover Loss Year 22) overlaps plot boundary",
-        legalTitle: "Origin Legality: Under Audit Review",
-        legalDesc: "HGU Plantation Permit #ID-RIAU-4412 (Risk: HIGH)",
-        hash: "DDS-REJECTED-DEFORESTATION-ALERT • Blocked from TRACES-NT submission",
-        color: "#ef4444"
-      },
-      ivorycoast: {
-        center: [5.8500, -5.3500],
-        zoom: 13,
-        polygon: [
-          [5.855, -5.355],
-          [5.855, -5.345],
-          [5.845, -5.345],
-          [5.845, -5.355],
-          [5.855, -5.355]
-        ],
-        status: "COMPLIANT",
-        badgeClass: "badge-pass",
-        badgeText: "🟢 COMPLIANT (Cocoa Smallholder Farm Validated)",
-        spatialTitle: "EUDR Art. 9(1)(d) 4ha Rule: PASSED",
-        spatialDesc: "Area: 2.45 ha (Smallholder Traceability Geodesic Audit)",
-        satTitle: "Multi-Satellite Deforestation Radar: ZERO LOSS",
-        satDesc: "JRC Global Forest Cover 2020 baseline verified intact",
-        legalTitle: "Origin Legality & FPIC: VERIFIED",
-        legalDesc: "Cooperative Certificate #CI-COOP-882 (Risk: STANDARD)",
-        hash: "DDS-2026-EUDR-CI-COCOA-5512 • HMAC: 4e8a1b2c3d4e5f6a7b8c9d0e1f2a3b4c",
-        color: "#10b981"
-      },
-      brazil: {
-        center: [-12.5000, -55.7000],
-        zoom: 12,
-        polygon: [
-          [-12.480, -55.720],
-          [-12.480, -55.680],
-          [-12.520, -55.680],
-          [-12.520, -55.720],
-          [-12.480, -55.720]
-        ],
-        status: "COMPLIANT",
-        badgeClass: "badge-pass",
-        badgeText: "🟢 COMPLIANT (Mato Grosso FSC Certified Soya/Timber)",
-        spatialTitle: "EUDR Art. 9(1)(d) 4ha Rule: PASSED",
-        spatialDesc: "Area: 198.50 ha (Large Estate Multi-Polygon Self-Healed)",
-        satTitle: "Sentinel-2 & Hansen Radar: 0.00% Deforestation",
-        satDesc: "Zero tree canopy loss detected after December 31, 2020",
-        legalTitle: "CAR (Cadastro Ambiental Rural) Verified",
-        legalDesc: "Federal Environmental License #BR-IBAMA-7729 (Risk: STANDARD)",
-        hash: "DDS-2026-EUDR-BR-SOYA-9912 • HMAC: 9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f",
-        color: "#10b981"
-      }
-    };
-
-    function initSandboxMap() {
-      const mapContainer = document.getElementById('sandbox-map');
-      if (!mapContainer || sandboxMap) return;
-
-      sandboxMap = L.map('sandbox-map', {
-        zoomControl: true,
-        scrollWheelZoom: false
-      }).setView([12.6667, 108.0383], 13);
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        maxZoom: 18
-      }).addTo(sandboxMap);
-
-      loadSandboxPreset('vietnam');
-    }
-
-    function loadSandboxPreset(presetKey) {
-      const data = PRESETS[presetKey];
-      if (!data) return;
-
-      // Update tabs UI
-      document.querySelectorAll('.sandbox-tab').forEach(tab => tab.classList.remove('active'));
-      const activeBtn = Array.from(document.querySelectorAll('.sandbox-tab')).find(b => b.getAttribute('onclick').includes(presetKey));
-      if (activeBtn) activeBtn.classList.add('active');
-
-      // Update Result UI
-      const badge = document.getElementById('sandbox-badge');
-      badge.className = `result-badge ${data.badgeClass}`;
-      badge.textContent = data.badgeText;
-
-      document.getElementById('sandbox-spatial-title').textContent = data.spatialTitle;
-      document.getElementById('sandbox-spatial-desc').textContent = data.spatialDesc;
-      document.getElementById('sandbox-satellite-title').textContent = data.satTitle;
-      document.getElementById('sandbox-satellite-desc').textContent = data.satDesc;
-      document.getElementById('sandbox-legal-title').textContent = data.legalTitle;
-      document.getElementById('sandbox-legal-desc').textContent = data.legalDesc;
-      document.getElementById('sandbox-dds-hash').textContent = data.hash;
-
-      // Update Map
-      if (sandboxMap) {
-        if (currentLayer) sandboxMap.removeLayer(currentLayer);
-        sandboxMap.flyTo(data.center, data.zoom, { duration: 1.2 });
-
-        currentLayer = L.polygon(data.polygon, {
-          color: data.color,
-          fillColor: data.color,
-          fillOpacity: 0.25,
-          weight: 3
-        }).addTo(sandboxMap);
-
-        currentLayer.bindPopup(`<b>${data.badgeText}</b><br>${data.spatialDesc}`).openPopup();
-      }
-    }
-
-    let currentDDSReport = null;
-
-    function downloadSampleData(type) {
-      let content = "";
-      let filename = "";
-      let mimeType = "text/plain";
-
-      if (type === 'csv') {
-        filename = "sample_vietnam_coffee_plots.csv";
-        mimeType = "text/csv";
-        content = "plot_id,producer_name,country_code,commodity_hs_code,latitude,longitude,area_hectares\n" +
-                  "VN-PLOT-01,Da Lat Arabica Group,VN,090111,12.6667,108.0383,3.85\n" +
-                  "VN-PLOT-02,Highland Coffee Coop,VN,090111,12.6710,108.0410,2.15\n" +
-                  "VN-PLOT-03,Buon Ma Thuot Smallholders,VN,090111,12.6580,108.0320,1.90";
-      } else if (type === 'geojson') {
-        filename = "sample_brazil_timber_plots.geojson";
-        mimeType = "application/geo+json";
-        content = JSON.stringify({
-          type: "FeatureCollection",
-          features: [{
-            type: "Feature",
-            properties: {
-              plot_id: "BR-TIMBER-01",
-              producer_name: "Mato Grosso Sustainable Forestry Ltd",
-              commodity: "Wood / Timber (4407)",
-              country: "BR"
-            },
-            geometry: {
-              type: "Polygon",
-              coordinates: [[
-                [-55.720, -12.480],
-                [-55.680, -12.480],
-                [-55.680, -12.520],
-                [-55.720, -12.520],
-                [-55.720, -12.480]
-              ]]
-            }
-          }]
-        }, null, 2);
-      } else if (type === 'kml') {
-        filename = "sample_indonesia_palmoil_estate.kml";
-        mimeType = "application/vnd.google-earth.kml+xml";
-        content = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-                  '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
-                  '  <Document>\n' +
-                  '    <name>Indonesia Palm Oil Estate Sample</name>\n' +
-                  '    <Placemark>\n' +
-                  '      <name>ID-RIAU-PALM-01</name>\n' +
-                  '      <description>Riau Sustainable Palm Oil Estate (HS 1511)</description>\n' +
-                  '      <Polygon>\n' +
-                  '        <outerBoundaryIs>\n' +
-                  '          <LinearRing>\n' +
-                  '            <coordinates>\n' +
-                  '              101.440,0.540,0\n' +
-                  '              101.460,0.540,0\n' +
-                  '              101.460,0.525,0\n' +
-                  '              101.440,0.525,0\n' +
-                  '              101.440,0.540,0\n' +
-                  '            </coordinates>\n' +
-                  '          </LinearRing>\n' +
-                  '        </outerBoundaryIs>\n' +
-                  '      </Polygon>\n' +
-                  '    </Placemark>\n' +
-                  '  </Document>\n' +
-                  '</kml>';
-      }
-
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    async function handleSandboxFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const badge = document.getElementById('sandbox-badge');
-      badge.className = "result-badge";
-      badge.style.background = "rgba(59,130,246,0.2)";
-      badge.style.color = "#60a5fa";
-      badge.textContent = `⏳ Ingesting & Auditing ${file.name}...`;
-
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('supplier_id', 'SUPP-SANDBOX-TEST');
-        formData.append('operator_name', 'Live Sandbox Operator');
-        formData.append('hs_code', '090111');
-        formData.append('commodity_desc', 'Uploaded Test Commodity');
-
-        // Step 1: Ingest and parse file
-        const ingestRes = await fetch('/api/v1/eudr/ingest-file', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!ingestRes.ok) {
-          const err = await ingestRes.json();
-          throw new Error(err.detail || "Failed to parse file format.");
-        }
-
-        const payload = await ingestRes.json();
-
-        // Step 2: Evaluate with EUDR Compliance Engine
-        const evalRes = await fetch('/api/v1/eudr/evaluate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!evalRes.ok) {
-          const err = await evalRes.json();
-          throw new Error(err.detail || "Failed to evaluate compliance.");
-        }
-
-        const result = await evalRes.json();
-        currentDDSReport = result;
-
-        // Render Results on UI
-        const isCompliant = result.status === "COMPLIANT";
-        badge.className = `result-badge ${isCompliant ? 'badge-pass' : 'badge-fail'}`;
-        badge.textContent = isCompliant 
-          ? `🟢 COMPLIANT (${result.plots_evaluated} Plots Verified Deforestation-Free)` 
-          : `🔴 ACTION REQUIRED (${result.confidence_assessment ? result.confidence_assessment.review_status : 'Manual Review'})`;
-
-        document.getElementById('sandbox-spatial-title').textContent = `EUDR Art. 9(1)(d) 4ha Rule: ${isCompliant ? 'PASSED' : 'FLAGGED'}`;
-        document.getElementById('sandbox-spatial-desc').textContent = `Total Area: ${result.total_area_hectares.toFixed(2)} ha Across ${result.plots_evaluated} Parsed Plots`;
-        document.getElementById('sandbox-satellite-title').textContent = `Satellite Deforestation Radar: ${isCompliant ? 'ZERO LOSS' : 'FLAGGED'}`;
-        document.getElementById('sandbox-satellite-desc').textContent = `Evaluated against Dec 31, 2020 EUDR Cut-off Baseline`;
-        document.getElementById('sandbox-legal-title').textContent = `Origin Legality: ${result.risk_tier} RISK`;
-        document.getElementById('sandbox-legal-desc').textContent = `Risk Level: ${result.risk_tier} (Country: ${payload.plots[0]?.country_code || 'EU'})`;
-        document.getElementById('sandbox-dds-hash').textContent = `${result.traces_dds?.dds_reference_id || 'DDS-GEN'} • HMAC: ${result.evidence_bundle?.digital_signature_hmac_sha256?.substring(0, 32) || 'HMAC-SHA256'}`;
-
-        // Render Plots on Map
-        if (sandboxMap && payload.plots && payload.plots.length > 0) {
-          if (currentLayer) sandboxMap.removeLayer(currentLayer);
-
-          const group = L.featureGroup();
-          payload.plots.forEach(p => {
-            if (p.geometry_type === "Polygon" && p.coordinates_polygon && p.coordinates_polygon.length > 0) {
-              const latlngs = p.coordinates_polygon.map(coord => [coord[1], coord[0]]);
-              L.polygon(latlngs, {
-                color: isCompliant ? '#10b981' : '#ef4444',
-                fillColor: isCompliant ? '#10b981' : '#ef4444',
-                fillOpacity: 0.25,
-                weight: 2
-              }).bindPopup(`<b>Plot ID: ${p.plot_id}</b><br>Area: ${p.area_hectares} ha`).addTo(group);
-            } else if (p.latitude && p.longitude) {
-              L.circleMarker([p.latitude, p.longitude], {
-                radius: 6,
-                color: isCompliant ? '#10b981' : '#ef4444',
-                fillColor: isCompliant ? '#10b981' : '#ef4444',
-                fillOpacity: 0.8
-              }).bindPopup(`<b>Plot ID: ${p.plot_id}</b><br>Coordinates: [${p.latitude}, ${p.longitude}]`).addTo(group);
-            }
-          });
-
-          group.addTo(sandboxMap);
-          currentLayer = group;
-          sandboxMap.fitBounds(group.getBounds(), { padding: [30, 30] });
-        }
-
-      } catch (err) {
-        badge.className = "result-badge badge-fail";
-        badge.textContent = `❌ Error: ${err.message}`;
-      }
-    }
-
-    function downloadCurrentDDS() {
-      const ddsData = currentDDSReport || {
-        reference: "DDS-2026-EUDR-VN-COFFEE-8821",
-        status: "COMPLIANT",
-        regulation: "Regulation (EU) 2023/1115",
-        deforestation_free: true,
-        cut_off_baseline: "2020-12-31",
-        hmac_sha256_signature: "7a9f2e4b8c1d5e3f9a7b1c4e6d8a2f0b4c8d1e2f3a5b7c9e0d1f2a3b4c5d6e7f",
-        timestamp: new Date().toISOString()
-      };
-
-      const blob = new Blob([JSON.stringify(ddsData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `EUDR_DDS_Statement_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    const I18N = {
-      en: {
-        title: 'Autonomous <span class="gradient-text">EUDR Compliance</span> & Geodesic Radar Platform',
-        sub: 'Eliminate deforestation compliance bottlenecks. Sub-second 4ha spatial verification, multi-satellite post-2020 cut-off triangulation, and cryptographically signed TRACES-NT DDS generation.',
-        badge: '🌍 Live Production Platform • Regulation (EU) 2023/1115 TRACES-NT Gateway',
-        launch: '🚀 Launch Console',
-        demo: '📅 Book Enterprise Demo & Pilot',
-        supplier: '🌾 Supplier Portal'
-      },
-      de: {
-        title: 'Autonome <span class="gradient-text">EUDR-Konformität</span> & Satelliten-Radar-Plattform',
-        sub: 'Beseitigen Sie EUDR-Engpässe. Räumliche 4-ha-Prüfung in Sekundenbruchteilen, Multi-Satelliten-Triangulation nach dem Stichtag 2020 und kryptografisch signierte TRACES-NT-DDS-Erstellung.',
-        badge: '🌍 Live-Produktionsplattform • Verordnung (EU) 2023/1115 TRACES-NT Gateway',
-        launch: '🚀 Konsole starten',
-        demo: '📅 Demo & Pilotprojekt buchen',
-        supplier: '🌾 Lieferantenportal'
-      },
-      fr: {
-        title: 'Plateforme Autonome de <span class="gradient-text">Conformité RDUE</span> et Radar Géodésique',
-        sub: 'Éliminez les goulots d\'étranglement de la déforestation. Vérification spatiale 4ha en une fraction de seconde, triangulation multi-satellites post-2020 et génération DDS TRACES-NT signée.',
-        badge: '🌍 Plateforme de Production • Passerelle TRACES-NT Règlement (UE) 2023/1115',
-        launch: '🚀 Lancer la Console',
-        demo: '📅 Réserver une Démo',
-        supplier: '🌾 Portail Fournisseur'
-      },
-      es: {
-        title: 'Plataforma Autónoma de <span class="gradient-text">Cumplimiento EUDR</span> y Radar Satelital',
-        sub: 'Elimine las barreras de cumplimiento de deforestación. Verificación espacial de 4ha en subsegundos, triangulación multisatélite posterior a 2020 y generación de DDS TRACES-NT firmada.',
-        badge: '🌍 Plataforma en Producción • Pasarela TRACES-NT Reglamento (UE) 2023/1115',
-        launch: '🚀 Iniciar Consola',
-        demo: '📅 Solicitar Demostración',
-        supplier: '🌾 Portal de Proveedores'
-      },
-      pt: {
-        title: 'Plataforma Autônoma de <span class="gradient-text">Conformidade EUDR</span> e Radar Geodésico',
-        sub: 'Elimine gargalos regulatórios de desmatamento. Verificação espacial de 4ha em subsegundos, triangulação multi-satélite pós-2020 e geração de DDS TRACES-NT com assinatura digital.',
-        badge: '🌍 Plataforma em Produção • Gateway TRACES-NT Regulamento (UE) 2023/1115',
-        launch: '🚀 Abrir Console',
-        demo: '📅 Agendar Demonstração',
-        supplier: '🌾 Portal do Fornecedor'
-      },
-      vi: {
-        title: 'Nền tảng Tự động <span class="gradient-text">Tuân thủ EUDR</span> & Radar Vệ tinh Địa không',
-        sub: 'Loại bỏ rào cản quy định phá rừng EU. Xác minh đa giác 4ha dưới 1 giây, đối chiếu vệ tinh Sentinel-2 sau mốc 31/12/2020 và xuất chứng chỉ DDS TRACES-NT ký số.',
-        badge: '🌍 Nền tảng Vận hành Thực tế • Cổng TRACES-NT Quy định (EU) 2023/1115',
-        launch: '🚀 Mở Bảng điều khiển',
-        demo: '📅 Đăng ký Bản thử nghiệm',
-        supplier: '🌾 Cổng Nhà cung cấp'
-      },
-      ko: {
-        title: '자율형 <span class="gradient-text">EUDR 산림벌채방지법</span> 규제 준수 & 레이더 플랫폼',
-        sub: '유럽 공급망 규제 병목을 0.1초 만에 해결합니다. 4ha 초과 다각형 측지 검증, 2020년 기준선 다중 위성 산림벌채 분석 및 TRACES-NT 공인 DDS 자동 발행.',
-        badge: '🌍 실시간 운영 플랫폼 • EU 규정 2023/1115 TRACES-NT 공인 게이트웨이',
-        launch: '🚀 운영 콘솔 실행',
-        demo: '📅 엔터프라이즈 데모 신청',
-        supplier: '🌾 공급업체 자가진단'
-      }
-    };
-
-    function changeLanguage(lang) {
-      const data = I18N[lang] || I18N.en;
-      const titleEl = document.querySelector('.hero-title');
-      const subEl = document.querySelector('.hero-subtitle');
-      const badgeEl = document.querySelector('.hero-badge span:last-child');
-      
-      if (titleEl) titleEl.innerHTML = data.title;
-      if (subEl) subEl.textContent = data.sub;
-      if (badgeEl) badgeEl.textContent = data.badge;
-      
-      localStorage.setItem('eudr_preferred_lang', lang);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initSandboxMap();
-
-      const savedLang = localStorage.getItem('eudr_preferred_lang');
-      if (savedLang && I18N[savedLang]) {
-        const sel = document.getElementById('lang-selector');
-        if (sel) sel.value = savedLang;
-        changeLanguage(savedLang);
-      }
-
-      // Mobile Menu Toggle
-      const mobileBtn = document.getElementById('mobile-menu-btn');
-      const navLinks = document.getElementById('nav-links');
-      if (mobileBtn && navLinks) {
-        mobileBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isOpen = navLinks.classList.toggle('active');
-          mobileBtn.textContent = isOpen ? '✕' : '☰';
-        });
-
-        // Close menu when clicking outside or on a link
-        document.addEventListener('click', (e) => {
-          if (!navLinks.contains(e.target) && e.target !== mobileBtn) {
-            navLinks.classList.remove('active');
-            mobileBtn.textContent = '☰';
-          }
-        });
-
-        navLinks.querySelectorAll('a').forEach(link => {
-          link.addEventListener('click', () => {
-            navLinks.classList.remove('active');
-            mobileBtn.textContent = '☰';
-          });
-        });
-      }
-    });
-  </script>
 </body>
 </html>

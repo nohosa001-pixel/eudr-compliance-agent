@@ -44,5 +44,10 @@ class Settings(BaseModel):
     COPERNICUS_CLIENT_SECRET: str = os.getenv("COPERNICUS_CLIENT_SECRET", "")
     USE_LIVE_COPERNICUS_API: bool = False
 
+    # Stripe Payments Configuration (EUR / Cards / SEPA)
+    STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
+    STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+    STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
 
 settings = Settings()

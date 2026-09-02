@@ -488,3 +488,18 @@ class LeadInquiryResponse(BaseModel):
     message: str
 
 
+# --- Stripe B2B Checkout Schemas ---
+
+class StripeCheckoutSessionCreateRequest(BaseModel):
+    plan_tier: str = Field("PRO", description="Subscription Plan Tier (STARTER, PRO, ENTERPRISE)")
+    company_name: str = Field("EU Enterprise Customer", min_length=2, max_length=128)
+    contact_email: str = Field("billing@eudr-client.eu", min_length=5, max_length=128)
+    vat_number: Optional[str] = Field(None, max_length=64, description="EU VAT Number for Reverse-Charge")
+    success_url: Optional[str] = None
+    cancel_url: Optional[str] = None
+
+class StripeCheckoutSessionConfirmRequest(BaseModel):
+    session_id: str = Field(..., description="Stripe Checkout Session ID")
+
+
+

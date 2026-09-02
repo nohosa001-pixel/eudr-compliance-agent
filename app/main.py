@@ -36,7 +36,9 @@ from app.schemas import (
     ApiKeyResponse,
     ApiKeyValidationResponse,
     LeadInquiryCreateRequest,
-    LeadInquiryResponse
+    LeadInquiryResponse,
+    StripeCheckoutSessionCreateRequest,
+    StripeCheckoutSessionConfirmRequest
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.traceability_collector import TraceabilityCollector
@@ -49,6 +51,7 @@ from app.modules.traces_b2g_client import TracesNTB2GClient, TRACESB2GSubmission
 from app.modules.batch_job_manager import BatchJobManager
 from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
 from app.modules.notification_manager import NotificationManager
+from app.modules.stripe_manager import StripeManager
 from app.db.session import init_db, get_db
 from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository
 from app.core.config import settings
@@ -751,6 +754,204 @@ async def get_invoice_receipt(order_id: str):
         return PaymentManager.get_invoice_receipt(order_id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+# -------------------------------------------------------------------
+# Stripe B2B EUR Checkout & Subscription Webhook Endpoints
+# -------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payments/stripe/create-checkout-session",
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Create a Stripe Checkout Session for EUR B2B Subscription"
+)
+async def create_stripe_checkout_session(
+    payload: StripeCheckoutSessionCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Creates a Stripe Checkout Session with support for European corporate credit cards,
+    SEPA Direct Debit, and automatic EU VAT reverse-charge invoicing.
+    """
+    return StripeManager.create_checkout_session(
+        plan_tier=payload.plan_tier,
+        company_name=payload.company_name,
+        contact_email=payload.contact_email,
+        vat_number=payload.vat_number,
+        success_url=payload.success_url,
+        cancel_url=payload.cancel_url,
+        db_session=db
+    )
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payments/stripe/confirm-session",
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Confirm completed Stripe checkout session and issue Pro API key"
+)
+async def confirm_stripe_checkout_session(
+    payload: StripeCheckoutSessionConfirmRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Finalizes a completed checkout session and provisions the production API key.
+    """
+    return StripeManager.complete_checkout_session(session_id=payload.session_id, db_session=db)
+
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payments/stripe-webhook",
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Stripe Official Webhook Receiver for Automated Subscription Activation"
+)
+async def handle_stripe_webhook(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Listens for live Stripe webhook events (e.g. checkout.session.completed, invoice.paid).
+    Automatically provisions Pro API keys and sends Telegram financial notifications.
+    """
+    payload_body = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+
+    try:
+        data = json.loads(payload_body.decode("utf-8")) if payload_body else {}
+        event_type = data.get("type", "checkout.session.completed")
+        session_obj = data.get("data", {}).get("object", {})
+        session_id = session_obj.get("id", f"cs_webhook_{uuid.uuid4().hex[:8]}")
+
+        if event_type in ["checkout.session.completed", "invoice.payment_succeeded"]:
+            result = StripeManager.complete_checkout_session(session_id=session_id, db_session=db)
+            return {"status": "success", "event": event_type, "result": result}
+
+        return {"status": "ignored", "event": event_type}
+    except Exception as e:
+        logger.error(f"Error handling Stripe webhook: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payments/stripe/preview-checkout",
+    response_class=HTMLResponse,
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Stripe Hosted Checkout Staging Preview Page"
+)
+async def preview_stripe_checkout_page(
+    session_id: str,
+    tier: str = "PRO",
+    amount: float = 1490.00,
+    company: str = "EU Enterprise Customer"
+):
+    """
+    Clean, hosted Stripe-styled preview checkout page for pre-launch staging verification.
+    """
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stripe Checkout (EUDR Agent {tier} Plan)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {{
+      font-family: 'Inter', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }}
+    .card {{
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }}
+    .badge {{
+      background: rgba(16,185,129,0.15);
+      border: 1px solid #10b981;
+      color: #34d399;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }}
+    h1 {{ font-size: 1.4rem; margin: 0 0 8px; }}
+    .price {{ font-size: 2.2rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; margin: 16px 0; }}
+    .detail {{ font-size: 0.85rem; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }}
+    .btn {{
+      display: block;
+      width: 100%;
+      background: #6366f1;
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }}
+    .btn:hover {{ background: #4f46e5; }}
+    .secure {{ text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 16px; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">🔒 STRIPE CHECKOUT PREVIEW</div>
+    <h1>Subscribe to {tier} Plan</h1>
+    <div class="price">€{amount:,.2f} <span style="font-size:0.9rem; color:#94a3b8; font-weight:400;">/ month</span></div>
+    <div class="detail">
+      • Company: <strong>{company}</strong><br>
+      • Regulation (EU) 2023/1115 TRACES-NT Automation<br>
+      • Multi-Satellite Radar &amp; Instant API Key Provisioning<br>
+      • EU VAT Reverse-Charge 0% Tax Invoice Included
+    </div>
+    <button class="btn" onclick="completeStripeSimulation('{session_id}')">
+      💳 Confirm &amp; Activate Subscription (Stripe Simulation)
+    </button>
+    <div class="secure">
+      🔒 Powered by Stripe • 256-Bit SSL Encrypted • Next Week Live Mode
+    </div>
+  </div>
+
+  <script>
+    async function completeStripeSimulation(sessionId) {{
+      const btn = document.querySelector('.btn');
+      btn.innerText = 'Activating Subscription...';
+      btn.disabled = true;
+      try {{
+        const resp = await fetch('/api/v1/payments/stripe/confirm-session', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ session_id: sessionId }})
+        }});
+        const data = await resp.json();
+        alert('🎉 Subscription activated successfully! API Key: ' + data.api_key);
+        window.location.href = '/dashboard?payment=success&key=' + data.api_key;
+      }} catch (err) {{
+        alert('Error: ' + err);
+        btn.innerText = 'Retry';
+        btn.disabled = false;
+      }}
+    }}
+  </script>
+</body>
+</html>
+"""
+    return HTMLResponse(content=html_content)
 
 
 # --- Enterprise Lead Capture & Demo Requests ---

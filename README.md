@@ -4,17 +4,35 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-67%20Passed%20(100%25)-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-75%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Live%20Production-4285F4.svg)](https://cloud.google.com/run)
 
 **EUDRAgent** is an enterprise-grade autonomous compliance automation and Due Diligence Statement (DDS) generation engine for the **European Union Deforestation Regulation (Regulation (EU) 2023/1115)**.
 
 ---
 
+## 📽️ 4-Step Instant Demo (2s Audit)
+
+![EUDR Compliance Agent Video Demonstration](eudr_usage_tutorial.gif)
+
+### 💡 Why EUDR Agent? (Instant Problem Solver)
+
+| ❌ The Problem | ➔ | ✅ The Solution |
+| :--- | :---: | :--- |
+| **4% Revenue Fines & Blocked Cargo** | ➔ | **0% Fine Guarantee & Verified Clearance** |
+| **Weeks of Manual Satellite GIS Checks** | ➔ | **2-Second Multi-Satellite Radar Scan** |
+| **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Validated Official TRACES-NT XML** |
+
+---
+
+## 🧭 The 4-Step Flow: `1. UPLOAD ➔ 2. SCAN ➔ 3. VERIFY ➔ 4. EXPORT`
+
+---
+
 ## 📌 Live Cloud Portals & Access Points
 
 | Service Portal | URL / Route | Description |
-|---|---|---|
+| :--- | :--- | :--- |
 | 🌟 **SaaS Official Landing Page** | [`/`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/) | Interactive 4-country satellite radar sandbox & transparent pricing |
 | 🖥️ **Enterprise Operator Console** | [`/dashboard`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/dashboard) | 4ha polygon self-healing, multi-satellite analysis, & TRACES-NT DDS generation |
 | 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
@@ -25,7 +43,7 @@
 
 ## 🏛️ Core Architecture & The 4 EUDR Pillars
 
-```
+```text
 EUDR Supply Chain Payload (JSON / CSV / GeoJSON / Shapefile)
                            │
                            ▼
@@ -87,6 +105,7 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
+
 Open your browser at `http://localhost:8000` to view the SaaS Landing Page or `http://localhost:8000/dashboard` for the Operator Console.
 
 ### 3. Run Test Suite
@@ -94,13 +113,15 @@ Open your browser at `http://localhost:8000` to view the SaaS Landing Page or `h
 ```bash
 pytest -v tests/
 ```
-Runs the full suite of **67 automated tests** (Spatial validation, satellite loss detection, legal auditing, PostGIS integration, and API security).
+
+Runs the full suite of **75 automated tests** (Spatial validation, satellite loss detection, legal auditing, PostGIS integration, and API security).
 
 ---
 
 ## 🔑 Programmatic API & ERP Integration
 
 ### 1. Generate SaaS API Key
+
 ```bash
 curl -X POST "http://localhost:8000/api/v1/auth/api-keys" \
   -H "Content-Type: application/json" \
@@ -112,6 +133,7 @@ curl -X POST "http://localhost:8000/api/v1/auth/api-keys" \
 ```
 
 ### 2. Submit Compliance Due Diligence Evaluation
+
 ```bash
 curl -X POST "http://localhost:8000/api/v1/eudr/evaluate" \
   -H "Content-Type: application/json" \
@@ -164,12 +186,15 @@ curl -X POST "http://localhost:8000/api/v1/eudr/evaluate" \
 ## ☁️ Production Cloud Deployment
 
 ### 1. Deploy to Google Cloud Run (One-Click)
+
 ```powershell
 .\deploy_gcp.ps1
 ```
+
 Builds the container and deploys to **Google Cloud Run** in `asia-northeast3` (Seoul) with auto-scaling, HTTPS, and custom domain mapping.
 
 ### 2. Deploy via Docker Compose & Nginx SSL
+
 ```bash
 # Copy and configure environment variables
 cp .env.production.example .env.production
@@ -185,6 +210,7 @@ chmod +x deploy.sh
 ## 📋 Regulated Annex I Commodities
 
 EUDRAgent provides automatic classification and compliance verification for all 7 Annex I commodity categories:
+
 - ☕ **Coffee** (HS Chapter 0901)
 - 🍫 **Cocoa** (HS Chapter 1801–1806)
 - 🌴 **Oil Palm** (HS Chapter 1511, 1207, 2306, 2905, 3823)
@@ -196,9 +222,11 @@ EUDRAgent provides automatic classification and compliance verification for all 
 ---
 
 ## ⚖️ Legal & Regulatory Disclaimer
+
 This software is designed to assist operators and traders in complying with their obligations under Regulation (EU) 2023/1115. Operators remain legally responsible for the final submission of Due Diligence Statements to EU competent authorities via TRACES-NT.
 
 ---
 
 ## 📄 License
+
 Released under the **MIT License**. Copyright &copy; 2026 EUDRAgent.com. All rights reserved.

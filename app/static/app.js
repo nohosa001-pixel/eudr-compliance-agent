@@ -993,6 +993,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Video Guide Modal Handlers
+  const videoGuideModal = document.getElementById('video-guide-modal');
+  const btnOpenVideoGuide = document.getElementById('btn-open-video-guide');
+  const btnCloseVideoModal = document.getElementById('btn-close-video-modal');
+
+  if (btnOpenVideoGuide && videoGuideModal) {
+    btnOpenVideoGuide.addEventListener('click', () => {
+      videoGuideModal.style.display = 'flex';
+    });
+  }
+
+  if (btnCloseVideoModal && videoGuideModal) {
+    btnCloseVideoModal.addEventListener('click', () => {
+      videoGuideModal.style.display = 'none';
+    });
+  }
+
+  if (videoGuideModal) {
+    videoGuideModal.addEventListener('click', (e) => {
+      if (e.target === videoGuideModal) {
+        videoGuideModal.style.display = 'none';
+      }
+    });
+  }
+
   // Load default preset (Compliant Vietnam)
   loadPreset('compliant_vietnam');
 });

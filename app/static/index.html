@@ -48,14 +48,17 @@
         <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
           <span style="font-size: 0.78rem; color: var(--text-muted);">🌐 Lang:</span>
           <select id="report-lang-select" style="background: transparent; color: #f8fafc; border: none; font-size: 0.78rem; font-weight: 600; cursor: pointer; outline: none;">
-            <option value="en" style="background:#0f172a; color:#fff;">🇬🇧 EN</option>
-            <option value="ko" style="background:#0f172a; color:#fff;" selected>🇰🇷 KO</option>
+            <option value="en" style="background:#0f172a; color:#fff;" selected>🇬🇧 EN</option>
+            <option value="ko" style="background:#0f172a; color:#fff;">🇰🇷 KO</option>
             <option value="fr" style="background:#0f172a; color:#fff;">🇫🇷 FR</option>
             <option value="es" style="background:#0f172a; color:#fff;">🇪🇸 ES</option>
             <option value="de" style="background:#0f172a; color:#fff;">🇩🇪 DE</option>
             <option value="pt" style="background:#0f172a; color:#fff;">🇧🇷 PT</option>
           </select>
         </div>
+        <button id="btn-open-video-guide" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(59,130,246,0.5); color: #60a5fa; font-weight: 700; background: rgba(59,130,246,0.1);">
+          🎬 2-Sec Video Guide
+        </button>
         <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc;">
           🔑 API Keys
         </button>
@@ -379,6 +382,31 @@ curl -X POST "https://api.eudragent.com/api/v1/eudr/evaluate" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: eudr_live_YOUR_KEY_HERE" \
   -d @payload.json</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-Step Instant Video Guide Modal -->
+  <div id="video-guide-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-window" style="max-width: 960px; width: 95%; background: #0b0f19; border: 1px solid rgba(59,130,246,0.5); border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85);">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(18, 26, 44, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.1rem;">🎬</span>
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0;">EUDR Agent 4-Step Instant Demo (2s Audit)</h3>
+        </div>
+        <button id="btn-close-video-modal" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.8rem; cursor: pointer;">✕ Close</button>
+      </div>
+      <div class="modal-body" style="padding: 16px; text-align: center; background: #080c14;">
+        <img src="/static/eudr_usage_tutorial.webp" alt="EUDR Agent 4-Step Video Walkthrough" style="width: 100%; max-height: 520px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">📁 1. UPLOAD</span>
+          <span style="color: #64748b; font-weight: 700;">➔</span>
+          <span style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">🛰️ 2. SCAN (2s)</span>
+          <span style="color: #64748b; font-weight: 700;">➔</span>
+          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">🛡️ 3. VERIFY (PASS)</span>
+          <span style="color: #64748b; font-weight: 700;">➔</span>
+          <span style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">⚡ 4. EXPORT (XML)</span>
         </div>
       </div>
     </div>

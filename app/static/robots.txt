@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Allow: /dashboard
 Allow: /supplier-portal
+Allow: /about
 Allow: /docs
 
 Sitemap: https://eudragent.com/sitemap.xml

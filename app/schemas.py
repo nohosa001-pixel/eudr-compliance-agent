@@ -492,6 +492,7 @@ class LeadInquiryResponse(BaseModel):
 
 class StripeCheckoutSessionCreateRequest(BaseModel):
     plan_tier: str = Field("PRO", description="Subscription Plan Tier (STARTER, PRO, ENTERPRISE)")
+    currency: str = Field("EUR", description="Billing Currency: EUR or USD")
     company_name: str = Field("EU Enterprise Customer", min_length=2, max_length=128)
     contact_email: str = Field("billing@eudr-client.eu", min_length=5, max_length=128)
     vat_number: Optional[str] = Field(None, max_length=64, description="EU VAT Number for Reverse-Charge")
@@ -500,6 +501,34 @@ class StripeCheckoutSessionCreateRequest(BaseModel):
 
 class StripeCheckoutSessionConfirmRequest(BaseModel):
     session_id: str = Field(..., description="Stripe Checkout Session ID")
+
+
+# --- Outbound Webhook Schemas (ERP / SAP Integration) ---
+
+class WebhookSubscribeRequest(BaseModel):
+    target_url: str = Field(..., description="HTTPS callback URL on client ERP / SAP system")
+    company_name: str = Field("Enterprise Client", max_length=128)
+    events: List[str] = Field(default_factory=lambda: ["batch.completed", "dds.generated", "compliance.alert"])
+    secret_token: Optional[str] = Field(None, description="Custom HMAC secret token. If omitted, auto-generated.")
+
+class WebhookSubscribeResponse(BaseModel):
+    webhook_id: str
+    target_url: str
+    company_name: str
+    events: List[str]
+    secret_token: str
+    status: str
+    created_at_utc: str
+
+class WebhookTestRequest(BaseModel):
+    target_url: str
+    secret_token: Optional[str] = None
+
+class WebhookTestResponse(BaseModel):
+    success: bool
+    status_code: Optional[int] = None
+    message: str
+    delivered_payload: Dict[str, Any]
 
 
 

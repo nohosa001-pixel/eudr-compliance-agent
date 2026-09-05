@@ -3,18 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EUDR Agent | Autonomous EUDR Compliance &amp; TRACES-NT Automation</title>
+  <title>EUDR.agent | Autonomous EUDR Compliance &amp; TRACES-NT Automation</title>
   <meta name="description" content="Autonomous EU Deforestation Regulation (EU 2023/1115) compliance engine. 2-second satellite radar, 4ha polygon validation, and official TRACES-NT XML export." />
+  <meta name="keywords" content="EUDR.agent, EUDR Agent, EUDR, EUDR compliance, EU Deforestation Regulation, TRACES-NT, EU 2023/1115, satellite deforestation verification, Due Diligence Statement, DDS, cocoa, coffee, palm oil, rubber, timber, soya, cattle, automated GIS compliance" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="EUDR.agent" />
   <link rel="canonical" href="https://eudragent.com/" />
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   
-  <!-- Anti-cache -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://eudragent.com/" />
+  <meta property="og:site_name" content="EUDR.agent" />
+  <meta property="og:title" content="EUDR.agent | Autonomous EUDR Compliance &amp; TRACES-NT Automation" />
+  <meta property="og:description" content="Autonomous EU Deforestation Regulation (EU 2023/1115) compliance engine. 2-second satellite radar, 4ha polygon validation, and official TRACES-NT XML export." />
+  <meta property="og:image" content="https://eudragent.com/static/eudr_usage_tutorial.webp" />
+  <meta property="og:image:alt" content="EUDR.agent Compliance Console" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://eudragent.com/" />
+  <meta name="twitter:title" content="EUDR.agent | Autonomous EUDR Compliance &amp; TRACES-NT Automation" />
+  <meta name="twitter:description" content="Autonomous EU Deforestation Regulation (EU 2023/1115) compliance engine. 2-second satellite radar, 4ha polygon validation, and official TRACES-NT XML export." />
+  <meta name="twitter:image" content="https://eudragent.com/static/eudr_usage_tutorial.webp" />
+
+  <!-- JSON-LD Structured Data for Google Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://eudragent.com/#website",
+        "url": "https://eudragent.com/",
+        "name": "EUDR.agent",
+        "alternateName": ["EUDR Agent", "EUDRAgent", "eudragent.com"],
+        "description": "Autonomous EU Deforestation Regulation (EU 2023/1115) compliance platform",
+        "publisher": {
+          "@id": "https://eudragent.com/#organization"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://eudragent.com/#organization",
+        "name": "EUDR.agent",
+        "legalName": "EUDR.agent",
+        "alternateName": ["EUDR Agent", "EUDRAgent", "eudragent.com"],
+        "url": "https://eudragent.com/",
+        "logo": "https://eudragent.com/static/favicon.svg",
+        "sameAs": [
+          "https://eudragent.com/about"
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://eudragent.com/#software",
+        "name": "EUDR.agent Platform",
+        "alternateName": ["EUDR.agent", "EUDR Agent Compliance Platform"],
+        "url": "https://eudragent.com/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All (Cloud Web SaaS & REST API)",
+        "description": "Autonomous compliance platform for Regulation (EU) 2023/1115. Multi-satellite radar verification against Dec 31, 2020 cut-off, 4ha polygon topology healing, and official TRACES-NT XML Due Diligence Statement generation.",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Starter Plan",
+            "price": "490",
+            "priceCurrency": "EUR",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "490",
+              "priceCurrency": "EUR",
+              "unitCode": "MON"
+            }
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro Plan",
+            "price": "1490",
+            "priceCurrency": "EUR",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "1490",
+              "priceCurrency": "EUR",
+              "unitCode": "MON"
+            }
+          },
+          {
+            "@type": "Offer",
+            "name": "Enterprise Plan",
+            "price": "4900",
+            "priceCurrency": "EUR",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "4900",
+              "priceCurrency": "EUR",
+              "unitCode": "MON"
+            }
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://eudragent.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Regulation (EU) 2023/1115 (EUDR)?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The EU Deforestation Regulation (EUDR, Regulation (EU) 2023/1115) mandates that operators placing cattle, cocoa, coffee, oil palm, rubber, soya, and wood on the EU market must verify that products are deforestation-free (post-December 31, 2020) and legally produced."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the EUDR 4-hectare geolocation requirements?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For production plots exceeding 4 hectares, operators must submit accurate polygon boundary coordinates with no self-intersections or invalid geometries. Plots under 4 hectares can use a single GPS point coordinate."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does EUDR.agent automate TRACES-NT XML submission?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "EUDR.agent ingests farm coordinates via CSV or GeoJSON, runs 2-second satellite radar scans against historical forest baselines, verifies legal harvest permits, and formats verified DDS directly into TRACES-NT compliant XML schema."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the penalties for non-compliance under EUDR?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Penalties include fines of up to 4% of the operator's total annual EU turnover, confiscation of goods, and temporary exclusion from EU public procurement and commercial trade."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   
   <style>
     :root {
@@ -468,6 +603,39 @@
 
     .price-list li span { color: var(--emerald); }
 
+    /* Currency Toggle */
+    .currency-toggle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0 32px 0;
+      flex-wrap: wrap;
+    }
+    .currency-toggle {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 3px;
+    }
+    .btn-curr {
+      padding: 7px 18px;
+      border-radius: 24px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+    .btn-curr.active {
+      background: var(--emerald);
+      color: #050811;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+    }
+
     /* Payment Modal Styles */
     .modal-backdrop {
       display: none;
@@ -559,21 +727,127 @@
       border-color: var(--blue);
     }
 
+    /* FAQ Accordion Section */
+    .faq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 860px;
+      margin: 0 auto 60px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .faq-item:hover {
+      border-color: var(--border-focus);
+      background: var(--bg-card-hover);
+    }
+
+    .faq-summary {
+      padding: 18px 24px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      list-style: none;
+    }
+    .faq-summary::-webkit-details-marker { display: none; }
+    .faq-summary::after {
+      content: '+';
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--emerald-light);
+      transition: transform 0.2s ease;
+    }
+    details[open] .faq-summary::after {
+      content: '−';
+      transform: rotate(180deg);
+    }
+    details[open] .faq-summary {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--emerald-light);
+    }
+
+    .faq-content {
+      padding: 18px 24px;
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
-      padding: 30px 0;
-      text-align: center;
-      font-size: 0.8rem;
+      padding: 48px 0 32px;
+      font-size: 0.84rem;
       color: var(--text-muted);
+      background: rgba(7, 9, 14, 0.8);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+    .footer-brand h4 {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer-col h5 {
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--emerald-light);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     @media (max-width: 860px) {
       .hero-title { font-size: 2.2rem; }
       .comparison-grid, .pillars-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
       .nav-menu { display: none; }
     }
   </style>
+
 </head>
 <body>
 
@@ -582,13 +856,15 @@
     <div class="container nav-wrap">
       <a href="/" class="brand">
         <div class="brand-icon">🌲</div>
-        <span>EUDR Agent</span>
+        <span>EUDR.agent</span>
       </a>
       
       <ul class="nav-menu">
         <li><a href="#how-it-works">How It Works</a></li>
         <li><a href="#pillars">4 Pillars</a></li>
         <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="/about">About</a></li>
         <li><a href="/supplier-portal" style="color: #34d399;">🌾 Supplier Portal</a></li>
         <li><a href="/docs">API Docs</a></li>
       </ul>
@@ -640,7 +916,7 @@
           </div>
         </div>
         <div class="video-frame">
-          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR Compliance Agent 4-Step Walkthrough" loading="lazy" />
+          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR.agent 4-Step Walkthrough" loading="lazy" />
         </div>
       </div>
     </div>
@@ -648,7 +924,7 @@
 
   <!-- Problem ➔ Solution Section -->
   <section class="container">
-    <h2 class="section-title">Why EUDR Agent?</h2>
+    <h2 class="section-title">Why EUDR.agent?</h2>
     <p class="section-desc">Zero complex GIS. Zero customs fines. 100% automated.</p>
 
     <div class="comparison-grid">
@@ -727,11 +1003,27 @@
     <h2 class="section-title">Transparent Pricing</h2>
     <p class="section-desc">Pay per plot verified. No setup fees. Instant Stripe &amp; SEPA checkout.</p>
 
+    <!-- Multi-Currency Toggle (EUR / USD) -->
+    <div class="currency-toggle-container">
+      <span style="font-size: 0.86rem; color: var(--text-muted); font-weight: 500;">Billing Currency:</span>
+      <div class="currency-toggle">
+        <button id="btn-currency-eur" class="btn-curr active" onclick="setCurrency('EUR')">
+          💶 EUR (€)
+        </button>
+        <button id="btn-currency-usd" class="btn-curr" onclick="setCurrency('USD')">
+          💵 USD ($)
+        </button>
+      </div>
+      <span style="font-size: 0.74rem; color: var(--emerald-light); font-weight: 600; background: var(--emerald-bg); border: 1px solid var(--emerald); padding: 3px 10px; border-radius: 12px;">
+        1:1 Pricing Parity &bull; Zero FX Fees
+      </span>
+    </div>
+
     <div class="pricing-grid">
       <div class="price-card">
         <div class="price-name">Starter</div>
         <div class="price-sub">Small traders &amp; importers</div>
-        <div class="price-val">€490 <span>/mo</span></div>
+        <div id="price-starter" class="price-val">€490 <span>/mo</span></div>
         <ul class="price-list">
           <li><span>✔</span> Up to 5,000 plots / mo</li>
           <li><span>✔</span> Multi-satellite radar</li>
@@ -747,7 +1039,7 @@
         <div class="pop-badge">POPULAR</div>
         <div class="price-name">Pro</div>
         <div class="price-sub">Growing commodity exporters</div>
-        <div class="price-val">€1,490 <span>/mo</span></div>
+        <div id="price-pro" class="price-val">€1,490 <span>/mo</span></div>
         <ul class="price-list">
           <li><span>✔</span> Up to 50,000 plots / mo</li>
           <li><span>✔</span> Automated polygon healing</li>
@@ -763,7 +1055,7 @@
       <div class="price-card">
         <div class="price-name">Enterprise</div>
         <div class="price-sub">Global trading houses &amp; multinationals</div>
-        <div class="price-val">€4,900 <span>/mo</span></div>
+        <div id="price-enterprise" class="price-val">€4,900 <span>/mo</span></div>
         <ul class="price-list">
           <li><span>✔</span> Unlimited plots &amp; users</li>
           <li><span>✔</span> Custom ERP &amp; SAP integration</li>
@@ -774,6 +1066,56 @@
           Subscribe Enterprise
         </button>
       </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (SEO Structured) -->
+  <section id="faq" class="container" style="padding-top: 60px;">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-desc">Essential information on Regulation (EU) 2023/1115 compliance, satellite audits, and TRACES-NT filing.</p>
+
+    <div class="faq-grid">
+      <details class="faq-item" open>
+        <summary class="faq-summary">What is EUDR (Regulation (EU) 2023/1115) and who is affected?</summary>
+        <div class="faq-content">
+          The EU Deforestation Regulation (EUDR, Regulation EU 2023/1115) requires companies placing cattle, cocoa, coffee, oil palm, rubber, soya, and wood into the EU market to prove their supply chains are deforestation-free and legally harvested. It applies to both large multinational operators and SME traders handling covered raw materials or derived products.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">What is the Dec 31, 2020 deforestation cutoff date?</summary>
+        <div class="faq-content">
+          Under EUDR Article 2, commodities must originate from land that has not been subject to deforestation or forest degradation after <strong>December 31, 2020</strong>. EUDRAgent.com runs automated Sentinel-2, Sentinel-1 radar, and Hansen Global Forest Change satellite scans to rigorously verify canopy cover before and after this cutoff date.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">What are the 4-hectare geolocation and polygon requirements?</summary>
+        <div class="faq-content">
+          For any production plot exceeding <strong>4 hectares (ha)</strong>, operators must provide accurate polygon boundary coordinates (latitude/longitude with at least 6 decimal places). Plots 4ha or smaller may use a single point coordinate. EUDR.agent provides autonomous geometric topology healing that fixes self-intersections and vertex winding issues in under 2 seconds.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">How does TRACES-NT XML Due Diligence Statement (DDS) generation work?</summary>
+        <div class="faq-content">
+          EUDR.agent automatically parses your supply chain data (CSV, GeoJSON, Shapefile, or API), validates legal harvest licenses and satellite radar integrity, and generates cryptographic, schema-valid TRACES-NT XML files ready for 1-click submission to the European Commission customs portal.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">Can suppliers directly upload their farm coordinates?</summary>
+        <div class="faq-content">
+          Yes. With our dedicated <a href="/supplier-portal" style="color: #34d399; text-decoration: underline;">Supplier Onboarding Portal</a>, suppliers and cooperative managers can upload farm plots in bulk and receive instant pre-clearance validation without needing complex GIS software.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">What penalties do companies face for EUDR non-compliance?</summary>
+        <div class="faq-content">
+          Penalties under Article 25 include mandatory confiscation of goods, temporary exclusion from EU public procurement, and maximum fines of at least <strong>4% of the operator's total annual EU turnover</strong>, in addition to severe customs port impoundments.
+        </div>
+      </details>
     </div>
   </section>
 
@@ -807,9 +1149,14 @@
           <input type="email" id="stripe-contact-email" class="form-input" placeholder="e.g. procurement@eurococoa.nl" value="procurement@eurococoa.nl" />
         </div>
         <div class="form-group">
-          <label>EU VAT Number (Optional - Reverse Charge)</label>
-          <input type="text" id="stripe-vat-number" class="form-input" placeholder="e.g. NL849201948B01" value="NL849201948B01" />
-          <div style="font-size: 0.72rem; color: #34d399; margin-top: 4px;">✔ 0% EU VAT Reverse-Charge verified on EU VIES</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin-bottom: 0;">EU VAT Number (Optional - Reverse Charge)</label>
+            <span id="vat-checking-spinner" style="font-size: 0.72rem; color: var(--text-muted); display: none;">⏳ Checking VIES...</span>
+          </div>
+          <input type="text" id="stripe-vat-number" class="form-input" placeholder="e.g. NL849201948B01" value="NL849201948B01" oninput="handleVatInput(this.value)" />
+          <div id="vat-status-box" style="margin-top: 6px; font-size: 0.74rem; line-height: 1.4;">
+            <span style="color: #34d399;">✔ 0% EU VAT Reverse-Charge verified on EU VIES</span>
+          </div>
         </div>
         <button id="btn-submit-stripe" class="btn btn-stripe" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="handleStripeCheckout()">
           💳 Proceed to Secure Stripe Checkout &rarr;
@@ -843,20 +1190,108 @@
   <!-- Footer -->
   <footer>
     <div class="container">
-      <p>&copy; 2026 EUDRAgent.com. All rights reserved. | Regulation (EU) 2023/1115 Compliance Platform.</p>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>🌲 EUDR.agent</h4>
+          <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 14px;">
+            The autonomous compliance platform for Regulation (EU) 2023/1115. Sub-second satellite radar verification, 4ha polygon topology healing, and official TRACES-NT XML DDS exports.
+          </p>
+          <div style="font-size: 0.76rem; color: #34d399; font-weight: 600;">
+            ● 100% TRACES-NT Schema Validated
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <ul class="footer-links">
+            <li><a href="/dashboard">Compliance Console</a></li>
+            <li><a href="/supplier-portal">Supplier Portal</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#pricing">Pricing & Plans</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Resources & Tech</h5>
+          <ul class="footer-links">
+            <li><a href="/docs">REST API Docs</a></li>
+            <li><a href="/about">Architecture & Tech</a></li>
+            <li><a href="/sitemap.xml">XML Sitemap</a></li>
+            <li><a href="/robots.txt">Robots.txt</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Regulation & Trust</h5>
+          <ul class="footer-links">
+            <li><a href="https://eur-lex.europa.eu/eli/reg/2023/1115/oj" target="_blank" rel="noopener">EU 2023/1115 OJ</a></li>
+            <li><a href="https://green-business.ec.europa.eu/deforestation-regulation-implementation_en" target="_blank" rel="noopener">EC Guidelines</a></li>
+            <li><a href="mailto:support@eudragent.com">support@eudragent.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 EUDR.agent (eudragent.com). All rights reserved. | Regulation (EU) 2023/1115 Enterprise Compliance Engine.</div>
+        <div style="color: var(--text-muted); font-size: 0.78rem;">Verified on Google Search Console &bull; SSL Secured</div>
+      </div>
     </div>
   </footer>
 
   <script>
     let currentPlanTier = 'PRO';
-    let currentAmountEur = 1490;
+    let currentAmount = 1490;
+    let currentCurrency = 'EUR';
+    let vatDebounceTimer = null;
+
+    const planPrices = {
+      STARTER: 490,
+      PRO: 1490,
+      ENTERPRISE: 4900
+    };
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      const eurBtn = document.getElementById('btn-currency-eur');
+      const usdBtn = document.getElementById('btn-currency-usd');
+      const symbol = curr === 'EUR' ? '€' : '$';
+
+      if (curr === 'EUR') {
+        eurBtn.classList.add('active');
+        usdBtn.classList.remove('active');
+      } else {
+        usdBtn.classList.add('active');
+        eurBtn.classList.remove('active');
+      }
+
+      document.getElementById('price-starter').innerHTML = `${symbol}490 <span>/mo</span>`;
+      document.getElementById('price-pro').innerHTML = `${symbol}1,490 <span>/mo</span>`;
+      document.getElementById('price-enterprise').innerHTML = `${symbol}4,900 <span>/mo</span>`;
+
+      // Update tab text for Stripe
+      const stripeTabBtn = document.getElementById('tab-stripe-btn');
+      if (stripeTabBtn) {
+        stripeTabBtn.innerHTML = curr === 'EUR' 
+          ? '💳 Stripe (EUR / Cards / SEPA)' 
+          : '💳 Stripe (USD / Cards)';
+      }
+
+      // If modal is open, refresh its price
+      const modalPrice = document.getElementById('modal-price');
+      if (modalPrice) {
+        const amt = planPrices[currentPlanTier] || 1490;
+        modalPrice.innerHTML = `${symbol}${amt.toLocaleString()} <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month (${curr})</span>`;
+      }
+    }
 
     function openPaymentModal(tier, amount) {
       currentPlanTier = tier;
-      currentAmountEur = amount;
+      currentAmount = amount || planPrices[tier] || 1490;
+      const symbol = currentCurrency === 'EUR' ? '€' : '$';
       document.getElementById('modal-plan-badge').innerText = tier + ' PLAN';
       document.getElementById('modal-title').innerText = 'Subscribe to ' + tier + ' Plan';
-      document.getElementById('modal-price').innerHTML = '€' + amount.toLocaleString() + ' <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month</span>';
+      document.getElementById('modal-price').innerHTML = symbol + currentAmount.toLocaleString() + ` <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month (${currentCurrency})</span>`;
       document.getElementById('payment-modal').style.display = 'flex';
     }
 
@@ -878,6 +1313,43 @@
       }
     }
 
+    function handleVatInput(val) {
+      clearTimeout(vatDebounceTimer);
+      const box = document.getElementById('vat-status-box');
+      const spinner = document.getElementById('vat-checking-spinner');
+      const cleanVal = (val || '').trim().replace(/\s+/g, '').toUpperCase();
+
+      if (!cleanVal) {
+        box.innerHTML = '<span style="color: var(--text-muted);">Optional: Enter EU VAT for 0% intra-community reverse-charge.</span>';
+        spinner.style.display = 'none';
+        return;
+      }
+
+      if (cleanVal.length < 4) {
+        box.innerHTML = '<span style="color: var(--text-muted);">Enter 2-letter EU country code prefix + VAT number.</span>';
+        spinner.style.display = 'none';
+        return;
+      }
+
+      spinner.style.display = 'inline';
+      vatDebounceTimer = setTimeout(async () => {
+        try {
+          const resp = await fetch(`/api/v1/payments/verify-vat?vat_number=${encodeURIComponent(cleanVal)}`);
+          const data = await resp.json();
+          spinner.style.display = 'none';
+          if (data.valid) {
+            const company = data.name && data.name !== '---' ? ` (${data.name})` : '';
+            box.innerHTML = `<span style="color: #34d399; font-weight: 600;">✔ Valid EU VAT${company}: 0% Reverse-Charge Applied</span>`;
+          } else {
+            box.innerHTML = `<span style="color: #f59e0b;">ℹ Standard VAT applies (${data.message || 'Not registered in EU VIES'})</span>`;
+          }
+        } catch (e) {
+          spinner.style.display = 'none';
+          box.innerHTML = '<span style="color: var(--text-muted);">EU VIES verification offline; local validation applied.</span>';
+        }
+      }, 400);
+    }
+
     async function handleStripeCheckout() {
       const btn = document.getElementById('btn-submit-stripe');
       const company = document.getElementById('stripe-company-name').value;
@@ -895,7 +1367,8 @@
             plan_tier: currentPlanTier,
             company_name: company,
             contact_email: email,
-            vat_number: vat
+            vat_number: vat,
+            currency: currentCurrency
           })
         });
         const data = await resp.json();

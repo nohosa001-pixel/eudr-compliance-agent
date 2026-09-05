@@ -222,3 +222,29 @@ class CopernicusSentinelClient:
             "request_spec": payload,
             "is_live_data": False
         }
+
+    @classmethod
+    def get_service_status(cls) -> Dict[str, Any]:
+        """
+        Returns live operational diagnostics for the Copernicus Sentinel-2 CDSE connection.
+        """
+        has_credentials = bool(settings.COPERNICUS_CLIENT_ID and settings.COPERNICUS_CLIENT_SECRET)
+        token_active = False
+
+        if has_credentials:
+            token = cls.get_access_token(settings.COPERNICUS_CLIENT_ID, settings.COPERNICUS_CLIENT_SECRET)
+            token_active = bool(token)
+
+        return {
+            "provider": "European Space Agency (ESA) Copernicus Sentinel-2 L2A",
+            "cdse_auth_endpoint": cls.CDSE_AUTH_URL,
+            "stat_api_endpoint": cls.STAT_API_URL,
+            "credentials_configured": has_credentials,
+            "token_active": token_active,
+            "cached_tokens_count": len(cls._token_cache),
+            "free_quota_monthly_credits": 10000,
+            "spectral_indices": ["NDVI (B08-B04)/(B08+B04)", "NDMI (B08-B11)/(B08+B11)"],
+            "resolution_meters": 10,
+            "status": "LIVE_AUTHENTICATED" if token_active else ("CREDENTIALS_SET" if has_credentials else "DETERMINISTIC_SIMULATION_READY")
+        }
+

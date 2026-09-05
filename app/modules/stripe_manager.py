@@ -9,17 +9,19 @@ from app.modules.notification_manager import NotificationManager
 
 logger = logging.getLogger("eudr_agent.stripe")
 
-# Standard EUR Plan Pricing
-PLAN_PRICING_EUR = {
+# Standard Plan Pricing (1:1 EUR/USD SaaS parity)
+PLAN_PRICING = {
     "STARTER": 490.00,
     "PRO": 1490.00,
     "ENTERPRISE": 4900.00
 }
+PLAN_PRICING_EUR = PLAN_PRICING
+PLAN_PRICING_USD = PLAN_PRICING
 
 class StripeManager:
     """
     Enterprise Stripe B2B Checkout and Webhook Processor.
-    Handles EU VAT Reverse-Charge, SEPA & Corporate Credit Card subscriptions,
+    Handles Multi-Currency (EUR/USD), EU VAT Reverse-Charge, SEPA & Corporate Credit Card subscriptions,
     automated Pro API Key provisioning, and instant Telegram financial notifications.
     """
 
@@ -35,33 +37,42 @@ class StripeManager:
         plan_tier: str,
         company_name: str,
         contact_email: str,
+        currency: str = "EUR",
         vat_number: Optional[str] = None,
         success_url: Optional[str] = None,
         cancel_url: Optional[str] = None,
         db_session=None
     ) -> Dict[str, Any]:
         """
-        Creates a Stripe Checkout Session for EUR B2B subscription.
+        Creates a Stripe Checkout Session for EUR or USD B2B subscription.
         Supports live Stripe API when configured, or simulation mode for pre-launch staging.
         """
         tier = plan_tier.upper()
-        amount_eur = PLAN_PRICING_EUR.get(tier, 1490.00)
+        curr = currency.upper() if currency else "EUR"
+        if curr not in ["EUR", "USD"]:
+            curr = "EUR"
+            
+        amount = PLAN_PRICING.get(tier, 1490.00)
+        curr_symbol = "€" if curr == "EUR" else "$"
         session_id = f"cs_test_{uuid.uuid4().hex[:16]}"
         
+        # Payment methods: SEPA is EUR-only; card works for both EUR and USD
+        payment_methods = ["card", "sepa_debit"] if curr == "EUR" else ["card"]
+
         # 1. If Live Stripe API Key is configured
         if cls.is_live_configured():
             try:
                 import stripe
                 stripe.api_key = settings.STRIPE_SECRET_KEY
                 
-                amount_cents = int(amount_eur * 100)
+                amount_cents = int(amount * 100)
                 session = stripe.checkout.Session.create(
-                    payment_method_types=["card", "sepa_debit"],
+                    payment_method_types=payment_methods,
                     line_items=[{
                         "price_data": {
-                            "currency": "eur",
+                            "currency": curr.lower(),
                             "product_data": {
-                                "name": f"EUDR Agent {tier} Plan (Regulation EU 2023/1115)",
+                                "name": f"EUDR.agent {tier} Plan (Regulation EU 2023/1115)",
                                 "description": f"Autonomous EUDR compliance, multi-satellite radar, and TRACES-NT DDS automation for {company_name}",
                             },
                             "unit_amount": amount_cents,
@@ -75,6 +86,7 @@ class StripeManager:
                     metadata={
                         "company_name": company_name,
                         "plan_tier": tier,
+                        "currency": curr,
                         "vat_number": vat_number or ""
                     },
                     success_url=success_url or "https://eudragent.com/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}",
@@ -82,20 +94,21 @@ class StripeManager:
                 )
                 session_id = session.id
                 checkout_url = session.url
-                logger.info(f"[STRIPE LIVE] Created Checkout Session {session_id} for {company_name}")
+                logger.info(f"[STRIPE LIVE] Created Checkout Session {session_id} for {company_name} ({curr_symbol}{amount} {curr})")
             except Exception as e:
                 logger.error(f"[STRIPE ERROR] Failed to create live Stripe session: {e}. Falling back to staged session.")
-                checkout_url = f"/api/v1/payments/stripe/preview-checkout?session_id={session_id}&tier={tier}&amount={amount_eur}&company={company_name}"
+                checkout_url = f"/api/v1/payments/stripe/preview-checkout?session_id={session_id}&tier={tier}&amount={amount}&currency={curr}&company={company_name}"
         else:
             # Staging / Pre-launch Simulation Mode
-            checkout_url = f"/api/v1/payments/stripe/preview-checkout?session_id={session_id}&tier={tier}&amount={amount_eur}&company={company_name}"
-            logger.info(f"[STRIPE STAGING] Created preview checkout session {session_id} for {company_name} (€{amount_eur})")
+            checkout_url = f"/api/v1/payments/stripe/preview-checkout?session_id={session_id}&tier={tier}&amount={amount}&currency={curr}&company={company_name}"
+            logger.info(f"[STRIPE STAGING] Created preview checkout session {session_id} for {company_name} ({curr_symbol}{amount} {curr})")
 
         session_record = {
             "session_id": session_id,
             "plan_tier": tier,
-            "amount_eur": amount_eur,
-            "currency": "EUR",
+            "amount": amount,
+            "amount_eur": amount,  # backwards compatibility
+            "currency": curr,
             "company_name": company_name,
             "contact_email": contact_email,
             "vat_number": vat_number,
@@ -118,7 +131,7 @@ class StripeManager:
                     company_name=company_name,
                     contact_email=contact_email,
                     plan_tier=tier,
-                    amount_usdc=amount_eur, # stored as EUR equivalent
+                    amount_usdc=amount, # stored as EUR/USD equivalent
                     chain="Stripe (EUR / Cards / SEPA)",
                     deposit_wallet_address="Stripe Gateway",
                     status="PENDING",
@@ -137,8 +150,8 @@ class StripeManager:
             "session_id": session_id,
             "checkout_url": checkout_url,
             "plan_tier": tier,
-            "amount_eur": amount_eur,
-            "currency": "EUR",
+            "amount_eur": amount,
+            "currency": curr,
             "company_name": company_name,
             "status": "pending"
         }
@@ -208,5 +221,5 @@ class StripeManager:
             "amount_eur": session_data.get("amount_eur"),
             "currency": "EUR",
             "api_key": api_key_str,
-            "message": "Payment verified successfully. Your EUDR Agent Pro subscription is active."
+            "message": "Payment verified successfully. Your EUDR.agent Pro subscription is active."
         }

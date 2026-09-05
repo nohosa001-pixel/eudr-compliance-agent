@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request
+from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request, Query
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,7 +38,11 @@ from app.schemas import (
     LeadInquiryCreateRequest,
     LeadInquiryResponse,
     StripeCheckoutSessionCreateRequest,
-    StripeCheckoutSessionConfirmRequest
+    StripeCheckoutSessionConfirmRequest,
+    WebhookSubscribeRequest,
+    WebhookSubscribeResponse,
+    WebhookTestRequest,
+    WebhookTestResponse
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.traceability_collector import TraceabilityCollector
@@ -52,6 +56,9 @@ from app.modules.batch_job_manager import BatchJobManager
 from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
 from app.modules.notification_manager import NotificationManager
 from app.modules.stripe_manager import StripeManager
+from app.modules.vies_validator import ViesValidator
+from app.modules.webhook_dispatcher import WebhookDispatcher
+from app.modules.satellite_providers.copernicus_sentinel_client import CopernicusSentinelClient
 from app.db.session import init_db, get_db
 from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository
 from app.core.config import settings
@@ -102,7 +109,7 @@ async def serve_landing():
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
-    return HTMLResponse("<h2>EUDR Agent Platform is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>EUDR.agent Platform is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
 @app.get("/dashboard", include_in_schema=False)
 @app.get("/app", include_in_schema=False)
@@ -777,6 +784,7 @@ async def create_stripe_checkout_session(
         plan_tier=payload.plan_tier,
         company_name=payload.company_name,
         contact_email=payload.contact_email,
+        currency=payload.currency,
         vat_number=payload.vat_number,
         success_url=payload.success_url,
         cancel_url=payload.cancel_url,
@@ -798,6 +806,23 @@ async def confirm_stripe_checkout_session(
     """
     return StripeManager.complete_checkout_session(session_id=payload.session_id, db_session=db)
 
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payments/verify-vat",
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Validate EU VAT number in real-time via European Commission VIES"
+)
+async def verify_vat_number(
+    vat_number: str = Query(..., description="EU Member State VAT number, e.g. NL849201948B01")
+):
+    """
+    Validates VAT format and checks active status on European Commission VIES.
+    Determines eligibility for 0% Intra-Community VAT Reverse Charge.
+    """
+    res = await ViesValidator.validate_vat_async(vat_number)
+    # Ensure both reverse_charge_eligible and is_reverse_charge_eligible are populated for client compatibility
+    res["is_reverse_charge_eligible"] = res.get("reverse_charge_eligible", False)
+    return res
 
 
 @app.post(
@@ -833,6 +858,19 @@ async def handle_stripe_webhook(
 
 
 @app.get(
+    f"{settings.API_V1_PREFIX}/payments/verify-vat",
+    tags=["Stripe B2B Payments (EUR & Cards)"],
+    summary="Real-Time EU VIES VAT Verification (Reverse Charge)"
+)
+async def verify_eu_vat(vat_number: str):
+    """
+    Verifies an EU Member State VAT number in real-time against the European Commission VIES API.
+    Returns validation status, company name, address, and 0% Reverse-Charge eligibility.
+    """
+    return await ViesValidator.validate_vat_async(vat_number)
+
+
+@app.get(
     f"{settings.API_V1_PREFIX}/payments/stripe/preview-checkout",
     response_class=HTMLResponse,
     tags=["Stripe B2B Payments (EUR & Cards)"],
@@ -842,16 +880,19 @@ async def preview_stripe_checkout_page(
     session_id: str,
     tier: str = "PRO",
     amount: float = 1490.00,
+    currency: str = "EUR",
     company: str = "EU Enterprise Customer"
 ):
     """
     Clean, hosted Stripe-styled preview checkout page for pre-launch staging verification.
     """
+    curr_symbol = "€" if currency.upper() == "EUR" else "$"
+    curr_code = currency.upper()
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stripe Checkout (EUDR Agent {tier} Plan)</title>
+  <title>Stripe Checkout (EUDR.agent {tier} Plan)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
   <style>
@@ -912,9 +953,10 @@ async def preview_stripe_checkout_page(
   <div class="card">
     <div class="badge">🔒 STRIPE CHECKOUT PREVIEW</div>
     <h1>Subscribe to {tier} Plan</h1>
-    <div class="price">€{amount:,.2f} <span style="font-size:0.9rem; color:#94a3b8; font-weight:400;">/ month</span></div>
+    <div class="price">{curr_symbol}{amount:,.2f} <span style="font-size:0.85rem; color:#6ee7b7; font-weight:600;">{curr_code}</span> <span style="font-size:0.9rem; color:#94a3b8; font-weight:400;">/ month</span></div>
     <div class="detail">
       • Company: <strong>{company}</strong><br>
+      • Accepted Method: <strong>{'Credit / Debit Card (USD)' if curr_code == 'USD' else 'SEPA Direct Debit / Cards (EUR)'}</strong><br>
       • Regulation (EU) 2023/1115 TRACES-NT Automation<br>
       • Multi-Satellite Radar &amp; Instant API Key Provisioning<br>
       • EU VAT Reverse-Charge 0% Tax Invoice Included
@@ -1039,5 +1081,85 @@ async def list_lead_inquiries(
         }
         for r in records
     ]
+
+
+# -------------------------------------------------------------------
+# Outbound Webhooks for Client ERP / SAP Integration
+# -------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/webhooks/subscribe",
+    response_model=WebhookSubscribeResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Outbound Webhooks (SAP / ERP Integration)"],
+    summary="Subscribe client ERP system to EUDR.agent outbound events"
+)
+async def subscribe_webhook(
+    req: WebhookSubscribeRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Registers an external HTTPS endpoint (e.g. SAP, Oracle SCM, customs ERP) to receive signed events.
+    Events include batch.completed, dds.generated, compliance.alert.
+    """
+    sub = WebhookDispatcher.create_subscription(
+        target_url=req.target_url,
+        company_name=req.company_name,
+        events=req.events,
+        secret_token=req.secret_token,
+        db_session=db
+    )
+    return WebhookSubscribeResponse(**sub)
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/webhooks",
+    tags=["Outbound Webhooks (SAP / ERP Integration)"],
+    summary="List active outbound webhook subscriptions"
+)
+async def list_webhooks(
+    company_name: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Lists active client webhook subscriptions.
+    """
+    return WebhookDispatcher.list_subscriptions(company_name=company_name, db_session=db)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/webhooks/test",
+    response_model=WebhookTestResponse,
+    tags=["Outbound Webhooks (SAP / ERP Integration)"],
+    summary="Send diagnostic test ping to subscriber target URL"
+)
+async def test_webhook(req: WebhookTestRequest):
+    """
+    Sends an immediate diagnostic test event (system.ping) signed with HMAC-SHA256.
+    """
+    res = await WebhookDispatcher.send_test_ping(target_url=req.target_url, secret_token=req.secret_token)
+    return WebhookTestResponse(
+        success=res.get("success", False),
+        status_code=res.get("status_code"),
+        message="Test webhook delivered successfully" if res.get("success") else f"Delivery failed: {res.get('response_body')}",
+        delivered_payload=res
+    )
+
+
+# -------------------------------------------------------------------
+# Satellite Provider Diagnostics
+# -------------------------------------------------------------------
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/satellite/copernicus-status",
+    tags=["Satellite Radar Verification"],
+    summary="Operational status and connection health of ESA Copernicus Sentinel-2 CDSE API"
+)
+async def get_copernicus_status():
+    """
+    Returns live operational diagnostics for European Space Agency (ESA) Copernicus Sentinel-2 L2A API.
+    """
+    return CopernicusSentinelClient.get_service_status()
+
 
 

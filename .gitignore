@@ -28,7 +28,7 @@ wheels/
 htmlcov/
 
 # Local DB & Secret Environment Files
-app/*.db
+*.db
 *.sqlite3
 .env
 .env.production

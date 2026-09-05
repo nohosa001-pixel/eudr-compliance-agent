@@ -185,3 +185,39 @@ class PaymentOrderRecord(Base):
     api_key_issued = Column(String(128), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
     confirmed_at = Column(DateTime, nullable=True)
+
+
+class WebhookSubscriptionRecord(Base):
+    """
+    Client ERP / SAP Outbound Webhook Subscription.
+    """
+    __tablename__ = "webhook_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    webhook_id = Column(String(64), unique=True, index=True, nullable=False)
+    api_key_id = Column(String(64), index=True, nullable=True)
+    company_name = Column(String(128), nullable=False)
+    target_url = Column(String(512), nullable=False)
+    secret_token = Column(String(128), nullable=False)
+    events = Column(JSON, nullable=False)  # e.g. ["batch.completed", "dds.generated", "compliance.alert"]
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+
+class WebhookDeliveryRecord(Base):
+    """
+    Outbound Webhook Delivery Log for auditing and troubleshooting ERP integration.
+    """
+    __tablename__ = "webhook_deliveries"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    delivery_id = Column(String(64), unique=True, index=True, nullable=False)
+    webhook_id = Column(String(64), index=True, nullable=False)
+    event_type = Column(String(64), index=True, nullable=False)
+    payload = Column(JSON, nullable=False)
+    response_status_code = Column(Integer, nullable=True)
+    response_body = Column(Text, nullable=True)
+    attempt_count = Column(Integer, default=1)
+    success = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+

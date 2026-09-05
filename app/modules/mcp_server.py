@@ -27,6 +27,10 @@ class MCPServer:
         },
         "prompts": {
             "listChanged": False
+        },
+        "resources": {
+            "subscribe": False,
+            "listChanged": False
         }
     }
 
@@ -46,6 +50,21 @@ class MCPServer:
                     "required": True
                 }
             ]
+        }
+    ]
+
+    RESOURCES = [
+        {
+            "uri": "eudr://regulation/eu-2023-1115",
+            "name": "EUDR Regulation 2023/1115 Baseline & Guidelines",
+            "description": "Deforestation-free baseline criteria (cut-off date: 31 Dec 2020), Art. 9 plot polygon specifications, and TRACES-NT DDS mandate.",
+            "mimeType": "text/markdown"
+        },
+        {
+            "uri": "eudr://schema/traces-nt-dds-xml",
+            "name": "TRACES-NT DDS XML Schema & Field Map",
+            "description": "EU Commission Directorate-General for Health and Food Safety TRACES-NT XML submission schema format.",
+            "mimeType": "application/xml"
         }
     ]
 
@@ -77,6 +96,12 @@ class MCPServer:
                 return cls._handle_prompts_list(req_id)
             elif method == "prompts/get":
                 return cls._handle_prompts_get(req_id, params)
+            elif method == "resources/list":
+                return cls._handle_resources_list(req_id)
+            elif method == "resources/read":
+                return cls._handle_resources_read(req_id, params)
+            elif method == "resources/templates/list":
+                return {"jsonrpc": "2.0", "id": req_id, "result": {"resourceTemplates": []}}
             else:
                 return cls._error_response(req_id, -32601, f"Method not found: '{method}'.")
         except Exception as exc:
@@ -217,6 +242,70 @@ class MCPServer:
                 }
             }
         return cls._error_response(req_id, -32602, f"Prompt '{prompt_name}' not found.")
+
+    @classmethod
+    def _handle_resources_list(cls, req_id: Any) -> Dict[str, Any]:
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {
+                "resources": cls.RESOURCES
+            }
+        }
+
+    @classmethod
+    def _handle_resources_read(cls, req_id: Any, params: Dict[str, Any]) -> Dict[str, Any]:
+        uri = params.get("uri")
+        if uri == "eudr://regulation/eu-2023-1115":
+            content = (
+                "# Regulation (EU) 2023/1115 (EUDR)\n\n"
+                "## Key Directives:\n"
+                "1. **Deforestation-free Baseline**: Products must not originate from land deforested after **31 December 2020**.\n"
+                "2. **Legality of Production**: Production complies with local legal frameworks in country of harvest.\n"
+                "3. **Geographic Precision**: High-accuracy coordinates required (< 4.0 ha: point allowed; >= 4.0 ha: complete polygon mandatory).\n"
+                "4. **TRACES-NT DDS Submission**: Due Diligence Statement mandatory prior to entry into EU single market."
+            )
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {
+                    "contents": [
+                        {
+                            "uri": uri,
+                            "mimeType": "text/markdown",
+                            "text": content
+                        }
+                    ]
+                }
+            }
+        elif uri == "eudr://schema/traces-nt-dds-xml":
+            content = (
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<TRACES-NT-DDS-Schema version=\"1.0\">\n"
+                "  <RequiredElements>\n"
+                "    <Operator vatNumber=\"string\" eoriNumber=\"string\"/>\n"
+                "    <Commodity hsCode=\"string\" netMassKg=\"float\"/>\n"
+                "    <ProductionPlots>\n"
+                "      <Plot id=\"string\" areaHa=\"float\" geometry=\"GeoJSON/WKT\"/>\n"
+                "    </ProductionPlots>\n"
+                "    <CutoffCheck baseline=\"2020-12-31\" status=\"VERIFIED_ZERO_DEFORESTATION\"/>\n"
+                "  </RequiredElements>\n"
+                "</TRACES-NT-DDS-Schema>"
+            )
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {
+                    "contents": [
+                        {
+                            "uri": uri,
+                            "mimeType": "application/xml",
+                            "text": content
+                        }
+                    ]
+                }
+            }
+        return cls._error_response(req_id, -32602, f"Resource URI '{uri}' not found.")
 
     @classmethod
     def _error_response(cls, req_id: Any, code: int, message: str, data: Any = None) -> Dict[str, Any]:

@@ -239,6 +239,36 @@ def test_mcp_prompts_list_and_get():
     assert "eudr_verify_plot" in msg
 
 
+def test_mcp_resources_list_and_read():
+    """Verifies MCP resources/list and resources/read functionality."""
+    # 1. resources/list
+    list_req = {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "method": "resources/list"
+    }
+    res = client.post("/api/v1/mcp", json=list_req)
+    assert res.status_code == 200
+    resources = res.json()["result"]["resources"]
+    assert len(resources) >= 2
+    assert any(r["uri"] == "eudr://regulation/eu-2023-1115" for r in resources)
+
+    # 2. resources/read
+    read_req = {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "method": "resources/read",
+        "params": {
+            "uri": "eudr://regulation/eu-2023-1115"
+        }
+    }
+    res = client.post("/api/v1/mcp", json=read_req)
+    assert res.status_code == 200
+    contents = res.json()["result"]["contents"]
+    assert len(contents) == 1
+    assert "2020" in contents[0]["text"]
+
+
 def test_agent_create_payment_order_and_budget_cap():
     """Verifies that an agent can create a payment order and safety budget caps are enforced."""
     # 1. Successful order within budget

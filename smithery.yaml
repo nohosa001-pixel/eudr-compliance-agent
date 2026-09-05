@@ -13,3 +13,6 @@ startCommand:
         description: "Optional EUDRAgent Pro API Key for enterprise quotas"
         x-from:
           header: "X-API-Key"
+    required: []
+exampleConfig:
+  apiKey: "eudr_live_demo_key_2026"

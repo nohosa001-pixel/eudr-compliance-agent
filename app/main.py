@@ -243,6 +243,20 @@ async def serve_agent_manifest():
         return FileResponse(str(agent_file), media_type="application/json", headers=NO_CACHE_HEADERS)
     return JSONResponse({"name": "eudr_compliance_agent", "status": "active"}, headers=NO_CACHE_HEADERS)
 
+@app.get("/.well-known/mcp/server-card.json", include_in_schema=False)
+@app.get("/mcp/server-card.json", include_in_schema=False)
+@app.get("/server-card.json", include_in_schema=False)
+async def serve_mcp_server_card():
+    """Serves the standard MCP server-card.json metadata for Smithery.ai and MCP registries."""
+    card_file = STATIC_DIR / "server-card.json"
+    if card_file.exists():
+        return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+    return JSONResponse({
+        "serverInfo": {"name": "eudr-compliance-agent", "version": "1.2.0"},
+        "authentication": {"required": False},
+        "tools": []
+    }, headers=NO_CACHE_HEADERS)
+
 @app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])
 async def health_check():
     """Health check endpoint."""
@@ -1297,6 +1311,26 @@ async def execute_agent_tool(payload: AgentToolExecuteRequest):
     }
 
 
+@app.get(
+    f"{settings.API_V1_PREFIX}/mcp",
+    tags=["Autonomous AI Agent Tools"],
+    summary="Model Context Protocol (MCP) Health and Server Card Metadata"
+)
+async def mcp_get_endpoint():
+    """
+    Returns MCP Server Information and Capabilities to prevent HTTP 405 Method Not Allowed
+    when scanners or health checks probe via GET.
+    """
+    card_file = STATIC_DIR / "server-card.json"
+    if card_file.exists():
+        return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+    return JSONResponse({
+        "name": "eudr-compliance-mcp-server",
+        "protocolVersion": "2024-11-05",
+        "status": "online"
+    })
+
+
 @app.post(
     f"{settings.API_V1_PREFIX}/mcp",
     tags=["Autonomous AI Agent Tools"],
@@ -1318,6 +1352,16 @@ async def mcp_jsonrpc_endpoint(request: Request):
     
     res = await MCPServer.handle_jsonrpc_request(req_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res)
+
+
+@app.get("/mcp", include_in_schema=False)
+@app.post("/mcp", include_in_schema=False)
+async def root_mcp_alias(request: Request):
+    """Root alias for /mcp handling both GET metadata and POST JSON-RPC."""
+    if request.method == "GET":
+        return await mcp_get_endpoint()
+    return await mcp_jsonrpc_endpoint(request)
+
 
 
 

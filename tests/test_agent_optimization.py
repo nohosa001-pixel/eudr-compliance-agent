@@ -32,6 +32,19 @@ def test_llms_txt_and_manifest_endpoints():
     assert data["name_for_model"] == "eudr_compliance_agent"
     assert "mcp" in data
 
+    # 4. .well-known/mcp/server-card.json (Smithery.ai fallback)
+    res_card = client.get("/.well-known/mcp/server-card.json")
+    assert res_card.status_code == 200
+    card_data = res_card.json()
+    assert card_data["serverInfo"]["name"] == "eudr-compliance-agent"
+    assert len(card_data["tools"]) >= 9
+
+    # 5. GET /api/v1/mcp and /mcp (prevent 405 Method Not Allowed)
+    res_mcp_get = client.get("/api/v1/mcp")
+    assert res_mcp_get.status_code == 200
+    res_root_mcp = client.get("/mcp")
+    assert res_root_mcp.status_code == 200
+
 
 def test_agent_tools_listing():
     """Verifies /api/v1/agent/tools returns valid OpenAI/Anthropic/Gemini compatible schemas."""

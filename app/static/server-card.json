@@ -1,0 +1,141 @@
+{
+  "serverInfo": {
+    "name": "eudr-compliance-agent",
+    "version": "1.2.0",
+    "description": "Autonomous AI Agent compliance engine for European Union Deforestation Regulation (EU 2023/1115). Verifies farm plot GIS polygons, Sentinel-2 satellite deforestation, VIES VAT numbers, and generates official TRACES-NT DDS XML."
+  },
+  "authentication": {
+    "required": false
+  },
+  "tools": [
+    {
+      "name": "eudr_verify_plot",
+      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plot_id": { "type": "string", "description": "Unique identifier for the production plot or farm." },
+          "country_code": { "type": "string", "description": "ISO 3166-1 alpha-2 country code of plot origin." },
+          "commodity": { "type": "string", "enum": ["cocoa", "coffee", "oil_palm", "rubber", "soya", "cattle", "wood"], "description": "EUDR regulated commodity." },
+          "coordinates": { "type": "array", "description": "WGS84 coordinates: [lng, lat] for point or [[lng, lat], ...] for polygon." },
+          "area_hectares": { "type": "number", "description": "Plot surface area in hectares. Plots >= 4.0 ha strictly require polygons." }
+        },
+        "required": ["plot_id", "country_code", "commodity", "coordinates"]
+      }
+    },
+    {
+      "name": "eudr_check_deforestation",
+      "description": "Performs satellite radar triangulation and canopy loss detection against the 2020-12-31 baseline.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plot_id": { "type": "string", "description": "Identifier of the plot being audited." },
+          "country_code": { "type": "string", "description": "ISO 3166-1 alpha-2 country code." },
+          "coordinates": { "type": "array", "description": "WGS84 coordinates of the plot or centroid." },
+          "cutoff_date": { "type": "string", "default": "2020-12-31", "description": "Regulatory baseline cut-off date." }
+        },
+        "required": ["plot_id", "country_code", "coordinates"]
+      }
+    },
+    {
+      "name": "eudr_render_satellite_map",
+      "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plot_id": { "type": "string", "description": "Target plot identifier." },
+          "coordinates": { "type": "array", "description": "WGS84 coordinates of the plot." },
+          "year": { "type": "integer", "enum": [2020, 2026], "default": 2020, "description": "Year of observation." },
+          "layer": { "type": "string", "enum": ["true_color_optical", "ndvi_vegetation", "sar_radar_change"], "default": "ndvi_vegetation", "description": "Visualization layer type." }
+        },
+        "required": ["plot_id", "coordinates"]
+      }
+    },
+    {
+      "name": "eudr_verify_vies_vat",
+      "description": "Validates European Union B2B cross-border VAT numbers in real-time via official EU Commission VIES.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": { "type": "string", "description": "EU Member State 2-letter code." },
+          "vat_number": { "type": "string", "description": "National VAT registration number." }
+        },
+        "required": ["country_code", "vat_number"]
+      }
+    },
+    {
+      "name": "eudr_generate_dds",
+      "description": "Generates an EU TRACES-NT compliant Due Diligence Statement (DDS) XML package with official reference ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "operator_name": { "type": "string", "description": "Legal name of the EU importing operator." },
+          "operator_vat": { "type": "string", "description": "Operator EU VAT / EORI number." },
+          "commodity": { "type": "string", "enum": ["cocoa", "coffee", "oil_palm", "rubber", "soya", "cattle", "wood"], "description": "Regulated commodity." },
+          "total_net_mass_kg": { "type": "number", "description": "Total shipment net mass in kilograms." },
+          "plot_ids": { "type": "array", "items": { "type": "string" }, "description": "List of certified plot IDs." }
+        },
+        "required": ["operator_name", "operator_vat", "commodity", "total_net_mass_kg", "plot_ids"]
+      }
+    },
+    {
+      "name": "eudr_verify_audit_integrity",
+      "description": "Verifies SHA-256 cryptographic chain of custody and tamper-evidence for an EUDR compliance audit bundle.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "audit_payload": { "type": "object", "description": "Audit record dictionary." },
+          "expected_hash": { "type": "string", "description": "Cryptographic SHA-256 hash." }
+        },
+        "required": ["audit_payload", "expected_hash"]
+      }
+    },
+    {
+      "name": "eudr_estimate_compliance_cost",
+      "description": "Calculates estimated tier pricing and clearing fees in EUR for EUDR plot verification and TRACES-NT filing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "num_plots": { "type": "integer", "description": "Number of production plots to process." },
+          "satellite_resolution": { "type": "string", "enum": ["sentinel_10m", "high_res_optical_3m"], "default": "sentinel_10m" },
+          "include_traces_submission": { "type": "boolean", "default": true }
+        },
+        "required": ["num_plots"]
+      }
+    },
+    {
+      "name": "eudr_create_payment_order",
+      "description": "Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plan_tier": { "type": "string", "enum": ["PRO", "ENTERPRISE", "STARTER"] },
+          "company_name": { "type": "string" },
+          "contact_email": { "type": "string" },
+          "chain": { "type": "string", "enum": ["Base (Low Gas $0.01)", "Polygon (PoS)", "Arbitrum One", "Ethereum (ERC-20)", "Solana (SPL-USDC)"], "default": "Base (Low Gas $0.01)" },
+          "max_budget_usdc": { "type": "number", "description": "Safety budget cap." }
+        },
+        "required": ["plan_tier", "company_name", "contact_email"]
+      }
+    },
+    {
+      "name": "eudr_confirm_payment",
+      "description": "Validates on-chain transaction hash for a payment order and issues the activated Pro API Key.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "string" },
+          "tx_hash": { "type": "string" }
+        },
+        "required": ["order_id", "tx_hash"]
+      }
+    }
+  ],
+  "resources": [],
+  "prompts": [
+    {
+      "name": "eudr_compliance_audit_prompt",
+      "description": "Guides an autonomous agent through an end-to-end EUDR Art. 9 audit workflow."
+    }
+  ]
+}

@@ -531,4 +531,12 @@ class WebhookTestResponse(BaseModel):
     delivered_payload: Dict[str, Any]
 
 
+# --- Autonomous AI Agent Tool Calling Schemas ---
+
+class AgentToolExecuteRequest(BaseModel):
+    tool_name: str = Field(..., description="Name of the agent tool to execute (e.g. eudr_verify_plot, eudr_verify_vies_vat)")
+    arguments: Dict[str, Any] = Field(default_factory=dict, description="Tool parameter dictionary")
+
+
+
 

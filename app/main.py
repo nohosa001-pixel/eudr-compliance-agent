@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request, Query
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
+from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request, Query, Body
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse, PlainTextResponse
+from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
@@ -42,7 +43,8 @@ from app.schemas import (
     WebhookSubscribeRequest,
     WebhookSubscribeResponse,
     WebhookTestRequest,
-    WebhookTestResponse
+    WebhookTestResponse,
+    AgentToolExecuteRequest
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.traceability_collector import TraceabilityCollector
@@ -59,6 +61,9 @@ from app.modules.stripe_manager import StripeManager
 from app.modules.vies_validator import ViesValidator
 from app.modules.webhook_dispatcher import WebhookDispatcher
 from app.modules.satellite_providers.copernicus_sentinel_client import CopernicusSentinelClient
+from app.modules.agent_tools import AgentToolsRegistry
+from app.modules.mcp_server import MCPServer
+from app.core.exceptions import AgentSelfCorrectionError
 from app.db.session import init_db, get_db
 from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository
 from app.core.config import settings
@@ -88,6 +93,52 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# -------------------------------------------------------------------
+# Autonomous Agent Self-Correction Exception Handlers
+# -------------------------------------------------------------------
+
+@app.exception_handler(AgentSelfCorrectionError)
+async def agent_self_correction_handler(request: Request, exc: AgentSelfCorrectionError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=exc.to_dict()
+    )
+
+@app.exception_handler(RequestValidationError)
+async def agent_validation_error_handler(request: Request, exc: RequestValidationError):
+    """
+    Returns an actionable, self-healing diagnostic error envelope when
+    invoked by autonomous AI agents.
+    """
+    is_agent_request = (
+        request.url.path.startswith(f"{settings.API_V1_PREFIX}/agent") or 
+        request.url.path.startswith(f"{settings.API_V1_PREFIX}/mcp") or
+        request.headers.get("X-Agent", "").lower() in ("true", "1")
+    )
+    if is_agent_request:
+        errors = exc.errors()
+        first_err = errors[0] if errors else {}
+        loc_str = " -> ".join([str(x) for x in first_err.get("loc", [])])
+        msg = first_err.get("msg", "Validation error")
+        err_type = first_err.get("type", "value_error")
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={
+                "error": {
+                    "code": f"VALIDATION_ERROR_{err_type.upper()}",
+                    "message": f"Input validation failed at '{loc_str}': {msg}",
+                    "recoverable": True,
+                    "suggested_fix": f"Provide valid data for field '{loc_str}'. Detail: {msg}",
+                    "agent_action_hint": "Self-heal input parameters and retry with corrected data types.",
+                    "details": errors
+                }
+            }
+        )
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()}
+    )
 
 # Static Files & Dashboard UI
 STATIC_DIR = Path(__file__).parent / "static"
@@ -162,6 +213,35 @@ async def serve_sitemap():
     if sitemap_file.exists():
         return FileResponse(str(sitemap_file), media_type="application/xml")
     return Response(content="""<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://eudragent.com/</loc></url></urlset>""", media_type="application/xml")
+
+# -------------------------------------------------------------------
+# LLMs & Autonomous AI Agents Discovery Standards (llms.txt & Manifests)
+# -------------------------------------------------------------------
+
+@app.get("/llms.txt", include_in_schema=False)
+async def serve_llms_txt():
+    """Serves the standard llms.txt summary file for AI agents and LLM crawlers."""
+    llms_file = STATIC_DIR / "llms.txt"
+    if llms_file.exists():
+        return FileResponse(str(llms_file), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return PlainTextResponse("EUDR.agent: Visit https://eudragent.com/docs for API details.", headers=NO_CACHE_HEADERS)
+
+@app.get("/llms-full.txt", include_in_schema=False)
+async def serve_llms_full_txt():
+    """Serves the comprehensive llms-full.txt reference for AI agents."""
+    llms_full = STATIC_DIR / "llms-full.txt"
+    if llms_full.exists():
+        return FileResponse(str(llms_full), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return PlainTextResponse("EUDR.agent Full Reference: Visit https://eudragent.com/openapi.json", headers=NO_CACHE_HEADERS)
+
+@app.get("/.well-known/agent.json", include_in_schema=False)
+@app.get("/.well-known/ai-plugin.json", include_in_schema=False)
+async def serve_agent_manifest():
+    """Serves the .well-known/agent.json plugin manifest for autonomous agents."""
+    agent_file = STATIC_DIR / "agent.json"
+    if agent_file.exists():
+        return FileResponse(str(agent_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+    return JSONResponse({"name": "eudr_compliance_agent", "status": "active"}, headers=NO_CACHE_HEADERS)
 
 @app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])
 async def health_check():
@@ -1160,6 +1240,85 @@ async def get_copernicus_status():
     Returns live operational diagnostics for European Space Agency (ESA) Copernicus Sentinel-2 L2A API.
     """
     return CopernicusSentinelClient.get_service_status()
+
+
+# -------------------------------------------------------------------
+# Autonomous AI Agent & Model Context Protocol (MCP) Endpoints
+# -------------------------------------------------------------------
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/agent/tools",
+    tags=["Autonomous AI Agent Tools"],
+    summary="List available AI agent tools in OpenAI / Anthropic / Gemini JSON Schema format"
+)
+async def list_agent_tools():
+    """
+    Exposes high-level deterministic tool definitions optimized for function calling
+    in Claude, Gemini, OpenAI Assistants, LangChain, and AutoGen.
+    """
+    tools = AgentToolsRegistry.list_tools()
+    return {
+        "status": "success",
+        "protocol": "OpenAI / Anthropic / Gemini Compatible Tool Calling",
+        "tool_count": len(tools),
+        "tools": tools,
+        "mcp_endpoint": f"{settings.API_V1_PREFIX}/mcp",
+        "documentation": "https://eudragent.com/llms.txt"
+    }
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/agent/tools/execute",
+    tags=["Autonomous AI Agent Tools"],
+    summary="Direct unified execution endpoint for AI agent tools with self-correction hints"
+)
+async def execute_agent_tool(payload: AgentToolExecuteRequest):
+    """
+    Executes an agent tool directly. Returns self-correction guidance on failure.
+    Example payload:
+    {
+      "tool_name": "eudr_verify_plot",
+      "arguments": {
+        "plot_id": "PLOT-1",
+        "country_code": "ID",
+        "commodity": "oil_palm",
+        "coordinates": [101.45, 0.52]
+      }
+    }
+    """
+    tool_name = payload.tool_name
+    arguments = payload.arguments or {}
+    
+    result = await AgentToolsRegistry.execute_tool(tool_name, arguments)
+    return {
+        "status": "success",
+        "tool_name": tool_name,
+        "result": result
+    }
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/mcp",
+    tags=["Autonomous AI Agent Tools"],
+    summary="Model Context Protocol (MCP v2024-11-05) JSON-RPC 2.0 Endpoint"
+)
+async def mcp_jsonrpc_endpoint(request: Request):
+    """
+    Standard Model Context Protocol (MCP) server endpoint over HTTP.
+    Accepts JSON-RPC 2.0 requests (initialize, tools/list, tools/call, prompts/list, prompts/get).
+    Compatible with Claude Desktop, Cursor, Antigravity, and MCP clients.
+    """
+    try:
+        req_data = await request.json()
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": f"Parse error: {str(e)}"}}
+        )
+    
+    res = await MCPServer.handle_jsonrpc_request(req_data)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=res)
+
 
 
 

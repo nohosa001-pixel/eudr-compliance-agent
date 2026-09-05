@@ -1,0 +1,24 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "eudr_compliance_agent",
+  "name_for_human": "EUDR Compliance & TRACES-NT Agent",
+  "description_for_model": "Autonomous compliance engine for the EU Deforestation Regulation (EU 2023/1115). Verifies plot coordinates, satellite radar deforestation past 2020, VIES VAT numbers, and generates TRACES-NT Due Diligence Statements (DDS).",
+  "description_for_human": "Automated EUDR deforestation verification, GIS polygon audits, and TRACES-NT XML filing.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://eudragent.com/openapi.json"
+  },
+  "mcp": {
+    "version": "2024-11-05",
+    "endpoint": "https://eudragent.com/api/v1/mcp",
+    "transport": "http"
+  },
+  "tools_endpoint": "https://eudragent.com/api/v1/agent/tools",
+  "execute_endpoint": "https://eudragent.com/api/v1/agent/tools/execute",
+  "logo_url": "https://eudragent.com/static/favicon.svg",
+  "contact_email": "compliance@eudragent.com",
+  "legal_info_url": "https://eudragent.com/about"
+}

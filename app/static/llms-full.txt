@@ -1,0 +1,118 @@
+# EUDR.agent Comprehensive AI Reference & Technical Specification
+
+> Complete technical documentation for autonomous agents, LLMs, and multi-agent pipelines interacting with EUDR (Regulation EU 2023/1115) Compliance Infrastructure.
+
+## 1. Regulatory Context (EU 2023/1115)
+The European Union Deforestation Regulation (EUDR) mandates that operators and traders placing 7 key commodities (Cattle, Cocoa, Coffee, Oil palm, Rubber, Soya, Wood) into the EU market must prove:
+1. **Deforestation-Free**: Produced on land that has not been subject to deforestation after 31 December 2020.
+2. **Legally Produced**: In accordance with the relevant legislation of the country of production.
+3. **Traceability**: Accompanied by exact geolocation coordinates (points for plots < 4 ha, polygon perimeters for plots >= 4 ha).
+4. **Due Diligence Statement (DDS)**: Registered on the EU TRACES-NT (Trade Control and Expert System) portal prior to import.
+
+---
+
+## 2. Agent Integration Protocols
+
+### A. Model Context Protocol (MCP)
+- **JSON-RPC Endpoint**: `POST /api/v1/mcp`
+- **Supported Methods**:
+  - `initialize`: Returns protocol capabilities and server information.
+  - `tools/list`: Returns full JSON schema for all available tools.
+  - `tools/call`: Executes specified tool with `{"name": "...", "arguments": {...}}`.
+  - `prompts/list`: Lists pre-configured EUDR audit workflows.
+  - `prompts/get`: Retrieves prompt templates.
+- **Header**: `Content-Type: application/json`
+
+#### Example MCP tools/call Request:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "eudr_verify_plot",
+    "arguments": {
+      "plot_id": "PLOT-ID-2026-001",
+      "country_code": "ID",
+      "commodity": "oil_palm",
+      "coordinates": [101.45, 0.52],
+      "area_hectares": 2.5
+    }
+  }
+}
+```
+
+---
+
+### B. Direct Agent Tools Endpoint
+- **Discovery**: `GET /api/v1/agent/tools`
+  Returns all registered tool definitions in OpenAI / Anthropic / Gemini compatible JSON Schema.
+- **Execution**: `POST /api/v1/agent/tools/execute`
+  Payload:
+  ```json
+  {
+    "tool_name": "eudr_verify_vies_vat",
+    "arguments": {
+      "country_code": "FR",
+      "vat_number": "12345678901"
+    }
+  }
+  ```
+
+---
+
+## 3. Tool Specifications & Schemas
+
+### 1. `eudr_verify_plot`
+- **Purpose**: Verifies WGS84 coordinates, detects self-intersection in polygons, ensures counter-clockwise ring winding, and verifies the 4.0 hectare polygon threshold.
+- **Parameters**:
+  - `plot_id` (string, required): Unique plot identifier.
+  - `country_code` (string, required): 2-letter ISO country code.
+  - `commodity` (string, required): One of `["cocoa", "coffee", "oil_palm", "rubber", "soya", "cattle", "wood"]`.
+  - `coordinates` (array, required): `[lng, lat]` or `[[lng, lat], ...]`.
+  - `area_hectares` (number, optional): Land area.
+
+### 2. `eudr_check_deforestation`
+- **Purpose**: Multi-spectral and radar satellite analysis for tree cover loss post-Dec 31, 2020.
+- **Parameters**:
+  - `plot_id` (string, required)
+  - `country_code` (string, required)
+  - `coordinates` (array, required)
+  - `cutoff_date` (string, default: "2020-12-31")
+
+### 3. `eudr_verify_vies_vat`
+- **Purpose**: Live European Commission VIES VAT database validation for cross-border B2B reverse charge eligibility.
+- **Parameters**:
+  - `country_code` (string, required): e.g. "FR", "DE", "NL", "IT".
+  - `vat_number` (string, required): Digits without country code.
+
+### 4. `eudr_generate_dds`
+- **Purpose**: TRACES-NT compliant XML package compiler.
+- **Parameters**:
+  - `operator_name` (string, required)
+  - `operator_vat` (string, required)
+  - `commodity` (string, required)
+  - `total_net_mass_kg` (number, required)
+  - `plot_ids` (array of strings, required)
+
+### 5. `eudr_verify_audit_integrity`
+- **Purpose**: Cryptographic SHA-256 tamper verification.
+- **Parameters**:
+  - `audit_payload` (object, required)
+  - `expected_hash` (string, required)
+
+### 6. `eudr_estimate_compliance_cost`
+- **Purpose**: Cost estimation for budget-aware autonomous procurement agents.
+- **Parameters**:
+  - `num_plots` (integer, required)
+  - `satellite_resolution` (string, "sentinel_10m" or "high_res_optical_3m")
+  - `include_traces_submission` (boolean, default: true)
+
+---
+
+## 4. Self-Healing & Self-Correction Contract
+When an autonomous agent provides malformed coordinates or missing parameters, the response returns HTTP 400/422 with actionable guidance:
+- `error.code`: Machine-readable category (e.g. `COORDINATE_OUT_OF_BOUNDS`, `MISSING_REQUIRED_PARAMETER`).
+- `error.recoverable`: `true` indicates the agent should adjust parameters and retry immediately.
+- `error.suggested_fix`: Clear natural language fix for the model.
+- `error.agent_action_hint`: Contextual instruction for the next agent turn.

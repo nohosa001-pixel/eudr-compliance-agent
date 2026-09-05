@@ -151,9 +151,11 @@ NO_CACHE_HEADERS = {
     "Expires": "0"
 }
 
-@app.get("/", include_in_schema=False)
-async def serve_landing():
+@app.api_route("/", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_landing(request: Request):
     """Serves the eudragent.com Official SaaS Landing Page."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS"})
     landing_file = STATIC_DIR / "landing.html"
     if landing_file.exists():
         return FileResponse(str(landing_file), headers=NO_CACHE_HEADERS)
@@ -243,11 +245,13 @@ async def serve_agent_manifest():
         return FileResponse(str(agent_file), media_type="application/json", headers=NO_CACHE_HEADERS)
     return JSONResponse({"name": "eudr_compliance_agent", "status": "active"}, headers=NO_CACHE_HEADERS)
 
-@app.get("/.well-known/mcp/server-card.json", include_in_schema=False)
-@app.get("/mcp/server-card.json", include_in_schema=False)
-@app.get("/server-card.json", include_in_schema=False)
-async def serve_mcp_server_card():
+@app.api_route("/.well-known/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_mcp_server_card(request: Request):
     """Serves the standard MCP server-card.json metadata for Smithery.ai and MCP registries."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
     card_file = STATIC_DIR / "server-card.json"
     if card_file.exists():
         return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
@@ -1311,37 +1315,27 @@ async def execute_agent_tool(payload: AgentToolExecuteRequest):
     }
 
 
-@app.get(
-    f"{settings.API_V1_PREFIX}/mcp",
-    tags=["Autonomous AI Agent Tools"],
-    summary="Model Context Protocol (MCP) Health and Server Card Metadata"
-)
-async def mcp_get_endpoint():
-    """
-    Returns MCP Server Information and Capabilities to prevent HTTP 405 Method Not Allowed
-    when scanners or health checks probe via GET.
-    """
-    card_file = STATIC_DIR / "server-card.json"
-    if card_file.exists():
-        return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
-    return JSONResponse({
-        "name": "eudr-compliance-mcp-server",
-        "protocolVersion": "2024-11-05",
-        "status": "online"
-    })
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/mcp",
-    tags=["Autonomous AI Agent Tools"],
-    summary="Model Context Protocol (MCP v2024-11-05) JSON-RPC 2.0 Endpoint"
-)
-async def mcp_jsonrpc_endpoint(request: Request):
-    """
-    Standard Model Context Protocol (MCP) server endpoint over HTTP.
-    Accepts JSON-RPC 2.0 requests (initialize, tools/list, tools/call, prompts/list, prompts/get).
-    Compatible with Claude Desktop, Cursor, Antigravity, and MCP clients.
-    """
+async def _handle_mcp_request(request: Request):
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, POST, HEAD, OPTIONS", "Content-Type": "application/json"})
+    
+    if request.method == "GET":
+        accept_header = request.headers.get("Accept", "")
+        if "text/event-stream" in accept_header:
+            async def event_generator():
+                yield f"event: endpoint\ndata: {settings.API_V1_PREFIX}/mcp\n\n"
+            return StreamingResponse(event_generator(), media_type="text/event-stream", headers=NO_CACHE_HEADERS)
+        
+        card_file = STATIC_DIR / "server-card.json"
+        if card_file.exists():
+            return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+        return JSONResponse({
+            "name": "eudr-compliance-mcp-server",
+            "protocolVersion": "2024-11-05",
+            "status": "online"
+        }, headers=NO_CACHE_HEADERS)
+    
+    # POST: JSON-RPC 2.0
     try:
         req_data = await request.json()
     except Exception as e:
@@ -1354,13 +1348,20 @@ async def mcp_jsonrpc_endpoint(request: Request):
     return JSONResponse(status_code=status.HTTP_200_OK, content=res)
 
 
-@app.get("/mcp", include_in_schema=False)
-@app.post("/mcp", include_in_schema=False)
-async def root_mcp_alias(request: Request):
-    """Root alias for /mcp handling both GET metadata and POST JSON-RPC."""
-    if request.method == "GET":
-        return await mcp_get_endpoint()
-    return await mcp_jsonrpc_endpoint(request)
+@app.api_route(
+    f"{settings.API_V1_PREFIX}/mcp",
+    methods=["GET", "POST", "HEAD", "OPTIONS"],
+    tags=["Autonomous AI Agent Tools"],
+    summary="Model Context Protocol (MCP v2024-11-05) Endpoint (JSON-RPC & SSE)"
+)
+async def mcp_endpoint(request: Request):
+    return await _handle_mcp_request(request)
+
+
+@app.api_route("/mcp", methods=["GET", "POST", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/sse", methods=["GET", "POST", "HEAD", "OPTIONS"], include_in_schema=False)
+async def mcp_aliases(request: Request):
+    return await _handle_mcp_request(request)
 
 
 

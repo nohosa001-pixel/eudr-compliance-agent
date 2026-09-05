@@ -1,11 +1,15 @@
 # Smithery.ai MCP Server Configuration
-# https://smithery.ai/docs/config
+# https://smithery.ai/docs/build/external#config-schema
 
 startCommand:
-  type: stdio
-  config:
-    command: python
-    args:
-      - mcp_server_stdio.py
-    env:
-      PYTHONPATH: .
+  type: "http"
+  url: "https://eudragent.com/api/v1/mcp"
+  configSchema:
+    type: "object"
+    properties:
+      apiKey:
+        type: "string"
+        title: "API Key"
+        description: "Optional EUDRAgent Pro API Key for enterprise quotas"
+        x-from:
+          header: "X-API-Key"

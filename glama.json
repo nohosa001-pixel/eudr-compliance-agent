@@ -1,0 +1,78 @@
+{
+  "$schema": "https://glama.ai/mcp/schema.json",
+  "name": "eudr-compliance-agent",
+  "title": "EUDR Compliance & TRACES-NT MCP Server",
+  "description": "Autonomous AI Agent compliance engine for EU Deforestation Regulation (EU 2023/1115). Verifies farm plot GIS polygons, Sentinel-2 satellite deforestation past 2020, VIES VAT numbers, and generates official TRACES-NT Due Diligence Statements (DDS).",
+  "author": "nohosa001-pixel",
+  "homepage": "https://eudragent.com",
+  "repository": "https://github.com/nohosa001-pixel/eudr-compliance-agent",
+  "license": "MIT",
+  "keywords": [
+    "eudr",
+    "mcp",
+    "model-context-protocol",
+    "compliance",
+    "traces-nt",
+    "sentinel-2",
+    "deforestation",
+    "gis",
+    "esg",
+    "supply-chain"
+  ],
+  "server": {
+    "type": "stdio",
+    "command": "python",
+    "args": ["mcp_server_stdio.py"],
+    "env": {
+      "PYTHONPATH": "."
+    }
+  },
+  "remote": {
+    "type": "http",
+    "url": "https://eudragent.com/api/v1/mcp"
+  },
+  "tools": [
+    {
+      "name": "eudr_verify_plot",
+      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards."
+    },
+    {
+      "name": "eudr_check_deforestation",
+      "description": "Performs satellite radar triangulation and canopy loss detection against the 2020-12-31 baseline."
+    },
+    {
+      "name": "eudr_render_satellite_map",
+      "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization."
+    },
+    {
+      "name": "eudr_verify_vies_vat",
+      "description": "Validates European Union B2B cross-border VAT numbers in real-time via the official EU Commission VIES engine."
+    },
+    {
+      "name": "eudr_generate_dds",
+      "description": "Generates an EU TRACES-NT compliant Due Diligence Statement (DDS) XML package with official EUDR reference ID."
+    },
+    {
+      "name": "eudr_verify_audit_integrity",
+      "description": "Verifies SHA-256 cryptographic chain of custody and tamper-evidence for an EUDR compliance audit bundle."
+    },
+    {
+      "name": "eudr_estimate_compliance_cost",
+      "description": "Calculates estimated tier pricing and clearing fees in EUR for EUDR plot verification and TRACES-NT filing."
+    },
+    {
+      "name": "eudr_create_payment_order",
+      "description": "Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails."
+    },
+    {
+      "name": "eudr_confirm_payment",
+      "description": "Validates on-chain transaction hash for a payment order and issues the activated Pro API Key."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "eudr_compliance_audit_prompt",
+      "description": "Guides an autonomous agent through an end-to-end EUDR Art. 9 audit workflow."
+    }
+  ]
+}

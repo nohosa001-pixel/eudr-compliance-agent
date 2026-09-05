@@ -4,7 +4,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-75%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-98%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers)
 [![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Live%20Production-4285F4.svg)](https://cloud.google.com/run)
 
 **EUDRAgent** is an enterprise-grade autonomous compliance automation and Due Diligence Statement (DDS) generation engine for the **European Union Deforestation Regulation (Regulation (EU) 2023/1115)**.
@@ -38,6 +39,53 @@
 | 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
 | 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/docs) | Swagger UI for ERP, SAP, and customs system integration |
 | 🩺 **System Health Endpoint** | [`/api/v1/eudr/health`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/eudr/health) | EUDR cut-off baseline date & cluster health status |
+| 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudragent.com/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude, Cursor & AI Agents |
+| 📄 **LLM Discovery Spec** | [`/llms.txt`](https://eudragent.com/llms.txt) | LLM crawler & agent standard summary |
+
+---
+
+## 🤖 Model Context Protocol (MCP) Integration (Glama.ai Ready)
+
+EUDRAgent includes a native **Model Context Protocol (MCP v2024-11-05)** server, allowing AI assistants like **Claude Desktop, Cursor, Antigravity, and Zed** to autonomously perform EUDR compliance audits.
+
+### Quick Setup for Claude Desktop (`claude_desktop_config.json`)
+
+```json
+{
+  "mcpServers": {
+    "eudr-compliance": {
+      "command": "python",
+      "args": [
+        "/path/to/eudr-compliance-agent/mcp_server_stdio.py"
+      ]
+    }
+  }
+}
+```
+
+### Remote MCP Server Setup (HTTP Transport)
+```json
+{
+  "mcpServers": {
+    "eudr-compliance-cloud": {
+      "url": "https://eudragent.com/api/v1/mcp"
+    }
+  }
+}
+```
+
+### 9 Registered Autonomous Agent Tools
+| Tool Name | Purpose |
+| :--- | :--- |
+| `eudr_verify_plot` | Validates GIS coordinates, WGS84 bounds, and polygon 4.0ha threshold |
+| `eudr_check_deforestation` | Radar & optical satellite canopy loss analysis against 2020-12-31 baseline |
+| `eudr_render_satellite_map` | Generates Sentinel-2 NDVI canopy density SVG radar visualization |
+| `eudr_verify_vies_vat` | Real-time EU Commission VIES VAT cross-border reverse charge check |
+| `eudr_generate_dds` | Compiles official TRACES-NT XML Due Diligence Statement declaration |
+| `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
+| `eudr_estimate_compliance_cost` | Automated budget estimation based on plot volume and resolution |
+| `eudr_create_payment_order` | On-chain USDC payment order with budget cap safety guardrails |
+| `eudr_confirm_payment` | Validates on-chain tx_hash and provisions live Pro API Key |
 
 ---
 

@@ -1,0 +1,11 @@
+# Smithery.ai MCP Server Configuration
+# https://smithery.ai/docs/config
+
+startCommand:
+  type: stdio
+  config:
+    command: python
+    args:
+      - mcp_server_stdio.py
+    env:
+      PYTHONPATH: .

@@ -224,3 +224,93 @@ def test_mcp_prompts_list_and_get():
     msg = res.json()["result"]["messages"][0]["content"]["text"]
     assert "Global Coffee Imports Ltd" in msg
     assert "eudr_verify_plot" in msg
+
+
+def test_agent_create_payment_order_and_budget_cap():
+    """Verifies that an agent can create a payment order and safety budget caps are enforced."""
+    # 1. Successful order within budget
+    payload = {
+        "tool_name": "eudr_create_payment_order",
+        "arguments": {
+            "plan_tier": "PRO",
+            "company_name": "Autonomous Cocoa Agents LLC",
+            "contact_email": "bot@cocoa-agents.io",
+            "chain": "Base (Low Gas $0.01)",
+            "max_budget_usdc": 500.0  # PRO is 299 USDC <= 500
+        }
+    }
+    res = client.post("/api/v1/agent/tools/execute", json=payload)
+    assert res.status_code == 200
+    data = res.json()["result"]
+    assert "ORD-" in data["order_id"]
+    assert data["amount_usdc"] == 299.0
+    assert "0x" in data["deposit_wallet_address"]
+    assert "qr_code_payload" in data
+
+    # 2. Budget Cap Exceeded guardrail
+    budget_exceeded_payload = {
+        "tool_name": "eudr_create_payment_order",
+        "arguments": {
+            "plan_tier": "ENTERPRISE",  # 1990 USDC
+            "company_name": "Rogue Agent Inc",
+            "contact_email": "rogue@agent.ai",
+            "max_budget_usdc": 100.0  # Budget is only 100 USDC!
+        }
+    }
+    res_err = client.post("/api/v1/agent/tools/execute", json=budget_exceeded_payload)
+    assert res_err.status_code == 400
+    err_data = res_err.json()
+    assert err_data["error"]["code"] == "BUDGET_CAP_EXCEEDED"
+    assert "exceeds agent budget cap" in err_data["error"]["message"]
+
+
+def test_agent_confirm_payment():
+    """Verifies that an agent can confirm on-chain payment and receive an issued API key."""
+    # Create order first
+    create_payload = {
+        "tool_name": "eudr_create_payment_order",
+        "arguments": {
+            "plan_tier": "STARTER",
+            "company_name": "Green Timber Agent",
+            "contact_email": "timber@greentimber.com"
+        }
+    }
+    res_order = client.post("/api/v1/agent/tools/execute", json=create_payload)
+    order_id = res_order.json()["result"]["order_id"]
+
+    # Confirm order with tx_hash
+    confirm_payload = {
+        "tool_name": "eudr_confirm_payment",
+        "arguments": {
+            "order_id": order_id,
+            "tx_hash": "0x4a938c2b7f01de982136a87b2c5e4f3a8b1c0d9e"
+        }
+    }
+    res_conf = client.post("/api/v1/agent/tools/execute", json=confirm_payload)
+    assert res_conf.status_code == 200
+    conf_data = res_conf.json()["result"]
+    assert conf_data["status"] == "CONFIRMED"
+    assert "eudr_live_" in conf_data["api_key_issued"]
+    assert conf_data["plan_tier"] == "STARTER"
+
+
+def test_agent_render_satellite_map():
+    """Verifies that an agent can generate satellite imagery metadata and NDVI canopy radar visualization."""
+    payload = {
+        "tool_name": "eudr_render_satellite_map",
+        "arguments": {
+            "plot_id": "PLOT-SAR-SUMATRA-01",
+            "coordinates": [101.45, 0.52],
+            "year": 2020,
+            "layer": "ndvi_vegetation"
+        }
+    }
+    res = client.post("/api/v1/agent/tools/execute", json=payload)
+    assert res.status_code == 200
+    data = res.json()["result"]
+    assert data["plot_id"] == "PLOT-SAR-SUMATRA-01"
+    assert data["ndvi_canopy_score"] > 0.8
+    assert "T48MZC_20201231" in data["sentinel_tile_id"]
+    assert "<svg" in data["svg_visualization"]
+    assert "https://eudragent.com/api/v1/satellite/map-preview" in data["direct_map_url"]
+

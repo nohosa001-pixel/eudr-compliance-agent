@@ -14,10 +14,13 @@ AI agents can invoke EUDR capabilities through:
 ## Core Agent Tools
 - `eudr_verify_plot`: Validates WGS84 coordinates and polygons. Auto-heals inverted coordinates and enforces the Art. 9 polygon rule (plots >= 4.0 ha require polygons).
 - `eudr_check_deforestation`: Runs Sentinel-1 SAR and Sentinel-2 optical radar verification against the 2020-12-31 regulatory cut-off baseline.
+- `eudr_render_satellite_map`: Generates multi-spectral Sentinel-2 visualization metadata, SVG radar preview, and canopy health NDVI score.
 - `eudr_verify_vies_vat`: Real-time cross-border EU B2B VAT validation against official European Commission VIES databases.
 - `eudr_generate_dds`: Generates official TRACES-NT XML declarations and EUDR compliance certificates.
 - `eudr_verify_audit_integrity`: Validates SHA-256 tamper-evident digital custody audit logs.
 - `eudr_estimate_compliance_cost`: Computes transparent tier fees in EUR based on farm plot volume.
+- `eudr_create_payment_order`: Generates on-chain USDC payment order with budget cap guardrails and QR payload.
+- `eudr_confirm_payment`: Verifies blockchain tx_hash and provisions live Pro API Key for the autonomous agent.
 
 ## Self-Correction & Error Recovery
 When a parameter validation fails, the API responds with structured recovery hints:

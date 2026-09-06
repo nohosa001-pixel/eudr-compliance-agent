@@ -30,14 +30,16 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 # 4. Read Environment Variables from .env
 $tgToken = ""
 $tgChatId = ""
+$polygonWallet = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
 if (Test-Path ".env") {
     Get-Content ".env" | ForEach-Object {
         if ($_ -match "^TELEGRAM_BOT_TOKEN=(.+)$") { $tgToken = $matches[1].Trim() }
         if ($_ -match "^TELEGRAM_CHAT_ID=(.+)$") { $tgChatId = $matches[1].Trim() }
+        if ($_ -match "^POLYGON_METAMASK_WALLET_ADDRESS=(.+)$") { $polygonWallet = $matches[1].Trim() }
     }
 }
 
-$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId"
+$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId,POLYGON_METAMASK_WALLET_ADDRESS=$polygonWallet,POLYGON_CHAIN_ID=137"
 
 # 4. Deploy to Cloud Run (us-central1 - Domain Mapping Target)
 Write-Host "`n[2/3] Deploying to Cloud Run [us-central1] (Custom Domain eudragent.com target)..." -ForegroundColor Yellow

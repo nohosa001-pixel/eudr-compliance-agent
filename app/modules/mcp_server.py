@@ -7,10 +7,15 @@ from typing import Dict, Any, List, Optional
 import json
 import logging
 
-from app.modules.agent_tools import AgentToolsRegistry
 from app.core.exceptions import AgentSelfCorrectionError
 
 logger = logging.getLogger("eudr.mcp_server")
+
+
+def _get_agent_tools_registry():
+    """Lazy imports AgentToolsRegistry on-demand to ensure lightning-fast MCP booting."""
+    from app.modules.agent_tools import AgentToolsRegistry
+    return AgentToolsRegistry
 
 
 class MCPServer:
@@ -130,7 +135,8 @@ class MCPServer:
     @classmethod
     def _handle_tools_list(cls, req_id: Any) -> Dict[str, Any]:
         tools = []
-        for t in AgentToolsRegistry.list_tools():
+        registry = _get_agent_tools_registry()
+        for t in registry.list_tools():
             # In MCP, the parameters schema is mapped to `inputSchema`
             tools.append({
                 "name": t["name"],
@@ -151,7 +157,8 @@ class MCPServer:
         arguments = params.get("arguments") or {}
 
         try:
-            result = await AgentToolsRegistry.execute_tool(tool_name, arguments)
+            registry = _get_agent_tools_registry()
+            result = await registry.execute_tool(tool_name, arguments)
             return {
                 "jsonrpc": "2.0",
                 "id": req_id,

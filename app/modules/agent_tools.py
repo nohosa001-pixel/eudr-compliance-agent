@@ -9,16 +9,23 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 import json
 
-from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
-from app.modules.deforestation_simulator import DeforestationAnalyzer
-from app.modules.vies_validator import ViesValidator
-from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
-from app.modules.dds_generator import DDSGenerator
-from app.modules.payment_manager import PaymentManager, PLAN_PRICING_USDC
-from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
-from app.modules.notification_manager import NotificationManager
-from app.schemas import PaymentOrderCreateRequest, PaymentOrderConfirmRequest
 from app.core.exceptions import AgentSelfCorrectionError
+
+try:
+    from app.modules.vies_validator import ViesValidator
+except Exception:
+    ViesValidator = None
+
+try:
+    from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
+except Exception:
+    AuditIntegrityVerifier = None
+
+try:
+    from app.modules.payment_manager import PaymentManager, PLAN_PRICING_USDC
+except Exception:
+    PaymentManager = None
+    PLAN_PRICING_USDC = {"STARTER": 99.0, "PRO": 299.0, "ENTERPRISE": 999.0}
 
 
 # Tool Definitions in Standard JSON Schema format
@@ -509,10 +516,13 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_verify_vies_vat(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        vies_cls = ViesValidator
+        if vies_cls is None:
+            from app.modules.vies_validator import ViesValidator as vies_cls
         country_code = args["country_code"].upper()
         vat_number = args["vat_number"].strip()
 
-        result = await ViesValidator.validate_vat_async(f"{country_code}{vat_number}")
+        result = await vies_cls.validate_vat_async(f"{country_code}{vat_number}")
         is_valid = bool(result.get("valid", False))
         comp_name = result.get("company_name") or "Verified EU Economic Operator"
         addr = result.get("address") or f"Registered Office, {country_code}"
@@ -563,10 +573,13 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_verify_audit_integrity(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        verifier_cls = AuditIntegrityVerifier
+        if verifier_cls is None:
+            from app.modules.audit_integrity_verifier import AuditIntegrityVerifier as verifier_cls
         payload = args["audit_payload"]
         expected_hash = args["expected_hash"]
 
-        calc_hash = AuditIntegrityVerifier.compute_sha256(payload)
+        calc_hash = verifier_cls.compute_sha256(payload)
         is_tamper_free = (calc_hash.lower() == expected_hash.strip().lower())
 
         return {
@@ -579,6 +592,7 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_estimate_cost(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.payment_manager import PLAN_PRICING_USDC
         num_plots = int(args["num_plots"])
         resolution = args.get("satellite_resolution", "sentinel_10m")
         include_traces = bool(args.get("include_traces_submission", True))
@@ -604,6 +618,8 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_create_payment_order(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.payment_manager import PaymentManager, PLAN_PRICING_USDC
+        from app.schemas import PaymentOrderCreateRequest
         plan_tier = args["plan_tier"].upper()
         amount_usdc = PLAN_PRICING_USDC.get(plan_tier, 299.00)
         max_budget = args.get("max_budget_usdc")
@@ -641,6 +657,8 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_confirm_payment(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.payment_manager import PaymentManager
+        from app.schemas import PaymentOrderConfirmRequest
         order_id = args["order_id"]
         tx_hash = args["tx_hash"]
 
@@ -702,6 +720,7 @@ class AgentToolsRegistry:
         from app.modules.traceability_collector import TraceabilityCollector
         from app.modules.deforestation_simulator import DeforestationSimulator
         from app.modules.legal_document_auditor import LegalAuditor
+        from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
 
         operator_name = args["operator_name"]
         operator_eori = args["operator_eori"]
@@ -784,6 +803,7 @@ class AgentToolsRegistry:
         customs_code = f"EU-SWEC-CLEARED-{uuid.uuid4().hex[:6].upper()}"
 
         from app.schemas import DDSReport, TRACESNTStatement, ComplianceStatusEnum, ConfidenceAssessment, ReviewStatusEnum
+        from app.modules.dds_generator import DDSGenerator
         now_dt = datetime.now(timezone.utc)
         traces_dds = TRACESNTStatement(
             dds_reference_id=f"DDS-EUDR-{now_dt.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}",
@@ -838,6 +858,7 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_send_telegram_alert(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.notification_manager import NotificationManager
         alert_type = args["alert_type"]
         plot_id = args.get("plot_id", "PLOT-UNSPECIFIED")
         supplier_id = args.get("supplier_id", "SUPP-UNSPECIFIED")

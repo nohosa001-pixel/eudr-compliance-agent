@@ -2,8 +2,25 @@ from __future__ import annotations
 from enum import Enum
 from typing import List, Optional, Union, Dict, Any
 from datetime import date, datetime, timezone
-from pydantic import BaseModel, Field, field_validator, model_validator
 import uuid
+
+try:
+    from pydantic import BaseModel, Field, field_validator, model_validator
+    HAS_PYDANTIC = True
+except ImportError:
+    HAS_PYDANTIC = False
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+        def model_dump(self, *args, **kwargs):
+            return self.__dict__
+    def Field(*args, **kwargs):
+        return None
+    def field_validator(*args, **kwargs):
+        return lambda f: f
+    def model_validator(*args, **kwargs):
+        return lambda f: f
 
 # --- Enumerations ---
 

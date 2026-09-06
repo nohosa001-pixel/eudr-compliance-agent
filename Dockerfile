@@ -12,11 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies first for Docker layer caching
-COPY requirements.txt .
+COPY requirements.txt pyproject.toml ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy full application code
 COPY . .
 
-# Default command (compatible with Cloud Run $PORT and local 8000)
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+
+# Intelligent Dual-Mode Entrypoint:
+# - Runs uvicorn on Google Cloud Run (when $PORT is defined)
+# - Runs mcp_server_stdio.py on Glama / Smithery / Docker stdio inspectors (when $PORT is empty)
+ENTRYPOINT ["/app/entrypoint.sh"]

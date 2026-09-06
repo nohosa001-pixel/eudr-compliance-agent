@@ -232,6 +232,9 @@ function initMap() {
 
   L.control.layers(baseMaps).addTo(map);
   geojsonLayerGroup = L.layerGroup().addTo(map);
+  setTimeout(() => {
+    if (map) map.invalidateSize();
+  }, 200);
 }
 
 // Render Geometry on Map

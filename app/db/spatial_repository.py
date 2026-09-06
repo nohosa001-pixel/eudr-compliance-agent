@@ -1,7 +1,13 @@
 import json
 from typing import List, Optional, Dict, Any
-from shapely.geometry import shape, Point, Polygon, MultiPolygon
-from shapely import wkt
+
+try:
+    from shapely.geometry import shape, Point, Polygon, MultiPolygon
+    from shapely import wkt
+    HAS_SHAPELY = True
+except ImportError:
+    HAS_SHAPELY = False
+    shape = Point = Polygon = MultiPolygon = wkt = None
 
 import importlib
 

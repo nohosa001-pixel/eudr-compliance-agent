@@ -1,9 +1,15 @@
 from typing import List, Dict, Any, Tuple, Optional, Union
 import copy
 import math
-from shapely.geometry import shape, mapping, Point, Polygon, MultiPolygon, GeometryCollection
-from shapely.validation import explain_validity, make_valid
-from shapely.ops import unary_union
+try:
+    from shapely.geometry import shape, mapping, Point, Polygon, MultiPolygon, GeometryCollection
+    from shapely.validation import explain_validity, make_valid
+    from shapely.ops import unary_union
+    HAS_SHAPELY = True
+except ImportError:
+    HAS_SHAPELY = False
+    shape = mapping = Point = Polygon = MultiPolygon = GeometryCollection = None
+    explain_validity = make_valid = unary_union = None
 
 import importlib
 
@@ -258,42 +264,44 @@ class SelfHealingEngine:
                         healing_actions.append("Repaired unclosed linear ring and removed duplicate vertices (<0.1m).")
 
                 # Step B: Shapely Topological Repair (make_valid)
-                shapely_obj = shape(geom_dict)
-                if not shapely_obj.is_valid or not shapely_obj.is_simple:
-                    reason = explain_validity(shapely_obj)
-                    fixed_shapely = make_valid(shapely_obj)
-                    
-                    # If make_valid produced GeometryCollection, filter only polygons
-                    if isinstance(fixed_shapely, GeometryCollection):
-                        poly_parts = [g for g in fixed_shapely.geoms if isinstance(g, (Polygon, MultiPolygon)) and g.area > 1e-12]
-                        if poly_parts:
-                            fixed_shapely = unary_union(poly_parts)
-                        else:
-                            # Fallback buffer(0)
-                            fixed_shapely = shapely_obj.buffer(0)
+                if HAS_SHAPELY and shape is not None:
+                    shapely_obj = shape(geom_dict)
+                    if not shapely_obj.is_valid or not shapely_obj.is_simple:
+                        reason = explain_validity(shapely_obj)
+                        fixed_shapely = make_valid(shapely_obj)
+                        
+                        # If make_valid produced GeometryCollection, filter only polygons
+                        if isinstance(fixed_shapely, GeometryCollection):
+                            poly_parts = [g for g in fixed_shapely.geoms if isinstance(g, (Polygon, MultiPolygon)) and g.area > 1e-12]
+                            if poly_parts:
+                                fixed_shapely = unary_union(poly_parts)
+                            else:
+                                # Fallback buffer(0)
+                                fixed_shapely = shapely_obj.buffer(0)
 
-                    # Extract valid polygon / multipolygon
-                    if isinstance(fixed_shapely, (Polygon, MultiPolygon)) and fixed_shapely.is_valid and not fixed_shapely.is_empty:
-                        geom_dict = mapping(fixed_shapely)
-                        is_healed = True
-                        healing_actions.append(f"Auto-healed topological defect ({reason}) using Shapely make_valid and polygon reconstruction.")
-                    elif hasattr(fixed_shapely, "geoms"):
-                        polys = [g for g in fixed_shapely.geoms if isinstance(g, Polygon)]
-                        if polys:
-                            geom_dict = mapping(MultiPolygon(polys) if len(polys) > 1 else polys[0])
+                        # Extract valid polygon / multipolygon
+                        if isinstance(fixed_shapely, (Polygon, MultiPolygon)) and fixed_shapely.is_valid and not fixed_shapely.is_empty:
+                            geom_dict = mapping(fixed_shapely)
                             is_healed = True
-                            healing_actions.append(f"Auto-healed complex geometry into valid MultiPolygon/Polygon.")
+                            healing_actions.append(f"Auto-healed topological defect ({reason}) using Shapely make_valid and polygon reconstruction.")
+                        elif hasattr(fixed_shapely, "geoms"):
+                            polys = [g for g in fixed_shapely.geoms if isinstance(g, Polygon)]
+                            if polys:
+                                geom_dict = mapping(MultiPolygon(polys) if len(polys) > 1 else polys[0])
+                                is_healed = True
+                                healing_actions.append(f"Auto-healed complex geometry into valid MultiPolygon/Polygon.")
             except Exception as e:
                 # If make_valid fails, try buffer(0)
-                try:
-                    raw_shape = shape(geom_dict)
-                    buffered = raw_shape.buffer(0)
-                    if buffered.is_valid and not buffered.is_empty:
-                        geom_dict = mapping(buffered)
-                        is_healed = True
-                        healing_actions.append(f"Auto-healed topology using buffer(0) fallback ({str(e)}).")
-                except Exception:
-                    pass
+                if HAS_SHAPELY and shape is not None:
+                    try:
+                        raw_shape = shape(geom_dict)
+                        buffered = raw_shape.buffer(0)
+                        if buffered.is_valid and not buffered.is_empty:
+                            geom_dict = mapping(buffered)
+                            is_healed = True
+                            healing_actions.append(f"Auto-healed topology using buffer(0) fallback ({str(e)}).")
+                    except Exception:
+                        pass
 
         return geom_dict, is_healed, healing_actions
 
@@ -329,8 +337,10 @@ class SpatialValidator:
         g_type = geom_dict.get("type")
         coords = geom_dict.get("coordinates", [])
         if g_type == "Polygon":
-            poly_shape = shape(geom_dict)
-            area_ha = cls.calculate_geometry_area_ha(poly_shape) if poly_shape.is_valid else 0.0
+            area_ha = 0.0
+            if HAS_SHAPELY and shape is not None:
+                poly_shape = shape(geom_dict)
+                area_ha = cls.calculate_geometry_area_ha(poly_shape) if poly_shape.is_valid else 0.0
             return [{
                 "part_index": 0,
                 "geometry": geom_dict,
@@ -340,8 +350,10 @@ class SpatialValidator:
             parts = []
             for idx, poly_coords in enumerate(coords):
                 part_geom = {"type": "Polygon", "coordinates": poly_coords}
-                part_shape = shape(part_geom)
-                area_ha = cls.calculate_geometry_area_ha(part_shape) if part_shape.is_valid else 0.0
+                area_ha = 0.0
+                if HAS_SHAPELY and shape is not None:
+                    part_shape = shape(part_geom)
+                    area_ha = cls.calculate_geometry_area_ha(part_shape) if part_shape.is_valid else 0.0
                 parts.append({
                     "part_index": idx,
                     "geometry": part_geom,
@@ -355,6 +367,8 @@ class SpatialValidator:
         """
         Generates a 10-meter boundary buffer zone polygon for edge-effect interference analysis.
         """
+        if not HAS_SHAPELY or shape is None:
+            return None
         try:
             geom_shape = shape(geom_dict)
             if not geom_shape.is_valid:
@@ -454,35 +468,40 @@ class SpatialValidator:
         shapely_geom = None
         calculated_area_ha = None
         if not errors:
-            try:
-                shapely_geom = shape(geom_dict)
-                if not shapely_geom.is_valid:
-                    reason = explain_validity(shapely_geom)
-                    errors.append(f"Invalid geometry topology: {reason}")
-                elif not shapely_geom.is_simple:
-                    errors.append("Geometry is not simple (e.g. self-intersecting or complex).")
+            if HAS_SHAPELY and shape is not None:
+                try:
+                    shapely_geom = shape(geom_dict)
+                    if not shapely_geom.is_valid:
+                        reason = explain_validity(shapely_geom)
+                        errors.append(f"Invalid geometry topology: {reason}")
+                    elif not shapely_geom.is_simple:
+                        errors.append("Geometry is not simple (e.g. self-intersecting or complex).")
 
-                # If polygon or multipolygon, compute geodesic area
-                if isinstance(shapely_geom, (Polygon, MultiPolygon)) and shapely_geom.is_valid:
-                    calculated_area_ha = cls.calculate_geometry_area_ha(shapely_geom)
-                    if calculated_area_ha <= 0:
-                        errors.append("Calculated GIS area is zero or negative (degenerate polygon).")
-                    elif calculated_area_ha > 0:
-                        discrepancy = abs(plot.area_hectares - calculated_area_ha) / max(plot.area_hectares, calculated_area_ha)
-                        if discrepancy > cls.AREA_DISCREPANCY_TOLERANCE_PCT:
-                            precision_warnings.append(
-                                f"Area discrepancy note: Declared area is {plot.area_hectares:.2f} ha, "
-                                f"while calculated GIS geodesic area is {calculated_area_ha:.2f} ha "
-                                f"(diff: {discrepancy*100:.1f}%)."
-                            )
-            except Exception as ex:
-                errors.append(f"Failed to parse Shapely geometry: {str(ex)}")
+                    # If polygon or multipolygon, compute geodesic area
+                    if isinstance(shapely_geom, (Polygon, MultiPolygon)) and shapely_geom.is_valid:
+                        calculated_area_ha = cls.calculate_geometry_area_ha(shapely_geom)
+                        if calculated_area_ha <= 0:
+                            errors.append("Calculated GIS area is zero or negative (degenerate polygon).")
+                        elif calculated_area_ha > 0:
+                            discrepancy = abs(plot.area_hectares - calculated_area_ha) / max(plot.area_hectares, calculated_area_ha)
+                            if discrepancy > cls.AREA_DISCREPANCY_TOLERANCE_PCT:
+                                precision_warnings.append(
+                                    f"Area discrepancy note: Declared area is {plot.area_hectares:.2f} ha, "
+                                    f"while calculated GIS geodesic area is {calculated_area_ha:.2f} ha "
+                                    f"(diff: {discrepancy*100:.1f}%)."
+                                )
+                except Exception as ex:
+                    errors.append(f"Failed to parse Shapely geometry: {str(ex)}")
+            else:
+                precision_warnings.append("Notice: shapely library not available in runtime environment. Advanced topological validation was skipped.")
+                if geom_type in ["Polygon", "MultiPolygon"]:
+                    calculated_area_ha = plot.area_hectares
 
         is_valid = len(errors) == 0
 
         # Standardized GeoJSON Feature
         standardized_geojson = None
-        if is_valid and shapely_geom is not None:
+        if is_valid:
             standardized_geojson = {
                 "type": "Feature",
                 "properties": {

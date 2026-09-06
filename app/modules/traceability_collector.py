@@ -1,6 +1,13 @@
 from typing import List, Dict, Any, Tuple
-from shapely.geometry import shape, Point, Polygon, MultiPolygon
-from shapely.validation import explain_validity
+try:
+    from shapely.geometry import shape, Point, Polygon, MultiPolygon
+    from shapely.validation import explain_validity
+    HAS_SHAPELY = True
+except ImportError:
+    HAS_SHAPELY = False
+    shape = Point = Polygon = MultiPolygon = None
+    explain_validity = None
+
 import json
 
 from app.schemas import (
@@ -24,6 +31,9 @@ class TraceabilityCollector:
         """
         Detects dual-claim polygon collisions / overlaps among plots in the supply chain payload.
         """
+        if not HAS_SHAPELY or shape is None:
+            return
+
         shapely_polys = {}
         for p in plots:
             try:

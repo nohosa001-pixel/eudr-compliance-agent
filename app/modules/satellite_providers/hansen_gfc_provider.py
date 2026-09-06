@@ -1,6 +1,5 @@
 import math
 from typing import Dict, Any, Tuple, Optional, List
-from shapely.geometry import shape, Point, Polygon
 
 class HansenGFCProvider:
     """

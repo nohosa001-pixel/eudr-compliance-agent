@@ -1,7 +1,13 @@
 from typing import List, Dict, Any, Tuple, Optional
 import hashlib
 from datetime import date
-from shapely.geometry import shape, mapping
+try:
+    from shapely.geometry import shape, mapping
+    HAS_SHAPELY = True
+except ImportError:
+    HAS_SHAPELY = False
+    shape = mapping = None
+
 from app.schemas import ProductionPlotInput, SatellitePlotResult, SpatialPlotResult
 from app.core.config import settings
 from app.modules.satellite_providers.hansen_gfc_provider import HansenGFCProvider
@@ -52,7 +58,7 @@ class DeforestationSimulator:
         geom = plot.geometry
         buffer_geom = SpatialValidator.generate_10m_buffer_zone(geom)
         buffer_area_ha = 0.0
-        if buffer_geom:
+        if buffer_geom and HAS_SHAPELY and shape is not None:
             try:
                 buffer_shape = shape(buffer_geom)
                 orig_shape = shape(geom)
@@ -61,6 +67,8 @@ class DeforestationSimulator:
                 buffer_area_ha = round(SpatialValidator.calculate_geometry_area_ha(ring_shape), 4)
             except Exception:
                 buffer_area_ha = round(plot.area_hectares * 0.15, 4)
+        elif buffer_geom:
+            buffer_area_ha = round(plot.area_hectares * 0.15, 4)
 
         notes_lower = (plot.notes or "").lower()
         id_lower = plot.plot_id.lower()

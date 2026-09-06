@@ -23,6 +23,9 @@
     "type": "stdio",
     "command": "python",
     "args": ["mcp_server_stdio.py"],
+    "buildSteps": [
+      "pip install -r requirements.txt"
+    ],
     "env": {
       "PYTHONPATH": "."
     }

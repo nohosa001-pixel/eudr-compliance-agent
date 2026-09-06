@@ -24,7 +24,7 @@
     "command": "python",
     "args": ["mcp_server_stdio.py"],
     "buildSteps": [
-      "uv pip install -r requirements.txt --system"
+      "uv pip install -r requirements.txt --system --break-system-packages"
     ],
     "env": {
       "PYTHONPATH": "."

@@ -42,7 +42,7 @@ class Settings(BaseModel):
     # Copernicus CDSE / Sentinel Hub Live Account Settings
     COPERNICUS_CLIENT_ID: str = os.getenv("COPERNICUS_CLIENT_ID", "")
     COPERNICUS_CLIENT_SECRET: str = os.getenv("COPERNICUS_CLIENT_SECRET", "")
-    USE_LIVE_COPERNICUS_API: bool = False
+    USE_LIVE_COPERNICUS_API: bool = os.getenv("USE_LIVE_COPERNICUS_API", "false").lower() in ("true", "1", "yes")
 
     # Stripe Payments Configuration (EUR / Cards / SEPA)
     STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")

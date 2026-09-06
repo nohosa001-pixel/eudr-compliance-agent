@@ -20,16 +20,11 @@ import asyncio
 from app.modules.mcp_server import MCPServer
 
 async def main():
-    loop = asyncio.get_running_loop()
-    reader = asyncio.StreamReader()
-    protocol = asyncio.StreamReaderProtocol(reader)
-    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
-
     while True:
-        line = await reader.readline()
+        line = await asyncio.to_thread(sys.stdin.readline)
         if not line:
             break
-        text = line.decode("utf-8").strip()
+        text = line.strip()
         if not text:
             continue
         try:

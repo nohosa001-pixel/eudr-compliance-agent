@@ -1021,6 +1021,120 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Download TRACES-NT XML (XSD v2.4) Handler
+  const btnDownloadXml = document.getElementById('btn-download-traces-xml');
+  if (btnDownloadXml) {
+    btnDownloadXml.addEventListener('click', async () => {
+      btnDownloadXml.textContent = '⏳ Generating XML...';
+      btnDownloadXml.disabled = true;
+      try {
+        const payload = getPayloadFromEditor();
+        const resp = await fetch('/api/v1/eudr/evaluate/traces-xml', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error('XML generation failed (' + resp.status + ')');
+        const blob = await resp.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `TRACES_NT_EUDR_${Date.now()}.xml`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert('Failed to download TRACES XML: ' + err.message);
+      } finally {
+        btnDownloadXml.textContent = '📥 Download TRACES XML (XSD v2.4)';
+        btnDownloadXml.disabled = false;
+      }
+    });
+  }
+
+  // View Customs Certificate (EU SWE-C) Handler
+  const btnViewCustomsCert = document.getElementById('btn-view-customs-cert');
+  if (btnViewCustomsCert) {
+    btnViewCustomsCert.addEventListener('click', async () => {
+      btnViewCustomsCert.textContent = '⏳ Loading Certificate...';
+      btnViewCustomsCert.disabled = true;
+      try {
+        const payload = getPayloadFromEditor();
+        const lang = document.getElementById('report-lang-select')?.value || 'en';
+        const resp = await fetch(`/api/v1/eudr/evaluate/customs-certificate?lang=${lang}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) throw new Error('Certificate generation failed');
+        const certHtml = await resp.text();
+        const newWin = window.open('', '_blank');
+        if (newWin) {
+          newWin.document.write(certHtml);
+          newWin.document.close();
+        } else {
+          alert('Pop-up blocked! Please allow pop-ups for this site.');
+        }
+      } catch (err) {
+        alert('Failed to view customs certificate: ' + err.message);
+      } finally {
+        btnViewCustomsCert.textContent = '📜 View Customs Certificate (EU SWE-C)';
+        btnViewCustomsCert.disabled = false;
+      }
+    });
+  }
+
+  // 4-Agent Mesh Network Modal Handler
+  const meshModal = document.getElementById('mesh-modal');
+  const btnOpenMesh = document.getElementById('btn-open-mesh-modal');
+  const btnCloseMesh = document.getElementById('btn-close-mesh-modal');
+
+  if (btnOpenMesh && meshModal) {
+    btnOpenMesh.addEventListener('click', async () => {
+      meshModal.classList.add('open');
+      const container = document.getElementById('mesh-services-container');
+      const walletEl = document.getElementById('mesh-wallet-address');
+      try {
+        const resp = await fetch('/api/v1/eudr/mesh/status');
+        const data = await resp.json();
+        if (walletEl && data.meta_mask_wallet) {
+          walletEl.textContent = data.meta_mask_wallet;
+        }
+        if (container && data.services) {
+          container.innerHTML = data.services.map(s => `
+            <div style="padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc;">${s.name}</div>
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">${s.role}</div>
+                <code style="font-size: 0.7rem; color: #a78bfa; margin-top: 4px; display: inline-block;">${s.mcp_endpoint}</code>
+              </div>
+              <span class="badge" style="background: ${s.status === 'ONLINE_HOST' ? '#064e3b' : '#3b0764'}; color: ${s.status === 'ONLINE_HOST' ? '#34d399' : '#c084fc'}; border: 1px solid currentColor; font-size: 10.5px; padding: 4px 8px; border-radius: 6px; white-space: nowrap;">
+                ● ${s.status}
+              </span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        if (container) container.innerHTML = `<p style="color:#ef4444; font-size:0.82rem;">Failed to load mesh status: ${err.message}</p>`;
+      }
+    });
+  }
+
+  if (btnCloseMesh && meshModal) {
+    btnCloseMesh.addEventListener('click', () => {
+      meshModal.classList.remove('open');
+    });
+  }
+
+  if (meshModal) {
+    meshModal.addEventListener('click', (e) => {
+      if (e.target === meshModal) {
+        meshModal.classList.remove('open');
+      }
+    });
+  }
+
   // Load default preset (Compliant Vietnam)
   loadPreset('compliant_vietnam');
 });

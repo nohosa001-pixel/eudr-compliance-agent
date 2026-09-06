@@ -44,10 +44,17 @@
         </div>
       </div>
       <div class="header-actions">
+        <div class="badge-gateway" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(167, 139, 250, 0.4); color: #c4b5fd;">
+          <span style="font-size: 0.85rem;">🟣</span>
+          <span style="font-weight: 700;">MetaMask: Polygon (PoS)</span>
+        </div>
         <div class="badge-gateway">
           <span class="pulse-dot"></span>
-          <span>TRACES-NT Gateway Ready</span>
+          <span>TRACES-NT Ready</span>
         </div>
+        <button id="btn-open-mesh-modal" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(168, 85, 247, 0.4); color: #c084fc; font-weight: 700; background: rgba(168, 85, 247, 0.1);">
+          🤖 4-Agent Mesh
+        </button>
         <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
           🏠 Landing Page
         </a>
@@ -249,7 +256,15 @@
           </div>
 
           <div id="tab-traces" class="tab-content active">
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; gap: 8px;">
+                <button id="btn-download-traces-xml" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.7rem; color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); background: rgba(37, 99, 235, 0.1);">
+                  📥 Download TRACES XML (XSD v2.4)
+                </button>
+                <button id="btn-view-customs-cert" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.7rem; color: #34d399; border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
+                  📜 View Customs Certificate (EU SWE-C)
+                </button>
+              </div>
               <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('traces-json-viewer')">📋 Copy DDS JSON</button>
             </div>
             <pre id="traces-json-viewer" class="code-viewer">// TRACES-NT DDS Statement will appear here upon evaluation</pre>
@@ -330,6 +345,33 @@
       </div>
       <div id="traces-receipt-body" class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
         <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-Agent Mesh Network Modal -->
+  <div id="mesh-modal" class="modal-backdrop">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header" style="background: rgba(168, 85, 247, 0.2);">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #e9d5ff;">🤖 4-Agent Inter-Mesh Network (MetaMask Polygon Mainnet)</h2>
+        <button id="btn-close-mesh-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
+        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: #c4b5fd;">🟣 MetaMask Settlement Account:</span>
+            <span class="badge" style="background: #2e1065; color: #c4b5fd; border: 1px solid #7c3aed; font-size: 11px;">Polygon PoS (ID: 137)</span>
+          </div>
+          <code id="mesh-wallet-address" style="font-size: 0.78rem; color: #a78bfa; word-break: break-all;">0x742d35Cc6634C0532925a3b844Bc454e4438f44e</code>
+        </div>
+
+        <h4 style="font-size: 0.88rem; font-weight: 700; color: #f1f5f9; margin-bottom: 10px;">Connected Glama.ai MCP Nodes (@nohosa001-pixel)</h4>
+        <div id="mesh-services-container" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Loaded dynamically -->
+          <div style="padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; font-size: 0.82rem;">
+            Loading mesh status...
+          </div>
+        </div>
       </div>
     </div>
   </div>

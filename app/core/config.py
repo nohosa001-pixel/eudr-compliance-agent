@@ -49,5 +49,15 @@ class Settings(BaseModel):
     STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
     STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
+    # Web3 / MetaMask Polygon (PoS) Configuration
+    POLYGON_METAMASK_WALLET_ADDRESS: str = os.getenv("POLYGON_METAMASK_WALLET_ADDRESS", "0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+    POLYGON_CHAIN_ID: int = int(os.getenv("POLYGON_CHAIN_ID", "137"))
+    POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-rpc.com")
+
+    # Glama.ai Inter-Agent Mesh MCP Endpoints
+    SECURITY_GATE_MCP_URL: str = os.getenv("SECURITY_GATE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/security-gate-x402")
+    CLEANWEB_MCP_URL: str = os.getenv("CLEANWEB_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent")
+    MINERALS_ORACLE_MCP_URL: str = os.getenv("MINERALS_ORACLE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/minerals-oracle-x402")
+
 
 settings = Settings()

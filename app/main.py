@@ -272,6 +272,15 @@ async def health_check():
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
+@app.get(f"{settings.API_V1_PREFIX}/eudr/mesh/status", tags=["Inter-Agent Mesh"])
+async def get_inter_agent_mesh_status():
+    """
+    Returns live network discovery and status of the 4 autonomous agent services
+    connected via Model Context Protocol (MCP) on MetaMask Polygon Mainnet.
+    """
+    from app.modules.inter_agent_mesh import InterAgentMeshCoordinator
+    return InterAgentMeshCoordinator.get_mesh_status()
+
 @app.get(
     f"{settings.API_V1_PREFIX}/eudr/classify-commodity",
     tags=["EUDR Regulations"],

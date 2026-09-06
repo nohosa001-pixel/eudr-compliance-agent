@@ -421,7 +421,7 @@ class PaymentOrderCreateRequest(BaseModel):
     plan_tier: str = "PRO"  # PRO ($299), ENTERPRISE
     company_name: str
     contact_email: str
-    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.BASE
+    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.POLYGON
     billing_country: Optional[str] = "DE"  # EU / Global Country Code
     vat_number: Optional[str] = None
 

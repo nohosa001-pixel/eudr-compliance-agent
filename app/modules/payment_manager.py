@@ -14,10 +14,10 @@ from app.schemas import (
 from app.db.repository import ApiKeyRepository
 from app.core.config import settings
 
-# Global USDC Deposit Wallets for Supported Networks
+# Global USDC Deposit Wallets for Supported Networks (MetaMask Polygon Mainnet Default)
 DEPOSIT_WALLETS = {
+    "Polygon (PoS)": getattr(settings, "POLYGON_METAMASK_WALLET_ADDRESS", "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"),
     "Base (Low Gas $0.01)": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    "Polygon (PoS)": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     "Solana (SPL-USDC)": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
     "Ethereum (ERC-20)": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     "Arbitrum One": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
@@ -43,7 +43,7 @@ class PaymentManager:
         plan_tier = payload.plan_tier.upper()
         amount_usdc = PLAN_PRICING_USDC.get(plan_tier, 299.00)
         chain_name = payload.chain.value if hasattr(payload.chain, "value") else str(payload.chain)
-        deposit_wallet = DEPOSIT_WALLETS.get(chain_name, DEPOSIT_WALLETS["Base (Low Gas $0.01)"])
+        deposit_wallet = DEPOSIT_WALLETS.get(chain_name, DEPOSIT_WALLETS["Polygon (PoS)"])
         
         now = datetime.now(timezone.utc)
         expires_at = now + timedelta(hours=2)

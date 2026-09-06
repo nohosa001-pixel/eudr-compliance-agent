@@ -54,6 +54,7 @@ from app.modules.dds_generator import DDSGenerator
 from app.modules.dds_prebuilder import DDSPrebuilder
 from app.modules.bulk_file_parser import BulkFileParser
 from app.modules.traces_b2g_client import TracesNTB2GClient, TRACESB2GSubmissionResponse
+from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
 from app.modules.batch_job_manager import BatchJobManager
 from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
 from app.modules.notification_manager import NotificationManager
@@ -414,6 +415,141 @@ async def get_audit_html_report(
         return HTMLResponse(content=html_content, status_code=200)
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate HTML report: {str(err)}")
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/evaluate/traces-xml",
+    response_class=Response,
+    tags=["EUDR Pipeline Evaluation", "Commercial Operations"],
+    summary="Evaluate supply chain and return official EU TRACES-NT XML (XSD v2.4 compliant)"
+)
+async def evaluate_supply_chain_traces_xml(
+    payload: EUDRSupplyChainPayload,
+    db: Session = Depends(get_db)
+):
+    """
+    Evaluates supply chain and exports official European Commission TRACES-NT XML document
+    according to Regulation (EU) 2023/1115 Annex II and XSD schema v2.4 standards.
+    """
+    start_time = datetime.now(timezone.utc)
+    if not payload.execution_id:
+        payload.execution_id = str(uuid.uuid4())
+
+    spatial_valid, spatial_results, spatial_summary = TraceabilityCollector.collect_and_validate(payload.plots)
+    deforest_free, satellite_results, satellite_summary = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_results)
+    legal_audit_result = LegalAuditor.audit_documents(payload.documents, payload.plots, payload.commodity)
+
+    report = DDSGenerator.assemble_report(
+        payload=payload,
+        spatial_valid=spatial_valid,
+        spatial_results=spatial_results,
+        spatial_summary=spatial_summary,
+        deforestation_free=deforest_free,
+        satellite_results=satellite_results,
+        satellite_summary=satellite_summary,
+        legal_audit=legal_audit_result,
+        start_time=start_time
+    )
+
+    try:
+        AuditRepository.save_evaluation(db, payload, report)
+    except Exception:
+        pass
+
+    dds_ref = report.traces_dds.dds_reference_id if report.traces_dds else f"DDS-EUDR-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+    xml_content = TracesNTSchemaMapper.map_to_traces_xml(
+        payload=payload,
+        spatial_results=spatial_results,
+        satellite_results=satellite_results,
+        legal_audit=legal_audit_result,
+        dds_reference_id=dds_ref
+    )
+
+    return Response(
+        content=xml_content,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="TRACES_NT_{dds_ref}.xml"'
+        }
+    )
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/history/{{execution_id}}/traces-xml",
+    response_class=Response,
+    tags=["Commercial Operations"],
+    summary="Get official EU TRACES-NT XML (XSD v2.4) for past execution"
+)
+async def get_audit_traces_xml(execution_id: str, db: Session = Depends(get_db)):
+    """Downloads official TRACES-NT XML schema document for an existing evaluation record."""
+    record = AuditRepository.get_by_execution_id(db, execution_id)
+    if not record or not record.payload_snapshot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Execution ID '{execution_id}' not found.")
+
+    try:
+        payload = EUDRSupplyChainPayload.model_validate(record.payload_snapshot)
+        spatial_valid, spatial_results, _ = TraceabilityCollector.collect_and_validate(payload.plots)
+        deforest_free, satellite_results, _ = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_results)
+        legal_audit_result = LegalAuditor.audit_documents(payload.documents, payload.plots, payload.commodity)
+
+        dds_ref = record.dds_reference_id or f"DDS-EUDR-{execution_id[:8].upper()}"
+        xml_content = TracesNTSchemaMapper.map_to_traces_xml(
+            payload=payload,
+            spatial_results=spatial_results,
+            satellite_results=satellite_results,
+            legal_audit=legal_audit_result,
+            dds_reference_id=dds_ref
+        )
+        return Response(
+            content=xml_content,
+            media_type="application/xml",
+            headers={
+                "Content-Disposition": f'attachment; filename="TRACES_NT_{dds_ref}.xml"'
+            }
+        )
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate TRACES-NT XML: {str(err)}")
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/evaluate/customs-certificate",
+    response_class=HTMLResponse,
+    tags=["EUDR Pipeline Evaluation", "Commercial Operations"],
+    summary="Evaluate supply chain and return EU SWE-C Green Lane Customs Clearance Certificate"
+)
+async def evaluate_customs_certificate(
+    payload: EUDRSupplyChainPayload,
+    lang: str = "en",
+    db: Session = Depends(get_db)
+):
+    """Evaluates supply chain and returns official EU SWE-C Green Lane Customs Clearance Certificate HTML."""
+    report = await evaluate_supply_chain(payload, db=db)
+    cert_html = DDSGenerator.generate_customs_clearance_certificate_html(report=report, lang=lang)
+    return HTMLResponse(content=cert_html, status_code=200)
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/history/{{execution_id}}/customs-certificate",
+    response_class=HTMLResponse,
+    tags=["Commercial Operations"],
+    summary="Get EU SWE-C Green Lane Customs Clearance Certificate for past execution"
+)
+async def get_audit_customs_certificate(
+    execution_id: str,
+    lang: str = "en",
+    db: Session = Depends(get_db)
+):
+    """Retrieves previous audit execution and returns EU SWE-C Green Lane Customs Clearance Certificate HTML."""
+    record = AuditRepository.get_by_execution_id(db, execution_id)
+    if not record or not record.full_report_snapshot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Execution ID '{execution_id}' not found.")
+
+    try:
+        report = DDSReport.model_validate(record.full_report_snapshot)
+        cert_html = DDSGenerator.generate_customs_clearance_certificate_html(
+            report=report,
+            ack_number=record.traces_ack_number,
+            lang=lang
+        )
+        return HTMLResponse(content=cert_html, status_code=200)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate customs certificate: {str(err)}")
 
 @app.post(
     f"{settings.API_V1_PREFIX}/eudr/ingest-file",

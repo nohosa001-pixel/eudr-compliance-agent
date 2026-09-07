@@ -5,6 +5,10 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+  schedule:
+    # Run automated nightly regression and canary suite every day at 18:00 UTC (03:00 KST)
+    - cron: '0 18 * * *'
+  workflow_dispatch:
 
 jobs:
   test:

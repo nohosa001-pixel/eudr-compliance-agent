@@ -141,6 +141,42 @@ async def agent_validation_error_handler(request: Request, exc: RequestValidatio
         content={"detail": exc.errors()}
     )
 
+@app.exception_handler(Exception)
+async def global_unhandled_exception_handler(request: Request, exc: Exception):
+    """
+    Global catch-all exception handler.
+    Guarantees that unhandled server exceptions never expose raw stack traces
+    and always return structured EUDR-compliant JSON error envelopes.
+    """
+    import logging
+    import traceback
+    logger = logging.getLogger("eudr.unhandled_exception")
+    err_id = f"ERR-{uuid.uuid4().hex[:8].upper()}"
+    logger.error(f"Unhandled Exception [{err_id}] on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
+    
+    # Attempt Telegram notification on critical unhandled server error
+    try:
+        from app.modules.notification_manager import NotificationManager
+        NotificationManager.send_telegram_message(
+            f"🚨 *[Critical Alert]* Unhandled 500 on `{request.method} {request.url.path}`\n"
+            f"ID: `{err_id}`\nError: `{type(exc).__name__}: {str(exc)[:100]}`"
+        )
+    except Exception:
+        pass
+
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "error_id": err_id,
+                "message": "An unexpected server condition was intercepted. Our automated compliance telemetry has logged this event.",
+                "recoverable": False,
+                "suggested_action": "Retry the request or consult developer support at contact@eudragent.com referencing your error_id."
+            }
+        }
+    )
+
 # Static Files & Dashboard UI
 STATIC_DIR = Path(__file__).parent / "static"
 if STATIC_DIR.exists():
@@ -262,6 +298,8 @@ async def serve_mcp_server_card(request: Request):
         "tools": []
     }, headers=NO_CACHE_HEADERS)
 
+@app.get("/health", tags=["Health"])
+@app.get(f"{settings.API_V1_PREFIX}/health", tags=["Health"])
 @app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])
 async def health_check():
     """Health check endpoint."""

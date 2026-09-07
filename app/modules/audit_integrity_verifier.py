@@ -27,6 +27,15 @@ class AuditIntegrityVerifier:
     """
 
     @classmethod
+    def compute_sha256(cls, payload: Any) -> str:
+        """Computes deterministic SHA-256 hash of any dictionary, string, or object."""
+        if isinstance(payload, str):
+            raw_bytes = payload.encode("utf-8")
+        else:
+            raw_bytes = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        return hashlib.sha256(raw_bytes).hexdigest()
+
+    @classmethod
     def verify_execution_record(cls, record: AuditExecutionRecord) -> IntegrityVerificationResult:
         """Verifies cryptographic integrity of an AuditExecutionRecord stored in the database."""
         timestamp_now = datetime.now(timezone.utc).isoformat()

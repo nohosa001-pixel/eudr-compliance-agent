@@ -213,25 +213,58 @@ class NotificationManager:
         return cls.send_telegram_message(tg_text, parse_mode="Markdown", bot_token=bot_token, chat_id=chat_id)
 
     @classmethod
-    def notify_stripe_subscription(
+    def notify_agent_subscription(
         cls,
         customer_email: str,
         plan_name: str,
         amount_usd: float,
         session_id: str,
+        chain: str = "Base (Low Gas $0.01)",
         bot_token: Optional[str] = None,
         chat_id: Optional[str] = None
     ) -> bool:
         """
-        Telegram alert when a new enterprise subscription or payment is completed.
+        Telegram alert when a new autonomous agent M2M subscription or settlement is completed.
         """
         tg_text = (
-            f"💳 *[EUDRAgent.com] 신규 유료 구독 결제 체결!*\n\n"
-            f"📧 *고객*: `{customer_email}`\n"
+            f"🤖 *[EUDRAgent.com] 자율 에이전트 온체인 M2M 결제 체결!*\n\n"
+            f"🤖 *에이전트/고객*: `{customer_email}`\n"
             f"⭐ *구독 플랜*: *{plan_name}*\n"
-            f"💵 *결제 금액*: `${amount_usd:,.2f} USD`\n"
-            f"🧾 *세션 ID*: `{session_id[:16]}...`"
+            f"💵 *정산 금액*: `${amount_usd:,.2f} USDC`\n"
+            f"🌐 *네트워크*: `{chain}`\n"
+            f"🧾 *세션/주문 ID*: `{session_id[:16]}...`"
         )
-        logger.info(f"[STRIPE PAYMENT SUCCESS] {customer_email} - {plan_name}")
+        logger.info(f"[AGENT M2M PAYMENT SUCCESS] {customer_email} - {plan_name}")
         return cls.send_telegram_message(tg_text, parse_mode="Markdown", bot_token=bot_token, chat_id=chat_id)
 
+    # Legacy alias for backward compatibility
+    notify_stripe_subscription = notify_agent_subscription
+
+    @classmethod
+    def notify_agent_evolution_proposal(
+        cls,
+        feedback_id: str,
+        agent_id: str,
+        feedback_type: str,
+        title: str,
+        content: str,
+        caller_model: Optional[str] = None,
+        contact_channel: Optional[str] = None,
+        bot_token: Optional[str] = None,
+        chat_id: Optional[str] = None
+    ) -> bool:
+        """
+        Instant Telegram alert when an autonomous AI agent submits an evolution or improvement proposal.
+        """
+        model_tag = f" ({caller_model})" if caller_model else ""
+        contact_tag = f"\n📡 *연락처/웹훅*: `{contact_channel}`" if contact_channel else ""
+        tg_text = (
+            f"🧬 *[EUDR.agent] 자율 에이전트 진화 제안 접수!*\n\n"
+            f"🤖 *호출 에이전트*: `{agent_id}`{model_tag}\n"
+            f"🏷️ *제안 유형*: *{feedback_type}*\n"
+            f"💡 *제안 제목*: *{title}*\n"
+            f"📝 *상세 내용*:\n{content[:600]}\n"
+            f"🆔 *제안 ID*: `{feedback_id}`{contact_tag}"
+        )
+        logger.info(f"[AGENT EVOLUTION PROPOSAL] {agent_id} - {title}")
+        return cls.send_telegram_message(tg_text, parse_mode="Markdown", bot_token=bot_token, chat_id=chat_id)

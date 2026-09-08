@@ -3,50 +3,49 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 
 from app.main import app
-from app.modules.stripe_manager import StripeManager
 from app.modules.vies_validator import ViesValidator
 from app.modules.webhook_dispatcher import WebhookDispatcher
 
 client = TestClient(app)
 
 # -------------------------------------------------------------
-# 1. Multi-Currency Stripe Checkout (EUR & USD)
+# 1. Autonomous Agent M2M Settlement & x402 Protocol
 # -------------------------------------------------------------
-def test_stripe_checkout_multi_currency_usd():
-    """Verify that Stripe checkout session supports USD with 1:1 pricing parity."""
-    payload = {
-        "plan_tier": "PRO",
-        "company_name": "Global Timber Corp (USA)",
-        "contact_email": "ops@globaltimber.com",
-        "currency": "USD"
+def test_x402_challenge_agent_endpoint():
+    """Verify that RFC 9110 / x402 HTTP challenge is returned for autonomous agents."""
+    response = client.get("/api/v1/payment/x402/challenge?resource=plot_verification&plots=50")
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error"] == "PAYMENT_REQUIRED"
+    assert data["agent_protocol"] == "x402-v1"
+    assert data["amount_usdc"] == 5.00
+    assert "WWW-Authenticate" in response.headers
+    assert "X402" in response.headers["WWW-Authenticate"]
+    assert "0x" in data["deposit_wallet"]
+
+def test_agent_micro_settlement_and_budget_status():
+    """Verify autonomous agent micro-settlement per plot without human friction."""
+    settle_payload = {
+        "agent_id": "agent-mesh-test-001",
+        "num_plots": 20,
+        "chain": "Base (Low Gas $0.01)",
+        "tx_hash": "0x9876543210abcdef9876543210abcdef9876543210abcdef9876543210abcdef",
+        "sender_wallet": "0x1111222233334444555566667777888899990000"
     }
-    response = client.post("/api/v1/payments/stripe/create-checkout-session", json=payload)
+    response = client.post("/api/v1/payment/agent/micro-settle", json=settle_payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["currency"] == "USD"
-    assert data["amount_eur"] == 1490.00
-    assert "currency=USD" in data["checkout_url"]
+    assert data["status"] == "SETTLED"
+    assert data["num_plots_credited"] == 20
+    assert data["amount_paid_usdc"] == 2.00
+    assert data["temporary_auth_token"].startswith("eudr_agent_micro_")
 
-def test_stripe_checkout_default_currency_eur():
-    """Verify default currency remains EUR when not specified."""
-    payload = {
-        "plan_tier": "STARTER",
-        "company_name": "Antwerp Cocoa Traders NV",
-        "contact_email": "desk@antwerpcocoa.be"
-    }
-    response = client.post("/api/v1/payments/stripe/create-checkout-session", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["currency"] == "EUR"
-    assert data["amount_eur"] == 490.00
+    # Check budget status endpoint
+    budget_res = client.get("/api/v1/payment/agent/budget-status?agent_id=agent-mesh-test-001")
+    assert budget_res.status_code == 200
+    bdata = budget_res.json()
+    assert bdata["agent_id"] == "agent-mesh-test-001"
 
-def test_stripe_preview_checkout_usd_symbol():
-    """Verify preview checkout HTML displays the dollar symbol and USD payment method."""
-    response = client.get("/api/v1/payments/stripe/preview-checkout?session_id=cs_test_usd_123&tier=PRO&amount=1490.00&currency=USD")
-    assert response.status_code == 200
-    assert "text/html" in response.headers["content-type"]
-    assert "$1,490.00" in response.text
-    assert "Credit / Debit Card (USD)" in response.text
 
 # -------------------------------------------------------------
 # 2. EU VIES Real-Time VAT Verification (0% Reverse-Charge)

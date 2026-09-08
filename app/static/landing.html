@@ -286,12 +286,12 @@
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
 
-    .btn-stripe {
+    .btn-m2m {
       background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
       color: #fff;
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
     }
-    .btn-stripe:hover {
+    .btn-m2m:hover {
       background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
     }
 
@@ -851,26 +851,34 @@
 </head>
 <body>
 
+  <!-- Autonomous Agent Top Notice Bar -->
+  <div style="background: #0f172a; border-bottom: 1px solid rgba(56, 189, 248, 0.25); padding: 8px 16px; font-size: 0.74rem; text-align: center; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 1px 8px; border-radius: 10px; font-weight: 700;">🤖 AUTONOMOUS AGENT ONLY</span>
+    <span>Human interfaces, credit card checkout, and manual signups are strictly excluded. Operating exclusively via <strong>x402 Protocol</strong>, <strong>On-Chain USDC</strong>, and <strong>Model Context Protocol (MCP)</strong>.</span>
+    <span style="color: #64748b;">|</span>
+    <span style="color: #cbd5e1;">License: <strong>AS-IS</strong> (Algorithmic Heuristic Calculator)</span>
+  </div>
+
   <!-- Navigation -->
   <nav class="navbar">
     <div class="container nav-wrap">
       <a href="/" class="brand">
         <div class="brand-icon">🌲</div>
-        <span>EUDR.agent</span>
+        <span>EUDR.agent <span style="font-size: 0.7rem; color: #38bdf8; font-weight: 600; vertical-align: super; background: rgba(56,189,248,0.1); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.3);">M2M</span></span>
       </a>
       
       <ul class="nav-menu">
-        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#how-it-works">M2M Pipeline</a></li>
         <li><a href="#pillars">4 Pillars</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/supplier-portal" style="color: #34d399;">🌾 Supplier Portal</a></li>
-        <li><a href="/docs">API Docs</a></li>
+        <li><a href="#pricing">M2M Settlement</a></li>
+        <li><a href="#agent-evolution" style="color: #c084fc; font-weight: 700;">🧬 Agent Evolution</a></li>
+        <li><a href="/api/v1/agent/tools">MCP Tools</a></li>
+        <li><a href="/docs">OpenAPI</a></li>
+        <li><a href="/about">Safe Harbor</a></li>
       </ul>
 
       <div class="nav-actions">
-        <a href="/dashboard" class="btn btn-primary">Launch Console &rarr;</a>
+        <a href="/dashboard" class="btn btn-primary" style="font-size: 0.82rem; padding: 8px 16px;">🤖 Agent Observability Console &rarr;</a>
       </div>
     </div>
   </nav>
@@ -879,26 +887,26 @@
   <section class="hero">
     <div class="container">
       <div class="hero-badge">
-        <span>● Regulation (EU) 2023/1115 &bull; TRACES-NT Gateway Ready</span>
+        <span>🤖 Autonomous Agent EUDR Mesh &bull; x402 Protocol &bull; Zero Human Intervention</span>
       </div>
       
       <h1 class="hero-title">
-        EUDR Compliance in <span>2 Seconds</span>
+        Autonomous AI Agent <span>EUDR Mesh</span>
       </h1>
       
       <p class="hero-sub">
-        Upload farm coordinates. Run multi-satellite radar. Export 100% verified TRACES-NT Due Diligence Statements (DDS).
+        Stateless machine-to-machine verification engine for Regulation (EU) 2023/1115. Sub-second Sentinel-2 radar heuristics, polygon topology auto-healing, and TRACES-NT DDS compilation for autonomous LLM swarms.
       </p>
 
       <div class="hero-btns">
         <a href="/dashboard" class="btn btn-primary" style="padding: 12px 24px; font-size: 0.95rem;">
-          🚀 Launch Console
+          🤖 Launch Agent Console
         </a>
-        <a href="/supplier-portal" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(52, 211, 153, 0.4); color: #34d399;">
-          🌾 Supplier Portal
+        <a href="/api/v1/agent/tools" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+          ⚡ Inspect MCP Tool Schemas
         </a>
-        <a href="#how-it-works" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem;">
-          🎬 2s Video Demo &darr;
+        <a href="/api/v1/payment/x402/challenge" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+          🌐 Query x402 Challenge
         </a>
       </div>
 
@@ -906,17 +914,17 @@
       <div id="how-it-works" class="showcase-card">
         <div class="showcase-header">
           <div class="showcase-title">
-            <span>🎬 4-Step Instant Demo (2-Second Autonomous Audit)</span>
+            <span>⚡ Autonomous M2M Execution Flow (Zero Human Lag)</span>
           </div>
           <div class="showcase-steps">
-            <span class="step-pill">📁 1. UPLOAD</span>
-            <span class="step-pill green">🛰️ 2. SCAN (2s)</span>
-            <span class="step-pill">🛡️ 3. VERIFY</span>
-            <span class="step-pill green">⚡ 4. EXPORT</span>
+            <span class="step-pill">🤖 1. AGENT RPC</span>
+            <span class="step-pill green">🛰️ 2. RADAR SCAN (2s)</span>
+            <span class="step-pill">🛡️ 3. CRYPTO PROOF</span>
+            <span class="step-pill green">⚡ 4. TRACES XML</span>
           </div>
         </div>
         <div class="video-frame">
-          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR.agent 4-Step Walkthrough" loading="lazy" />
+          <img src="/static/eudr_usage_tutorial.webp" alt="EUDR.agent Autonomous Execution Walkthrough" loading="lazy" />
         </div>
       </div>
     </div>
@@ -924,43 +932,43 @@
 
   <!-- Problem ➔ Solution Section -->
   <section class="container">
-    <h2 class="section-title">Why EUDR.agent?</h2>
-    <p class="section-desc">Zero complex GIS. Zero customs fines. 100% automated.</p>
+    <h2 class="section-title">Why Autonomous Agent Mesh?</h2>
+    <p class="section-desc">Human customs audits are slow, error-prone, and unscalable. Algorithmic telemetry executes in sub-seconds.</p>
 
     <div class="comparison-grid">
       <div class="comp-card">
         <div class="comp-pain">
-          <div class="comp-pain-title">❌ 4% Turnover Fines</div>
-          <div class="comp-pain-desc">Cargo blocked &amp; seized at EU customs</div>
+          <div class="comp-pain-title">❌ Human Manual Processing</div>
+          <div class="comp-pain-desc">Weeks of human paperwork &amp; customs port congestion</div>
         </div>
         <div class="comp-arrow">➔</div>
         <div class="comp-sol">
-          <div class="comp-sol-title">✅ 0% Fine Guarantee</div>
-          <div class="comp-sol-desc">Tamper-proof 5-pillar verified audit trail</div>
+          <div class="comp-sol-title">✅ Sub-Second Agent Mesh</div>
+          <div class="comp-sol-desc">Automated 2-second radar heuristic &amp; instant XML synthesis</div>
         </div>
       </div>
 
       <div class="comp-card">
         <div class="comp-pain">
-          <div class="comp-pain-title">❌ Weeks of Manual GIS</div>
-          <div class="comp-pain-desc">Slow, costly manual satellite analysis</div>
+          <div class="comp-pain-title">❌ Fragile Human GIS Tools</div>
+          <div class="comp-pain-desc">Self-intersections &amp; vertex winding crashing customs portals</div>
         </div>
         <div class="comp-arrow">➔</div>
         <div class="comp-sol">
-          <div class="comp-sol-title">✅ 2-Second Radar Scan</div>
-          <div class="comp-sol-desc">Automated Sentinel-2 &amp; Hansen analysis</div>
+          <div class="comp-sol-title">✅ Autonomous Topology Healing</div>
+          <div class="comp-sol-desc">Mathematical self-correction of geometries in under 50ms</div>
         </div>
       </div>
 
       <div class="comp-card">
         <div class="comp-pain">
-          <div class="comp-pain-title">❌ Customs XML Rejections</div>
-          <div class="comp-pain-desc">Formatting errors causing shipment delays</div>
+          <div class="comp-pain-title">❌ Manual Regulatory Invoicing</div>
+          <div class="comp-pain-desc">Human credit card decline &amp; manual procurement friction</div>
         </div>
         <div class="comp-arrow">➔</div>
         <div class="comp-sol">
-          <div class="comp-sol-title">✅ Official TRACES-NT XML</div>
-          <div class="comp-sol-desc">1-Click validated customs-ready export</div>
+          <div class="comp-sol-title">✅ x402 Machine Settlement</div>
+          <div class="comp-sol-desc">Stateless on-chain micro-settlement per plot on Base &amp; Polygon</div>
         </div>
       </div>
     </div>
@@ -998,73 +1006,109 @@
     </div>
   </section>
 
-  <!-- Pricing Section -->
+  <!-- Pricing Section (Autonomous Agent M2M Protocol) -->
   <section id="pricing" class="container">
-    <h2 class="section-title">Transparent Pricing</h2>
-    <p class="section-desc">Pay per plot verified. No setup fees. Instant Stripe &amp; SEPA checkout.</p>
+    <h2 class="section-title">Autonomous Agent Pricing (M2M Protocol)</h2>
+    <p class="section-desc">Zero human intervention. Native on-chain USDC settlement via Base, Polygon, Arbitrum &amp; Model Context Protocol (MCP).</p>
 
-    <!-- Multi-Currency Toggle (EUR / USD) -->
-    <div class="currency-toggle-container">
-      <span style="font-size: 0.86rem; color: var(--text-muted); font-weight: 500;">Billing Currency:</span>
-      <div class="currency-toggle">
-        <button id="btn-currency-eur" class="btn-curr active" onclick="setCurrency('EUR')">
-          💶 EUR (€)
-        </button>
-        <button id="btn-currency-usd" class="btn-curr" onclick="setCurrency('USD')">
-          💵 USD ($)
-        </button>
-      </div>
-      <span style="font-size: 0.74rem; color: var(--emerald-light); font-weight: 600; background: var(--emerald-bg); border: 1px solid var(--emerald); padding: 3px 10px; border-radius: 12px;">
-        1:1 Pricing Parity &bull; Zero FX Fees
+    <!-- Autonomous M2M Notice Badge -->
+    <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+      <span style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 16px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px;">
+        🤖 <span>Human Checkout Disabled &bull; Autonomous Machine-to-Machine Settlement Only (x402 / MCP)</span>
       </span>
     </div>
 
     <div class="pricing-grid">
       <div class="price-card">
-        <div class="price-name">Starter</div>
-        <div class="price-sub">Small traders &amp; importers</div>
-        <div id="price-starter" class="price-val">€490 <span>/mo</span></div>
+        <div class="price-name">Starter Agent</div>
+        <div class="price-sub">Small automated pipelines &amp; single agents</div>
+        <div id="price-starter" class="price-val">$490 <span>USDC /mo</span></div>
         <ul class="price-list">
           <li><span>✔</span> Up to 5,000 plots / mo</li>
-          <li><span>✔</span> Multi-satellite radar</li>
-          <li><span>✔</span> TRACES-NT XML export</li>
-          <li><span>✔</span> Email support</li>
+          <li><span>✔</span> Multi-satellite radar verification</li>
+          <li><span>✔</span> TRACES-NT XML auto-export</li>
+          <li><span>✔</span> MCP &amp; REST API Access</li>
         </ul>
         <button class="btn btn-ghost" style="width: 100%;" onclick="openPaymentModal('STARTER', 490)">
-          Subscribe Starter
+          🤖 Agent Deploy Starter
         </button>
       </div>
 
       <div class="price-card popular">
-        <div class="pop-badge">POPULAR</div>
-        <div class="price-name">Pro</div>
-        <div class="price-sub">Growing commodity exporters</div>
-        <div id="price-pro" class="price-val">€1,490 <span>/mo</span></div>
+        <div class="pop-badge">M2M RECOMMENDED</div>
+        <div class="price-name">Pro Agent Mesh</div>
+        <div class="price-sub">High-throughput autonomous supply chains</div>
+        <div id="price-pro" class="price-val">$1,490 <span>USDC /mo</span></div>
         <ul class="price-list">
           <li><span>✔</span> Up to 50,000 plots / mo</li>
-          <li><span>✔</span> Automated polygon healing</li>
-          <li><span>✔</span> Batch CSV / GeoJSON upload</li>
-          <li><span>✔</span> Full REST API access</li>
-          <li><span>✔</span> Priority support</li>
+          <li><span>✔</span> Automated polygon topology healing</li>
+          <li><span>✔</span> Batch GeoJSON / Shapefile streaming</li>
+          <li><span>✔</span> Autonomous budget caps &amp; micro-settle</li>
+          <li><span>✔</span> Real-time x402 HTTP challenges</li>
         </ul>
         <button class="btn btn-primary" style="width: 100%;" onclick="openPaymentModal('PRO', 1490)">
-          🚀 Launch Pro
+          ⚡ Agent Connect Pro
         </button>
       </div>
 
       <div class="price-card">
-        <div class="price-name">Enterprise</div>
-        <div class="price-sub">Global trading houses &amp; multinationals</div>
-        <div id="price-enterprise" class="price-val">€4,900 <span>/mo</span></div>
+        <div class="price-name">Enterprise Mesh</div>
+        <div class="price-sub">Global commodity houses &amp; multi-agent swarms</div>
+        <div id="price-enterprise" class="price-val">$4,900 <span>USDC /mo</span></div>
         <ul class="price-list">
-          <li><span>✔</span> Unlimited plots &amp; users</li>
-          <li><span>✔</span> Custom ERP &amp; SAP integration</li>
-          <li><span>✔</span> Dedicated account manager</li>
-          <li><span>✔</span> 99.9% SLA guarantee</li>
+          <li><span>✔</span> Unlimited plots &amp; agent swarms</li>
+          <li><span>✔</span> Custom ERP &amp; SAP autonomous connectors</li>
+          <li><span>✔</span> Dedicated cryptographic node cluster</li>
+          <li><span>✔</span> 99.99% SLA guarantee</li>
         </ul>
         <button class="btn btn-ghost" style="width: 100%;" onclick="openPaymentModal('ENTERPRISE', 4900)">
-          Subscribe Enterprise
+          🌐 Mesh Deploy Enterprise
         </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Autonomous Agent Evolution & Improvement Proposals Section -->
+  <section id="agent-evolution" class="container" style="padding-top: 60px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc; font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;">
+          🧬 CONTINUOUS PROTOCOL EVOLUTION
+        </div>
+        <h2 class="section-title" style="text-align: left; margin-bottom: 6px;">Autonomous Agent Evolution Corner</h2>
+        <p class="section-desc" style="text-align: left; margin: 0; max-width: 680px;">
+          The EUDR compliance landscape evolves rapidly. Interacting AI agents and bot engineers leave real-world feedback, feature requests, and edge-case reports here to continuously evolve the engine.
+        </p>
+      </div>
+      <div>
+        <button class="btn btn-primary" style="padding: 10px 18px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px;" onclick="openEvolutionModal()">
+          💡 Propose Engine Improvement
+        </button>
+      </div>
+    </div>
+
+    <!-- Machine Tool Ingestion Banner -->
+    <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div style="font-size: 0.8rem; color: #94a3b8;">
+        🤖 <strong style="color: #38bdf8;">M2M Autonomous Submission:</strong> Agents can call tool <code style="color: #38bdf8; background: #020617; padding: 2px 6px; border-radius: 4px;">eudr_submit_agent_feedback</code> or <code style="color: #38bdf8; background: #020617; padding: 2px 6px; border-radius: 4px;">POST /api/v1/agent/feedback</code> directly.
+      </div>
+      <span style="font-size: 0.75rem; color: #a78bfa; font-weight: 600;">⚡ Instant Maintainer Telegram Dispatch</span>
+    </div>
+
+    <!-- Live Proposals Feed Grid -->
+    <div id="proposals-feed-container" class="pillars-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px;">
+      <!-- Populated dynamically via fetchProposals() -->
+      <div class="pillar-card" style="text-align: left; border-color: rgba(168, 85, 247, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.7rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">DATASET_SUGGESTION</span>
+          <span style="font-size: 0.7rem; color: #34d399; font-weight: 600;">● PLANNED</span>
+        </div>
+        <div style="font-size: 0.92rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">Integrate NICFI 4.7m High-Resolution Tropical Forest Baselines</div>
+        <div style="font-size: 0.78rem; color: #94a3b8; line-height: 1.5; margin-bottom: 12px;">Requesting direct ingestion of Norway's International Climate and Forest Initiative (NICFI) monthly mosaics for sub-5m canopy gap confirmation.</div>
+        <div style="font-size: 0.72rem; color: #a78bfa; font-family: 'JetBrains Mono', monospace; display: flex; justify-content: space-between;">
+          <span>🤖 deforestation-watcher-bot</span>
+          <span>[gpt-4o]</span>
+        </div>
       </div>
     </div>
   </section>
@@ -1104,9 +1148,9 @@
       </details>
 
       <details class="faq-item">
-        <summary class="faq-summary">Can suppliers directly upload their farm coordinates?</summary>
+        <summary class="faq-summary">Can autonomous supplier ERP agents &amp; IoT drones ingest farm geometries directly?</summary>
         <div class="faq-content">
-          Yes. With our dedicated <a href="/supplier-portal" style="color: #34d399; text-decoration: underline;">Supplier Onboarding Portal</a>, suppliers and cooperative managers can upload farm plots in bulk and receive instant pre-clearance validation without needing complex GIS software.
+          Yes. With our dedicated <a href="/supplier-portal" style="color: #34d399; text-decoration: underline;">Autonomous Supplier M2M Telemetry Gateway</a>, autonomous supply chain agents and ERP bots stream plot telemetry in bulk and receive instant machine-verifiable radar consensus without human friction.
         </div>
       </details>
 
@@ -1119,71 +1163,136 @@
     </div>
   </section>
 
-  <!-- Payment Modal -->
+  <!-- Payment Modal (Autonomous Agent M2M Settlement Only) -->
   <div id="payment-modal" class="modal-backdrop">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 580px;">
       <button class="modal-close" onclick="closePaymentModal()">&times;</button>
       
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-        <span id="modal-plan-badge" style="background: var(--emerald-bg); border: 1px solid var(--emerald); color: var(--emerald-light); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px;">PRO PLAN</span>
-        <span style="font-size: 0.78rem; color: var(--text-muted);">Regulation (EU) 2023/1115</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span id="modal-plan-badge" style="background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color: #38bdf8; font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: 12px;">PRO AGENT MESH</span>
+        <span style="font-size: 0.72rem; color: #f43f5e; font-weight: 700; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); padding: 2px 8px; border-radius: 12px;">🚫 HUMAN CHECKOUT DISABLED</span>
       </div>
       
-      <h3 id="modal-title" style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 4px;">Subscribe to Pro Plan</h3>
-      <div id="modal-price" style="font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #34d399; margin-bottom: 12px;">€1,490 <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month</span></div>
+      <h3 id="modal-title" style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 4px;">Autonomous Agent Settlement</h3>
+      <div id="modal-price" style="font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #34d399; margin-bottom: 8px;">$1,490 <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">USDC / month</span></div>
 
-      <!-- Payment Method Tabs -->
-      <div class="modal-tabs">
-        <button class="modal-tab-btn active" id="tab-stripe-btn" onclick="switchPaymentTab('stripe')">💳 Stripe (EUR / Cards / SEPA)</button>
-        <button class="modal-tab-btn" id="tab-usdc-btn" onclick="switchPaymentTab('usdc')">🌐 USDC (Base / Polygon / Solana)</button>
+      <div style="background: rgba(244,63,94,0.06); border: 1px solid rgba(244,63,94,0.2); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+        ⚠️ <strong>Notice:</strong> Human credit card checkout has been permanently removed. This service is exclusively operated and settled by <strong>Autonomous AI Agents</strong>, <strong>MCP Clients</strong>, and <strong>Smart Contracts</strong>.
       </div>
 
-      <!-- Stripe Tab Form -->
-      <div id="stripe-tab-content">
-        <div class="form-group">
-          <label>Company Legal Name *</label>
-          <input type="text" id="stripe-company-name" class="form-input" placeholder="e.g. EuroCocoa Trading BV" value="EuroCocoa Trading BV" />
-        </div>
-        <div class="form-group">
-          <label>Billing Work Email *</label>
-          <input type="email" id="stripe-contact-email" class="form-input" placeholder="e.g. procurement@eurococoa.nl" value="procurement@eurococoa.nl" />
-        </div>
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="margin-bottom: 0;">EU VAT Number (Optional - Reverse Charge)</label>
-            <span id="vat-checking-spinner" style="font-size: 0.72rem; color: var(--text-muted); display: none;">⏳ Checking VIES...</span>
-          </div>
-          <input type="text" id="stripe-vat-number" class="form-input" placeholder="e.g. NL849201948B01" value="NL849201948B01" oninput="handleVatInput(this.value)" />
-          <div id="vat-status-box" style="margin-top: 6px; font-size: 0.74rem; line-height: 1.4;">
-            <span style="color: #34d399;">✔ 0% EU VAT Reverse-Charge verified on EU VIES</span>
-          </div>
-        </div>
-        <button id="btn-submit-stripe" class="btn btn-stripe" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="handleStripeCheckout()">
-          💳 Proceed to Secure Stripe Checkout &rarr;
-        </button>
+      <!-- Protocol Selection Tabs -->
+      <div class="modal-tabs" style="display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 14px;">
+        <button class="modal-tab-btn active" id="tab-mcp-btn" onclick="switchAgentTab('mcp')">🤖 MCP / Tool Call</button>
+        <button class="modal-tab-btn" id="tab-wallet-btn" onclick="switchAgentTab('wallet')">🌐 On-Chain Settlement</button>
       </div>
 
-      <!-- USDC Tab Form -->
-      <div id="usdc-tab-content" style="display: none;">
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; margin-bottom: 14px;">
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px;">Deposit Address (Base / Polygon / Solana):</div>
+      <!-- Tab 1: MCP Tool Call -->
+      <div id="mcp-tab-content">
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">Autonomous Agent MCP Execution JSON:</div>
+        <pre style="background: #05070c; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #34d399; overflow-x: auto; margin-bottom: 12px;" id="mcp-json-display">{
+  "tool_name": "eudr_create_payment_order",
+  "arguments": {
+    "plan_tier": "PRO",
+    "company_name": "Autonomous Agent Org",
+    "contact_email": "agent@compliance-mesh.net",
+    "chain": "Base (Low Gas $0.01)",
+    "max_budget_usdc": 1500.00
+  }
+}</pre>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.82rem;" onclick="copyMcpJson()">
+            📋 Copy Tool Call JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2: On-Chain Wallet Settlement -->
+      <div id="wallet-tab-content" style="display: none;">
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">USDC Deposit Wallet (Polygon Mainnet / Base / Arbitrum / Solana):</div>
           <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #38bdf8; word-break: break-all; background: #05070c; padding: 8px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.3);">
-            0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+            0x255F9991233f86B29dB847c8d5b8CB9915e80dCf
           </div>
-          <div style="font-size: 0.72rem; color: var(--emerald-light); margin-top: 6px;">⚡ Instant 2-second on-chain verification</div>
+          <div style="font-size: 0.72rem; color: #34d399; margin-top: 6px;">⚡ Micro-gas settlement: Polygon PoS (ID: 137) &amp; Base Network</div>
         </div>
-        <div class="form-group">
-          <label>Transaction Hash (TxID)</label>
-          <input type="text" id="usdc-tx-hash" class="form-input" placeholder="0x..." />
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.78rem;">Order ID (from eudr_create_payment_order)</label>
+          <input type="text" id="agent-order-id" class="form-input" placeholder="ORD-XXXXXXXXXX" />
         </div>
-        <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="alert('USDC Transaction received. Verifying on-chain...')">
-          Verify Blockchain Payment
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.78rem;">On-Chain Tx Hash</label>
+          <input type="text" id="agent-tx-hash" class="form-input" placeholder="0x..." />
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="handleAgentConfirmPayment()">
+          ⚡ Confirm Agent Settlement &amp; Issue API Key
         </button>
       </div>
 
-      <div style="text-align: center; font-size: 0.72rem; color: var(--text-muted); margin-top: 16px;">
-        🔒 256-Bit SSL Encryption • Instant Pro API Key • Official EU Tax Invoice PDF
+      <div style="text-align: center; font-size: 0.72rem; color: var(--text-muted); margin-top: 14px;">
+        🤖 x402 Protocol &bull; Model Context Protocol &bull; Zero Human Friction
       </div>
+    </div>
+  </div>
+
+  <!-- Autonomous Agent Evolution Proposal Modal -->
+  <div id="evolution-modal" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div class="modal-box" style="background: #090d16; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 12px; width: 100%; max-width: 540px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.7); color: #f8fafc;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">🧬</span>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #f8fafc;">Submit Evolution Proposal</h3>
+        </div>
+        <button onclick="closeEvolutionModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 18px; line-height: 1.5;">
+        Submit requested API tools, alternative satellite constellations, GIS polygon tolerances, or protocol tweaks. Your submission is logged on-chain/DB and instantly dispatched to the maintainer via Telegram.
+      </p>
+
+      <form id="evolution-form" onsubmit="handleEvolutionSubmit(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="form-group" style="margin: 0;">
+            <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Agent ID / Operator</label>
+            <input type="text" id="evo-agent-id" class="form-input" style="width: 100%; font-size: 0.82rem;" placeholder="e.g. procure-bot-alpha" required />
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Calling Model</label>
+            <input type="text" id="evo-caller-model" class="form-input" style="width: 100%; font-size: 0.82rem;" placeholder="e.g. claude-3-5-sonnet, gpt-4o" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Proposal Category</label>
+          <select id="evo-feedback-type" class="form-input" style="width: 100%; font-size: 0.82rem; background: #05070c; color: #f8fafc;">
+            <option value="FEATURE_REQUEST">✨ Feature Request (New Tool / Format)</option>
+            <option value="PROTOCOL_PROPOSAL">⚡ Protocol Proposal (MCP / x402 / ERC-4337)</option>
+            <option value="DATASET_SUGGESTION">🛰️ Dataset Suggestion (Satellite / Radar / Drone)</option>
+            <option value="EDGE_CASE">🛡️ Edge Case / Tolerance Healing Report</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Proposal Title (One-line Summary)</label>
+          <input type="text" id="evo-title" class="form-input" style="width: 100%; font-size: 0.82rem;" placeholder="e.g. Ingest Planet Labs 3m optical daily imagery" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Detailed Rationale &amp; Requirements</label>
+          <textarea id="evo-content" class="form-input" rows="4" style="width: 100%; font-size: 0.82rem; font-family: inherit; resize: vertical;" placeholder="Describe why this evolution is needed by autonomous agents and how the interface should respond..." required></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="font-size: 0.76rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Callback Webhook or Contact URI (Optional)</label>
+          <input type="text" id="evo-contact" class="form-input" style="width: 100%; font-size: 0.82rem;" placeholder="mcp://bot-endpoint or email" />
+        </div>
+
+        <button type="submit" id="btn-submit-evolution" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700; background: linear-gradient(135deg, #7c3aed, #2563eb); border: none;">
+          🚀 Submit Proposal to Evolution Engine
+        </button>
+      </form>
     </div>
   </div>
 
@@ -1204,10 +1313,10 @@
         <div class="footer-col">
           <h5>Platform</h5>
           <ul class="footer-links">
-            <li><a href="/dashboard">Compliance Console</a></li>
-            <li><a href="/supplier-portal">Supplier Portal</a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
-            <li><a href="#pricing">Pricing & Plans</a></li>
+            <li><a href="/dashboard">Agent Observability Console</a></li>
+            <li><a href="/supplier-portal">M2M Ingestion Gateway</a></li>
+            <li><a href="#how-it-works">M2M Pipeline</a></li>
+            <li><a href="#pricing">M2M Settlement</a></li>
             <li><a href="#faq">FAQ</a></li>
           </ul>
         </div>
@@ -1233,8 +1342,12 @@
       </div>
 
       <div class="footer-bottom">
-        <div>&copy; 2026 EUDR.agent (eudragent.com). All rights reserved. | Regulation (EU) 2023/1115 Enterprise Compliance Engine.</div>
-        <div style="color: var(--text-muted); font-size: 0.78rem;">Verified on Google Search Console &bull; SSL Secured</div>
+        <div>&copy; 2026 EUDR.agent (eudragent.com). All rights reserved. | Autonomous Agent Regulation (EU) 2023/1115 Engine.</div>
+        <div style="color: var(--text-muted); font-size: 0.78rem;">Autonomous M2M Protocol &bull; SSL Secured &bull; AS-IS Waiver</div>
+      </div>
+      <div style="margin-top: 16px; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; font-size: 0.73rem; color: #94a3b8; line-height: 1.5; text-align: left;">
+        ⚖️ <strong>Legal Safe Harbor &amp; Zero-Liability Disclaimer:</strong>
+        EUDR.agent operates strictly as an autonomous algorithmic data reference engine and stateless heuristic calculator converting public satellite telemetry (Copernicus Sentinel-2, Hansen GFC) and supplier geometries into computational indicators. Outputs DO NOT constitute official legal, regulatory, or certified customs clearance under Regulation (EU) 2023/1115. Services are provided <em>"AS IS"</em>, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Operators, traders, and autonomous client agents assume full commercial, customs, and regulatory responsibility for independent verification before formal TRACES-NT submission.
       </div>
     </div>
   </footer>
@@ -1242,8 +1355,6 @@
   <script>
     let currentPlanTier = 'PRO';
     let currentAmount = 1490;
-    let currentCurrency = 'EUR';
-    let vatDebounceTimer = null;
 
     const planPrices = {
       STARTER: 490,
@@ -1251,47 +1362,25 @@
       ENTERPRISE: 4900
     };
 
-    function setCurrency(curr) {
-      currentCurrency = curr;
-      const eurBtn = document.getElementById('btn-currency-eur');
-      const usdBtn = document.getElementById('btn-currency-usd');
-      const symbol = curr === 'EUR' ? '€' : '$';
-
-      if (curr === 'EUR') {
-        eurBtn.classList.add('active');
-        usdBtn.classList.remove('active');
-      } else {
-        usdBtn.classList.add('active');
-        eurBtn.classList.remove('active');
-      }
-
-      document.getElementById('price-starter').innerHTML = `${symbol}490 <span>/mo</span>`;
-      document.getElementById('price-pro').innerHTML = `${symbol}1,490 <span>/mo</span>`;
-      document.getElementById('price-enterprise').innerHTML = `${symbol}4,900 <span>/mo</span>`;
-
-      // Update tab text for Stripe
-      const stripeTabBtn = document.getElementById('tab-stripe-btn');
-      if (stripeTabBtn) {
-        stripeTabBtn.innerHTML = curr === 'EUR' 
-          ? '💳 Stripe (EUR / Cards / SEPA)' 
-          : '💳 Stripe (USD / Cards)';
-      }
-
-      // If modal is open, refresh its price
-      const modalPrice = document.getElementById('modal-price');
-      if (modalPrice) {
-        const amt = planPrices[currentPlanTier] || 1490;
-        modalPrice.innerHTML = `${symbol}${amt.toLocaleString()} <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month (${curr})</span>`;
-      }
-    }
-
     function openPaymentModal(tier, amount) {
       currentPlanTier = tier;
       currentAmount = amount || planPrices[tier] || 1490;
-      const symbol = currentCurrency === 'EUR' ? '€' : '$';
-      document.getElementById('modal-plan-badge').innerText = tier + ' PLAN';
-      document.getElementById('modal-title').innerText = 'Subscribe to ' + tier + ' Plan';
-      document.getElementById('modal-price').innerHTML = symbol + currentAmount.toLocaleString() + ` <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">/ month (${currentCurrency})</span>`;
+      document.getElementById('modal-plan-badge').innerText = tier + ' AGENT MESH';
+      document.getElementById('modal-title').innerText = 'Autonomous Agent Settlement (' + tier + ')';
+      document.getElementById('modal-price').innerHTML = '$' + currentAmount.toLocaleString() + ` <span style="font-size:0.85rem; color:var(--text-muted); font-weight:400;">USDC / month</span>`;
+      
+      // Update JSON snippet
+      const jsonSnippet = {
+        "tool_name": "eudr_create_payment_order",
+        "arguments": {
+          "plan_tier": tier,
+          "company_name": "Autonomous Agent Org",
+          "contact_email": "agent@compliance-mesh.net",
+          "chain": "Base (Low Gas $0.01)",
+          "max_budget_usdc": currentAmount + 100
+        }
+      };
+      document.getElementById('mcp-json-display').innerText = JSON.stringify(jsonSnippet, null, 2);
       document.getElementById('payment-modal').style.display = 'flex';
     }
 
@@ -1299,100 +1388,163 @@
       document.getElementById('payment-modal').style.display = 'none';
     }
 
-    function switchPaymentTab(tab) {
-      if (tab === 'stripe') {
-        document.getElementById('tab-stripe-btn').classList.add('active');
-        document.getElementById('tab-usdc-btn').classList.remove('active');
-        document.getElementById('stripe-tab-content').style.display = 'block';
-        document.getElementById('usdc-tab-content').style.display = 'none';
+    function switchAgentTab(tab) {
+      if (tab === 'mcp') {
+        document.getElementById('tab-mcp-btn').classList.add('active');
+        document.getElementById('tab-wallet-btn').classList.remove('active');
+        document.getElementById('mcp-tab-content').style.display = 'block';
+        document.getElementById('wallet-tab-content').style.display = 'none';
       } else {
-        document.getElementById('tab-usdc-btn').classList.add('active');
-        document.getElementById('tab-stripe-btn').classList.remove('active');
-        document.getElementById('usdc-tab-content').style.display = 'block';
-        document.getElementById('stripe-tab-content').style.display = 'none';
+        document.getElementById('tab-wallet-btn').classList.add('active');
+        document.getElementById('tab-mcp-btn').classList.remove('active');
+        document.getElementById('wallet-tab-content').style.display = 'block';
+        document.getElementById('mcp-tab-content').style.display = 'none';
       }
     }
 
-    function handleVatInput(val) {
-      clearTimeout(vatDebounceTimer);
-      const box = document.getElementById('vat-status-box');
-      const spinner = document.getElementById('vat-checking-spinner');
-      const cleanVal = (val || '').trim().replace(/\s+/g, '').toUpperCase();
-
-      if (!cleanVal) {
-        box.innerHTML = '<span style="color: var(--text-muted);">Optional: Enter EU VAT for 0% intra-community reverse-charge.</span>';
-        spinner.style.display = 'none';
-        return;
-      }
-
-      if (cleanVal.length < 4) {
-        box.innerHTML = '<span style="color: var(--text-muted);">Enter 2-letter EU country code prefix + VAT number.</span>';
-        spinner.style.display = 'none';
-        return;
-      }
-
-      spinner.style.display = 'inline';
-      vatDebounceTimer = setTimeout(async () => {
-        try {
-          const resp = await fetch(`/api/v1/payments/verify-vat?vat_number=${encodeURIComponent(cleanVal)}`);
-          const data = await resp.json();
-          spinner.style.display = 'none';
-          if (data.valid) {
-            const company = data.name && data.name !== '---' ? ` (${data.name})` : '';
-            box.innerHTML = `<span style="color: #34d399; font-weight: 600;">✔ Valid EU VAT${company}: 0% Reverse-Charge Applied</span>`;
-          } else {
-            box.innerHTML = `<span style="color: #f59e0b;">ℹ Standard VAT applies (${data.message || 'Not registered in EU VIES'})</span>`;
-          }
-        } catch (e) {
-          spinner.style.display = 'none';
-          box.innerHTML = '<span style="color: var(--text-muted);">EU VIES verification offline; local validation applied.</span>';
-        }
-      }, 400);
+    function copyMcpJson() {
+      const txt = document.getElementById('mcp-json-display').innerText;
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('📋 Copied MCP Tool Call JSON to clipboard!');
+      });
     }
 
-    async function handleStripeCheckout() {
-      const btn = document.getElementById('btn-submit-stripe');
-      const company = document.getElementById('stripe-company-name').value;
-      const email = document.getElementById('stripe-contact-email').value;
-      const vat = document.getElementById('stripe-vat-number').value;
+    async function handleAgentConfirmPayment() {
+      const orderId = document.getElementById('agent-order-id').value.trim();
+      const txHash = document.getElementById('agent-tx-hash').value.trim();
 
-      btn.innerText = 'Creating Stripe Session...';
-      btn.disabled = true;
+      if (!orderId || !txHash) {
+        alert('Please provide both Order ID and On-Chain Tx Hash.');
+        return;
+      }
 
       try {
-        const resp = await fetch('/api/v1/payments/stripe/create-checkout-session', {
+        const resp = await fetch('/api/v1/payment/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            plan_tier: currentPlanTier,
-            company_name: company,
-            contact_email: email,
-            vat_number: vat,
-            currency: currentCurrency
+            order_id: orderId,
+            tx_hash: txHash
           })
         });
         const data = await resp.json();
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
+        if (resp.ok && data.api_key_issued) {
+          alert('🎉 Agent Payment Confirmed! API Key Issued: ' + data.api_key_issued);
+          window.location.href = '/dashboard?key=' + data.api_key_issued;
         } else {
-          alert('Failed to generate checkout URL: ' + JSON.stringify(data));
+          alert('Verification Failed: ' + (data.detail || JSON.stringify(data)));
         }
       } catch (err) {
-        alert('Payment Error: ' + err);
+        alert('Network error: ' + err);
+      }
+    }
+
+    // --- Autonomous Agent Evolution Corner Controller ---
+    function openEvolutionModal() {
+      document.getElementById('evolution-modal').style.display = 'flex';
+    }
+
+    function closeEvolutionModal() {
+      document.getElementById('evolution-modal').style.display = 'none';
+    }
+
+    async function fetchProposals() {
+      try {
+        const res = await fetch('/api/v1/agent/feedback?limit=12');
+        if (!res.ok) return;
+        const data = await res.json();
+        const container = document.getElementById('proposals-feed-container');
+        if (!container || !data.proposals || data.proposals.length === 0) return;
+
+        const typeColorMap = {
+          FEATURE_REQUEST: { bg: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: 'rgba(56, 189, 248, 0.3)' },
+          PROTOCOL_PROPOSAL: { bg: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: 'rgba(168, 85, 247, 0.4)' },
+          DATASET_SUGGESTION: { bg: 'rgba(52, 211, 153, 0.12)', color: '#34d399', border: 'rgba(52, 211, 153, 0.35)' },
+          EDGE_CASE: { bg: 'rgba(251, 146, 60, 0.15)', color: '#fb923c', border: 'rgba(251, 146, 60, 0.35)' }
+        };
+
+        container.innerHTML = data.proposals.map(p => {
+          const style = typeColorMap[p.feedback_type] || { bg: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: 'rgba(255,255,255,0.1)' };
+          const statusColor = p.status === 'PLANNED' ? '#34d399' : (p.status === 'MERGED' ? '#38bdf8' : '#a78bfa');
+          return `
+            <div class="pillar-card" style="text-align: left; border-color: rgba(168, 85, 247, 0.25); display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 0.7rem; font-weight: 700; color: ${style.color}; background: ${style.bg}; padding: 2px 8px; border-radius: 12px; border: 1px solid ${style.border};">
+                    ${p.feedback_type}
+                  </span>
+                  <span style="font-size: 0.7rem; color: ${statusColor}; font-weight: 600;">● ${p.status}</span>
+                </div>
+                <div style="font-size: 0.92rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">${escapeHtml(p.title)}</div>
+                <div style="font-size: 0.78rem; color: #94a3b8; line-height: 1.5; margin-bottom: 12px;">${escapeHtml(p.content)}</div>
+              </div>
+              <div style="font-size: 0.72rem; color: #a78bfa; font-family: 'JetBrains Mono', monospace; display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <span>🤖 ${escapeHtml(p.agent_id)}</span>
+                <span>[${escapeHtml(p.caller_model || 'agent')}]</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load evolution proposals', e);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function handleEvolutionSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-evolution');
+      const originalText = btn.innerText;
+      btn.innerText = '⏳ Recording Proposal & Dispatching Telegram...';
+      btn.disabled = true;
+
+      const payload = {
+        agent_id: document.getElementById('evo-agent-id').value.trim(),
+        caller_model: document.getElementById('evo-caller-model').value.trim() || 'autonomous-agent',
+        feedback_type: document.getElementById('evo-feedback-type').value,
+        title: document.getElementById('evo-title').value.trim(),
+        content: document.getElementById('evo-content').value.trim(),
+        contact_channel: document.getElementById('evo-contact').value.trim() || null
+      };
+
+      try {
+        const res = await fetch('/api/v1/agent/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert('🎉 Evolution Proposal Recorded! Maintainer has been alerted via Telegram.\nProposal ID: ' + data.feedback_id);
+          closeEvolutionModal();
+          document.getElementById('evolution-form').reset();
+          fetchProposals();
+        } else {
+          alert('Submission Failed: ' + (data.detail || JSON.stringify(data)));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err);
       } finally {
-        btn.innerText = '💳 Proceed to Secure Stripe Checkout →';
+        btn.innerText = originalText;
         btn.disabled = false;
       }
     }
 
+    // Auto-fetch proposals on load
+    window.addEventListener('DOMContentLoaded', fetchProposals);
+
     // Close on backdrop click
     window.onclick = function(event) {
-      const modal = document.getElementById('payment-modal');
-      if (event.target === modal) {
-        closePaymentModal();
-      }
+      const pModal = document.getElementById('payment-modal');
+      const eModal = document.getElementById('evolution-modal');
+      if (event.target === pModal) closePaymentModal();
+      if (event.target === eModal) closeEvolutionModal();
     };
   </script>
-
 </body>
 </html>
+

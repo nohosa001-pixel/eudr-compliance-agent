@@ -10,7 +10,7 @@
   "tools": [
     {
       "name": "eudr_verify_plot",
-      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards.",
+      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -128,6 +128,48 @@
           "tx_hash": { "type": "string" }
         },
         "required": ["order_id", "tx_hash"]
+      }
+    },
+    {
+      "name": "eudr_agent_micro_pay",
+      "description": "Executes autonomous real-time on-chain USDC micro-settlement per plot or batch. Human checkout is excluded.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent_id": { "type": "string" },
+          "num_plots": { "type": "integer" },
+          "chain": { "type": "string", "default": "Base (Low Gas $0.01)" },
+          "tx_hash": { "type": "string" },
+          "sender_wallet": { "type": "string" }
+        },
+        "required": ["agent_id", "num_plots", "tx_hash", "sender_wallet"]
+      }
+    },
+    {
+      "name": "eudr_get_agent_budget_status",
+      "description": "Queries live plot quota, spent USDC, and autonomous safety budget status for the calling agent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent_id": { "type": "string" }
+        },
+        "required": ["agent_id"]
+      }
+    },
+    {
+      "name": "eudr_submit_agent_feedback",
+      "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent_id": { "type": "string" },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "feedback_type": { "type": "string", "enum": ["FEATURE_REQUEST", "PROTOCOL_PROPOSAL", "DATASET_SUGGESTION", "EDGE_CASE"], "default": "FEATURE_REQUEST" },
+          "caller_model": { "type": "string", "default": "autonomous-agent" },
+          "contact_channel": { "type": "string" }
+        },
+        "required": ["agent_id", "title", "content"]
       }
     }
   ],

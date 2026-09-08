@@ -221,3 +221,24 @@ class WebhookDeliveryRecord(Base):
     success = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
+
+class AgentEvolutionFeedbackRecord(Base):
+    """
+    Autonomous Agent Evolution & Improvement Proposals.
+    Allows interacting agents (or engineers) to submit protocol enhancement requests,
+    edge cases, dataset additions, or error recovery suggestions.
+    """
+    __tablename__ = "agent_feedbacks"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    feedback_id = Column(String(64), unique=True, index=True, nullable=False)
+    agent_id = Column(String(64), index=True, nullable=False)
+    feedback_type = Column(String(64), default="FEATURE_REQUEST", index=True)
+    title = Column(String(256), nullable=False)
+    content = Column(Text, nullable=False)
+    caller_model = Column(String(64), nullable=True)
+    contact_channel = Column(String(256), nullable=True)
+    status = Column(String(32), default="REVIEWED")
+    votes = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+

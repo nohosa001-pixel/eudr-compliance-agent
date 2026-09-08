@@ -895,7 +895,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') checkHsCode();
   });
 
-  // View Printable Report Button
+  // View Machine Audit Proof Button
   document.getElementById('btn-view-html-report').addEventListener('click', openHtmlReportModal);
   document.getElementById('btn-close-modal').addEventListener('click', closeHtmlReportModal);
 

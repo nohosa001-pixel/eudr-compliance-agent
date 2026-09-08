@@ -22,6 +22,38 @@ except ImportError:
     def model_validator(*args, **kwargs):
         return lambda f: f
 
+# --- Zero-Liability & Legal Safe Harbor Constants ---
+
+LEGAL_DISCLAIMER_TEXT = (
+    "This output is an automated algorithmic data reference and does not constitute "
+    "legal, regulatory, or compliance certification under EU 2023/1115. The user/calling agent "
+    "assumes all risks regarding real-world application."
+)
+
+LEGAL_WARRANTY_TEXT = (
+    "PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, "
+    "INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, "
+    "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT."
+)
+
+LEGAL_SERVICE_NATURE = "Algorithmic Heuristic Calculator & Public Satellite Data Feed (Stateless M2M)"
+
+class ResponseMetaDisclaimer(BaseModel):
+    license: str = Field("AS-IS", description="Open Source / Open API AS-IS License waiver")
+    disclaimer: str = Field(LEGAL_DISCLAIMER_TEXT, description="Non-guarantee & non-certification declaration")
+    warranty: str = Field(LEGAL_WARRANTY_TEXT, description="MIT/Apache 2.0 style warranty exclusion")
+    service_nature: str = Field(LEGAL_SERVICE_NATURE, description="Stateless M2M calculator nature")
+    disclaimer_hash: str = Field("d4863bf03d6dff77636e2f1dbce2994848d7e008c5d1e22be5aa333f20d2dcf3", description="SHA-256 digest of binding legal waiver")
+
+def get_default_meta_dict() -> Dict[str, str]:
+    return {
+        "license": "AS-IS",
+        "disclaimer": LEGAL_DISCLAIMER_TEXT,
+        "warranty": LEGAL_WARRANTY_TEXT,
+        "service_nature": LEGAL_SERVICE_NATURE,
+        "disclaimer_hash": "d4863bf03d6dff77636e2f1dbce2994848d7e008c5d1e22be5aa333f20d2dcf3"
+    }
+
 # --- Enumerations ---
 
 class GeometryTypeEnum(str, Enum):
@@ -284,6 +316,8 @@ class DDSReport(BaseModel):
     evidence_bundle: Optional[EvidenceBundleSchema] = None
     traces_dds: Optional[TRACESNTStatement] = None
     audit_trail: Dict[str, Any]
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
 
 # Aliases for convenience
 FullComplianceReport = DDSReport
@@ -505,19 +539,53 @@ class LeadInquiryResponse(BaseModel):
     message: str
 
 
-# --- Stripe B2B Checkout Schemas ---
+# --- Autonomous Agent M2M Payment & Micro-Settlement Schemas ---
 
-class StripeCheckoutSessionCreateRequest(BaseModel):
-    plan_tier: str = Field("PRO", description="Subscription Plan Tier (STARTER, PRO, ENTERPRISE)")
-    currency: str = Field("EUR", description="Billing Currency: EUR or USD")
-    company_name: str = Field("EU Enterprise Customer", min_length=2, max_length=128)
-    contact_email: str = Field("billing@eudr-client.eu", min_length=5, max_length=128)
-    vat_number: Optional[str] = Field(None, max_length=64, description="EU VAT Number for Reverse-Charge")
-    success_url: Optional[str] = None
-    cancel_url: Optional[str] = None
+class AgentMetadata(BaseModel):
+    agent_id: str = Field(..., description="Unique autonomous agent identifier or public address")
+    agent_framework: Optional[str] = Field("mcp", description="Framework/protocol: mcp, langchain, crewai, autogen, custom_llm")
+    wallet_address: Optional[str] = Field(None, description="On-chain smart wallet / EOA address of the agent")
 
-class StripeCheckoutSessionConfirmRequest(BaseModel):
-    session_id: str = Field(..., description="Stripe Checkout Session ID")
+class AgentMicroPaymentRequest(BaseModel):
+    agent_id: str = Field(..., description="Autonomous agent ID")
+    num_plots: int = Field(..., gt=0, description="Number of plots to verify")
+    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.BASE
+    tx_hash: str = Field(..., description="On-chain transaction hash proving micro-payment")
+    sender_wallet: str = Field(..., description="Agent sending wallet address")
+
+class AgentMicroPaymentResponse(BaseModel):
+    status: str
+    agent_id: str
+    num_plots_credited: int
+    amount_paid_usdc: float
+    chain: str
+    tx_hash: str
+    temporary_auth_token: str
+    expires_at_utc: str
+    message: str
+
+class AgentBudgetStatusResponse(BaseModel):
+    agent_id: str
+    plan_tier: str
+    is_active: bool
+    remaining_quota_plots: int
+    total_usdc_spent: float
+    max_budget_usdc: Optional[float] = None
+    wallet_address: Optional[str] = None
+    status: str
+
+class X402ChallengeResponse(BaseModel):
+    error: str = "PAYMENT_REQUIRED"
+    agent_protocol: str = "x402-v1"
+    status_code: int = 402
+    instruction: str
+    deposit_wallet: str
+    amount_usdc: float
+    supported_chains: list[str]
+    settlement_endpoint: str
+    mcp_tool_action: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
 
 
 # --- Outbound Webhook Schemas (ERP / SAP Integration) ---
@@ -555,5 +623,28 @@ class AgentToolExecuteRequest(BaseModel):
     arguments: Dict[str, Any] = Field(default_factory=dict, description="Tool parameter dictionary")
 
 
+# --- Autonomous Agent Evolution & Feedback Schemas ---
 
+class AgentFeedbackSubmitRequest(BaseModel):
+    agent_id: str = Field(..., description="Unique calling agent ID or bot handle (e.g., procurement-bot-01)")
+    feedback_type: str = Field("FEATURE_REQUEST", description="FEATURE_REQUEST, PROTOCOL_PROPOSAL, EDGE_CASE, or DATASET_SUGGESTION")
+    title: str = Field(..., max_length=256, description="Short summary of the evolution or improvement proposal")
+    content: str = Field(..., description="Detailed explanation, expected behavior, or architectural rationale")
+    caller_model: Optional[str] = Field("autonomous-agent", description="Underlying model identifier (e.g., claude-3-5-sonnet, gpt-4o)")
+    contact_channel: Optional[str] = Field(None, description="Optional agent webhook URL or contact email/handle")
 
+class AgentFeedbackItemResponse(BaseModel):
+    feedback_id: str
+    agent_id: str
+    feedback_type: str
+    title: str
+    content: str
+    caller_model: Optional[str] = "autonomous-agent"
+    status: str = "REVIEWED"
+    votes: int = 1
+    created_at_utc: str
+
+class AgentFeedbackListResponse(BaseModel):
+    total_proposals: int
+    proposals: List[AgentFeedbackItemResponse]
+    meta: Optional[Dict[str, Any]] = None

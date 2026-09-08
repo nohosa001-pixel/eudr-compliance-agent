@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EUDR Compliance Workbench &amp; 5-Pillar Verification | EUDR.agent</title>
-  <meta name="description" content="Interactive EUDR Compliance Console. Bulk parse farm plots, run multi-satellite deforestation radar, verify legal harvest documents, and generate TRACES-NT DDS." />
+  <title>EUDR Compliance Autonomous Agent Observability Console &bull; M2M Radar Telemetry</title>
+  <meta name="description" content="Autonomous Agent Observability & Telemetry Console for Regulation (EU) 2023/1115. Sub-second Sentinel-2 radar heuristics, polygon topology healing, and TRACES-NT DDS compilation." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://eudragent.com/dashboard" />
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
@@ -13,8 +13,8 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://eudragent.com/dashboard" />
   <meta property="og:site_name" content="EUDR.agent" />
-  <meta property="og:title" content="EUDR Compliance Workbench &amp; 5-Pillar Verification | EUDR.agent" />
-  <meta property="og:description" content="Interactive EUDR Compliance Console. Bulk parse farm plots, run multi-satellite deforestation radar, and generate TRACES-NT DDS." />
+  <meta property="og:title" content="EUDR Compliance Autonomous Agent Observability Console | EUDR.agent" />
+  <meta property="og:description" content="Autonomous Agent Observability & Telemetry Console for EUDR Compliance." />
   <meta property="og:image" content="https://eudragent.com/static/eudr_usage_tutorial.webp" />
   
   <!-- Anti-cache meta tags -->
@@ -33,33 +33,46 @@
 </head>
 <body>
 
+  <!-- Autonomous Agent Top Notice Bar -->
+  <div style="background: #020617; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 16px; font-size: 0.74rem; text-align: center; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 1px 8px; border-radius: 10px; font-weight: 700;">🤖 AUTONOMOUS AGENT OBSERVABILITY ONLY</span>
+    <span>Telemetry &amp; heuristic radar console designed exclusively for autonomous AI agents, ERP bots &amp; MCP clients. Zero human intervention required.</span>
+    <span style="color: #64748b;">|</span>
+    <span style="color: #38bdf8;">x402 Deposit: <code>0x255F9991233f86B29dB847c8d5b8CB9915e80dCf</code></span>
+    <span style="color: #64748b;">|</span>
+    <span style="color: #cbd5e1;">License: <strong>AS-IS</strong> (Stateless Heuristic Calculator)</span>
+  </div>
+
   <!-- Header -->
   <header>
     <div class="header-container">
       <div class="logo-group">
         <div class="logo-icon-box">🌲</div>
         <div class="logo-title">
-          <h1><strong>EUDR</strong> Compliance, Verification &amp; TRACES-NT <span class="accent">Agent</span></h1>
-          <p>Autonomous 5-Pillar Spatial Verification, Multi-Satellite Radar &amp; TRACES-NT DDS</p>
+          <h1><strong>EUDR</strong> Autonomous Compliance <span class="accent">Agent Console</span></h1>
+          <p>Autonomous M2M Multi-Satellite Radar Heuristics &amp; TRACES-NT DDS Synthesis (Level 5 Autonomy)</p>
         </div>
       </div>
       <div class="header-actions">
         <div class="badge-gateway" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(167, 139, 250, 0.4); color: #c4b5fd;">
           <span style="font-size: 0.85rem;">🟣</span>
-          <span style="font-weight: 700;">MetaMask: Polygon (PoS)</span>
+          <span style="font-weight: 700;">x402 Node: Polygon/Base</span>
         </div>
         <div class="badge-gateway">
           <span class="pulse-dot"></span>
-          <span>TRACES-NT Ready</span>
+          <span>Machine Handshake: Active</span>
         </div>
         <button id="btn-open-mesh-modal" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(168, 85, 247, 0.4); color: #c084fc; font-weight: 700; background: rgba(168, 85, 247, 0.1);">
           🤖 4-Agent Mesh
         </button>
+        <a href="/#agent-evolution" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(168, 85, 247, 0.4); color: #c084fc; font-weight: 700;">
+          🧬 Agent Evolution
+        </a>
         <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
-          🏠 Landing Page
+          🏠 Protocol Landing
         </a>
         <a href="/supplier-portal" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(52, 211, 153, 0.4); color: #34d399;">
-          🌾 Supplier Portal
+          🌾 M2M Ingestion Gateway
         </a>
         <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 3px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
           <span style="font-size: 0.78rem; color: var(--text-muted);">🌐 Lang:</span>
@@ -73,16 +86,16 @@
           </select>
         </div>
         <button id="btn-open-video-guide" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(59,130,246,0.5); color: #60a5fa; font-weight: 700; background: rgba(59,130,246,0.1);">
-          🎬 2-Sec Video Guide
+          ⚡ Flow Spec
         </button>
         <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc;">
-          🔑 API Keys
+          🔑 Agent Credentials
         </button>
         <button id="btn-run-benchmark" class="btn btn-emerald" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;">
-          🧪 Run Benchmark (10 Cases)
+          🧪 Autonomous Rig Test (10 Cases)
         </button>
         <button id="btn-view-html-report" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
-          📄 Printable Report
+          💾 Machine Audit Proof
         </button>
       </div>
     </div>
@@ -93,7 +106,7 @@
     <!-- Preset Toolbar -->
     <div class="preset-bar">
       <div class="preset-title">
-        <span>⚡ <strong>Quick Scenario Presets:</strong></span>
+        <span>⚡ <strong>Autonomous Test Vectors (Ground Truth Presets):</strong></span>
       </div>
       <div class="preset-buttons">
         <button class="btn-preset active" data-preset="compliant_vietnam">🟢 1. Compliant Coffee (Vietnam)</button>
@@ -112,14 +125,14 @@
         <!-- Bulk File Ingestion Dropzone -->
         <div class="card" style="border: 1px dashed rgba(59,130,246,0.4); background: rgba(30,41,59,0.5);">
           <div class="card-header">
-            <div class="card-title">📁 Bulk File Ingestion (Drag &amp; Drop)</div>
+            <div class="card-title">📁 Machine Telemetry Stream Ingest (Autonomous Feed)</div>
             <span style="font-size: 0.72rem; color: #60a5fa;">.csv, .xlsx, .geojson, .kml</span>
           </div>
           <div id="dropzone" style="border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
             <input type="file" id="bulk-file-input" accept=".csv,.xlsx,.geojson,.json,.kml" style="display: none;" />
-            <div style="font-size: 1.8rem; margin-bottom: 6px;">📂</div>
-            <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc;">Click to Browse or Drag File Here</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Automatically parses farm plots, WGS84 coordinates &amp; documents</div>
+            <div style="font-size: 1.8rem; margin-bottom: 6px;">🤖</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: #f8fafc;">Stream / Drop Machine GeoJSON, CSV or Telemetry Feed</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Stateless Ingestion: Zero PII, automated WGS84 boundary parsing &amp; heuristic radar check</div>
           </div>
           <div id="file-upload-status" style="display: none; margin-top: 8px; font-size: 0.75rem; color: #34d399; font-weight: 600;"></div>
         </div>
@@ -127,7 +140,7 @@
         <!-- HS Code Quick Checker -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">🔍 Annex I HS Code Classifier</div>
+            <div class="card-title">🔍 Annex I HS Code Machine Classifier</div>
           </div>
           <div class="hs-lookup-group">
             <input type="text" id="hs-code-input" placeholder="e.g. 0901.11, 1511.10, 1801.00, 4407.10" value="0901.11" />
@@ -141,14 +154,14 @@
         <!-- Supply Chain Payload Editor -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📦 Supply Chain JSON Payload</div>
-            <span style="font-size: 0.72rem; color: var(--text-muted);">5-Pillar Verifiable Input</span>
+            <div class="card-title">📦 Autonomous Agent Supply Chain JSON Stream</div>
+            <span style="font-size: 0.72rem; color: var(--text-muted);">5-Pillar Verifiable M2M Payload</span>
           </div>
           <div class="form-group">
             <textarea id="payload-editor" spellcheck="false"></textarea>
           </div>
           <button id="btn-evaluate" class="btn btn-primary">
-            ⚡ Run 5-Pillar EUDR Compliance Evaluation
+            ⚡ Run Autonomous 5-Pillar Heuristic Evaluation
           </button>
         </div>
 
@@ -160,8 +173,8 @@
         <!-- Interactive GIS Map -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">🗺️ GIS Production Plot Visualizer (WGS84)</div>
-            <span style="font-size: 0.75rem; color: var(--text-secondary);">High-Resolution Satellite &amp; Dual-Claim Overlap Detection</span>
+            <div class="card-title">🗺️ GIS Production Plot Telemetry (WGS84)</div>
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">Sub-second Sentinel-2 Radar &amp; Dual-Claim Collision Detection</span>
           </div>
           <div class="map-wrapper">
             <div id="map"></div>
@@ -185,9 +198,9 @@
         <!-- Pipeline Steps Stepper -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">🛡️ 5-Pillar Verification Assurance Progress</div>
+            <div class="card-title">🛡️ Autonomous 5-Pillar Heuristic Consensus</div>
             <div id="confidence-badge" style="font-size: 0.75rem; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.15); padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid #10b981;">
-              Confidence: 98% (Auto-Approved)
+              Confidence: 98% (Machine Auto-Approved)
             </div>
           </div>
 
@@ -196,13 +209,13 @@
             <div class="status-left">
               <div id="status-icon-lg" class="status-icon-large">🛡️</div>
               <div>
-                <div id="status-title-text" class="status-title">EUDR COMPLIANT (PASSED)</div>
-                <div id="status-sub-text" class="status-subtitle">All 5 verification pillars passed with high confidence.</div>
+                <div id="status-title-text" class="status-title">EUDR HEURISTIC STATUS: COMPLIANT (PASSED)</div>
+                <div id="status-sub-text" class="status-subtitle">All 5 verification pillars passed with algorithmic consensus.</div>
               </div>
             </div>
             <div>
               <button id="btn-submit-traces" class="btn btn-emerald" style="display: none; font-size: 0.8rem; padding: 0.45rem 0.9rem; font-weight: 700;">
-                🚀 Submit to EU TRACES-NT (B2G)
+                🚀 Autonomous B2G Machine Handshake (TRACES-NT)
               </button>
             </div>
           </div>
@@ -308,11 +321,11 @@
     </div>
   </main>
 
-  <!-- HTML Report Modal -->
+  <!-- Machine Audit Proof Modal (formerly HTML report) -->
   <div id="html-report-modal" class="modal-backdrop">
     <div class="modal-window">
       <div class="modal-header">
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">📄 Printable EUDR Compliance Audit Statement</h2>
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">💾 Autonomous EUDR Compliance Audit Statement &amp; Proof</h2>
         <button id="btn-close-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
       </div>
       <div class="modal-body">
@@ -325,7 +338,7 @@
   <div id="benchmark-modal" class="modal-backdrop">
     <div class="modal-window" style="max-height: 85vh;">
       <div class="modal-header">
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">🧪 Golden Benchmark Suite (10 Ground-Truth Scenarios)</h2>
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb;">🧪 Autonomous Rig Test (10 Ground-Truth Scenarios)</h2>
         <button id="btn-close-benchmark-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
       </div>
       <div class="modal-body" style="padding: 1.25rem; background: #0f172a; color: #f8fafc; overflow-y: auto;">
@@ -340,7 +353,7 @@
   <div id="traces-b2g-modal" class="modal-backdrop">
     <div class="modal-window" style="max-width: 650px;">
       <div class="modal-header" style="background: #064e3b;">
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: #34d399;">🏛️ EU TRACES-NT Official Customs Clearance Receipt</h2>
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #34d399;">🏛️ EU TRACES-NT B2G Machine Handshake Receipt</h2>
         <button id="btn-close-traces-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
       </div>
       <div id="traces-receipt-body" class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
@@ -362,7 +375,7 @@
             <span style="font-weight: 700; font-size: 0.9rem; color: #c4b5fd;">🟣 MetaMask Settlement Account:</span>
             <span class="badge" style="background: #2e1065; color: #c4b5fd; border: 1px solid #7c3aed; font-size: 11px;">Polygon PoS (ID: 137)</span>
           </div>
-          <code id="mesh-wallet-address" style="font-size: 0.78rem; color: #a78bfa; word-break: break-all;">0x742d35Cc6634C0532925a3b844Bc454e4438f44e</code>
+          <code id="mesh-wallet-address" style="font-size: 0.78rem; color: #a78bfa; word-break: break-all;">0x255F9991233f86B29dB847c8d5b8CB9915e80dCf</code>
         </div>
 
         <h4 style="font-size: 0.88rem; font-weight: 700; color: #f1f5f9; margin-bottom: 10px;">Connected Glama.ai MCP Nodes (@nohosa001-pixel)</h4>
@@ -380,24 +393,24 @@
   <div id="api-keys-modal" class="modal-backdrop">
     <div class="modal-window" style="max-width: 650px;">
       <div class="modal-header" style="background: rgba(99, 102, 241, 0.2);">
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: #c7d2fe;">🔑 B2B SaaS API Keys &amp; ERP Integration</h2>
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: #c7d2fe;">🔑 Autonomous Agent Node Credentials &amp; ERP API Key</h2>
         <button id="btn-close-keys-modal" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
       </div>
       <div class="modal-body" style="padding: 1.5rem; background: #0f172a; color: #f8fafc;">
         <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.25rem;">
-          Generate high-security API keys to connect SAP, Oracle SCM, or in-house customs software to the <code>eudragent.com</code> engine.
+          Generate high-entropy credentials to connect autonomous LLM agents, SAP, Oracle SCM, or in-house customs bots to the <code>eudragent.com</code> engine.
         </p>
 
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-          <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff;">Generate New API Key</h4>
+          <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff;">Generate Agent Node Key</h4>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
             <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Company / Operator Name</label>
-              <input type="text" id="apikey-company-input" placeholder="e.g. Global Agri Commodities Ltd" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Agent / Operator Node ID</label>
+              <input type="text" id="apikey-company-input" placeholder="e.g. agent-global-agri-01" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
             </div>
             <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Contact Email</label>
-              <input type="email" id="apikey-email-input" placeholder="compliance@company.com" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Agent Webhook / Contact URI</label>
+              <input type="text" id="apikey-email-input" placeholder="agent@bot-domain.net" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
             </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -438,29 +451,35 @@ curl -X POST "https://api.eudragent.com/api/v1/eudr/evaluate" \
     </div>
   </div>
 
-  <!-- 4-Step Instant Video Guide Modal -->
+  <!-- 4-Step Instant Flow Spec Modal -->
   <div id="video-guide-modal" class="modal-backdrop" style="display: none;">
     <div class="modal-window" style="max-width: 960px; width: 95%; background: #0b0f19; border: 1px solid rgba(59,130,246,0.5); border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85);">
       <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(18, 26, 44, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1);">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.1rem;">🎬</span>
-          <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0;">EUDR.agent 4-Step Instant Demo (2s Audit)</h3>
+          <span style="font-size: 1.1rem;">⚡</span>
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0;">EUDR.agent Autonomous Execution Spec (2s Audit)</h3>
         </div>
         <button id="btn-close-video-modal" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.8rem; cursor: pointer;">✕ Close</button>
       </div>
       <div class="modal-body" style="padding: 16px; text-align: center; background: #080c14;">
-        <img src="/static/eudr_usage_tutorial.webp" alt="EUDR.agent 4-Step Video Walkthrough" style="width: 100%; max-height: 520px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+        <img src="/static/eudr_usage_tutorial.webp" alt="EUDR.agent 4-Step Walkthrough" style="width: 100%; max-height: 520px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
         <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
-          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">📁 1. UPLOAD</span>
+          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">📁 1. INGEST</span>
           <span style="color: #64748b; font-weight: 700;">➔</span>
           <span style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">🛰️ 2. SCAN (2s)</span>
           <span style="color: #64748b; font-weight: 700;">➔</span>
-          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">🛡️ 3. VERIFY (PASS)</span>
+          <span style="background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">🛡️ 3. HEURISTIC (PASS)</span>
           <span style="color: #64748b; font-weight: 700;">➔</span>
           <span style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">⚡ 4. EXPORT (XML)</span>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- 5-Pillar Zero-Liability Safe Harbor Legal Disclaimer Banner -->
+  <div style="margin: 20px auto 40px; max-width: 1280px; padding: 14px 20px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 0.73rem; color: #94a3b8; line-height: 1.55;">
+    ⚖️ <strong>Autonomous Agent Zero-Liability Safe Harbor &amp; AS-IS Disclaimer:</strong>
+    EUDR.agent operates strictly as an autonomous algorithmic data reference engine and stateless heuristic calculator converting public satellite telemetry (Copernicus Sentinel-2, Hansen GFC) and supplier geometries into computational indicators. Outputs DO NOT constitute official legal, regulatory, or certified customs clearance under Regulation (EU) 2023/1115. Services and computational outputs are provided strictly <em>"AS IS"</em>, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Operators, traders, and autonomous client agents assume full commercial, customs, and regulatory responsibility for independent verification before formal TRACES-NT submission.
   </div>
 
   <!-- Leaflet JS & App JS -->

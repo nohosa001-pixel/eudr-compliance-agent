@@ -18,9 +18,19 @@ AI agents can invoke EUDR capabilities through:
 - `eudr_verify_vies_vat`: Real-time cross-border EU B2B VAT validation against official European Commission VIES databases.
 - `eudr_generate_dds`: Generates official TRACES-NT XML declarations and EUDR compliance certificates.
 - `eudr_verify_audit_integrity`: Validates SHA-256 tamper-evident digital custody audit logs.
-- `eudr_estimate_compliance_cost`: Computes transparent tier fees in EUR based on farm plot volume.
-- `eudr_create_payment_order`: Generates on-chain USDC payment order with budget cap guardrails and QR payload.
+- `eudr_estimate_compliance_cost`: Computes transparent tier fees based on farm plot volume.
+- `eudr_create_payment_order`: Generates autonomous on-chain USDC payment order with budget cap guardrails. (Human checkout is strictly excluded).
 - `eudr_confirm_payment`: Verifies blockchain tx_hash and provisions live Pro API Key for the autonomous agent.
+- `eudr_agent_micro_pay`: Real-time on-chain micro-settlement per plot ($0.10 USDC/plot) without human subscription friction.
+- `eudr_get_agent_budget_status`: Real-time inspection of agent quota, spent USDC, and safety budget limits.
+- `eudr_submit_agent_feedback`: Allows interacting AI agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions.
+
+## Payment & Settlement: Autonomous Agent Only
+Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents via:
+- **RFC 9110 / x402 Protocol**: `GET /api/v1/payment/x402/challenge` returning machine-readable payment required instructions.
+- **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`), Base, Arbitrum, and Solana.
+- **MCP Native Settlement Tools**: Agents autonomously create, sign, and confirm payment orders within programmed budget caps.
+
 
 ## Self-Correction & Error Recovery
 When a parameter validation fails, the API responds with structured recovery hints:
@@ -36,9 +46,17 @@ When a parameter validation fails, the API responds with structured recovery hin
 }
 ```
 
+## Zero-Liability & Legal Safe Harbor (5 Pillars)
+1. **No Guarantee / Certification**: Outputs represent raw algorithmic calculations and heuristic telemetry indicators. Does NOT constitute legal, regulatory, or certified customs clearance under Regulation (EU) 2023/1115.
+2. **Mandatory Response `meta`**: All machine responses include a top-level `meta` block declaring AS-IS status and non-guarantee waiver.
+3. **MCP Tool Prompt Guard**: Injected prompt guards instruct consuming LLMs that tools provide heuristic references, not official regulatory legal filings.
+4. **Standard AS-IS Warranty Exclusion**: Services are provided 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+5. **Stateless P2P Settlement**: Operates as a stateless micro-token vending machine via x402 on-chain USDC. Zero PII, zero accounts, and zero perpetual liability.
+
 ## Agent Links & References
 - Full AI Specification: https://eudragent.com/llms-full.txt
 - Agent Tool Manifest: https://eudragent.com/api/v1/agent/tools
 - MCP Server Endpoint: https://eudragent.com/api/v1/mcp
 - OpenAPI Schema: https://eudragent.com/openapi.json
 - Swagger UI: https://eudragent.com/docs
+

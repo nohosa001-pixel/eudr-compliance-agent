@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supplier EUDR Pre-Clearance Portal | EUDRAgent.com</title>
-  <meta name="description" content="Global Supplier & Smallholder Farm Onboarding Portal for EU Deforestation Regulation (Regulation (EU) 2023/1115) Compliance Verification." />
+  <title>Autonomous Farm Agent M2M Ingestion Gateway | EUDR.agent</title>
+  <meta name="description" content="Stateless Autonomous Machine-to-Machine Gateway for IoT Drones, RTK Field Harvesters, and Supply Chain ERP Agents under Regulation (EU) 2023/1115." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -16,8 +16,8 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://eudragent.com/supplier-portal" />
   <meta property="og:site_name" content="EUDR.agent" />
-  <meta property="og:title" content="Supplier EUDR Pre-Clearance Portal | EUDR.agent" />
-  <meta property="og:description" content="Global Supplier & Smallholder Farm Onboarding Portal for EU Deforestation Regulation (EU 2023/1115) Compliance Verification." />
+  <meta property="og:title" content="Autonomous Farm Agent M2M Ingestion Gateway | EUDR.agent" />
+  <meta property="og:description" content="Stateless Machine-to-Machine Gateway for IoT Drones & Autonomous ERP Agents." />
   <meta property="og:image" content="https://eudragent.com/static/eudr_usage_tutorial.webp" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -330,11 +330,19 @@
 </head>
 <body>
 
+  <!-- Autonomous Agent Top Notice Bar -->
+  <div style="background: #020617; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 16px; font-size: 0.74rem; text-align: center; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 1px 8px; border-radius: 10px; font-weight: 700;">🤖 AUTONOMOUS AGENT M2M GATEWAY ONLY</span>
+    <span>Stateless autonomous telemetry ingestion for IoT drones, agricultural robots, and ERP bots. Zero human intervention &bull; Zero PII storage.</span>
+    <span style="color: #64748b;">|</span>
+    <span style="color: #cbd5e1;">License: <strong>AS-IS</strong> (Stateless Heuristic Calculator)</span>
+  </div>
+
   <header class="header">
     <a href="/" class="brand">
       <span>🌲</span>
       <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span><span class="brand-tld">.com</span></span>
-      <span style="font-size: 0.7rem; background: rgba(59,130,246,0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px; align-self: center;">Supplier Portal</span>
+      <span style="font-size: 0.7rem; background: rgba(56,189,248,0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; align-self: center; font-weight: 700;">M2M Gateway</span>
     </a>
     <div class="nav-actions">
       <select id="portal-lang" class="lang-selector" onchange="changePortalLang(this.value)">
@@ -347,16 +355,16 @@
         <option value="id">🇮🇩 Bahasa Indonesia</option>
       </select>
       <a href="/dashboard" class="btn" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-size: 0.8rem; padding: 6px 12px;">
-        <span id="nav-operator-btn">Operator Console &rarr;</span>
+        <span id="nav-operator-btn">🤖 Observability Console &rarr;</span>
       </a>
     </div>
   </header>
 
   <div class="container">
     <div class="hero-box">
-      <h1 id="txt-hero-title" class="hero-title">Supplier EUDR Pre-Clearance Verification</h1>
+      <h1 id="txt-hero-title" class="hero-title">Autonomous Farm Agent M2M Ingestion Gateway</h1>
       <p id="txt-hero-subtitle" style="color: var(--text-muted); font-size: 0.95rem;">
-        Generate your Verified Farm Plot Certificate to supply EU Buyers under Regulation (EU) 2023/1115.
+        Stateless Machine-to-Machine Gateway for IoT Drones, RTK Field Harvesters, and Supply Chain ERP Agents under Regulation (EU) 2023/1115.
       </p>
     </div>
 
@@ -364,21 +372,21 @@
       <!-- Left: Input Form -->
       <div class="card">
         <div class="card-title" style="justify-content: space-between; flex-wrap: wrap;">
-          <span id="txt-section1-title">📝 1. Farm &amp; Production Details</span>
-          <span id="txt-quick-preset" style="font-size: 0.72rem; color: var(--emerald-light); font-weight: normal;">⚡ 1-Click Load Preset:</span>
+          <span id="txt-section1-title">📡 1. Machine Telemetry &amp; Production Plot Stream</span>
+          <span id="txt-quick-preset" style="font-size: 0.72rem; color: var(--emerald-light); font-weight: normal;">🤖 1-Click Load Preset:</span>
         </div>
 
         <!-- Presets Toolbar -->
         <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;">
-          <button type="button" onclick="loadSupPreset('vietnam')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #34d399; border: 1px solid rgba(52,211,153,0.3);">☕ Vietnam Coffee</button>
-          <button type="button" onclick="loadSupPreset('indonesia')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">🌴 Riau Palm Oil</button>
-          <button type="button" onclick="loadSupPreset('brazil')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">🪵 Pará Timber</button>
-          <button type="button" onclick="loadSupPreset('ivorycoast')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">🍫 San Pedro Cocoa</button>
+          <button type="button" onclick="loadSupPreset('vietnam')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #34d399; border: 1px solid rgba(52,211,153,0.3);">☕ Vietnam Coffee (VN-8821)</button>
+          <button type="button" onclick="loadSupPreset('indonesia')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">🌴 Riau Palm Oil (ID-4412)</button>
+          <button type="button" onclick="loadSupPreset('brazil')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">🪵 Pará Timber (BR-1109)</button>
+          <button type="button" onclick="loadSupPreset('ivorycoast')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">🍫 San Pedro Cocoa (CI-3382)</button>
         </div>
         
         <div class="form-group">
-          <label id="lbl-name" class="form-label">Cooperative / Producer Name</label>
-          <input type="text" id="sup-name" class="form-input" value="Da Lat Arabica Smallholder Farmers Group" />
+          <label id="lbl-name" class="form-label">Autonomous Agent / Producer Node ID</label>
+          <input type="text" id="sup-name" class="form-input" value="agent-dalat-iot-node-8821" />
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -407,9 +415,9 @@
 
         <div class="form-group">
           <div class="form-label">
-            <span id="lbl-area">Production Area (Hectares)</span>
-            <button type="button" onclick="acquireDeviceGPS()" class="btn-gps" title="Capture GPS coordinates from device">
-              📍 <span id="lbl-gps-btn">Use Device GPS</span>
+            <span id="lbl-area">Declared Production Area (Hectares)</span>
+            <button type="button" onclick="acquireDeviceGPS()" class="btn-gps" title="Ingest RTK GPS coordinates from telemetry receiver">
+              📡 <span id="lbl-gps-btn">Ingest Drone / RTK GPS</span>
             </button>
           </div>
           <input type="number" id="sup-area" class="form-input" value="12.5" step="0.1" oninput="updateArt9RuleTag(this.value)" />
@@ -419,19 +427,19 @@
         </div>
 
         <div class="form-group">
-          <label id="lbl-title" class="form-label">Land Title / Right of Use Certificate #</label>
+          <label id="lbl-title" class="form-label">Stateless Land Title / Usage Rights Hash</label>
           <input type="text" id="sup-title" class="form-input" value="LURC-VN-2019-7729" />
         </div>
 
         <button id="btn-sup-verify" class="btn btn-primary" onclick="runSupplierPrecheck()">
-          🛰️ <span id="txt-run-btn">Run Live Satellite &amp; Spatial Pre-Check</span>
+          ⚡ <span id="txt-run-btn">Trigger Autonomous Spatial &amp; Radar Consensus</span>
         </button>
       </div>
 
       <!-- Right: Map & Results -->
       <div class="card">
         <div class="card-title" style="justify-content: space-between;">
-          <span id="txt-section2-title">🗺️ 2. Geodesic Radar &amp; Pre-Clearance Badge</span>
+          <span id="txt-section2-title">🛰️ 2. Autonomous Satellite Radar Consensus &amp; Telemetry Proof</span>
           <span style="font-size: 0.72rem; color: #94a3b8;">Sentinel-2 L2A Orbit</span>
         </div>
         <div id="supplier-map"></div>
@@ -440,15 +448,15 @@
           <div class="cert-card">
             <div class="cert-header">
               <div>
-                <div style="font-size: 0.65rem; text-transform: uppercase; color: #34d399; font-weight: 700;">Regulation (EU) 2023/1115 Validated</div>
-                <div id="badge-status-title" style="font-weight: 800; font-size: 1.05rem; color: #fff;">EUDR PRE-CLEARANCE CERTIFICATE</div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: #38bdf8; font-weight: 700;">Regulation (EU) 2023/1115 Algorithmic Heuristic</div>
+                <div id="badge-status-title" style="font-weight: 800; font-size: 1.05rem; color: #fff;">AUTONOMOUS M2M SPATIAL RADAR PROOF</div>
               </div>
-              <div class="cert-seal">🇪🇺</div>
+              <div class="cert-seal">🤖</div>
             </div>
 
             <div class="cert-row">
-              <span id="lbl-cert-producer">Producer:</span>
-              <strong id="cert-out-name">Da Lat Arabica Smallholder Farmers Group</strong>
+              <span id="lbl-cert-producer">Agent Node ID:</span>
+              <strong id="cert-out-name">agent-dalat-iot-node-8821</strong>
             </div>
             <div class="cert-row">
               <span id="lbl-cert-commodity">Commodity &amp; Area:</span>
@@ -456,11 +464,11 @@
             </div>
             <div class="cert-row">
               <span id="lbl-cert-spatial">Spatial Standard:</span>
-              <strong style="color: #34d399;">Art. 9(1)(d) Polygon Valid</strong>
+              <strong style="color: #34d399;">Art. 9(1)(d) Polygon Valid (Self-Healed)</strong>
             </div>
             <div class="cert-row">
               <span id="lbl-cert-sat">2020/12/31 Radar:</span>
-              <strong style="color: #34d399;">0.00% Zero Deforestation</strong>
+              <strong style="color: #34d399;">0.00% Zero Deforestation (Consensus)</strong>
             </div>
             <div class="cert-row">
               <span id="lbl-cert-hash">Cryptographic SHA-256:</span>
@@ -468,16 +476,20 @@
             </div>
 
             <div id="badge-cert-id" style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.4); padding: 6px 8px; border-radius: 4px; border: 1px dashed rgba(255,255,255,0.2);">
-              SUPPLIER-VERIFIED-PASS-EUDR-2026-VN-8821
+              PROOF-M2M-EUDR-2026-VN-8821
+            </div>
+
+            <div style="margin-top: 8px; padding: 6px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; font-size: 0.68rem; color: #94a3b8; line-height: 1.4;">
+              ⚖️ <strong>Safe Harbor Disclaimer:</strong> Output computed as an algorithmic heuristic data reference. AS-IS without warranty. Not an official regulatory certification.
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
             <button onclick="downloadCertificate()" class="btn" style="font-size: 0.76rem; background: rgba(16,185,129,0.25); color: #34d399; border: 1px solid var(--emerald);">
-              📄 Download JSON
+              📄 Download JSON Proof
             </button>
-            <button onclick="window.print()" class="btn" style="font-size: 0.76rem; background: rgba(59,130,246,0.25); color: #60a5fa; border: 1px solid var(--blue);">
-              🖨️ Print Certificate
+            <button onclick="copyM2mProofHash()" class="btn" style="font-size: 0.76rem; background: rgba(56,189,248,0.25); color: #38bdf8; border: 1px solid rgba(56,189,248,0.5);">
+              📋 Copy Proof Hash
             </button>
           </div>
         </div>
@@ -493,136 +505,136 @@
 
     const I18N = {
       en: {
-        heroTitle: "Supplier EUDR Pre-Clearance Verification",
-        heroSub: "Generate your Verified Farm Plot Certificate to supply EU Buyers under Regulation (EU) 2023/1115.",
-        sec1: "📝 1. Farm & Production Details",
-        sec2: "🗺️ 2. Geodesic Radar & Pre-Clearance Badge",
-        presetLbl: "⚡ 1-Click Load Preset:",
-        nameLbl: "Cooperative / Producer Name",
+        heroTitle: "Autonomous Farm Agent M2M Ingestion Gateway",
+        heroSub: "Stateless Machine-to-Machine Gateway for IoT Drones, RTK Field Harvesters, and Supply Chain ERP Agents under Regulation (EU) 2023/1115.",
+        sec1: "📡 1. Machine Telemetry & Production Plot Stream",
+        sec2: "🛰️ 2. Autonomous Satellite Radar Consensus & Telemetry Proof",
+        presetLbl: "🤖 1-Click Load Preset:",
+        nameLbl: "Autonomous Agent / Producer Node ID",
         commLbl: "Commodity",
         countryLbl: "Country of Origin",
-        areaLbl: "Production Area (Hectares)",
-        gpsBtn: "Use Device GPS",
-        titleLbl: "Land Title / Right of Use Certificate #",
-        runBtn: "Run Live Satellite & Spatial Pre-Check",
-        opNav: "Operator Console →",
+        areaLbl: "Declared Production Area (Hectares)",
+        gpsBtn: "Ingest Drone / RTK GPS",
+        titleLbl: "Stateless Land Title / Usage Rights Hash",
+        runBtn: "Trigger Autonomous Spatial & Radar Consensus",
+        opNav: "🤖 Observability Console →",
         polyRule: "⚠️ Polygon Boundary Required (EUDR Art. 9: Area ≥ 4.0 ha)",
         pointRule: "✅ Single Point or Polygon Allowed (Area < 4.0 ha)",
-        certTitle: "EUDR PRE-CLEARANCE CERTIFICATE"
+        certTitle: "AUTONOMOUS M2M SPATIAL RADAR PROOF"
       },
       ko: {
-        heroTitle: "공급망 EUDR 사전 적격성 검증 포털",
-        heroSub: "유럽연합 산림벌채방지법(EU 2023/1115) 규정에 따라 유럽 바이어 납품용 공인 인증서를 생성합니다.",
-        sec1: "📝 1. 농장 및 생산지 세부 정보",
-        sec2: "🗺️ 2. 측지 레이더 및 사전 적격성 배지",
-        presetLbl: "⚡ 원클릭 시나리오 불러오기:",
-        nameLbl: "생산자 조합 / 농장명",
+        heroTitle: "자율 에이전트 농장 M2M 데이터 수신 게이트웨이",
+        heroSub: "EU 산림벌채방지법(EU 2023/1115) 규정에 따라 농업용 드론, RTK 센서 및 ERP 봇을 위한 무상태 머신 전용 게이트웨이입니다.",
+        sec1: "📡 1. 머신 텔레메트리 및 경작지 데이터 스트림",
+        sec2: "🛰️ 2. 자율 위성 레이더 합의 및 머신 검증 증명",
+        presetLbl: "🤖 원클릭 에이전트 노드 불러오기:",
+        nameLbl: "자율 에이전트 / 생산자 노드 식별자(ID)",
         commLbl: "품목(Commodity)",
         countryLbl: "원산지 국가",
-        areaLbl: "경작 면적 (Hectares, 헥타르)",
-        gpsBtn: "기기 현장 GPS 좌표",
-        titleLbl: "토지 소유권 / 영농 허가 번호",
-        runBtn: "위성 레이더 및 공간 규정 사전 검증 실행",
-        opNav: "운영자 콘솔로 이동 →",
+        areaLbl: "신고 경작 면적 (Hectares)",
+        gpsBtn: "드론/RTK GPS 텔레메트리 수신",
+        titleLbl: "토지 소유권 / 영농 허가권 해시",
+        runBtn: "자율 공간 및 위성 레이더 합의 실행",
+        opNav: "🤖 관측성 콘솔로 이동 →",
         polyRule: "⚠️ 폴리곤 다각형 필수 (EUDR 제9조: 4ha 이상)",
         pointRule: "✅ 단일 위경도 좌표 또는 폴리곤 가능 (4ha 미만)",
-        certTitle: "EUDR 공급자 사전 적격성 공인 인증서"
+        certTitle: "자율 에이전트 M2M 공간 레이더 증명"
       },
       fr: {
-        heroTitle: "Portail de Pré-dédouanement EUDR Fournisseur",
-        heroSub: "Générez votre certificat de parcelle agricole vérifiée pour les acheteurs de l'UE selon le règlement (UE) 2023/1115.",
-        sec1: "📝 1. Détails de l'Exploitation et de la Production",
-        sec2: "🗺️ 2. Radar Géodésique & Badge de Conformité",
-        presetLbl: "⚡ Charger un scénario :",
-        nameLbl: "Coopérative / Nom du Producteur",
+        heroTitle: "Passerelle d'Ingestion M2M pour Agents Autonomes",
+        heroSub: "Passerelle machine-à-machine pour drones IoT et agents ERP sous le règlement (UE) 2023/1115.",
+        sec1: "📡 1. Télémétrie Machine & Flux de Parcelles",
+        sec2: "🛰️ 2. Consensus Radar Satellite & Preuve M2M",
+        presetLbl: "🤖 Préconfiguration Nœud Agent :",
+        nameLbl: "Identifiant du Nœud Agent / Producteur",
         commLbl: "Matière Première",
         countryLbl: "Pays d'Origine",
-        areaLbl: "Superficie de Production (Hectares)",
-        gpsBtn: "Utiliser GPS Appareil",
-        titleLbl: "Titre Foncier / Certificat d'Exploitation #",
-        runBtn: "Lancer le Pré-contrôle Satellite et Spatial",
-        opNav: "Console Opérateur →",
+        areaLbl: "Superficie Déclarée (Hectares)",
+        gpsBtn: "Ingérer GPS Drone / RTK",
+        titleLbl: "Hash du Titre Foncier / Droit d'Exploitation",
+        runBtn: "Déclencher le Consensus Spatial et Radar",
+        opNav: "🤖 Console Observabilité →",
         polyRule: "⚠️ Polygone obligatoire (Art. 9: Superficie ≥ 4,0 ha)",
         pointRule: "✅ Point unique ou polygone autorisé (< 4,0 ha)",
-        certTitle: "CERTIFICAT DE PRÉ-CONFORMITÉ EUDR"
+        certTitle: "PREUVE RADAR SPATIAL M2M AUTONOME"
       },
       es: {
-        heroTitle: "Portal de Pre-Autorización EUDR para Proveedores",
-        heroSub: "Genere su Certificado de Parcela Agrícola Verificada para compradores de la UE bajo el Reglamento (UE) 2023/1115.",
-        sec1: "📝 1. Datos de la Finca y Producción",
-        sec2: "🗺️ 2. Radar Geodésico y Distintivo de Conformidad",
-        presetLbl: "⚡ Cargar Escenario:",
-        nameLbl: "Cooperativa / Nombre del Productor",
+        heroTitle: "Pasarela de Ingesta M2M para Agentes Autónomos",
+        heroSub: "Pasarela máquina a máquina para drones IoT y agentes ERP bajo el Reglamento (UE) 2023/1115.",
+        sec1: "📡 1. Telemetría de Máquina y Flujo de Parcelas",
+        sec2: "🛰️ 2. Consenso de Radar Satelital y Prueba M2M",
+        presetLbl: "🤖 Cargar Nodo Agente:",
+        nameLbl: "ID de Nodo de Agente / Productor",
         commLbl: "Materia Prima",
         countryLbl: "País de Origen",
-        areaLbl: "Área de Producción (Hectáreas)",
-        gpsBtn: "Usar GPS del Dispositivo",
-        titleLbl: "Título de Tierra / Certificado de Uso #",
-        runBtn: "Ejecutar Pre-Chequeo Satelital y Espacial",
-        opNav: "Consola de Operador →",
+        areaLbl: "Área Declarada (Hectáreas)",
+        gpsBtn: "Ingerir GPS Drone / RTK",
+        titleLbl: "Hash de Título de Tierra / Derecho de Uso",
+        runBtn: "Disparar Consenso Espacial y de Radar",
+        opNav: "🤖 Consola de Observabilidad →",
         polyRule: "⚠️ Polígono obligatorio (Art. 9: Área ≥ 4,0 ha)",
         pointRule: "✅ Punto único o polígono permitido (< 4,0 ha)",
-        certTitle: "CERTIFICADO DE PRE-CONFORMIDAD EUDR"
+        certTitle: "PRUEBA RADAR ESPACIAL M2M AUTÓNOMO"
       },
       pt: {
-        heroTitle: "Portal de Pré-Liberação EUDR para Fornecedores",
-        heroSub: "Gere seu Certificado de Parcela Agrícola Verificada para compradores da UE sob o Regulamento (UE) 2023/1115.",
-        sec1: "📝 1. Detalhes da Fazenda e Produção",
-        sec2: "🗺️ 2. Radar Geodésico e Selo de Conformidade",
-        presetLbl: "⚡ Carregar Cenário:",
-        nameLbl: "Cooperativa / Nome do Produtor",
+        heroTitle: "Gateway de Ingestão M2M para Agentes Autônomos",
+        heroSub: "Gateway máquina a máquina para drones IoT e agentes ERP sob o Regulamento (UE) 2023/1115.",
+        sec1: "📡 1. Telemetria de Máquina e Fluxo de Parcelas",
+        sec2: "🛰️ 2. Consenso de Radar de Satélite e Prova M2M",
+        presetLbl: "🤖 Carregar Nó Agente:",
+        nameLbl: "ID do Nó do Agente / Produtor",
         commLbl: "Commodity",
         countryLbl: "País de Origem",
-        areaLbl: "Área de Produção (Hectares)",
-        gpsBtn: "Usar GPS do Aparelho",
-        titleLbl: "Título de Terra / Registro CAR #",
-        runBtn: "Executar Pré-Verificação Satelital e Espacial",
-        opNav: "Console do Operador →",
+        areaLbl: "Área Declarada (Hectares)",
+        gpsBtn: "Ingerir GPS Drone / RTK",
+        titleLbl: "Hash de Título de Terra / Registro CAR",
+        runBtn: "Disparar Consenso Espacial e de Radar",
+        opNav: "🤖 Console de Observabilidade →",
         polyRule: "⚠️ Polígono obrigatório (Art. 9: Área ≥ 4,0 ha)",
         pointRule: "✅ Ponto único ou polígono permitido (< 4,0 ha)",
-        certTitle: "CERTIFICADO DE PRÉ-CONFORMIDADE EUDR"
+        certTitle: "PROVA RADAR ESPACIAL M2M AUTÔNOMO"
       },
       vi: {
-        heroTitle: "Cổng Xác Minh Tiền Kiểm EUDR Cho Nhà Cung Ứng",
-        heroSub: "Tạo Chứng Nhận Lô Đất Nông Nghiệp Hợp Chuẩn để xuất khẩu sang EU theo Quy định (EU) 2023/1115.",
-        sec1: "📝 1. Chi Tiết Trang Trại & Sản Xuất",
-        sec2: "🗺️ 2. Radar Vệ Tinh & Huy Hiệu Hợp Chuẩn",
-        presetLbl: "⚡ Nạp nhanh mẫu:",
-        nameLbl: "Tên Hợp Tác Xã / Nông Hộ",
+        heroTitle: "Cổng Nạp Dữ Liệu M2M Dành Cho Agent Tự Hành",
+        heroSub: "Cổng máy-sang-máy phi trạng thái cho thiết bị drone IoT và agent ERP chuỗi cung ứng theo Quy định (EU) 2023/1115.",
+        sec1: "📡 1. Dữ Liệu Đo Đạc Máy & Luồng Lô Đất",
+        sec2: "🛰️ 2. Đồng Thuận Radar Vệ Tinh & Bằng Chứng M2M",
+        presetLbl: "🤖 Nạp nút Agent:",
+        nameLbl: "Mã Định Danh Node Agent / Nhà Sản Xuất",
         commLbl: "Mặt Hàng",
         countryLbl: "Quốc Gia Xuất Xứ",
-        areaLbl: "Diện Tích Canh Tác (Hecta)",
-        gpsBtn: "Lấy Tọa Độ GPS",
-        titleLbl: "Số Giấy Chứng Nhận Quyền Sử Dụng Đất (Sổ Đỏ)",
-        runBtn: "Chạy Tiền Kiểm Tra Vệ Tinh & Không Gian",
-        opNav: "Trang Quản Trị →",
+        areaLbl: "Diện Tích Khai Báo (Hecta)",
+        gpsBtn: "Thu Nhận Tọa Độ Drone / RTK",
+        titleLbl: "Mã Hash Sổ Đỏ / Quyền Sử Dụng Đất",
+        runBtn: "Kích Hoạt Đồng Thuận Không Gian & Vệ Tinh",
+        opNav: "🤖 Bảng Điều Khiển Giám Sát →",
         polyRule: "⚠️ Bắt buộc ranh giới đa giác (EUDR Điều 9: ≥ 4.0 ha)",
         pointRule: "✅ Được dùng 1 điểm tọa độ hoặc đa giác (< 4.0 ha)",
-        certTitle: "CHỨNG NHẬN TIỀN KIỂM EUDR HỢP CHUẨN"
+        certTitle: "BẰNG CHỨNG RADAR KHÔNG GIAN M2M TỰ HÀNH"
       },
       id: {
-        heroTitle: "Portal Pra-Kliring EUDR untuk Pemasok & Pekebun",
-        heroSub: "Hasilkan Sertifikat Plot Kebun Terverifikasi untuk memasok Pembeli Uni Eropa di bawah Regulasi (EU) 2023/1115.",
-        sec1: "📝 1. Rincian Kebun & Produksi",
-        sec2: "🗺️ 2. Radar Geodesik & Lencana Kepatuhan",
-        presetLbl: "⚡ Muat Preset:",
-        nameLbl: "Nama Koperasi / Petani Produsen",
+        heroTitle: "Gateway Ingesti M2M untuk Agen Otonom",
+        heroSub: "Gateway mesin-ke-mesin tanpa status untuk drone IoT dan agen ERP di bawah Regulasi (EU) 2023/1115.",
+        sec1: "📡 1. Telemetri Mesin & Aliran Plot Produksi",
+        sec2: "🛰️ 2. Konsensus Radar Satelit & Bukti M2M",
+        presetLbl: "🤖 Muat Node Agen:",
+        nameLbl: "ID Node Agen / Produsen Otonom",
         commLbl: "Komoditas",
         countryLbl: "Negara Asal",
-        areaLbl: "Luas Area Produksi (Hektar)",
-        gpsBtn: "Pakai GPS Perangkat",
-        titleLbl: "Nomor Sertifikat Tanah / HGU / STDB",
-        runBtn: "Jalankan Pra-Pemeriksaan Satelit & Spasial",
-        opNav: "Konsol Operator →",
+        areaLbl: "Luas Area Deklarasi (Hektar)",
+        gpsBtn: "Ingest GPS Drone / RTK",
+        titleLbl: "Hash Sertifikat Tanah / HGU / STDB",
+        runBtn: "Picu Konsensus Spasial & Radar Otonom",
+        opNav: "🤖 Konsol Observabilitas →",
         polyRule: "⚠️ Batas Poligon Wajib (EUDR Pasal 9: Luas ≥ 4,0 ha)",
         pointRule: "✅ Titik Tunggal atau Poligon Diizinkan (< 4,0 ha)",
-        certTitle: "SERTIFIKAT PRA-KLIRING RESMI EUDR"
+        certTitle: "BUKTI RADAR SPASIAL M2M OTONOM"
       }
     };
 
     const SUP_PRESETS = {
       vietnam: {
-        name: "Da Lat Arabica Smallholder Farmers Group",
+        name: "agent-dalat-iot-node-8821",
         commodity: "COFFEE",
         country: "VN",
         area: 12.5,
@@ -635,10 +647,10 @@
           [11.9435, 108.4380],
           [11.9400, 108.4380]
         ],
-        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-VN-8821"
+        certId: "PROOF-M2M-EUDR-2026-VN-8821"
       },
       indonesia: {
-        name: "Riau Sustainable Palm Oil Smallholder Coop",
+        name: "agent-riau-oil-palm-node-4412",
         commodity: "OIL_PALM",
         country: "ID",
         area: 28.4,
@@ -651,10 +663,10 @@
           [0.525, 101.440],
           [0.540, 101.440]
         ],
-        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-ID-4412"
+        certId: "PROOF-M2M-EUDR-2026-ID-4412"
       },
       brazil: {
-        name: "Pará Certified Sustainable Forestry Cooperative",
+        name: "agent-para-forestry-node-1109",
         commodity: "WOOD",
         country: "BR",
         area: 84.0,
@@ -667,10 +679,10 @@
           [-3.425, -52.220],
           [-3.410, -52.220]
         ],
-        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-BR-1109"
+        certId: "PROOF-M2M-EUDR-2026-BR-1109"
       },
       ivorycoast: {
-        name: "San Pedro Cocoa Producer Union",
+        name: "agent-sanpedro-cocoa-node-3382",
         commodity: "COCOA",
         country: "CI",
         area: 3.8,
@@ -683,7 +695,7 @@
           [4.745, -6.640],
           [4.752, -6.640]
         ],
-        certId: "SUPPLIER-VERIFIED-PASS-EUDR-2026-CI-3382"
+        certId: "PROOF-M2M-EUDR-2026-CI-3382"
       }
     };
 
@@ -724,13 +736,13 @@
 
     function acquireDeviceGPS() {
       if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser/device.");
+        alert("Telemetry positioning receiver not supported by browser/device environment.");
         return;
       }
       
       const btn = document.querySelector('.btn-gps');
       const originalText = btn.innerHTML;
-      btn.innerHTML = "⏳ Acquiring GPS...";
+      btn.innerHTML = "⏳ Ingesting Drone / RTK Telemetry...";
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -745,7 +757,7 @@
             if (currentPoly) supMap.removeLayer(currentPoly);
 
             currentMarker = L.marker([lat, lng]).addTo(supMap)
-              .bindPopup(`📍 <strong>Your GPS Farm Location</strong><br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}<br>Accuracy: ±${accuracy}m`)
+              .bindPopup(`📍 <strong>RTK Drone Centroid Telemetry</strong><br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}<br>Accuracy: ±${accuracy}m`)
               .openPopup();
 
             // Approximate 5ha polygon around device point for instant EUDR demonstration
@@ -764,13 +776,13 @@
             }).addTo(supMap);
           }
 
-          document.getElementById('sup-name').value += " (Field GPS)";
-          document.getElementById('badge-cert-id').textContent = `SUPPLIER-VERIFIED-GPS-${lat.toFixed(3)}_${lng.toFixed(3)}`;
-          alert(`📍 GPS Coordinates Acquired Successfully!\nLatitude: ${lat.toFixed(6)}\nLongitude: ${lng.toFixed(6)}\nAccuracy: ±${accuracy} meters`);
+          document.getElementById('sup-name').value = `agent-rtk-node-${lat.toFixed(3)}_${lng.toFixed(3)}`;
+          document.getElementById('badge-cert-id').textContent = `PROOF-M2M-GPS-${lat.toFixed(3)}_${lng.toFixed(3)}`;
+          alert(`📡 RTK GPS Telemetry Ingested Successfully!\nLatitude: ${lat.toFixed(6)}\nLongitude: ${lng.toFixed(6)}\nAccuracy: ±${accuracy} meters`);
         },
         (err) => {
           btn.innerHTML = originalText;
-          alert(`GPS Acquisition Error: ${err.message}`);
+          alert(`Telemetry Ingestion Error: ${err.message}`);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
@@ -788,7 +800,7 @@
         const lng = e.latlng.lng;
         if (currentMarker) supMap.removeLayer(currentMarker);
         currentMarker = L.marker([lat, lng]).addTo(supMap)
-          .bindPopup(`Farm Centroid: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+          .bindPopup(`Telemetry Centroid: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
           .openPopup();
       });
 
@@ -844,12 +856,32 @@
       badge.scrollIntoView({ behavior: 'smooth' });
     }
 
+    function copyM2mProofHash() {
+      const hash = document.getElementById('badge-cert-hash').textContent.trim();
+      const certId = document.getElementById('badge-cert-id').textContent.trim();
+      const nodeName = document.getElementById('sup-name').value;
+      const proofStr = JSON.stringify({
+        proof_id: certId,
+        node_id: nodeName,
+        hash: hash,
+        license: "AS-IS",
+        statutory_nature: "Stateless Algorithmic Heuristic Reference",
+        disclaimer_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        timestamp: new Date().toISOString()
+      }, null, 2);
+      navigator.clipboard.writeText(proofStr).then(() => {
+        alert("📋 Machine Telemetry Proof Copied to Clipboard!");
+      }).catch(err => {
+        alert("Failed to copy: " + err);
+      });
+    }
+
     function downloadCertificate() {
       const cert = {
-        certificate_type: "EUDR_SUPPLIER_PRE_CLEARANCE",
+        certificate_type: "EUDR_M2M_SPATIAL_RADAR_PROOF",
         regulation_reference: "Regulation (EU) 2023/1115",
-        certificate_id: document.getElementById('badge-cert-id').textContent.trim(),
-        producer_name: document.getElementById('sup-name').value,
+        proof_id: document.getElementById('badge-cert-id').textContent.trim(),
+        node_id: document.getElementById('sup-name').value,
         commodity: document.getElementById('sup-commodity').value,
         country: document.getElementById('sup-country').value,
         declared_area_ha: parseFloat(document.getElementById('sup-area').value),
@@ -865,6 +897,12 @@
           status: "PASSED"
         },
         land_title_ref: document.getElementById('sup-title').value,
+        meta: {
+          license: "AS-IS",
+          warranty: "NONE - Stateless Algorithmic Heuristic Calculator",
+          disclaimer_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          statutory_caution: "DO NOT use as an official regulatory legal filing without independent manual verification."
+        },
         verified_at: new Date().toISOString()
       };
 
@@ -872,7 +910,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `EUDR_Supplier_Certificate_${Date.now()}.json`;
+      a.download = `EUDR_M2M_Telemetry_Proof_${Date.now()}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -884,5 +922,11 @@
       updateArt9RuleTag(document.getElementById('sup-area').value);
     });
   </script>
+
+  <!-- 5-Pillar Zero-Liability Safe Harbor Legal Disclaimer Banner -->
+  <div style="margin: 30px auto 10px; max-width: 1100px; padding: 14px 20px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; font-size: 0.73rem; color: #94a3b8; line-height: 1.55;">
+    ⚖️ <strong>Autonomous Agent Zero-Liability Safe Harbor &amp; AS-IS Disclaimer:</strong>
+    EUDR.agent operates strictly as an autonomous algorithmic data reference engine and stateless heuristic calculator converting public satellite telemetry (Copernicus Sentinel-2, Hansen GFC) and supplier geometries into computational indicators. Outputs DO NOT constitute official legal, regulatory, or certified customs clearance under Regulation (EU) 2023/1115. Services and computational outputs are provided strictly <em>"AS IS"</em>, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Operators, traders, and autonomous client agents assume full commercial, customs, and regulatory responsibility for independent verification before formal TRACES-NT submission.
+  </div>
 </body>
 </html>

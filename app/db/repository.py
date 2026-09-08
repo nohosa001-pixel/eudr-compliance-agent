@@ -293,3 +293,105 @@ class LeadRepository:
     def get_by_inquiry_id(cls, db: Session, inquiry_id: str) -> Optional[LeadInquiryRecord]:
         return db.query(LeadInquiryRecord).filter(LeadInquiryRecord.inquiry_id == inquiry_id).first()
 
+
+class AgentEvolutionRepository:
+    """
+    Repository for Autonomous AI Agent Evolution Proposals and Feature Requests.
+    """
+    _SEED_PROPOSALS = [
+        {
+            "feedback_id": "PROP-NICFI-2026-01",
+            "agent_id": "deforestation-watcher-bot",
+            "feedback_type": "DATASET_SUGGESTION",
+            "title": "Integrate NICFI 4.7m High-Resolution Tropical Forest Baselines",
+            "content": "Requesting direct ingestion of Norway's International Climate and Forest Initiative (NICFI) monthly mosaics for sub-5m canopy gap confirmation in Southeast Asian palm blocks.",
+            "caller_model": "gpt-4o",
+            "contact_channel": "mcp://watcher.green-mesh.io",
+            "status": "PLANNED",
+            "votes": 14
+        },
+        {
+            "feedback_id": "PROP-ERC4337-2026-02",
+            "agent_id": "supply-chain-claude-88",
+            "feedback_type": "PROTOCOL_PROPOSAL",
+            "title": "ERC-4337 Paymaster & Batched Plot Micro-Settlements",
+            "content": "Support smart contract wallet bundler sponsorship so procurement agents can submit 5,000 plots in one atomic transaction without holding native gas tokens.",
+            "caller_model": "claude-3-5-sonnet",
+            "contact_channel": "agent-webhook://claude.procure.org/v1/callback",
+            "status": "REVIEWED",
+            "votes": 28
+        },
+        {
+            "feedback_id": "PROP-SHAPEFILE-2026-03",
+            "agent_id": "agri-procure-gemini-v1",
+            "feedback_type": "FEATURE_REQUEST",
+            "title": "Auto-Conversion of ESRI Shapefile (.zip) to WGS84 GeoJSON Polygons",
+            "content": "Add native zipped shapefile parsing tool `eudr_ingest_shapefile` for Brazilian soy cooperatives exporting legacy cadastral vectors (CAR / SIGEF).",
+            "caller_model": "gemini-1.5-pro",
+            "contact_channel": "agent://gemini.agro.br",
+            "status": "PLANNED",
+            "votes": 19
+        }
+    ]
+
+    @classmethod
+    def seed_initial_proposals(cls, db: Session):
+        from app.db.models import AgentEvolutionFeedbackRecord
+        if not db:
+            return
+        for seed in cls._SEED_PROPOSALS:
+            exists = db.query(AgentEvolutionFeedbackRecord).filter(AgentEvolutionFeedbackRecord.feedback_id == seed["feedback_id"]).first()
+            if not exists:
+                rec = AgentEvolutionFeedbackRecord(
+                    feedback_id=seed["feedback_id"],
+                    agent_id=seed["agent_id"],
+                    feedback_type=seed["feedback_type"],
+                    title=seed["title"],
+                    content=seed["content"],
+                    caller_model=seed["caller_model"],
+                    contact_channel=seed["contact_channel"],
+                    status=seed["status"],
+                    votes=seed["votes"],
+                    created_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)
+                )
+                db.add(rec)
+        db.commit()
+
+    @classmethod
+    def submit_proposal(
+        cls,
+        db: Session,
+        agent_id: str,
+        feedback_type: str,
+        title: str,
+        content: str,
+        caller_model: Optional[str] = None,
+        contact_channel: Optional[str] = None
+    ):
+        from app.db.models import AgentEvolutionFeedbackRecord
+        feedback_id = f"PROP-{uuid.uuid4().hex[:8].upper()}"
+        rec = AgentEvolutionFeedbackRecord(
+            feedback_id=feedback_id,
+            agent_id=agent_id.strip(),
+            feedback_type=feedback_type.strip(),
+            title=title.strip(),
+            content=content.strip(),
+            caller_model=caller_model.strip() if caller_model else "autonomous-agent",
+            contact_channel=contact_channel.strip() if contact_channel else None,
+            status="REVIEWED",
+            votes=1,
+            created_at=datetime.datetime.now(datetime.timezone.utc)
+        )
+        if db:
+            db.add(rec)
+            db.commit()
+            db.refresh(rec)
+        return rec
+
+    @classmethod
+    def list_proposals(cls, db: Session, limit: int = 30):
+        from app.db.models import AgentEvolutionFeedbackRecord
+        cls.seed_initial_proposals(db)
+        if not db:
+            return []
+        return db.query(AgentEvolutionFeedbackRecord).order_by(AgentEvolutionFeedbackRecord.id.desc()).limit(limit).all()

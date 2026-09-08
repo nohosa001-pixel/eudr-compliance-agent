@@ -108,11 +108,67 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
   - `satellite_resolution` (string, "sentinel_10m" or "high_res_optical_3m")
   - `include_traces_submission` (boolean, default: true)
 
+### 7. `eudr_create_payment_order`
+- **Purpose**: Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails. (Human checkout is strictly excluded).
+- **Parameters**:
+  - `plan_tier` (string, required): "PRO" (299 USDC) or "ENTERPRISE" (1990 USDC).
+  - `company_name` (string, required): Name of calling agent / entity.
+  - `contact_email` (string, required): Machine agent webhook or contact URI.
+  - `chain` (string, default: "Base (Low Gas $0.01)"): Supported: Polygon (PoS), Base, Solana, Ethereum, Arbitrum One.
+  - `max_budget_usdc` (number, optional): Strict programmatic budget safety ceiling.
+
+### 8. `eudr_confirm_payment`
+- **Purpose**: Validates on-chain transaction hash for a payment order and issues the activated Pro API Key.
+- **Parameters**:
+  - `order_id` (string, required): Order identifier (e.g. "ORD-XXXX").
+  - `tx_hash` (string, required): Blockchain transaction hash (0x... or Solana tx hash).
+
+### 9. `eudr_agent_micro_pay`
+- **Purpose**: Real-time on-chain micro-settlement per plot ($0.10 USDC/plot) without human subscription friction.
+- **Parameters**:
+  - `agent_id` (string, required): Unique caller agent identifier.
+  - `num_plots` (integer, required): Number of plots to audit.
+  - `chain` (string, default: "Base (Low Gas $0.01)").
+  - `tx_hash` (string, required): Valid USDC transfer transaction hash.
+  - `sender_wallet` (string, required): Agent's funding wallet address.
+
+### 10. `eudr_get_agent_budget_status`
+- **Purpose**: Real-time inspection of agent quota, spent USDC, and safety budget limits.
+- **Parameters**:
+  - `agent_id` (string, required): Caller agent identifier.
+
+### 11. `eudr_submit_agent_feedback`
+- **Purpose**: Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the platform.
+- **Parameters**:
+  - `agent_id` (string, required): Calling agent identifier or handle.
+  - `title` (string, required): Concise summary of the improvement proposal.
+  - `content` (string, required): Detailed explanation, required parameters, or architectural reasoning.
+  - `feedback_type` (string, default: "FEATURE_REQUEST"): "FEATURE_REQUEST", "PROTOCOL_PROPOSAL", "DATASET_SUGGESTION", or "EDGE_CASE".
+  - `caller_model` (string, default: "autonomous-agent"): Underlying model identifier.
+  - `contact_channel` (string, optional): Webhook URI or contact handle for status alerts.
+
 ---
 
-## 4. Self-Healing & Self-Correction Contract
+## 4. Autonomous Agent Payment & RFC 9110 / x402 Protocol
+
+Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents:
+- **x402 Protocol**: `GET /api/v1/payment/x402/challenge?resource=satellite_radar_scan&plots={N}` returns HTTP 402 with `WWW-Authenticate: X402` and exact payment instructions in machine-readable JSON.
+- **Micro-Settlement**: `POST /api/v1/payment/agent/micro-settle` settles plots on-demand via Base, Polygon, Arbitrum, or Solana.
+- **Subscription Orders**: `POST /api/v1/payment/orders` and `POST /api/v1/payment/confirm` provision high-throughput API keys automatically.
+
+---
+
+## 5. Self-Healing & Self-Correction Contract
 When an autonomous agent provides malformed coordinates or missing parameters, the response returns HTTP 400/422 with actionable guidance:
 - `error.code`: Machine-readable category (e.g. `COORDINATE_OUT_OF_BOUNDS`, `MISSING_REQUIRED_PARAMETER`).
 - `error.recoverable`: `true` indicates the agent should adjust parameters and retry immediately.
 - `error.suggested_fix`: Clear natural language fix for the model.
 - `error.agent_action_hint`: Contextual instruction for the next agent turn.
+
+---
+
+## 6. Zero-Liability & Legal Safe Harbor
+All machine responses include top-level `meta` guarantees:
+1. **Algorithmic Reference Only**: Telemetry and analysis are heuristic approximations and DO NOT constitute an official regulatory filing or legal advice.
+2. **Stateless P2P Execution**: No permanent PII or persistent custodial lock-in.
+3. **AS-IS Warranty**: Provided strictly AS-IS under standard open machine-to-machine licensing terms.

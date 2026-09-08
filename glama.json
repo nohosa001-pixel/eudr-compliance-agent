@@ -70,6 +70,30 @@
     {
       "name": "eudr_confirm_payment",
       "description": "Validates on-chain transaction hash for a payment order and issues the activated Pro API Key."
+    },
+    {
+      "name": "eudr_agent_micro_pay",
+      "description": "Executes autonomous real-time on-chain USDC micro-settlement per plot or batch. Human checkout is excluded."
+    },
+    {
+      "name": "eudr_get_agent_budget_status",
+      "description": "Queries live plot quota, spent USDC, and autonomous safety budget status for the calling agent."
+    },
+    {
+      "name": "eudr_export_traces_xml",
+      "description": "Exports production-grade TRACES-NT XML file for direct customs submission."
+    },
+    {
+      "name": "eudr_generate_customs_certificate",
+      "description": "Generates a verifiable customs clearance certificate hash and verification URL."
+    },
+    {
+      "name": "eudr_send_telegram_alert",
+      "description": "Dispatches real-time compliance status alert or audit result notification to Telegram."
+    },
+    {
+      "name": "eudr_submit_agent_feedback",
+      "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine."
     }
   ],
   "prompts": [

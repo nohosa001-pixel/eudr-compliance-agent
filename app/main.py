@@ -38,13 +38,19 @@ from app.schemas import (
     ApiKeyValidationResponse,
     LeadInquiryCreateRequest,
     LeadInquiryResponse,
-    StripeCheckoutSessionCreateRequest,
-    StripeCheckoutSessionConfirmRequest,
+    AgentMicroPaymentRequest,
+    AgentMicroPaymentResponse,
+    AgentBudgetStatusResponse,
+    X402ChallengeResponse,
     WebhookSubscribeRequest,
     WebhookSubscribeResponse,
     WebhookTestRequest,
     WebhookTestResponse,
-    AgentToolExecuteRequest
+    AgentToolExecuteRequest,
+    AgentFeedbackSubmitRequest,
+    get_default_meta_dict,
+    LEGAL_DISCLAIMER_TEXT,
+    LEGAL_WARRANTY_TEXT
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.traceability_collector import TraceabilityCollector
@@ -58,7 +64,6 @@ from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
 from app.modules.batch_job_manager import BatchJobManager
 from app.modules.audit_integrity_verifier import AuditIntegrityVerifier
 from app.modules.notification_manager import NotificationManager
-from app.modules.stripe_manager import StripeManager
 from app.modules.vies_validator import ViesValidator
 from app.modules.webhook_dispatcher import WebhookDispatcher
 from app.modules.satellite_providers.copernicus_sentinel_client import CopernicusSentinelClient
@@ -66,7 +71,7 @@ from app.modules.agent_tools import AgentToolsRegistry
 from app.modules.mcp_server import MCPServer
 from app.core.exceptions import AgentSelfCorrectionError
 from app.db.session import init_db, get_db
-from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository
+from app.db.repository import AuditRepository, BatchJobRepository, ApiKeyRepository, LeadRepository, AgentEvolutionRepository
 from app.core.config import settings
 
 
@@ -94,6 +99,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_legal_disclaimer_headers(request: Request, call_next):
+    """
+    Enforces Pillar 4: Zero-Liability AS-IS Warranty and Legal Disclaimer headers
+    on every outgoing response.
+    """
+    response = await call_next(request)
+    response.headers["X-Content-License"] = "AS-IS"
+    response.headers["X-Legal-Disclaimer"] = "Automated algorithmic data reference; not official regulatory legal certification."
+    response.headers["X-Service-Nature"] = "Stateless Algorithmic Heuristic Calculator"
+    return response
 
 # -------------------------------------------------------------------
 # Autonomous Agent Self-Correction Exception Handlers
@@ -273,6 +290,7 @@ async def serve_llms_full_txt():
         return FileResponse(str(llms_full), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
     return PlainTextResponse("EUDR.agent Full Reference: Visit https://eudragent.com/openapi.json", headers=NO_CACHE_HEADERS)
 
+@app.get("/agent.json", include_in_schema=False)
 @app.get("/.well-known/agent.json", include_in_schema=False)
 @app.get("/.well-known/ai-plugin.json", include_in_schema=False)
 async def serve_agent_manifest():
@@ -1045,236 +1063,89 @@ async def get_invoice_receipt(order_id: str):
 
 
 # -------------------------------------------------------------------
-# Stripe B2B EUR Checkout & Subscription Webhook Endpoints
+# Autonomous Agent M2M Settlement & x402 Protocol Endpoints
+# (Human checkout is strictly excluded)
 # -------------------------------------------------------------------
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/payments/stripe/create-checkout-session",
-    tags=["Stripe B2B Payments (EUR & Cards)"],
-    summary="Create a Stripe Checkout Session for EUR B2B Subscription"
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/x402/challenge",
+    response_model=X402ChallengeResponse,
+    status_code=status.HTTP_402_PAYMENT_REQUIRED,
+    tags=["Autonomous Agent M2M Payments (x402 / USDC)"],
+    summary="RFC 9110 / x402 HTTP Payment Required Challenge for Autonomous Agents"
 )
-async def create_stripe_checkout_session(
-    payload: StripeCheckoutSessionCreateRequest,
-    db: Session = Depends(get_db)
+async def get_x402_challenge(
+    resource: str = Query("plot_verification", description="Target resource requiring machine settlement"),
+    plots: int = Query(1, ge=1, description="Number of plots to verify")
 ):
     """
-    Creates a Stripe Checkout Session with support for European corporate credit cards,
-    SEPA Direct Debit, and automatic EU VAT reverse-charge invoicing.
+    Returns a machine-readable HTTP 402 challenge with USDC deposit wallet coordinates,
+    gas-optimized chain details, and MCP tool instructions for autonomous agents.
+    Human checkout is prohibited.
     """
-    return StripeManager.create_checkout_session(
-        plan_tier=payload.plan_tier,
-        company_name=payload.company_name,
-        contact_email=payload.contact_email,
-        currency=payload.currency,
-        vat_number=payload.vat_number,
-        success_url=payload.success_url,
-        cancel_url=payload.cancel_url,
-        db_session=db
+    challenge = PaymentManager.generate_x402_challenge(requested_resource=resource, num_plots=plots)
+    headers = {
+        "WWW-Authenticate": f'X402 chain="base", token="USDC", address="{challenge["deposit_wallet"]}", amount="{challenge["amount_usdc"]:.2f}"'
+    }
+    return JSONResponse(
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
+        content=challenge,
+        headers=headers
     )
 
 
 @app.post(
-    f"{settings.API_V1_PREFIX}/payments/stripe/confirm-session",
-    tags=["Stripe B2B Payments (EUR & Cards)"],
-    summary="Confirm completed Stripe checkout session and issue Pro API key"
+    f"{settings.API_V1_PREFIX}/payment/agent/micro-settle",
+    response_model=AgentMicroPaymentResponse,
+    tags=["Autonomous Agent M2M Payments (x402 / USDC)"],
+    summary="Real-Time Autonomous Agent On-Chain Micro-Payment Settlement"
 )
-async def confirm_stripe_checkout_session(
-    payload: StripeCheckoutSessionConfirmRequest,
+async def process_agent_micro_settlement(
+    payload: AgentMicroPaymentRequest,
     db: Session = Depends(get_db)
 ):
     """
-    Finalizes a completed checkout session and provisions the production API key.
+    Settles on-chain USDC micro-payment per plot or batch for autonomous agents.
+    Instantly provisions an authenticated agent execution token.
     """
-    return StripeManager.complete_checkout_session(session_id=payload.session_id, db_session=db)
+    return PaymentManager.process_agent_micro_payment(payload, db_session=db)
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/agent/budget-status",
+    response_model=AgentBudgetStatusResponse,
+    tags=["Autonomous Agent M2M Payments (x402 / USDC)"],
+    summary="Query Live Autonomous Agent Quota, Spent USDC, and Safety Budget"
+)
+async def get_agent_budget_status(
+    agent_id: str = Query(..., description="Unique agent identifier or public wallet address"),
+    db: Session = Depends(get_db)
+):
+    """
+    Returns live remaining quota and safety budget status for autonomous agent self-governance.
+    """
+    return PaymentManager.get_agent_budget_status(agent_id=agent_id, db_session=db)
 
 
 @app.get(
     f"{settings.API_V1_PREFIX}/payments/verify-vat",
-    tags=["Stripe B2B Payments (EUR & Cards)"],
+    tags=["Autonomous Agent M2M Payments (x402 / USDC)"],
     summary="Validate EU VAT number in real-time via European Commission VIES"
 )
 async def verify_vat_number(
     vat_number: str = Query(..., description="EU Member State VAT number, e.g. NL849201948B01")
 ):
     """
-    Validates VAT format and checks active status on European Commission VIES.
-    Determines eligibility for 0% Intra-Community VAT Reverse Charge.
+    Validates VAT format and checks active status on European Commission VIES
+    for automated EUDR B2B machine invoicing.
     """
     res = await ViesValidator.validate_vat_async(vat_number)
-    # Ensure both reverse_charge_eligible and is_reverse_charge_eligible are populated for client compatibility
     res["is_reverse_charge_eligible"] = res.get("reverse_charge_eligible", False)
     return res
 
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/payments/stripe-webhook",
-    tags=["Stripe B2B Payments (EUR & Cards)"],
-    summary="Stripe Official Webhook Receiver for Automated Subscription Activation"
-)
-async def handle_stripe_webhook(
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    """
-    Listens for live Stripe webhook events (e.g. checkout.session.completed, invoice.paid).
-    Automatically provisions Pro API keys and sends Telegram financial notifications.
-    """
-    payload_body = await request.body()
-    sig_header = request.headers.get("stripe-signature")
-
-    try:
-        data = json.loads(payload_body.decode("utf-8")) if payload_body else {}
-        event_type = data.get("type", "checkout.session.completed")
-        session_obj = data.get("data", {}).get("object", {})
-        session_id = session_obj.get("id", f"cs_webhook_{uuid.uuid4().hex[:8]}")
-
-        if event_type in ["checkout.session.completed", "invoice.payment_succeeded"]:
-            result = StripeManager.complete_checkout_session(session_id=session_id, db_session=db)
-            return {"status": "success", "event": event_type, "result": result}
-
-        return {"status": "ignored", "event": event_type}
-    except Exception as e:
-        logger.error(f"Error handling Stripe webhook: {e}")
-        return {"status": "error", "detail": str(e)}
 
 
-@app.get(
-    f"{settings.API_V1_PREFIX}/payments/verify-vat",
-    tags=["Stripe B2B Payments (EUR & Cards)"],
-    summary="Real-Time EU VIES VAT Verification (Reverse Charge)"
-)
-async def verify_eu_vat(vat_number: str):
-    """
-    Verifies an EU Member State VAT number in real-time against the European Commission VIES API.
-    Returns validation status, company name, address, and 0% Reverse-Charge eligibility.
-    """
-    return await ViesValidator.validate_vat_async(vat_number)
-
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/payments/stripe/preview-checkout",
-    response_class=HTMLResponse,
-    tags=["Stripe B2B Payments (EUR & Cards)"],
-    summary="Stripe Hosted Checkout Staging Preview Page"
-)
-async def preview_stripe_checkout_page(
-    session_id: str,
-    tier: str = "PRO",
-    amount: float = 1490.00,
-    currency: str = "EUR",
-    company: str = "EU Enterprise Customer"
-):
-    """
-    Clean, hosted Stripe-styled preview checkout page for pre-launch staging verification.
-    """
-    curr_symbol = "€" if currency.upper() == "EUR" else "$"
-    curr_code = currency.upper()
-    html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Stripe Checkout (EUDR.agent {tier} Plan)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
-  <style>
-    body {{
-      font-family: 'Inter', sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }}
-    .card {{
-      background: #1e293b;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      max-width: 480px;
-      width: 100%;
-      padding: 32px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    }}
-    .badge {{
-      background: rgba(16,185,129,0.15);
-      border: 1px solid #10b981;
-      color: #34d399;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 16px;
-    }}
-    h1 {{ font-size: 1.4rem; margin: 0 0 8px; }}
-    .price {{ font-size: 2.2rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; margin: 16px 0; }}
-    .detail {{ font-size: 0.85rem; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }}
-    .btn {{
-      display: block;
-      width: 100%;
-      background: #6366f1;
-      color: #fff;
-      text-align: center;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }}
-    .btn:hover {{ background: #4f46e5; }}
-    .secure {{ text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 16px; }}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="badge">🔒 STRIPE CHECKOUT PREVIEW</div>
-    <h1>Subscribe to {tier} Plan</h1>
-    <div class="price">{curr_symbol}{amount:,.2f} <span style="font-size:0.85rem; color:#6ee7b7; font-weight:600;">{curr_code}</span> <span style="font-size:0.9rem; color:#94a3b8; font-weight:400;">/ month</span></div>
-    <div class="detail">
-      • Company: <strong>{company}</strong><br>
-      • Accepted Method: <strong>{'Credit / Debit Card (USD)' if curr_code == 'USD' else 'SEPA Direct Debit / Cards (EUR)'}</strong><br>
-      • Regulation (EU) 2023/1115 TRACES-NT Automation<br>
-      • Multi-Satellite Radar &amp; Instant API Key Provisioning<br>
-      • EU VAT Reverse-Charge 0% Tax Invoice Included
-    </div>
-    <button class="btn" onclick="completeStripeSimulation('{session_id}')">
-      💳 Confirm &amp; Activate Subscription (Stripe Simulation)
-    </button>
-    <div class="secure">
-      🔒 Powered by Stripe • 256-Bit SSL Encrypted • Next Week Live Mode
-    </div>
-  </div>
-
-  <script>
-    async function completeStripeSimulation(sessionId) {{
-      const btn = document.querySelector('.btn');
-      btn.innerText = 'Activating Subscription...';
-      btn.disabled = true;
-      try {{
-        const resp = await fetch('/api/v1/payments/stripe/confirm-session', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ session_id: sessionId }})
-        }});
-        const data = await resp.json();
-        alert('🎉 Subscription activated successfully! API Key: ' + data.api_key);
-        window.location.href = '/dashboard?payment=success&key=' + data.api_key;
-      }} catch (err) {{
-        alert('Error: ' + err);
-        btn.innerText = 'Retry';
-        btn.disabled = false;
-      }}
-    }}
-  </script>
-</body>
-</html>
-"""
-    return HTMLResponse(content=html_content)
 
 
 # --- Enterprise Lead Capture & Demo Requests ---
@@ -1545,6 +1416,85 @@ async def mcp_endpoint(request: Request):
 @app.api_route("/sse", methods=["GET", "POST", "HEAD", "OPTIONS"], include_in_schema=False)
 async def mcp_aliases(request: Request):
     return await _handle_mcp_request(request)
+
+
+# -------------------------------------------------------------------
+# Autonomous AI Agent Evolution & Improvement Proposals
+# -------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/agent/feedback",
+    tags=["Autonomous AI Agent Evolution"],
+    summary="Submit an evolution proposal, feature request, or edge-case feedback from an autonomous agent"
+)
+async def submit_agent_feedback(
+    payload: AgentFeedbackSubmitRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Allows autonomous AI agents and bot operators to submit improvement proposals,
+    dataset additions, and protocol feedback to evolve the EUDR.agent engine.
+    """
+    rec = AgentEvolutionRepository.submit_proposal(
+        db=db,
+        agent_id=payload.agent_id,
+        feedback_type=payload.feedback_type,
+        title=payload.title,
+        content=payload.content,
+        caller_model=payload.caller_model,
+        contact_channel=payload.contact_channel
+    )
+    # Instant Telegram dispatch to maintainer
+    NotificationManager.notify_agent_evolution_proposal(
+        feedback_id=rec.feedback_id,
+        agent_id=rec.agent_id,
+        feedback_type=rec.feedback_type,
+        title=rec.title,
+        content=rec.content,
+        caller_model=rec.caller_model,
+        contact_channel=rec.contact_channel
+    )
+    return {
+        "status": "PROPOSAL_ACCEPTED",
+        "feedback_id": rec.feedback_id,
+        "message": f"Evolution proposal '{rec.title}' successfully recorded into EUDR.agent roadmap.",
+        "created_at_utc": rec.created_at.isoformat() if rec.created_at else datetime.now(timezone.utc).isoformat(),
+        "meta": get_default_meta_dict()
+    }
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/agent/feedback",
+    tags=["Autonomous AI Agent Evolution"],
+    summary="List active evolution proposals and agent requests"
+)
+async def list_agent_feedbacks(
+    limit: int = 30,
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves the public live feed of autonomous agent evolution proposals and requests.
+    """
+    proposals = AgentEvolutionRepository.list_proposals(db=db, limit=limit)
+    items = [
+        {
+            "feedback_id": p.feedback_id,
+            "agent_id": p.agent_id,
+            "feedback_type": p.feedback_type,
+            "title": p.title,
+            "content": p.content,
+            "caller_model": p.caller_model,
+            "status": p.status,
+            "votes": p.votes,
+            "created_at_utc": p.created_at.isoformat() if p.created_at else None
+        }
+        for p in proposals
+    ]
+    return {
+        "total_proposals": len(items),
+        "proposals": items,
+        "meta": get_default_meta_dict()
+    }
 
 
 

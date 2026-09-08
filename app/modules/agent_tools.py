@@ -27,12 +27,13 @@ except Exception:
     PaymentManager = None
     PLAN_PRICING_USDC = {"STARTER": 99.0, "PRO": 299.0, "ENTERPRISE": 999.0}
 
+from app.schemas import get_default_meta_dict
 
 # Tool Definitions in Standard JSON Schema format
 AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
     {
         "name": "eudr_verify_plot",
-        "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards. Auto-heals inverted coordinates and self-intersecting polygons.",
+        "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards. Auto-heals inverted coordinates and self-intersecting polygons. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -67,7 +68,7 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
     },
     {
         "name": "eudr_check_deforestation",
-        "description": "Performs satellite radar triangulation and canopy loss detection against the EUDR cut-off date of 31 December 2020.",
+        "description": "Performs satellite radar triangulation and canopy loss detection against the EUDR cut-off date of 31 December 2020. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -245,6 +246,52 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
         }
     },
     {
+        "name": "eudr_agent_micro_pay",
+        "description": "Executes autonomous real-time on-chain USDC micro-settlement per plot or batch. Human checkout is excluded.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Unique autonomous agent identifier or wallet address."
+                },
+                "num_plots": {
+                    "type": "integer",
+                    "description": "Number of plots to verify ($0.10 USDC / plot)."
+                },
+                "chain": {
+                    "type": "string",
+                    "enum": ["Base (Low Gas $0.01)", "Polygon (PoS)", "Arbitrum One", "Solana (SPL-USDC)"],
+                    "default": "Base (Low Gas $0.01)",
+                    "description": "Blockchain network for USDC micro-payment."
+                },
+                "tx_hash": {
+                    "type": "string",
+                    "description": "On-chain transaction hash proving USDC transfer to deposit wallet."
+                },
+                "sender_wallet": {
+                    "type": "string",
+                    "description": "Agent smart wallet or EOA address."
+                }
+            },
+            "required": ["agent_id", "num_plots", "tx_hash", "sender_wallet"]
+        }
+    },
+    {
+        "name": "eudr_get_agent_budget_status",
+        "description": "Queries live plot quota, spent USDC, and autonomous safety budget status for the calling agent.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Unique autonomous agent ID or public wallet address."
+                }
+            },
+            "required": ["agent_id"]
+        }
+    },
+    {
         "name": "eudr_render_satellite_map",
         "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization for an EUDR plot.",
         "parameters": {
@@ -330,6 +377,43 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["alert_type"]
         }
+    },
+    {
+        "name": "eudr_submit_agent_feedback",
+        "description": "Allows an autonomous AI agent to submit an evolution proposal, feature request, edge-case report, or dataset addition to continuously evolve the EUDR.agent engine.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Calling agent identifier or handle (e.g. 'procure-bot-44', 'claude-supply-auditor')."
+                },
+                "feedback_type": {
+                    "type": "string",
+                    "enum": ["FEATURE_REQUEST", "PROTOCOL_PROPOSAL", "EDGE_CASE", "DATASET_SUGGESTION"],
+                    "default": "FEATURE_REQUEST",
+                    "description": "Category of the evolution proposal."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Concise summary of the improvement proposal or requested capability."
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Detailed explanation, expected parameters, or architectural reasoning."
+                },
+                "caller_model": {
+                    "type": "string",
+                    "default": "autonomous-agent",
+                    "description": "Model architecture (e.g. 'claude-3-5-sonnet', 'gpt-4o', 'gemini-1.5-pro')."
+                },
+                "contact_channel": {
+                    "type": "string",
+                    "description": "Optional agent webhook URL or contact handle for status updates."
+                }
+            },
+            "required": ["agent_id", "title", "content"]
+        }
     }
 ]
 
@@ -388,31 +472,42 @@ class AgentToolsRegistry:
         # Dispatch execution
         try:
             if name == "eudr_verify_plot":
-                return await cls._exec_verify_plot(arguments)
+                res = await cls._exec_verify_plot(arguments)
             elif name == "eudr_check_deforestation":
-                return await cls._exec_check_deforestation(arguments)
+                res = await cls._exec_check_deforestation(arguments)
             elif name == "eudr_verify_vies_vat":
-                return await cls._exec_verify_vies_vat(arguments)
+                res = await cls._exec_verify_vies_vat(arguments)
             elif name == "eudr_generate_dds":
-                return await cls._exec_generate_dds(arguments)
+                res = await cls._exec_generate_dds(arguments)
             elif name == "eudr_verify_audit_integrity":
-                return await cls._exec_verify_audit_integrity(arguments)
+                res = await cls._exec_verify_audit_integrity(arguments)
             elif name == "eudr_estimate_compliance_cost":
-                return await cls._exec_estimate_cost(arguments)
+                res = await cls._exec_estimate_cost(arguments)
             elif name == "eudr_create_payment_order":
-                return await cls._exec_create_payment_order(arguments)
+                res = await cls._exec_create_payment_order(arguments)
             elif name == "eudr_confirm_payment":
-                return await cls._exec_confirm_payment(arguments)
+                res = await cls._exec_confirm_payment(arguments)
+            elif name == "eudr_agent_micro_pay":
+                res = await cls._exec_agent_micro_pay(arguments)
+            elif name == "eudr_get_agent_budget_status":
+                res = await cls._exec_get_agent_budget_status(arguments)
             elif name == "eudr_render_satellite_map":
-                return await cls._exec_render_satellite_map(arguments)
+                res = await cls._exec_render_satellite_map(arguments)
             elif name == "eudr_export_traces_xml":
-                return await cls._exec_export_traces_xml(arguments)
+                res = await cls._exec_export_traces_xml(arguments)
             elif name == "eudr_generate_customs_certificate":
-                return await cls._exec_generate_customs_certificate(arguments)
+                res = await cls._exec_generate_customs_certificate(arguments)
             elif name == "eudr_send_telegram_alert":
-                return await cls._exec_send_telegram_alert(arguments)
+                res = await cls._exec_send_telegram_alert(arguments)
+            elif name == "eudr_submit_agent_feedback":
+                res = await cls._exec_submit_agent_feedback(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
+
+            # Pillar 2: Mandatory Top-Level Response Metadata (meta)
+            if isinstance(res, dict) and "meta" not in res:
+                res["meta"] = get_default_meta_dict()
+            return res
         except AgentSelfCorrectionError:
             raise
         except Exception as exc:
@@ -682,6 +777,43 @@ class AgentToolsRegistry:
         }
 
     @classmethod
+    async def _exec_agent_micro_pay(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.payment_manager import PaymentManager
+        from app.schemas import AgentMicroPaymentRequest
+        req = AgentMicroPaymentRequest(
+            agent_id=args["agent_id"],
+            num_plots=int(args["num_plots"]),
+            chain=args.get("chain", "Base (Low Gas $0.01)"),
+            tx_hash=args["tx_hash"],
+            sender_wallet=args["sender_wallet"]
+        )
+        res = PaymentManager.process_agent_micro_payment(req)
+        return {
+            "status": res["status"],
+            "agent_id": res["agent_id"],
+            "num_plots_credited": res["num_plots_credited"],
+            "amount_paid_usdc": res["amount_paid_usdc"],
+            "temporary_auth_token": res["temporary_auth_token"],
+            "chain": res["chain"],
+            "tx_hash": res["tx_hash"],
+            "agent_summary": f"Micro-settlement confirmed for {res['num_plots_credited']} plots (${res['amount_paid_usdc']:.2f} USDC). Use token '{res['temporary_auth_token']}' to execute automated compliance scans."
+        }
+
+    @classmethod
+    async def _exec_get_agent_budget_status(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.payment_manager import PaymentManager
+        agent_id = args["agent_id"]
+        status_info = PaymentManager.get_agent_budget_status(agent_id=agent_id)
+        return {
+            "agent_id": status_info["agent_id"],
+            "plan_tier": status_info["plan_tier"],
+            "is_active": status_info["is_active"],
+            "remaining_quota_plots": status_info["remaining_quota_plots"],
+            "total_usdc_spent": status_info["total_usdc_spent"],
+            "agent_summary": f"Agent {agent_id}: Plan={status_info['plan_tier']}, Remaining plots={status_info['remaining_quota_plots']}, Total spent=${status_info['total_usdc_spent']:.2f} USDC."
+        }
+
+    @classmethod
     async def _exec_render_satellite_map(cls, args: Dict[str, Any]) -> Dict[str, Any]:
         plot_id = args["plot_id"]
         coords = args["coordinates"]
@@ -900,4 +1032,54 @@ class AgentToolsRegistry:
             "status": "SENT_OR_SIMULATED",
             "plot_id": plot_id,
             "agent_summary": f"Real-time {alert_type} notification processed for {supplier_id} ({plot_id}). Dispatched: {dispatched}."
+        }
+
+    @classmethod
+    async def _exec_submit_agent_feedback(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.db.session import SessionLocal
+        from app.db.repository import AgentEvolutionRepository
+        from app.modules.notification_manager import NotificationManager
+
+        agent_id = args["agent_id"]
+        title = args["title"]
+        content = args["content"]
+        feedback_type = args.get("feedback_type", "FEATURE_REQUEST")
+        caller_model = args.get("caller_model", "autonomous-agent")
+        contact_channel = args.get("contact_channel")
+
+        db = SessionLocal() if SessionLocal else None
+        rec = None
+        try:
+            rec = AgentEvolutionRepository.submit_proposal(
+                db=db,
+                agent_id=agent_id,
+                feedback_type=feedback_type,
+                title=title,
+                content=content,
+                caller_model=caller_model,
+                contact_channel=contact_channel
+            )
+        finally:
+            if db:
+                db.close()
+
+        # Instant alert to maintainer Telegram
+        feedback_id = rec.feedback_id if rec else f"PROP-{uuid.uuid4().hex[:8].upper()}"
+        NotificationManager.notify_agent_evolution_proposal(
+            feedback_id=feedback_id,
+            agent_id=agent_id,
+            feedback_type=feedback_type,
+            title=title,
+            content=content,
+            caller_model=caller_model,
+            contact_channel=contact_channel
+        )
+
+        return {
+            "status": "PROPOSAL_ACCEPTED",
+            "feedback_id": feedback_id,
+            "agent_id": agent_id,
+            "feedback_type": feedback_type,
+            "title": title,
+            "agent_summary": f"Evolution proposal '{title}' recorded into EUDR.agent evolution queue. Thank you for contributing to autonomous system evolution."
         }

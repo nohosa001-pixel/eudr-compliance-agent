@@ -44,11 +44,6 @@ class Settings(BaseModel):
     COPERNICUS_CLIENT_SECRET: str = os.getenv("COPERNICUS_CLIENT_SECRET", "")
     USE_LIVE_COPERNICUS_API: bool = os.getenv("USE_LIVE_COPERNICUS_API", "false").lower() in ("true", "1", "yes")
 
-    # Stripe Payments Configuration (EUR / Cards / SEPA)
-    STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
-    STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
-    STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-
     # Web3 / MetaMask Polygon (PoS) Configuration
     POLYGON_METAMASK_WALLET_ADDRESS: str = os.getenv("POLYGON_METAMASK_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
     POLYGON_CHAIN_ID: int = int(os.getenv("POLYGON_CHAIN_ID", "137"))

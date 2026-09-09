@@ -9,7 +9,7 @@ This document outlines the end-to-end production deployment, domain DNS setup, S
 At your domain registrar (e.g. Cloudflare, Namecheap, Route53, Gabia), configure the following DNS records pointing to your server's static Public IP:
 
 | Type | Name / Host | Value / Target | TTL | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `A` | `@` (root) | `YOUR_SERVER_PUBLIC_IP` | Auto / 300 | Main Landing Page (`eudragent.com`) |
 | `A` | `www` | `YOUR_SERVER_PUBLIC_IP` | Auto / 300 | WWW subdomain |
 | `A` | `api` | `YOUR_SERVER_PUBLIC_IP` | Auto / 300 | Programmatic REST API (`api.eudragent.com`) |

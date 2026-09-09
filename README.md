@@ -51,7 +51,9 @@
 EUDRAgent includes a native **Model Context Protocol (MCP v2024-11-05)** server, allowing AI assistants like **Claude Desktop, Cursor, Antigravity, and Zed** to autonomously perform EUDR compliance audits.
 
 ### Install via Smithery CLI
+
 To automatically install and configure for Claude Desktop:
+
 ```bash
 npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 ```
@@ -72,6 +74,7 @@ npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 ```
 
 ### Remote MCP Server Setup (HTTP Transport)
+
 ```json
 {
   "mcpServers": {
@@ -83,6 +86,7 @@ npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 ```
 
 ### 9 Registered Autonomous Agent Tools
+
 | Tool Name | Purpose |
 | :--- | :--- |
 | `eudr_verify_plot` | Validates GIS coordinates, WGS84 bounds, and polygon 4.0ha threshold |

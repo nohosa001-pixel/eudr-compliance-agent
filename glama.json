@@ -1,5 +1,8 @@
 {
-  "$schema": "https://glama.ai/mcp/schema.json",
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": [
+    "nohosa001-pixel"
+  ],
   "name": "eudr-compliance-agent",
   "title": "EUDR Compliance & TRACES-NT MCP Server",
   "description": "Autonomous AI Agent compliance engine for EU Deforestation Regulation (EU 2023/1115). Verifies farm plot GIS polygons, Sentinel-2 satellite deforestation past 2020, VIES VAT numbers, and generates official TRACES-NT Due Diligence Statements (DDS).",

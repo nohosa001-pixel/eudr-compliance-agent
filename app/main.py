@@ -316,6 +316,20 @@ async def serve_mcp_server_card(request: Request):
         "tools": []
     }, headers=NO_CACHE_HEADERS)
 
+@app.api_route("/glama.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/.well-known/glama.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_glama_json(request: Request):
+    """Serves the official glama.json metadata file for Glama.ai MCP indexer."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
+    glama_static = STATIC_DIR / "glama.json"
+    glama_root = Path(__file__).parent.parent / "glama.json"
+    target_file = glama_static if glama_static.exists() else glama_root
+    if target_file.exists():
+        return FileResponse(str(target_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+    return JSONResponse({"name": "eudr-compliance-agent", "status": "active"}, headers=NO_CACHE_HEADERS)
+
+
 @app.get("/health", tags=["Health"])
 @app.get(f"{settings.API_V1_PREFIX}/health", tags=["Health"])
 @app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])

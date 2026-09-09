@@ -59,11 +59,33 @@ class LegalAuditor:
         },
     }
 
+    EXEMPTED_HS_CODES: Dict[str, str] = {
+        "4101": "Raw hides and skins of bovine (cattle) exempted under July 2026 EUDR revision",
+        "4104": "Tanned or crust hides and skins of bovine exempted under July 2026 EUDR revision",
+        "4107": "Leather further prepared after tanning exempted under July 2026 EUDR revision",
+        "4012": "Retreaded pneumatic tyres of rubber exempted under July 2026 EUDR revision",
+        "120110": "Soya beans for sowing/seed exempted under July 2026 EUDR revision",
+        "4016": "Other articles of vulcanised rubber exempted under July 2026 EUDR revision",
+    }
+
+    @classmethod
+    def check_exemption(cls, hs_code: str) -> Tuple[bool, Optional[str]]:
+        """Checks if an HS code has been formally exempted from EUDR scope under the 2026 revision."""
+        clean_hs = hs_code.replace(".", "").strip()
+        for prefix, reason in cls.EXEMPTED_HS_CODES.items():
+            if clean_hs.startswith(prefix):
+                return True, reason
+        return False, None
+
     @classmethod
     def classify_hs_code(cls, hs_code: str) -> EUDRCommodityCategory:
-        """Classifies HS Code into one of the 7 EUDR Annex I commodity categories."""
+        """Classifies HS Code into one of the 7 EUDR Annex I commodity categories or EXEMPTED."""
+        is_exempt, _ = cls.check_exemption(hs_code)
+        if is_exempt:
+            return EUDRCommodityCategory.EXEMPTED
+
         clean_hs = hs_code.replace(".", "").strip()
-        if clean_hs.startswith(("0102", "0201", "0202", "4101", "4104", "4107")):
+        if clean_hs.startswith(("0102", "0201", "0202")):
             return EUDRCommodityCategory.CATTLE
         elif clean_hs.startswith(("1801", "1802", "1803", "1804", "1805", "1806")):
             return EUDRCommodityCategory.COCOA
@@ -71,7 +93,7 @@ class LegalAuditor:
             return EUDRCommodityCategory.COFFEE
         elif clean_hs.startswith(("1511", "120710", "151321", "151329", "230660", "382311")):
             return EUDRCommodityCategory.OIL_PALM
-        elif clean_hs.startswith(("4001", "4005", "4006", "4007", "4008", "4012", "4013", "4015", "4016", "4017")):
+        elif clean_hs.startswith(("4001", "4005", "4006", "4007", "4008", "4013", "4015", "4017")):
             return EUDRCommodityCategory.RUBBER
         elif clean_hs.startswith(("1201", "120810", "1507", "2304")):
             return EUDRCommodityCategory.SOYA
@@ -115,12 +137,16 @@ class LegalAuditor:
         notes = []
         risk_penalties = 0.0
 
-        # Commodity category classification
+        # Commodity category classification & exemption detection
         category = EUDRCommodityCategory.OTHER
+        is_exempt = False
+        exemption_reason = None
         if commodity:
+            is_exempt, exemption_reason = cls.check_exemption(commodity.hs_code)
             category = cls.classify_hs_code(commodity.hs_code)
-            # Timber specific check: scientific botanical name
-            if category == EUDRCommodityCategory.WOOD and not commodity.scientific_name:
+            if is_exempt:
+                notes.append(f"Statutory Exemption Notice: {exemption_reason}. Full EUDR DDS filing not legally required.")
+            elif category == EUDRCommodityCategory.WOOD and not commodity.scientific_name:
                 notes.append("Advisory: Wood/timber commodity (Annex I) should specify botanical scientific species name.")
                 risk_penalties += 0.1
 
@@ -143,19 +169,20 @@ class LegalAuditor:
             if not doc.file_hash:
                 notes.append(f"Document {doc.doc_id} missing SHA-256 binary hash for tamper verification.")
 
-        # Evaluate missing required documents
-        for missing in missing_docs:
-            risk_penalties += 0.30
-            notes.append(f"Mandatory document '{missing}' is missing for {risk_tier.value} risk origin.")
+        # Evaluate missing required documents (exempted goods do not fail due to missing docs)
+        if not is_exempt:
+            for missing in missing_docs:
+                risk_penalties += 0.30
+                notes.append(f"Mandatory document '{missing}' is missing for {risk_tier.value} risk origin.")
 
         # Calculate final risk score [0.0 - 1.0]
-        base_risk = 0.05 if risk_tier == RiskTierEnum.LOW else (0.25 if risk_tier == RiskTierEnum.STANDARD else 0.50)
+        base_risk = 0.00 if is_exempt else (0.05 if risk_tier == RiskTierEnum.LOW else (0.25 if risk_tier == RiskTierEnum.STANDARD else 0.50))
         total_risk_score = min(1.0, round(base_risk + risk_penalties, 2))
 
-        # Overall compliance requires no expired docs and no missing mandatory docs
-        is_compliant = (len(missing_docs) == 0) and (len(expired_docs) == 0)
+        # Overall compliance requires no expired docs and no missing mandatory docs (exempt goods auto-comply)
+        is_compliant = is_exempt or ((len(missing_docs) == 0) and (len(expired_docs) == 0))
 
-        if is_compliant:
+        if is_compliant and not is_exempt:
             notes.append("All statutory origin legality requirements successfully verified.")
 
         return LegalAuditResult(
@@ -163,9 +190,12 @@ class LegalAuditor:
             country_risk_tier=risk_tier,
             simplified_due_diligence_eligible=is_simplified,
             commodity_category=category,
+            is_exempt_from_eudr=is_exempt,
+            exemption_reason=exemption_reason,
             verified_documents_count=len(documents),
-            missing_required_documents=missing_docs,
+            missing_required_documents=[] if is_exempt else missing_docs,
             expired_documents=expired_docs,
-            risk_score=total_risk_score,
+            risk_score=0.0 if is_exempt else total_risk_score,
             notes=notes
         )
+

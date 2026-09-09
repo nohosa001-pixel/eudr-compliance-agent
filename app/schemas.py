@@ -88,6 +88,7 @@ class EUDRCommodityCategory(str, Enum):
     RUBBER = "Rubber (고무)"
     SOYA = "Soya (대두)"
     WOOD = "Wood & Timber (목재/임산물)"
+    EXEMPTED = "Exempted Commodity (2026 EUDR Exemption)"
     OTHER = "Other / Unclassified"
 
 # --- GeoJSON Schemas ---
@@ -260,11 +261,14 @@ class LegalAuditResult(BaseModel):
     country_risk_tier: RiskTierEnum
     simplified_due_diligence_eligible: bool = False
     commodity_category: EUDRCommodityCategory = EUDRCommodityCategory.OTHER
+    is_exempt_from_eudr: bool = False
+    exemption_reason: Optional[str] = None
     verified_documents_count: int
     missing_required_documents: List[str] = Field(default_factory=list)
     expired_documents: List[str] = Field(default_factory=list)
     risk_score: float = Field(..., description="0.0 (No Risk) to 1.0 (Critical Risk)")
     notes: List[str] = Field(default_factory=list)
+
 
 class EvidenceBundleSchema(BaseModel):
     bundle_id: str

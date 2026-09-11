@@ -8,7 +8,7 @@ except ImportError:
     HAS_SHAPELY = False
     shape = mapping = None
 
-from app.schemas import ProductionPlotInput, SatellitePlotResult, SpatialPlotResult
+from app.schemas import ProductionPlotInput, SatellitePlotResult, SpatialPlotResult, CanopyThresholdResult
 from app.core.config import settings
 from app.modules.satellite_providers.hansen_gfc_provider import HansenGFCProvider
 from app.modules.satellite_providers.copernicus_sentinel_client import CopernicusSentinelClient
@@ -152,8 +152,13 @@ class DeforestationSimulator:
         )
 
         # 2. Manual / Deterministic overrides
+        loss_year_val = 0
+        treecover_val = 92
+
         if "deforestation_2022" in notes or "deforest_2022" in plot_id_lower:
-            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=22, treecover_val=95)
+            loss_year_val = 22
+            treecover_val = 95
+            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
             loss_detected = True
             loss_year = 2022
             loss_area_ha = round(plot.area_hectares * 0.45, 2)
@@ -162,7 +167,9 @@ class DeforestationSimulator:
             ndvi_trend = "SHARP_DROP_POST_2020"
             ndvi_series = {"2019": 0.82, "2020": 0.81, "2021": 0.79, "2022": 0.32, "2023": 0.28}
         elif "deforestation_2018" in notes or "deforest_2018" in plot_id_lower:
-            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=18, treecover_val=20)
+            loss_year_val = 18
+            treecover_val = 20
+            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
             loss_detected = True
             loss_year = 2018
             loss_area_ha = round(plot.area_hectares * 0.80, 2)
@@ -171,7 +178,9 @@ class DeforestationSimulator:
             ndvi_trend = "HISTORICAL_CLEARANCE_PRE_2020"
             ndvi_series = {"2018": 0.30, "2019": 0.31, "2020": 0.30, "2021": 0.31, "2022": 0.32}
         elif "clean" in notes or "clean" in plot_id_lower or "compliant" in plot_id_lower:
-            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=0, treecover_val=92)
+            loss_year_val = 0
+            treecover_val = 92
+            hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
             loss_detected = False
             loss_year = None
             loss_area_ha = 0.0
@@ -183,7 +192,9 @@ class DeforestationSimulator:
             # Deterministic coordinate hash
             hash_seed = int(hashlib.md5(f"{plot.plot_id}_{plot.country_code}".encode()).hexdigest(), 16) % 100
             if hash_seed < 85:
-                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=0, treecover_val=92)
+                loss_year_val = 0
+                treecover_val = 92
+                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
                 loss_detected = False
                 loss_year = None
                 loss_area_ha = 0.0
@@ -192,7 +203,9 @@ class DeforestationSimulator:
                 ndvi_trend = "HEALTHY_CONTINUOUS_CANOPY"
                 ndvi_series = copernicus_stats["ndvi_time_series"]
             elif hash_seed < 95:
-                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=19, treecover_val=40)
+                loss_year_val = 19
+                treecover_val = 40
+                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
                 loss_detected = True
                 loss_year = 2019
                 loss_area_ha = round(plot.area_hectares * 0.15, 2)
@@ -201,7 +214,9 @@ class DeforestationSimulator:
                 ndvi_trend = "PRE_CUTOFF_AGRICULTURE"
                 ndvi_series = {"2019": 0.45, "2020": 0.44, "2021": 0.46, "2022": 0.45, "2023": 0.47}
             else:
-                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=22, treecover_val=88)
+                loss_year_val = 22
+                treecover_val = 88
+                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
                 loss_detected = True
                 loss_year = 2022
                 loss_area_ha = round(plot.area_hectares * 0.35, 2)
@@ -209,6 +224,15 @@ class DeforestationSimulator:
                 baseline_forest_pct = 88.0
                 ndvi_trend = "POST_2020_CANOPY_DISTURBANCE"
                 ndvi_series = {"2019": 0.80, "2020": 0.79, "2021": 0.75, "2022": 0.38, "2023": 0.35}
+
+        # Multi-threshold canopy defense evaluation
+        multi_threshold = HansenGFCProvider.parse_hansen_multi_threshold(
+            lon=lon,
+            lat=lat,
+            loss_year_val=loss_year_val,
+            treecover_val=treecover_val,
+            loss_ratio_pct=loss_ratio_pct
+        )
 
         # 3. SAR Radar Fallback Execution if cloud occluded
         sar_analysis = None
@@ -226,7 +250,8 @@ class DeforestationSimulator:
             "copernicus_sentinel": copernicus_stats,
             "ndvi_series": ndvi_series,
             "is_cloudy": is_cloudy,
-            "sar_analysis": sar_analysis
+            "sar_analysis": sar_analysis,
+            "multi_threshold": multi_threshold
         }
 
     @classmethod
@@ -302,6 +327,12 @@ class DeforestationSimulator:
             "triangulation_status": "CONVERGENT_EVIDENCE_SAR_VALIDATED" if is_cloudy else "CONVERGENT_EVIDENCE"
         }
 
+        # Multi-threshold canopy results
+        multi_th_data = telemetry.get("multi_threshold", {})
+        matrix_raw = multi_th_data.get("threshold_matrix", [])
+        canopy_threshold_results = [CanopyThresholdResult(**item) for item in matrix_raw] if matrix_raw else None
+        reg_defense = multi_th_data.get("regulatory_defense_statement")
+
         return SatellitePlotResult(
             plot_id=plot.plot_id,
             deforestation_detected=is_post_2020_loss,
@@ -318,7 +349,9 @@ class DeforestationSimulator:
             sensor_mode="SAR_SENTINEL_1_C_BAND" if is_cloudy else "OPTICAL_COPERNICUS_HANSEN",
             optical_cloud_occluded=is_cloudy,
             sar_backscatter_analysis=sar_analysis,
-            buffer_zone_analysis=buffer_analysis
+            buffer_zone_analysis=buffer_analysis,
+            canopy_multi_threshold=canopy_threshold_results,
+            regulatory_defense_statement=reg_defense
         )
 
     @classmethod

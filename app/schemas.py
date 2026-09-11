@@ -79,6 +79,9 @@ class DocumentTypeEnum(str, Enum):
     TAX_CLEARANCE = "TAX_CLEARANCE"
     EIA_REPORT = "EIA_REPORT"
     CUSTOMS_DECLARATION = "CUSTOMS_DECLARATION"
+    FSC_CERTIFICATE = "FSC_CERTIFICATE"
+    PEFC_CERTIFICATE = "PEFC_CERTIFICATE"
+    CHAIN_OF_CUSTODY_DOC = "CHAIN_OF_CUSTODY_DOC"
 
 class EUDRCommodityCategory(str, Enum):
     CATTLE = "Cattle (소)"
@@ -199,6 +202,10 @@ class CommodityInfo(BaseModel):
     net_mass_kg: float = Field(..., gt=0, description="Net mass in kilograms")
     volume_m3: Optional[float] = Field(None, description="Supplementary unit in m3 if applicable")
     scientific_name: Optional[str] = Field(None, description="Botanical/tree species name (mandatory for timber/wood under EUDR Annex I)")
+    # Third-Party Voluntary Certification Integration (FSC / PEFC Hybrid Bridge)
+    certification_scheme: Optional[str] = Field(None, description="e.g. 'FSC-100%', 'FSC-Mix', 'PEFC-Certified'")
+    certificate_id: Optional[str] = Field(None, description="Official Certificate ID e.g. 'FSC-C123456', 'PEFC/01-23-45'")
+    chain_of_custody_id: Optional[str] = Field(None, description="Chain of Custody (CoC) identifier for supply traceability")
 
 class EUDRSupplyChainPayload(BaseModel):
     execution_id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -237,6 +244,14 @@ class SpatialPlotResult(BaseModel):
     healing_actions: List[str] = Field(default_factory=list)
     original_geometry: Optional[Dict[str, Any]] = None
 
+class CanopyThresholdResult(BaseModel):
+    threshold_pct: int = Field(..., description="Tree canopy cover threshold percentage (e.g. 10 for FAO, 20 for standard, 30 for UNEP)")
+    standard_name: str = Field(..., description="Regulatory standard name (e.g. 'FAO_ARTICLE_2_EUDR', 'STANDARD_BASELINE_20', 'UNEP_CONSERVATIVE_30')")
+    baseline_forest_status: bool = Field(..., description="True if canopy cover at baseline (2020) met or exceeded this threshold")
+    loss_detected_post_2020: bool = Field(False, description="True if post-2020 canopy loss is detected at this threshold level")
+    loss_ratio_pct: float = Field(0.0, description="Percentage of plot area suffering canopy loss post-2020 at this threshold")
+    compliance_verdict: str = Field("COMPLIANT", description="'COMPLIANT', 'NON_COMPLIANT', or 'NOT_FOREST_LAND'")
+
 class SatellitePlotResult(BaseModel):
     plot_id: str
     deforestation_detected: bool
@@ -255,6 +270,9 @@ class SatellitePlotResult(BaseModel):
     optical_cloud_occluded: bool = False
     sar_backscatter_analysis: Optional[Dict[str, Any]] = None
     buffer_zone_analysis: Optional[Dict[str, Any]] = None
+    # Multi-Threshold Canopy Defense (FAO 10% vs UNEP 30% Regulatory Defense)
+    canopy_multi_threshold: Optional[List[CanopyThresholdResult]] = None
+    regulatory_defense_statement: Optional[str] = None
 
 class LegalAuditResult(BaseModel):
     overall_compliant: bool

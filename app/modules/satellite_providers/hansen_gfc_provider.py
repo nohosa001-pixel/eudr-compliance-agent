@@ -77,3 +77,88 @@ class HansenGFCProvider:
             "post_2020_deforestation": is_post_2020_loss,
             "tile_urls": cls.get_tile_download_urls(tile_id)
         }
+
+    @classmethod
+    def parse_hansen_multi_threshold(
+        cls,
+        lon: float,
+        lat: float,
+        loss_year_val: int,
+        treecover_val: int,
+        loss_ratio_pct: float = 0.0
+    ) -> Dict[str, Any]:
+        """
+        Evaluates plot against multiple regulatory canopy cover thresholds:
+        - 10% (FAO / EUDR Article 2(4) legal baseline)
+        - 20% (Standard European Forestry baseline)
+        - 30% (UNEP / strict conservationist conservative baseline)
+        
+        Shields operators against arbitrary customs/auditor interpretation variances.
+        """
+        tile_id = cls.get_granule_tile_id(lon, lat)
+        is_post_2020_loss = loss_year_val > cls.CUTOFF_LOSS_YEAR_INDEX
+        
+        threshold_defs = [
+            (10, "FAO_ARTICLE_2_EUDR"),
+            (20, "STANDARD_BASELINE_20"),
+            (30, "UNEP_CONSERVATIVE_30")
+        ]
+        
+        matrix = []
+        compliant_thresholds = []
+        non_compliant_thresholds = []
+        non_forest_thresholds = []
+
+        for th_pct, std_name in threshold_defs:
+            is_forest = treecover_val >= th_pct
+            if not is_forest:
+                loss_at_th = False
+                ratio_at_th = 0.0
+                verdict = "NOT_FOREST_LAND"
+                non_forest_thresholds.append(th_pct)
+            else:
+                loss_at_th = is_post_2020_loss
+                ratio_at_th = loss_ratio_pct if is_post_2020_loss else 0.0
+                if is_post_2020_loss:
+                    verdict = "NON_COMPLIANT"
+                    non_compliant_thresholds.append(th_pct)
+                else:
+                    verdict = "COMPLIANT"
+                    compliant_thresholds.append(th_pct)
+
+            matrix.append({
+                "threshold_pct": th_pct,
+                "standard_name": std_name,
+                "baseline_forest_status": is_forest,
+                "loss_detected_post_2020": loss_at_th,
+                "loss_ratio_pct": ratio_at_th,
+                "compliance_verdict": verdict
+            })
+
+        # Synthesize Regulatory Defense Statement
+        if non_compliant_thresholds:
+            loss_yr = 2000 + loss_year_val if loss_year_val > 0 else "post-2020"
+            defense_stmt = (
+                f"AUDIT WARNING: Post-2020 canopy disturbance detected in {loss_yr} "
+                f"under thresholds: {non_compliant_thresholds}%. Non-compliant under EUDR Article 2."
+            )
+        elif len(compliant_thresholds) == 3:
+            defense_stmt = (
+                "AUDIT IMMUNITY DEFENSE: Verified zero post-2020 deforestation across all 3 canopy thresholds "
+                "(10% FAO statutory, 20% Standard, 30% UNEP conservative). Protected against auditor threshold discrepancy."
+            )
+        else:
+            defense_stmt = (
+                f"CANOPY THRESHOLD DEFENSE: Baseline canopy cover ({treecover_val}%) complies with FAO/EUDR 10% baseline "
+                f"(Compliant: {compliant_thresholds}%, Non-forest: {non_forest_thresholds}%). Zero post-2020 conversion."
+            )
+
+        return {
+            "tile_id": tile_id,
+            "treecover_baseline_pct": treecover_val,
+            "threshold_matrix": matrix,
+            "regulatory_defense_statement": defense_stmt,
+            "fao_10pct_compliant": 10 in compliant_thresholds or 10 in non_forest_thresholds,
+            "unep_30pct_compliant": 30 in compliant_thresholds or 30 in non_forest_thresholds,
+            "tile_urls": cls.get_tile_download_urls(tile_id)
+        }

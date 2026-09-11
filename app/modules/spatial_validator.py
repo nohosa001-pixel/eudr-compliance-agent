@@ -536,3 +536,90 @@ class SpatialValidator:
             healing_actions=healing_actions,
             original_geometry=original_geometry if healing_applied else None
         )
+
+    @classmethod
+    def partition_clean_timber_batch(
+        cls,
+        plots: List[ProductionPlotInput],
+        spatial_results: List[SpatialPlotResult],
+        satellite_results: List[Any],  # List[SatellitePlotResult]
+        commodity_type: str = "wood_pellets_or_pulp"
+    ) -> Dict[str, Any]:
+        """
+        Prevents 'Tainted Batch' confiscation under EUDR for bulk mixed timber, wood chips, and biomass pellets.
+        Partitions input plots into:
+        1. Clean EU-Export Tier-1 Roster (100% compliant, 0% deforestation risk)
+        2. Quarantined Non-EU Diversion Roster (Diverted to non-regulated Asian/domestic markets)
+        """
+        spatial_map = {sr.plot_id: sr for sr in spatial_results}
+        sat_map = {sr.plot_id: sr for sr in satellite_results}
+
+        clean_plots: List[ProductionPlotInput] = []
+        quarantined_plots: List[Dict[str, Any]] = []
+
+        total_declared_ha = sum(p.area_hectares for p in plots)
+
+        for p in plots:
+            sr = spatial_map.get(p.plot_id)
+            sat = sat_map.get(p.plot_id)
+
+            reasons = []
+            if not sr or not sr.is_valid:
+                reasons.append(f"SPATIAL_ERROR: {', '.join(sr.errors if sr else ['Missing spatial verification'])}")
+            
+            if sat:
+                if sat.deforestation_detected or not sat.compliance_passed:
+                    reasons.append(f"DEFORESTATION_RISK: Loss year {sat.forest_loss_year or 'Post-2020'} flagged ({sat.loss_ratio_pct}%)")
+
+            if reasons:
+                quarantined_plots.append({
+                    "plot_id": p.plot_id,
+                    "country_code": p.country_code,
+                    "area_hectares": p.area_hectares,
+                    "quarantine_reasons": reasons,
+                    "recommended_action": "DIVERT_TO_NON_REGULATED_MARKETS (Leakage Protection)"
+                })
+            else:
+                clean_plots.append(p)
+
+        clean_area_ha = sum(p.area_hectares for p in clean_plots)
+        quarantine_area_ha = sum(q["area_hectares"] for q in quarantined_plots)
+
+        clean_count = len(clean_plots)
+        quarantine_count = len(quarantined_plots)
+        total_count = len(plots)
+
+        clean_ratio_pct = round((clean_count / total_count * 100), 1) if total_count > 0 else 0.0
+
+        is_entirely_clean = quarantine_count == 0
+
+        directive = (
+            "CLEAN_SHIPMENT_CLEARED: 100% of candidate plots are verified compliant. Zero Tainted Batch risk."
+            if is_entirely_clean else
+            f"BATCH_SEGREGATION_REQUIRED: {quarantine_count} plot(s) flagged. Immediately quarantine these plots "
+            f"from the biomass/pulp blending silo to protect {clean_count} clean plot(s) ({clean_area_ha:.1f} ha) from total EU customs seizure."
+        )
+
+        return {
+            "commodity_type": commodity_type,
+            "total_plots_analyzed": total_count,
+            "total_declared_ha": total_declared_ha,
+            "is_entirely_clean": is_entirely_clean,
+            "clean_batch": {
+                "count": clean_count,
+                "area_hectares": round(clean_area_ha, 4),
+                "ratio_pct": clean_ratio_pct,
+                "plot_ids": [p.plot_id for p in clean_plots],
+                "clean_plots_payload": clean_plots
+            },
+            "quarantine_batch": {
+                "count": quarantine_count,
+                "area_hectares": round(quarantine_area_ha, 4),
+                "ratio_pct": round(100.0 - clean_ratio_pct, 1) if total_count > 0 else 0.0,
+                "quarantined_plots": quarantined_plots,
+                "diversion_market_recommendation": "Export diverted to Asian or domestic un-regulated channels"
+            },
+            "routing_directive": directive,
+            "tainted_batch_protection_active": True
+        }
+

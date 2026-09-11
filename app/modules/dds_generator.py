@@ -87,7 +87,12 @@ class DDSGenerator:
                 "cloud_fallback_applied": sat.cloud_fallback_applied if sat else False,
                 "sensor_mode": sat.sensor_mode if sat else "OPTICAL_COPERNICUS_HANSEN",
                 "sar_backscatter_analysis": sat.sar_backscatter_analysis if sat else None,
-                "buffer_zone_analysis": sat.buffer_zone_analysis if sat else None
+                "buffer_zone_analysis": sat.buffer_zone_analysis if sat else None,
+                "canopy_multi_threshold": [
+                    t.model_dump() if hasattr(t, "model_dump") else t.__dict__
+                    for t in sat.canopy_multi_threshold
+                ] if sat and sat.canopy_multi_threshold else None,
+                "regulatory_defense_statement": sat.regulatory_defense_statement if sat else None
             })
 
         # Pillar 4: Confidence Assessment & HITL Workflow

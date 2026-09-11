@@ -56,7 +56,12 @@ class TracesNTSchemaMapper:
                 "satelliteVerification": {
                     "deforestationFree": not (sat.deforestation_detected if sat else False),
                     "baselineForestCoveragePct": sat.baseline_forest_cover_pct if sat else 100.0,
-                    "satelliteAuditNote": sat.audit_notes if sat else "Verified"
+                    "satelliteAuditNote": sat.audit_notes if sat else "Verified",
+                    "canopyMultiThreshold": [
+                        t.model_dump() if hasattr(t, "model_dump") else t.__dict__
+                        for t in sat.canopy_multi_threshold
+                    ] if sat and sat.canopy_multi_threshold else None,
+                    "regulatoryDefenseStatement": sat.regulatory_defense_statement if sat else None
                 }
             }
             places_of_production.append(plot_entry)
@@ -87,7 +92,13 @@ class TracesNTSchemaMapper:
                 "commercialDescription": payload.commodity.description,
                 "scientificName": payload.commodity.scientific_name,
                 "netMassKg": payload.commodity.net_mass_kg,
-                "supplementaryVolumeM3": payload.commodity.volume_m3
+                "supplementaryVolumeM3": payload.commodity.volume_m3,
+                "thirdPartyCertification": {
+                    "scheme": getattr(payload.commodity, "certification_scheme", None) or "NONE",
+                    "certificateId": getattr(payload.commodity, "certificate_id", None),
+                    "chainOfCustodyId": getattr(payload.commodity, "chain_of_custody_id", None),
+                    "hybridComplianceStatus": "HYBRID_FSC_EUDR_VALIDATED" if getattr(payload.commodity, "certificate_id", None) else "STANDALONE_EUDR"
+                }
             },
             "productionPlots": {
                 "totalPlotsCount": len(payload.plots),
@@ -202,6 +213,14 @@ class TracesNTSchemaMapper:
         if payload.commodity.volume_m3 is not None:
             ET.SubElement(goods, "SupplementaryVolumeM3").text = f"{payload.commodity.volume_m3:.2f}"
 
+        if getattr(payload.commodity, "certificate_id", None):
+            cert_elem = ET.SubElement(goods, "ThirdPartyCertification")
+            ET.SubElement(cert_elem, "CertificationScheme").text = payload.commodity.certification_scheme or "VOLUNTARY_CERTIFICATION"
+            ET.SubElement(cert_elem, "CertificateID").text = payload.commodity.certificate_id
+            if getattr(payload.commodity, "chain_of_custody_id", None):
+                ET.SubElement(cert_elem, "ChainOfCustodyID").text = payload.commodity.chain_of_custody_id
+            ET.SubElement(cert_elem, "HybridComplianceStatus").text = "HYBRID_FSC_EUDR_VALIDATED"
+
         # 4. Production Plots
         total_plots = len(payload.plots)
         total_ha = sum(p.area_hectares for p in payload.plots)
@@ -234,6 +253,8 @@ class TracesNTSchemaMapper:
             ET.SubElement(sat_elem, "DeforestationFree").text = str(deforest_free).lower()
             ET.SubElement(sat_elem, "BaselineForestCoveragePct").text = f"{(sat.baseline_forest_cover_pct if sat else 100.0):.2f}"
             ET.SubElement(sat_elem, "SatelliteAuditNote").text = sat.audit_notes if sat else "Verified Clean"
+            if sat and sat.regulatory_defense_statement:
+                ET.SubElement(sat_elem, "RegulatoryDefenseStatement").text = sat.regulatory_defense_statement
 
         # 5. Due Diligence Attestation
         attestation = ET.SubElement(root, "DueDiligenceAttestation")

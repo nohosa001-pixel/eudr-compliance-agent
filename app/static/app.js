@@ -198,6 +198,66 @@ const PRESETS = {
         }
       ]
     }
+  },
+
+  suzano_timber_hybrid: {
+    name: "🪵 5. Certified Pulp & Timber (Brazil FSC-Hybrid)",
+    description: "Suzano eucalyptus plantation with FSC-100% CoC certification, 0% deforestation, and FAO/UNEP canopy compliance.",
+    payload: {
+      operator_id: "BR-PULP-EXP-SUZANO",
+      operator_name: "Suzano Pulp Europe B.V.",
+      eori_number: "NL899999999",
+      commodity: "WOOD",
+      hs_code: "4703.29.00",
+      product_description: "Bleached Eucalyptus Kraft Pulp (BEKP)",
+      scientific_name: "Eucalyptus grandis",
+      certification_scheme: "FSC-100%",
+      certificate_id: "FSC-C012345",
+      chain_of_custody_id: "CU-COC-801234",
+      net_mass_kg: 120000.0,
+      plots: [
+        {
+          plot_id: "BR-BAHIA-SUZ-01",
+          country_code: "BR",
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [-39.7500, -17.5000],
+                [-39.7400, -17.5000],
+                [-39.7400, -17.4900],
+                [-39.7500, -17.4900],
+                [-39.7500, -17.5000]
+              ]
+            ]
+          },
+          declared_area_ha: 110.5,
+          production_date_start: "2024-01-10",
+          production_date_end: "2024-03-25",
+          producer_name: "Suzano Mucuri Plantation Unit"
+        }
+      ],
+      documents: [
+        {
+          document_type: "FSC_CERTIFICATE",
+          document_id: "FSC-C012345-2024",
+          country_code: "BR",
+          issuing_authority: "Forest Stewardship Council (FSC)",
+          issue_date: "2021-06-01",
+          expiry_date: "2028-06-01",
+          plot_ids: ["BR-BAHIA-SUZ-01"]
+        },
+        {
+          document_type: "LAND_TITLE",
+          document_id: "CAR-BA-291083-2020",
+          country_code: "BR",
+          issuing_authority: "Cadastro Ambiental Rural (CAR Bahia)",
+          issue_date: "2019-11-20",
+          expiry_date: "2029-11-20",
+          plot_ids: ["BR-BAHIA-SUZ-01"]
+        }
+      ]
+    }
   }
 };
 
@@ -472,7 +532,12 @@ function renderEvaluationResults(payload, report) {
   if (report.satellite_summary.overall_deforestation_free) {
     s2.className = 'step-box valid';
     s2Status.innerText = '✅';
-    s2Detail.innerText = 'Deforestation-free (3-way consensus verified)';
+    const hasCanopyDefense = report.plots_detail && report.plots_detail.some(p => p.canopy_multi_threshold || p.regulatory_defense_statement);
+    if (hasCanopyDefense) {
+      s2Detail.innerHTML = 'Deforestation-free <span style="display:inline-block; margin-top:2px; font-size:0.68rem; color:#34d399; background:rgba(16,185,129,0.2); padding:1px 6px; border-radius:4px; font-weight:700;">🛡️ Canopy 10% &amp; 30% Pass</span>';
+    } else {
+      s2Detail.innerText = 'Deforestation-free (3-way consensus verified)';
+    }
   } else {
     s2.className = 'step-box invalid';
     s2Status.innerText = '❌';
@@ -500,7 +565,13 @@ function renderEvaluationResults(payload, report) {
   if (report.traces_dds) {
     s4.className = 'step-box valid';
     s4Status.innerText = '📝';
-    s4Detail.innerText = `DDS Ref: ${report.traces_dds.dds_reference_id.substring(0, 16)}...`;
+    const isHybrid = report.traces_dds.submission_ready_traces_payload?.goodsDeclaration?.thirdPartyCertification?.hybridComplianceStatus === 'HYBRID_FSC_EUDR_VALIDATED';
+    if (isHybrid) {
+      const scheme = report.traces_dds.submission_ready_traces_payload.goodsDeclaration.thirdPartyCertification.scheme || 'FSC';
+      s4Detail.innerHTML = `DDS Ref: ${report.traces_dds.dds_reference_id.substring(0, 12)}... <span style="display:inline-block; margin-top:2px; font-size:0.68rem; color:#a78bfa; background:rgba(167,139,250,0.2); padding:1px 6px; border-radius:4px; font-weight:700;">🪵 ${scheme} Hybrid</span>`;
+    } else {
+      s4Detail.innerText = `DDS Ref: ${report.traces_dds.dds_reference_id.substring(0, 16)}...`;
+    }
     document.getElementById('traces-json-viewer').innerText = JSON.stringify(report.traces_dds.submission_ready_traces_payload, null, 2);
   } else {
     s4.className = 'step-box invalid';
@@ -519,7 +590,9 @@ function renderEvaluationResults(payload, report) {
     plot_id: p.plot_id,
     deforestation_detected: p.deforestation_detected,
     loss_year: p.loss_year,
-    satellite_consensus: p.satellite_consensus
+    satellite_consensus: p.satellite_consensus,
+    canopy_multi_threshold: p.canopy_multi_threshold || null,
+    regulatory_defense_statement: p.regulatory_defense_statement || null
   }));
   document.getElementById('satellite-consensus-viewer').innerText = JSON.stringify(consensusList, null, 2);
 

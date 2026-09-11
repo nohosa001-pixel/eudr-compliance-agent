@@ -131,10 +131,20 @@ class LegalAuditor:
         required_docs = cls.TIER_REQUIREMENTS.get(risk_tier, set())
 
         present_doc_types = {d.doc_type for d in documents}
+        notes = []
+
+        # FSC / PEFC Voluntary Forest Certification Equivalency Recognition
+        has_fsc_or_pefc = (DocumentTypeEnum.FSC_CERTIFICATE in present_doc_types or DocumentTypeEnum.PEFC_CERTIFICATE in present_doc_types)
+        if has_fsc_or_pefc:
+            # Internationally recognized certification covers forest management legality, harvest permits, and FPIC
+            present_doc_types.add(DocumentTypeEnum.HARVEST_PERMIT)
+            present_doc_types.add(DocumentTypeEnum.BUSINESS_LICENSE)
+            present_doc_types.add(DocumentTypeEnum.FPIC_CONSENT)
+            notes.append("FSC/PEFC Forest Certification recognized: Harvest Permit, Business License, and FPIC legal equivalency applied under EUDR Due Diligence.")
+
         missing_docs = [req.value for req in required_docs if req not in present_doc_types]
 
         expired_docs = []
-        notes = []
         risk_penalties = 0.0
 
         # Commodity category classification & exemption detection

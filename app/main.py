@@ -1529,6 +1529,32 @@ _export_bundle_orchestrator = OneClickExportBundleOrchestrator()
 _export_bundles_cache: dict = {}
 
 
+def _save_export_bundle(bundle_id: str, bundle_data: dict) -> None:
+    _export_bundles_cache[bundle_id] = bundle_data
+    try:
+        import redis
+        r = redis.from_url(settings.CELERY_BROKER_URL, socket_timeout=1.0)
+        r.setex(f"export_bundle:{bundle_id}", 86400, json.dumps(bundle_data))
+    except Exception:
+        pass
+
+
+def _get_export_bundle(bundle_id: str) -> Optional[dict]:
+    if bundle_id in _export_bundles_cache:
+        return _export_bundles_cache[bundle_id]
+    try:
+        import redis
+        r = redis.from_url(settings.CELERY_BROKER_URL, socket_timeout=1.0)
+        cached = r.get(f"export_bundle:{bundle_id}")
+        if cached:
+            data = json.loads(cached)
+            _export_bundles_cache[bundle_id] = data
+            return data
+    except Exception:
+        pass
+    return None
+
+
 @app.post(
     f"{settings.API_V1_PREFIX}/compliance/producer-registry/verify",
     response_model=ProducerRegistryVerificationResponse,
@@ -1618,7 +1644,7 @@ async def generate_export_bundle(
     )
 
     bundle_id = bundle_data["bundle_id"]
-    _export_bundles_cache[bundle_id] = bundle_data
+    _save_export_bundle(bundle_id, bundle_data)
 
     host_url = str(request.base_url).rstrip("/")
     dossier_url = f"{host_url}{settings.API_V1_PREFIX}/compliance/export-bundle/{bundle_id}/html"
@@ -1640,7 +1666,7 @@ async def view_export_bundle_html(
     Renders an executive, high-aesthetic HTML compliance dossier for printing
     or PDF export for EU customs authorities and international trade auditors.
     """
-    bundle = _export_bundles_cache.get(bundle_id)
+    bundle = _get_export_bundle(bundle_id)
     if not bundle:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

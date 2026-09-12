@@ -670,3 +670,62 @@ class AgentFeedbackListResponse(BaseModel):
     total_proposals: int
     proposals: List[AgentFeedbackItemResponse]
     meta: Optional[Dict[str, Any]] = None
+
+
+# --- Producer Registry & KFS Export Bundle Schemas ---
+
+class ProducerRegistryVerificationRequest(BaseModel):
+    identifier: str = Field(..., description="Official registration ID (e.g. BR CAR ID, GH Cocoa CMS ID, ID SIPUHH doc number)")
+    country_code: Optional[str] = Field(None, description="ISO 3166-1 alpha-2 code (BR, GH, CI, ID, MY)")
+
+class ProducerRegistryVerificationResponse(BaseModel):
+    country_code: str
+    registry_name: str
+    identifier: str
+    is_valid: bool
+    status: str
+    holder_name: Optional[str] = None
+    property_name: Optional[str] = None
+    state_or_province: Optional[str] = None
+    municipality: Optional[str] = None
+    area_hectares: Optional[float] = None
+    registration_date: Optional[str] = None
+    spatial_coverage_status: str
+    legal_reserve_compliance_pct: Optional[float] = 100.0
+    deforestation_infraction_flag: bool = False
+    details: Dict[str, Any] = Field(default_factory=dict)
+
+class KFSChecklistScoreRequest(BaseModel):
+    payload: EUDRSupplyChainPayload
+    producer_registry_id: Optional[str] = None
+
+class KFSChecklistScoreResponse(BaseModel):
+    framework_version: str
+    total_score: float
+    max_possible_score: float
+    compliance_tier: str
+    executive_summary: str
+    items: List[Dict[str, Any]]
+    corrective_action_roadmap: List[str]
+    audit_date_utc: str
+
+class OneClickExportBundleRequest(BaseModel):
+    payload: EUDRSupplyChainPayload
+    producer_registry_id: Optional[str] = None
+    producer_country_code: Optional[str] = None
+
+class OneClickExportBundleResponse(BaseModel):
+    bundle_id: str
+    export_batch_id: str
+    timestamp_utc: str
+    operator_eori: str
+    operator_name: str
+    overall_clearance_status: str
+    is_cleared_for_eu_import: bool
+    kfs_checklist_assessment: Dict[str, Any]
+    producer_registry_verification: Optional[Dict[str, Any]] = None
+    cryptographic_evidence: Dict[str, Any]
+    satellite_summary: Dict[str, Any]
+    legal_audit_verdict: Dict[str, Any]
+    dossier_html_url: Optional[str] = None
+

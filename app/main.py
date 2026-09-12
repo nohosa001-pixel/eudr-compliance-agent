@@ -48,6 +48,12 @@ from app.schemas import (
     WebhookTestResponse,
     AgentToolExecuteRequest,
     AgentFeedbackSubmitRequest,
+    ProducerRegistryVerificationRequest,
+    ProducerRegistryVerificationResponse,
+    KFSChecklistScoreRequest,
+    KFSChecklistScoreResponse,
+    OneClickExportBundleRequest,
+    OneClickExportBundleResponse,
     get_default_meta_dict,
     LEGAL_DISCLAIMER_TEXT,
     LEGAL_WARRANTY_TEXT
@@ -58,6 +64,9 @@ from app.modules.deforestation_simulator import DeforestationAnalyzer, Deforesta
 from app.modules.legal_document_auditor import LegalAuditor
 from app.modules.dds_generator import DDSGenerator
 from app.modules.dds_prebuilder import DDSPrebuilder
+from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
+from app.modules.kfs_checklist_scorer import KoreaForestServiceChecklistScorer
+from app.modules.export_bundle_orchestrator import OneClickExportBundleOrchestrator
 from app.modules.bulk_file_parser import BulkFileParser
 from app.modules.traces_b2g_client import TracesNTB2GClient, TRACESB2GSubmissionResponse
 from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
@@ -1509,6 +1518,138 @@ async def list_agent_feedbacks(
         "proposals": items,
         "meta": get_default_meta_dict()
     }
+
+
+# -------------------------------------------------------------------
+# Producer Country Official Registries & KFS Export Bundle
+# -------------------------------------------------------------------
+
+_producer_registry_hub = ProducerCountryRegistryHub()
+_export_bundle_orchestrator = OneClickExportBundleOrchestrator()
+_export_bundles_cache: dict = {}
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/producer-registry/verify",
+    response_model=ProducerRegistryVerificationResponse,
+    tags=["Producer Country Registries"],
+    summary="Verify parcel/farm legal registration against producer country public registry (Brazil CAR, Ghana Cocoa, Indonesia SIPUHH)"
+)
+async def verify_producer_registry(
+    req: ProducerRegistryVerificationRequest
+):
+    """
+    Directly queries and cross-checks producer country legal registries:
+    - Brazil SICAR (Cadastro Ambiental Rural) & INPE PRODES
+    - Ghana/Côte d'Ivoire COCOBOD National Cocoa Traceability System
+    - Indonesia KLHK SIPUHH (Timber) / ISPO & Malaysia MSPO (Palm Oil)
+    """
+    res = _producer_registry_hub.verify(req.identifier, country_code=req.country_code)
+    return ProducerRegistryVerificationResponse(**res.model_dump())
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/kfs-checklist/score",
+    response_model=KFSChecklistScoreResponse,
+    tags=["Korea Forest Service (산림청) Readiness"],
+    summary="Evaluate supply chain against official Korea Forest Service (산림청) 4-Domain EUDR Checklist"
+)
+async def score_kfs_checklist(
+    req: KFSChecklistScoreRequest
+):
+    """
+    Evaluates the supply chain payload against the 4 official compliance domains
+    published by the Korea Forest Service (산림청 EUDR 대응지원단):
+    1. 2020-12-31 Cut-off Deforestation Proof (30 pts)
+    2. Precision Geolocation (>4ha Polygon, WGS84) (25 pts)
+    3. Producer Country Legality Documentation (25 pts)
+    4. Segregation & Traceability Lineage (20 pts)
+    """
+    _, spatial_res, _ = TraceabilityCollector.collect_and_validate(req.payload.plots)
+    _, satellite_res, _ = DeforestationSimulator.analyze_all_plots(req.payload.plots, spatial_res)
+    legal_res = LegalAuditor.audit_documents(documents=req.payload.documents, plots=req.payload.plots, commodity=req.payload.commodity)
+    timestamp_str = datetime.now(timezone.utc).isoformat()
+
+    assessment = KoreaForestServiceChecklistScorer.evaluate(
+        payload=req.payload,
+        spatial_results=spatial_res,
+        satellite_results=satellite_res,
+        legal_audit=legal_res,
+        timestamp_str=timestamp_str
+    )
+
+    return KFSChecklistScoreResponse(
+        framework_version=assessment.framework_version,
+        total_score=assessment.total_score,
+        max_possible_score=assessment.max_possible_score,
+        compliance_tier=assessment.compliance_tier,
+        executive_summary=assessment.executive_summary,
+        items=[i.model_dump() for i in assessment.items],
+        corrective_action_roadmap=assessment.corrective_action_roadmap,
+        audit_date_utc=assessment.audit_date_utc
+    )
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/export-bundle/generate",
+    response_model=OneClickExportBundleResponse,
+    tags=["One-Click Global Export Bundle"],
+    summary="Generate One-Click Global Buyer Export Bundle (KFS score + Producer registry + Cryptographic seal)"
+)
+async def generate_export_bundle(
+    req: OneClickExportBundleRequest,
+    request: Request
+):
+    """
+    Generates a unified, lawyer-proof EUDR export bundle ready for immediate submission
+    to EU customs (TRACES NT) and global corporate buyers.
+    """
+    _, spatial_res, _ = TraceabilityCollector.collect_and_validate(req.payload.plots)
+    _, satellite_res, _ = DeforestationSimulator.analyze_all_plots(req.payload.plots, spatial_res)
+    legal_res = LegalAuditor.audit_documents(documents=req.payload.documents, plots=req.payload.plots, commodity=req.payload.commodity)
+
+    bundle_data = _export_bundle_orchestrator.build_export_bundle(
+        payload=req.payload,
+        spatial_results=spatial_res,
+        satellite_results=satellite_res,
+        legal_audit=legal_res,
+        producer_registry_id=req.producer_registry_id,
+        producer_country_code=req.producer_country_code
+    )
+
+    bundle_id = bundle_data["bundle_id"]
+    _export_bundles_cache[bundle_id] = bundle_data
+
+    host_url = str(request.base_url).rstrip("/")
+    dossier_url = f"{host_url}{settings.API_V1_PREFIX}/compliance/export-bundle/{bundle_id}/html"
+    bundle_data["dossier_html_url"] = dossier_url
+
+    return OneClickExportBundleResponse(**bundle_data)
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/compliance/export-bundle/{{bundle_id}}/html",
+    response_class=HTMLResponse,
+    tags=["One-Click Global Export Bundle"],
+    summary="View executive printable HTML dossier for a generated export bundle"
+)
+async def view_export_bundle_html(
+    bundle_id: str
+):
+    """
+    Renders an executive, high-aesthetic HTML compliance dossier for printing
+    or PDF export for EU customs authorities and international trade auditors.
+    """
+    bundle = _export_bundles_cache.get(bundle_id)
+    if not bundle:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Export bundle '{bundle_id}' not found or has expired from cache."
+        )
+
+    html_content = _export_bundle_orchestrator.render_html_dossier(bundle)
+    return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+
 
 
 

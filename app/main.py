@@ -1084,11 +1084,24 @@ async def get_invoice_receipt(order_id: str):
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/vaults",
+    tags=["B2B USDC Payments & Subscriptions"],
+    summary="Get Multi-Chain AgentPaymentVault & USDC Contract Directory"
+)
+async def get_payment_vaults():
+    """
+    Returns official on-chain smart contract addresses for AgentPaymentVault (Polygon, Base, Arbitrum),
+    native USDC contracts, and verified RPC endpoints for autonomous AI agent pre-funded settlement.
+    """
+    return PaymentManager.get_multichain_vaults()
+
 
 # -------------------------------------------------------------------
 # Autonomous Agent M2M Settlement & x402 Protocol Endpoints
 # (Human checkout is strictly excluded)
 # -------------------------------------------------------------------
+
 
 @app.get(
     f"{settings.API_V1_PREFIX}/payment/x402/challenge",

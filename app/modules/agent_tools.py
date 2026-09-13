@@ -773,6 +773,7 @@ class AgentToolsRegistry:
             "invoice_number": conf.invoice_number,
             "receipt_url": conf.receipt_url,
             "message": conf.message,
+            "onchain_verification": conf.onchain_verification,
             "agent_summary": f"Payment confirmed! Pro API Key issued: {conf.api_key_issued}. Account active on {conf.plan_tier} plan ({conf.monthly_quota_plots} plots/mo quota)."
         }
 
@@ -796,8 +797,11 @@ class AgentToolsRegistry:
             "temporary_auth_token": res["temporary_auth_token"],
             "chain": res["chain"],
             "tx_hash": res["tx_hash"],
-            "agent_summary": f"Micro-settlement confirmed for {res['num_plots_credited']} plots (${res['amount_paid_usdc']:.2f} USDC). Use token '{res['temporary_auth_token']}' to execute automated compliance scans."
+            "onchain_verification": res.get("onchain_verification"),
+            "agent_payment_vault": res.get("agent_payment_vault"),
+            "agent_summary": f"Micro-settlement confirmed for {res['num_plots_credited']} plots (${res['amount_paid_usdc']:.2f} USDC) on {res['chain']}. Use token '{res['temporary_auth_token']}' to execute automated compliance scans."
         }
+
 
     @classmethod
     async def _exec_get_agent_budget_status(cls, args: Dict[str, Any]) -> Dict[str, Any]:

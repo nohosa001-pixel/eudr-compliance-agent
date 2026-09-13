@@ -525,6 +525,7 @@ class PaymentOrderConfirmResponse(BaseModel):
     invoice_number: str
     receipt_url: str
     message: str
+    onchain_verification: Optional[Dict[str, Any]] = None
 
 class InvoiceReceiptResponse(BaseModel):
     invoice_number: str
@@ -544,9 +545,9 @@ class InvoiceReceiptResponse(BaseModel):
 # --- Enterprise Lead Capture & Demo Request Schemas ---
 
 class LeadInquiryCreateRequest(BaseModel):
-    company_name: str = Field(..., min_length=2, max_length=128, description="Company / Organization Name")
-    contact_name: str = Field(..., min_length=2, max_length=128, description="Full Name of Contact Person")
-    contact_email: str = Field(..., min_length=5, max_length=128, description="Work Email Address")
+    company_name: str = Field(..., max_length=128, description="Legal Company Name")
+    contact_name: str = Field(..., max_length=128, description="Contact Person Name")
+    contact_email: str = Field(..., max_length=128, description="Official Business Email")
     phone: Optional[str] = Field(None, max_length=64, description="Contact Phone / WhatsApp")
     commodity_type: str = Field("Timber", description="Primary EUDR Commodity (e.g. Timber, Palm Oil, Cocoa, Coffee, Soy, Rubber, Cattle)")
     estimated_monthly_plots: str = Field("500 - 5,000", description="Estimated Monthly Plot Verification Volume")
@@ -585,6 +586,8 @@ class AgentMicroPaymentResponse(BaseModel):
     temporary_auth_token: str
     expires_at_utc: str
     message: str
+    onchain_verification: Optional[Dict[str, Any]] = None
+    agent_payment_vault: Optional[str] = None
 
 class AgentBudgetStatusResponse(BaseModel):
     agent_id: str
@@ -606,6 +609,8 @@ class X402ChallengeResponse(BaseModel):
     supported_chains: list[str]
     settlement_endpoint: str
     mcp_tool_action: str
+    agent_payment_vaults: Optional[Dict[str, str]] = None
+    usdc_contracts: Optional[Dict[str, str]] = None
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 

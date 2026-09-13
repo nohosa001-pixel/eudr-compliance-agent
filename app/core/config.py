@@ -44,10 +44,26 @@ class Settings(BaseModel):
     COPERNICUS_CLIENT_SECRET: str = os.getenv("COPERNICUS_CLIENT_SECRET", "")
     USE_LIVE_COPERNICUS_API: bool = os.getenv("USE_LIVE_COPERNICUS_API", "false").lower() in ("true", "1", "yes")
 
-    # Web3 / MetaMask Polygon (PoS) Configuration
+    # Web3 / MetaMask Multi-Chain Configuration (Polygon, Base, Arbitrum)
     POLYGON_METAMASK_WALLET_ADDRESS: str = os.getenv("POLYGON_METAMASK_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
     POLYGON_CHAIN_ID: int = int(os.getenv("POLYGON_CHAIN_ID", "137"))
-    POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-rpc.com")
+    POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
+
+    BASE_CHAIN_ID: int = int(os.getenv("BASE_CHAIN_ID", "8453"))
+    BASE_RPC_URL: str = os.getenv("BASE_RPC_URL", "https://mainnet.base.org")
+
+    ARBITRUM_CHAIN_ID: int = int(os.getenv("ARBITRUM_CHAIN_ID", "42161"))
+    ARBITRUM_RPC_URL: str = os.getenv("ARBITRUM_RPC_URL", "https://arb1.arbitrum.io/rpc")
+
+    # Native USDC Contract Addresses
+    POLYGON_USDC_CONTRACT: str = os.getenv("POLYGON_USDC_CONTRACT", "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359")
+    BASE_USDC_CONTRACT: str = os.getenv("BASE_USDC_CONTRACT", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")
+    ARBITRUM_USDC_CONTRACT: str = os.getenv("ARBITRUM_USDC_CONTRACT", "0xaf88d065e77c8cC2239327C5EDb3A432268e5831")
+
+    # Deployed AgentPaymentVault Smart Contracts
+    POLYGON_AGENT_PAYMENT_VAULT: str = os.getenv("POLYGON_AGENT_PAYMENT_VAULT", "0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861")
+    BASE_AGENT_PAYMENT_VAULT: str = os.getenv("BASE_AGENT_PAYMENT_VAULT", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
+    ARBITRUM_AGENT_PAYMENT_VAULT: str = os.getenv("ARBITRUM_AGENT_PAYMENT_VAULT", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
 
     # Glama.ai Inter-Agent Mesh MCP Endpoints
     SECURITY_GATE_MCP_URL: str = os.getenv("SECURITY_GATE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/security-gate-x402")

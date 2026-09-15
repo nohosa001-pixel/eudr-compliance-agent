@@ -426,10 +426,12 @@ async def evaluate_supply_chain(
     )
 
     # Step 3: Legal Document Audit
+    dest_country = payload.destination_country or (payload.operator.country if payload.operator else None)
     legal_audit_result = LegalAuditor.audit_documents(
         documents=payload.documents,
         plots=payload.plots,
-        commodity=payload.commodity
+        commodity=payload.commodity,
+        destination_country=dest_country
     )
 
     # Step 4: DDS Assembly & Report Generation
@@ -524,7 +526,10 @@ async def evaluate_supply_chain_traces_xml(
 
     spatial_valid, spatial_results, spatial_summary = TraceabilityCollector.collect_and_validate(payload.plots)
     deforest_free, satellite_results, satellite_summary = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_results)
-    legal_audit_result = LegalAuditor.audit_documents(payload.documents, payload.plots, payload.commodity)
+    dest_country = payload.destination_country or (payload.operator.country if payload.operator else None)
+    legal_audit_result = LegalAuditor.audit_documents(
+        payload.documents, payload.plots, payload.commodity, destination_country=dest_country
+    )
 
     report = DDSGenerator.assemble_report(
         payload=payload,
@@ -576,7 +581,10 @@ async def get_audit_traces_xml(execution_id: str, db: Session = Depends(get_db))
         payload = EUDRSupplyChainPayload.model_validate(record.payload_snapshot)
         spatial_valid, spatial_results, _ = TraceabilityCollector.collect_and_validate(payload.plots)
         deforest_free, satellite_results, _ = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_results)
-        legal_audit_result = LegalAuditor.audit_documents(payload.documents, payload.plots, payload.commodity)
+        dest_c = payload.destination_country or (payload.operator.country if payload.operator else None)
+        legal_audit_result = LegalAuditor.audit_documents(
+            payload.documents, payload.plots, payload.commodity, destination_country=dest_c
+        )
 
         dds_ref = record.dds_reference_id or f"DDS-EUDR-{execution_id[:8].upper()}"
         xml_content = TracesNTSchemaMapper.map_to_traces_xml(

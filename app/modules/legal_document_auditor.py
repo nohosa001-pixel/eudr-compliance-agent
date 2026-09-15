@@ -32,12 +32,23 @@ class LegalAuditor:
         "FI": RiskTierEnum.LOW,   # Finland
         "DE": RiskTierEnum.LOW,   # Germany
         "FR": RiskTierEnum.LOW,   # France
+        "GF": RiskTierEnum.LOW,   # French Guiana (French Overseas Department / Outermost Region)
         "CA": RiskTierEnum.LOW,   # Canada
         "US": RiskTierEnum.LOW,   # United States
         "KR": RiskTierEnum.LOW,   # South Korea
         "JP": RiskTierEnum.LOW,   # Japan
         "AT": RiskTierEnum.LOW,   # Austria
         "NO": RiskTierEnum.LOW,   # Norway
+    }
+
+    # EU Outermost Regions (TFEU Article 349) Exemption Configurations
+    OMR_REGIONS: Dict[str, str] = {
+        "GF": "French Guiana (Guyane)",
+    }
+
+    # Border trading partner countries eligible for bilateral local cross-border exemption
+    OMR_BORDER_PARTNERS: Dict[str, Set[str]] = {
+        "GF": {"BR", "SR"},  # Brazil, Suriname
     }
 
     # Mandatory Document Requirements per Risk Tier
@@ -115,12 +126,61 @@ class LegalAuditor:
         return highest_risk
 
     @classmethod
+    def evaluate_outermost_region_status(
+        cls,
+        origin_countries: List[str],
+        destination_country: Optional[str] = None
+    ) -> Tuple[bool, bool, Optional[str]]:
+        """
+        Evaluates EUDR status for EU Outermost Regions (OMR) under TFEU Article 349 
+        (e.g., European Commission September 2026 French Guiana Special Legislative Proposal).
+        
+        Returns:
+            Tuple[is_omr_exempt, transshipment_risk, defense_statement]
+        """
+        origin_upper = {c.upper() for c in origin_countries}
+        dest_upper = destination_country.upper() if destination_country else None
+
+        omr_matches = origin_upper.intersection(cls.OMR_REGIONS.keys())
+        if not omr_matches:
+            return False, False, None
+
+        omr_code = next(iter(omr_matches))
+        omr_name = cls.OMR_REGIONS[omr_code]
+        border_partners = cls.OMR_BORDER_PARTNERS.get(omr_code, set())
+
+        # Case 1: Local consumption within OMR or bilateral border trade with adjacent non-EU neighbors
+        # (e.g. GF -> GF, GF -> BR, GF -> SR, or destination is None and only GF plots)
+        is_local_or_border = (
+            dest_upper == omr_code or
+            (dest_upper in border_partners) or
+            (dest_upper is None and len(origin_upper) == 1 and omr_code in origin_upper)
+        )
+
+        if is_local_or_border:
+            statement = (
+                f"Statutory OMR Exemption (TFEU Art. 349): Goods originating and consumed within {omr_name} "
+                f"or cross-border trade with adjacent border partners ({', '.join(sorted(border_partners))}) "
+                "are formally exempted from EUDR Due Diligence Statement (DDS) requirements under the European Commission legislative proposal."
+            )
+            return True, False, statement
+
+        # Case 2: Outermost Region origin or transit to EU Mainland (or other EU member states e.g. FR, DE, NL)
+        statement = (
+            f"EU Mainland Transit / Transshipment Risk Notice: Goods originating from or transiting {omr_name} "
+            f"destined for EU Mainland ({dest_upper or 'EU Internal Market'}) remain subject to strict EUDR due diligence. "
+            "Enhanced customs scrutiny applies to prevent circumvention and transshipment laundering from neighboring Amazonian regions."
+        )
+        return False, True, statement
+
+    @classmethod
     def audit_documents(
         cls, 
         documents: List[LegalDocumentInput], 
         plots: List[ProductionPlotInput],
         commodity: Optional[CommodityInfo] = None,
-        reference_date: Optional[date] = None
+        reference_date: Optional[date] = None,
+        destination_country: Optional[str] = None
     ) -> LegalAuditResult:
         if not reference_date:
             reference_date = date.today()
@@ -160,7 +220,20 @@ class LegalAuditor:
                 notes.append("Advisory: Wood/timber commodity (Annex I) should specify botanical scientific species name.")
                 risk_penalties += 0.1
 
-        if is_simplified:
+        # Outermost Region (OMR / French Guiana TFEU Art. 349) Evaluation
+        is_omr_exempt, transshipment_risk, omr_statement = cls.evaluate_outermost_region_status(
+            origin_countries=country_codes,
+            destination_country=destination_country
+        )
+
+        if is_omr_exempt:
+            is_exempt = True
+            exemption_reason = omr_statement
+            notes.append(omr_statement)
+        elif transshipment_risk:
+            notes.append(f"TRANSSHIPMENT_ALERT: {omr_statement}")
+
+        if is_simplified and not is_exempt:
             notes.append("Simplified Due Diligence (EUDR Article 13) applied: Origin country classified as Low Risk.")
 
         # Check each document validity
@@ -202,6 +275,9 @@ class LegalAuditor:
             commodity_category=category,
             is_exempt_from_eudr=is_exempt,
             exemption_reason=exemption_reason,
+            outermost_region_exemption_applied=is_omr_exempt,
+            transshipment_risk_flag=transshipment_risk,
+            omr_defense_statement=omr_statement,
             verified_documents_count=len(documents),
             missing_required_documents=[] if is_exempt else missing_docs,
             expired_documents=expired_docs,

@@ -121,6 +121,9 @@ class TracesNTSchemaMapper:
                 "legalProductionArticle3b": True,
                 "countryRiskClassification": legal_audit.country_risk_tier.value,
                 "simplifiedDueDiligenceApplied": legal_audit.simplified_due_diligence_eligible,
+                "outermostRegionExemptionApplied": getattr(legal_audit, "outermost_region_exemption_applied", False),
+                "transshipmentRiskFlag": getattr(legal_audit, "transshipment_risk_flag", False),
+                "omrRegulatoryDefenseStatement": getattr(legal_audit, "omr_defense_statement", None),
                 "auditedDocumentsCount": legal_audit.verified_documents_count,
                 "statutoryDeclarationText": (
                     "The operator confirms having exercised due diligence in accordance with Regulation (EU) 2023/1115. "
@@ -262,6 +265,10 @@ class TracesNTSchemaMapper:
         ET.SubElement(attestation, "LegalProductionArticle3b").text = "true"
         ET.SubElement(attestation, "CountryRiskClassification").text = legal_audit.country_risk_tier.value
         ET.SubElement(attestation, "SimplifiedDueDiligenceApplied").text = str(legal_audit.simplified_due_diligence_eligible).lower()
+        ET.SubElement(attestation, "OutermostRegionExemptionApplied").text = str(getattr(legal_audit, "outermost_region_exemption_applied", False)).lower()
+        ET.SubElement(attestation, "TransshipmentRiskFlag").text = str(getattr(legal_audit, "transshipment_risk_flag", False)).lower()
+        if getattr(legal_audit, "omr_defense_statement", None):
+            ET.SubElement(attestation, "OMRRegulatoryDefenseStatement").text = legal_audit.omr_defense_statement
         ET.SubElement(attestation, "AuditedDocumentsCount").text = str(legal_audit.verified_documents_count)
         ET.SubElement(attestation, "StatutoryDeclarationText").text = (
             "The operator confirms having exercised due diligence in accordance with Regulation (EU) 2023/1115. "

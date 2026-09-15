@@ -214,6 +214,7 @@ class EUDRSupplyChainPayload(BaseModel):
     commodity: CommodityInfo
     plots: List[ProductionPlotInput] = Field(..., min_length=1)
     documents: List[LegalDocumentInput] = Field(default_factory=list)
+    destination_country: Optional[str] = Field(None, description="ISO 3166-1 alpha-2 destination country code (e.g., 'FR', 'DE', 'GF')")
 
 # --- Analysis & Compliance Output Schemas ---
 
@@ -281,6 +282,9 @@ class LegalAuditResult(BaseModel):
     commodity_category: EUDRCommodityCategory = EUDRCommodityCategory.OTHER
     is_exempt_from_eudr: bool = False
     exemption_reason: Optional[str] = None
+    outermost_region_exemption_applied: bool = False
+    transshipment_risk_flag: bool = False
+    omr_defense_statement: Optional[str] = None
     verified_documents_count: int
     missing_required_documents: List[str] = Field(default_factory=list)
     expired_documents: List[str] = Field(default_factory=list)

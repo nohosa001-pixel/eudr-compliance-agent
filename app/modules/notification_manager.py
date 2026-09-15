@@ -1,3 +1,4 @@
+import os
 import logging
 import json
 import urllib.request
@@ -11,7 +12,21 @@ class NotificationManager:
     """
     Manages instant enterprise notifications for inbound customer leads,
     demo requests, and high-value compliance audit inquiries.
+    Includes strict spam, test, and synthetic fake-message suppression.
     """
+
+    FAKE_PATTERNS = (
+        "test@", "@example.com", "fake_", "canary-", "mock-",
+        "test company", "autonomous trade bot", "autonomous procurement llm",
+        "plot-canary", "plot-deforest-2022-x", "fuzz_", "ord-test",
+        "supp-deforest", "test-compact", "test-order", "test-pro-client",
+        "agritrade global b.v."
+    )
+
+    @classmethod
+    def is_fake_or_test_content(cls, text: str) -> bool:
+        lowered = text.lower()
+        return any(pattern in lowered for pattern in cls.FAKE_PATTERNS)
 
     @classmethod
     def send_telegram_message(
@@ -19,11 +34,33 @@ class NotificationManager:
         text: str,
         parse_mode: str = "Markdown",
         bot_token: Optional[str] = None,
-        chat_id: Optional[str] = None
+        chat_id: Optional[str] = None,
+        force_live: bool = False
     ) -> bool:
         """
-        Dispatches any message text directly to Telegram.
+        Dispatches verified message text directly to Telegram.
+        Automatically intercepts and suppresses fake/synthetic test messages.
         """
+        # 1. Global kill-switch check
+        if not getattr(settings, "TELEGRAM_NOTIFICATIONS_ENABLED", True):
+            logger.info(f"[TELEGRAM DISABLED] Notification skipped: {text[:80]}...")
+            return False
+
+        # 2. Automated test environment suppression (pytest, CI, local testing)
+        is_testing = (
+            bool(os.environ.get("PYTEST_CURRENT_TEST"))
+            or os.environ.get("TESTING", "").lower() in ("true", "1", "yes")
+        )
+        if is_testing and not force_live:
+            logger.info(f"[TELEGRAM SUPPRESSED IN TEST] {text[:80]}...")
+            return True
+
+        # 3. Intercept and block fake / mock / synthetic payloads
+        allow_test_alerts = getattr(settings, "TELEGRAM_ALLOW_TEST_NOTIFICATIONS", False)
+        if not allow_test_alerts and not force_live and cls.is_fake_or_test_content(text):
+            logger.warning(f"[TELEGRAM BLOCKED FAKE MESSAGE] Intercepted synthetic test alert: {text[:100]}...")
+            return True
+
         token = bot_token or settings.TELEGRAM_BOT_TOKEN
         cid = chat_id or settings.TELEGRAM_CHAT_ID
 

@@ -27,9 +27,11 @@ class Settings(BaseModel):
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
     USE_DISTRIBUTED_QUEUE: bool = False
 
-    # Telegram Alert Configuration (synced with minerals-oracle)
+    # Telegram Alert Configuration
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
+    TELEGRAM_NOTIFICATIONS_ENABLED: bool = os.getenv("TELEGRAM_NOTIFICATIONS_ENABLED", "true").lower() in ("true", "1", "yes")
+    TELEGRAM_ALLOW_TEST_NOTIFICATIONS: bool = os.getenv("TELEGRAM_ALLOW_TEST_NOTIFICATIONS", "false").lower() in ("true", "1", "yes")
 
     # PostgreSQL / PostGIS Settings
     POSTGRES_SERVER: str = "localhost"

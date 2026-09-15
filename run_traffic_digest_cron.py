@@ -72,17 +72,20 @@ def generate_and_send_digest():
     if traffic and "top_pages" in traffic and traffic["top_pages"]:
         top_pages_str = "\n".join([f"    • `{k}`: {v}회" for k, v in list(traffic["top_pages"].items())[:4]])
     else:
-        top_pages_str = "    • `/` (메인): 8회\n    • `/supplier-portal`: 3회\n    • `/docs`: 2회"
+        top_pages_str = "    • 실시간 방문 페이지: 0건 (모니터링 대기 중)"
+
+    human_count = traffic.get('human_visitors', 0) if (traffic and isinstance(traffic, dict)) else 0
+    blocked_count = traffic.get('blocked_scanners', 0) if (traffic and isinstance(traffic, dict)) else 0
 
     msg = (
-        f"📊 *[EUDRAgent.com] 정기 트래픽 & 운영 다이제스트 (A-Option)*\n\n"
+        f"📊 *[EUDRAgent.com] 정기 트래픽 & 운영 다이제스트 (실측치)*\n\n"
         f"⏰ *보고 시각*: `{kst_time}`\n"
         f"🌐 *서비스 상태*: 🟢 정상 가동 중 (Google Cloud Run)\n\n"
-        f"👥 *방문자 탐색 현황*:\n"
-        f"  • 최근 유효 탐색 요청: `{traffic.get('human_visitors', 12) if traffic else 12}` 건\n"
+        f"👥 *방문자 탐색 현황 (실제 집계)*:\n"
+        f"  • 최근 유효 탐색 요청: `{human_count}` 건\n"
         f"  • 주요 조회 페이지:\n{top_pages_str}\n"
-        f"  • 🛡️ 차단된 비인가 스캐너: `{traffic.get('blocked_scanners', 5) if traffic else 5}` 건\n\n"
-        f"📈 *누적 데이터*:\n"
+        f"  • 🛡️ 차단된 비인가 스캐너: `{blocked_count}` 건\n\n"
+        f"📈 *누적 실제 데이터*:\n"
         f"  • 🛰️ 누적 필지 감사: `{total_audits}` 건\n"
         f"  • 📬 누적 엔터프라이즈 리드: `{total_leads}` 건\n"
     )

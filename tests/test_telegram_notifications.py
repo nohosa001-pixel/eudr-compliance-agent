@@ -107,3 +107,17 @@ def test_telegram_stripe_subscription_notification():
         assert "compliance@eurosupply.eu" in msg
         assert "Enterprise Scale Tier" in msg
         assert "$499.00 USD" in msg
+
+def test_fake_or_test_content_filtering():
+    """Verify synthetic and test payloads are automatically detected and blocked."""
+    assert NotificationManager.is_fake_or_test_content("New order from test@example.com") is True
+    assert NotificationManager.is_fake_or_test_content("Execution: CANARY-PLOT-01") is True
+    assert NotificationManager.is_fake_or_test_content("Order from AgriTrade Global B.V.") is True
+    assert NotificationManager.is_fake_or_test_content("Live real operator Hamburg Coffee GmbH") is False
+
+def test_send_telegram_suppresses_in_test_environment():
+    """Verify live network request is NOT made during testing, protecting user's Telegram."""
+    with patch("urllib.request.urlopen") as mock_url:
+        res = NotificationManager.send_telegram_message("Live real operator Hamburg Coffee GmbH")
+        assert res is True
+        mock_url.assert_not_called()

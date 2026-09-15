@@ -459,7 +459,8 @@ async def evaluate_supply_chain(
         # DB save non-fatal for evaluation response
         pass
 
-    if compact:
+    is_compact = compact is True or (isinstance(compact, str) and compact.lower() in ("true", "1", "yes"))
+    if is_compact:
         return DDSGenerator.assemble_compact_report(report, payload)
 
     return report
@@ -486,7 +487,7 @@ async def evaluate_supply_chain_html(
     db: Session = Depends(get_db)
 ):
     """Runs evaluation and outputs a printable styled HTML report (Supports: 'en', 'ko', 'fr', 'es', 'de', 'pt')."""
-    report = await evaluate_supply_chain(payload, db=db)
+    report = await evaluate_supply_chain(payload, compact=False, db=db)
     html_content = DDSGenerator.generate_html_report(report, lang=lang)
     return HTMLResponse(content=html_content, status_code=200)
 
@@ -623,7 +624,7 @@ async def evaluate_customs_certificate(
     db: Session = Depends(get_db)
 ):
     """Evaluates supply chain and returns official EU SWE-C Green Lane Customs Clearance Certificate HTML."""
-    report = await evaluate_supply_chain(payload, db=db)
+    report = await evaluate_supply_chain(payload, compact=False, db=db)
     cert_html = DDSGenerator.generate_customs_clearance_certificate_html(report=report, lang=lang)
     return HTMLResponse(content=cert_html, status_code=200)
 

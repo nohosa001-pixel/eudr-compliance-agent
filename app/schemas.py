@@ -345,6 +345,33 @@ class DDSReport(BaseModel):
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 
+class CompactDDSReport(BaseModel):
+    execution_id: str
+    status: ComplianceStatusEnum
+    overall_compliant: bool
+    summary_message: str
+    commodity: str
+    commodity_hs_code: str
+    total_plots_count: int
+    compliant_plots_count: int
+    flagged_plots_count: int
+    flagged_plot_ids: List[str] = Field(default_factory=list)
+    risk_score: float
+    country_risk_tier: str
+    deforestation_free: bool
+    outermost_region_exemption_applied: bool = False
+    transshipment_risk_flag: bool = False
+    dds_reference_id: Optional[str] = None
+    digital_signature_hash: Optional[str] = None
+    traces_xml_download_url: Optional[str] = None
+    full_report_download_url: str
+    customs_certificate_url: Optional[str] = None
+    token_savings_pct: float = Field(95.0, description="Estimated LLM prompt/context token reduction percentage")
+    agent_summary: str
+    evaluation_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
 # Aliases for convenience
 FullComplianceReport = DDSReport
 TRACESDDSStatement = TRACESNTStatement
@@ -615,6 +642,46 @@ class X402ChallengeResponse(BaseModel):
     mcp_tool_action: str
     agent_payment_vaults: Optional[Dict[str, str]] = None
     usdc_contracts: Optional[Dict[str, str]] = None
+    eip3009_supported: bool = True
+    eip3009_endpoint: str = "/api/v1/payment/agent/eip3009-authorize"
+    eip3009_specs: Optional[Dict[str, Any]] = None
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+# --- EIP-3009 Gasless 1-Turn Transfer With Authorization Schemas ---
+
+class EIP3009AuthorizationRequest(BaseModel):
+    from_address: str = Field(..., description="EVM address of authorizer (sender)")
+    to_address: Optional[str] = Field(None, description="EVM address of recipient (default to AgentPaymentVault or server deposit wallet)")
+    value_usdc: float = Field(..., gt=0, description="Authorized USDC amount in decimal (e.g. 1.50)")
+    valid_after: int = Field(0, description="Unix timestamp after which authorization is valid (0 for immediate)")
+    valid_before: int = Field(..., description="Unix timestamp before which authorization is valid")
+    nonce: str = Field(..., description="Unique 32-byte hex nonce for replay protection")
+    signature: Optional[str] = Field(None, description="Compact 65-byte EIP-712 hex signature (0x + 130 hex chars)")
+    v: Optional[int] = Field(None, description="ECDSA recovery ID (27 or 28)")
+    r: Optional[str] = Field(None, description="ECDSA r value (32-byte hex)")
+    s: Optional[str] = Field(None, description="ECDSA s value (32-byte hex)")
+    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.BASE
+    agent_id: Optional[str] = Field(None, description="Calling autonomous agent identifier")
+    num_plots: Optional[int] = Field(None, description="Number of plots to credit (defaults to value_usdc / 0.10)")
+
+class EIP3009AuthorizationResponse(BaseModel):
+    status: str = "AUTHORIZED_AND_REDEEMED"
+    authorization_type: str = "EIP-3009_TRANSFER_WITH_AUTHORIZATION"
+    agent_id: str
+    from_address: str
+    to_address: str
+    amount_usdc: float
+    chain: str
+    nonce: str
+    valid_before_utc: str
+    gasless_for_agent: bool = True
+    num_plots_credited: int
+    auth_token: str
+    usdc_contract: str
+    agent_payment_vault: str
+    message: str
+    authorization_digest: Optional[str] = None
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 

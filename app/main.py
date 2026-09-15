@@ -9,7 +9,7 @@ import uuid
 import json
 import asyncio
 from pathlib import Path
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 
 import importlib
 
@@ -22,6 +22,7 @@ except Exception:
 from app.schemas import (
     EUDRSupplyChainPayload, 
     DDSReport, 
+    CompactDDSReport, 
     ProductionPlotInput,
     SpatialPlotResult,
     EUDRCommodityCategory,
@@ -40,6 +41,8 @@ from app.schemas import (
     LeadInquiryResponse,
     AgentMicroPaymentRequest,
     AgentMicroPaymentResponse,
+    EIP3009AuthorizationRequest,
+    EIP3009AuthorizationResponse,
     AgentBudgetStatusResponse,
     X402ChallengeResponse,
     WebhookSubscribeRequest,
@@ -397,12 +400,13 @@ async def validate_single_plot(plot: ProductionPlotInput):
 )
 @app.post(
     f"{settings.API_V1_PREFIX}/eudr/evaluate",
-    response_model=DDSReport,
+    response_model=Union[CompactDDSReport, DDSReport],
     tags=["EUDR Pipeline Evaluation"],
     summary="End-to-end EUDR compliance evaluation and TRACES-NT DDS generation"
 )
 async def evaluate_supply_chain(
     payload: EUDRSupplyChainPayload,
+    compact: bool = Query(False, description="When true, returns an ultra-compact (~300 token) summary report optimized for LLM agent context windows"),
     db: Session = Depends(get_db)
 ):
     """
@@ -454,6 +458,9 @@ async def evaluate_supply_chain(
     except Exception:
         # DB save non-fatal for evaluation response
         pass
+
+    if compact:
+        return DDSGenerator.assemble_compact_report(report, payload)
 
     return report
 
@@ -1153,6 +1160,29 @@ async def process_agent_micro_settlement(
     Instantly provisions an authenticated agent execution token.
     """
     return PaymentManager.process_agent_micro_payment(payload, db_session=db)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/agent/eip3009-authorize",
+    response_model=EIP3009AuthorizationResponse,
+    tags=["Autonomous Agent M2M Payments (x402 / USDC)"],
+    summary="Gasless EIP-3009 1-Turn Transfer With Authorization for AI Agents"
+)
+async def process_eip3009_authorization_endpoint(
+    payload: EIP3009AuthorizationRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Validates gasless EIP-3009 Transfer With Authorization for autonomous AI agents.
+    Enables 1-turn instant execution without agent gas fees or prior on-chain broadcasts.
+    """
+    try:
+        return PaymentManager.process_eip3009_authorization(payload, db_session=db)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
 
 
 @app.get(

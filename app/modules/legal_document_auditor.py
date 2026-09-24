@@ -71,12 +71,12 @@ class LegalAuditor:
     }
 
     EXEMPTED_HS_CODES: Dict[str, str] = {
-        "4101": "Raw hides and skins of bovine (cattle) exempted under July 2026 EUDR revision",
-        "4104": "Tanned or crust hides and skins of bovine exempted under July 2026 EUDR revision",
-        "4107": "Leather further prepared after tanning exempted under July 2026 EUDR revision",
-        "4012": "Retreaded pneumatic tyres of rubber exempted under July 2026 EUDR revision",
-        "120110": "Soya beans for sowing/seed exempted under July 2026 EUDR revision",
-        "4016": "Other articles of vulcanised rubber exempted under July 2026 EUDR revision",
+        "4101": "Raw hides and skins of bovine (cattle) formally excluded (EUDR Delegated Act finalized Sept 2026)",
+        "4104": "Tanned or crust hides and skins of bovine formally excluded (EUDR Delegated Act finalized Sept 2026)",
+        "4107": "Leather further prepared after tanning formally excluded (EUDR Delegated Act finalized Sept 2026)",
+        "4012": "Retreaded pneumatic tyres of rubber exempted under EUDR revision (finalized Sept 2026)",
+        "120110": "Soya beans for sowing/seed exempted under EUDR revision (finalized Sept 2026)",
+        "4016": "Other articles of vulcanised rubber exempted under EUDR revision (finalized Sept 2026)",
     }
 
     @classmethod

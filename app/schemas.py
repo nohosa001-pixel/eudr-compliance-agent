@@ -805,3 +805,96 @@ class OneClickExportBundleResponse(BaseModel):
     legal_audit_verdict: Dict[str, Any]
     dossier_html_url: Optional[str] = None
 
+
+# --- Advanced EUDR 2026 Elevation Schemas ---
+
+class CountryBenchmarkingTierEnum(str, Enum):
+    LOW = "LOW"
+    STANDARD = "STANDARD"
+    HIGH = "HIGH"
+
+class CountryBenchmarkingResponse(BaseModel):
+    country_code: str
+    country_name: str
+    risk_tier: CountryBenchmarkingTierEnum
+    customs_inspection_rate_pct: float
+    simplified_due_diligence_eligible: bool  # Article 13
+    risk_assessment_required: bool
+    risk_mitigation_required: bool
+    mandatory_fpic_required: bool
+    mandatory_radar_cross_check: bool
+    regulatory_basis: str
+    effective_timeline: Dict[str, str]
+
+class DownstreamChainRequest(BaseModel):
+    downstream_operator_name: str
+    downstream_operator_eori: str
+    commodity_code: str  # HS code of finished/processed product
+    commodity_description: str
+    net_mass_kg: float
+    upstream_dds_references: List[str]  # e.g. ["EU.DDS.2026.BR-SOYA-001", "EU.DDS.2026.ID-PALM-002"]
+    manufacturing_country: str = "DE"
+    shipment_bl_number: Optional[str] = None
+
+class DownstreamChainResponse(BaseModel):
+    chain_reference_id: str
+    downstream_dds_id: str
+    downstream_operator_eori: str
+    commodity_code: str
+    upstream_dds_count: int
+    upstream_verified_references: List[str]
+    cascade_risk_status: str  # CLEAN_UPSTREAM, REVOKED_ALERT, PENDING_AUDIT
+    is_cleared_for_eu_free_circulation: bool
+    customs_chain_qr_url: str
+    timestamp_utc: str
+    statement_summary: str
+
+class StatutoryExemptionNoticeRequest(BaseModel):
+    hs_code: str
+    product_description: str
+    importer_name: str
+    importer_eori: str
+    origin_country: str
+    destination_country: str = "EU"
+    b_l_number: Optional[str] = None
+
+class StatutoryExemptionNoticeResponse(BaseModel):
+    certificate_id: str
+    hs_code: str
+    product_description: str
+    importer_name: str
+    importer_eori: str
+    is_exempt_from_eudr: bool
+    statutory_legal_basis: str
+    scrutiny_period_completion_date: str
+    official_customs_advice: str
+    html_certificate_url: str
+    generated_at_utc: str
+
+class ParcelSlicingRequest(BaseModel):
+    parent_plot_id: str
+    country_code: str
+    declared_area_ha: float
+    geometry: Dict[str, Any]  # GeoJSON Polygon / MultiPolygon
+    target_parcel_max_ha: float = 3.5  # EUDR 4.0 ha threshold safeguard
+    estimated_farmers_count: Optional[int] = None
+
+class SlicedParcelItem(BaseModel):
+    sub_plot_id: str
+    area_hectares: float
+    geometry: Dict[str, Any]
+    coordinates_precision: int = 6
+    is_closed_ring: bool = True
+    centroid: List[float]
+
+class ParcelSlicingResponse(BaseModel):
+    parent_plot_id: str
+    original_area_ha: float
+    slices_count: int
+    all_slices_under_4ha: bool
+    sliced_parcels: List[SlicedParcelItem]
+    slicing_algorithm: str
+    traces_geojson_feature_collection: Dict[str, Any]
+    message: str
+
+

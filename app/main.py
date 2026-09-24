@@ -59,9 +59,20 @@ from app.schemas import (
     OneClickExportBundleResponse,
     get_default_meta_dict,
     LEGAL_DISCLAIMER_TEXT,
-    LEGAL_WARRANTY_TEXT
+    LEGAL_WARRANTY_TEXT,
+    CountryBenchmarkingResponse,
+    DownstreamChainRequest,
+    DownstreamChainResponse,
+    StatutoryExemptionNoticeRequest,
+    StatutoryExemptionNoticeResponse,
+    ParcelSlicingRequest,
+    ParcelSlicingResponse
 )
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
+from app.modules.parcel_slicing_engine import ParcelSlicingEngine
+from app.modules.country_benchmarking import CountryBenchmarkingService
+from app.modules.downstream_chain_manager import DownstreamChainManager
+from app.modules.statutory_exemption_issuer import StatutoryExemptionIssuer
 from app.modules.traceability_collector import TraceabilityCollector
 from app.modules.deforestation_simulator import DeforestationAnalyzer, DeforestationSimulator
 from app.modules.legal_document_auditor import LegalAuditor
@@ -391,6 +402,106 @@ async def validate_single_plot(plot: ProductionPlotInput):
     - Checks 4ha polygon rule and computes WGS84 geodesic area.
     """
     return SpatialValidator.validate_plot(plot, auto_heal=True)
+
+# -------------------------------------------------------------------------
+# Advanced EUDR Elevation: Article 29 Country Benchmarking (Low/Standard/High)
+# -------------------------------------------------------------------------
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/benchmarking/{{country_code}}",
+    response_model=CountryBenchmarkingResponse,
+    tags=["EUDR Regulations"],
+    summary="Retrieve EUDR Article 29 Country Benchmarking risk tier and Article 13 simplified status"
+)
+async def get_country_benchmarking(country_code: str):
+    """
+    Returns European Commission Benchmarking Classification:
+    - LOW: 1% Customs Inspection Rate, Simplified Due Diligence (Article 13).
+    - STANDARD: 3% Customs Inspection Rate, Standard Due Diligence (Articles 8-11).
+    - HIGH: 9% Customs Inspection Rate, Mandatory Strict FPIC & Satellite Radar Cross-Check.
+    """
+    return CountryBenchmarkingService.get_benchmarking(country_code)
+
+# -------------------------------------------------------------------------
+# Advanced EUDR Elevation: Downstream Reference Chaining (Article 4(8))
+# -------------------------------------------------------------------------
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/downstream/chain-dds",
+    response_model=DownstreamChainResponse,
+    tags=["EUDR Regulations"],
+    summary="Register downstream operator pass-through DDS reference under EUDR Article 4(8)"
+)
+async def register_downstream_chain_dds(payload: DownstreamChainRequest):
+    """
+    Allows Tier-2/Tier-3 processors, retailers, and traders to inherit upstream due diligence
+    without duplicating smallholder GIS scans, with real-time cascade risk invalidation tracking.
+    """
+    return DownstreamChainManager.register_downstream_chain(payload)
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/downstream/chain/{{chain_reference_id}}/status",
+    tags=["EUDR Regulations"],
+    summary="Check cascade health status of a downstream chain reference"
+)
+async def get_downstream_chain_status(chain_reference_id: str):
+    """
+    Inspects whether any upstream parent DDS reference has been revoked or quarantined.
+    """
+    return DownstreamChainManager.check_cascade_health(chain_reference_id)
+
+# -------------------------------------------------------------------------
+# Advanced EUDR Elevation: Statutory Exemption Certificate (Delegated Act Sept 2026)
+# -------------------------------------------------------------------------
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/exemption/certificate",
+    response_model=StatutoryExemptionNoticeResponse,
+    tags=["EUDR Regulations"],
+    summary="Issue official Statutory Exemption Certificate for excluded commodities (Bovine leather, rubber tyres)"
+)
+async def issue_statutory_exemption_certificate(payload: StatutoryExemptionNoticeRequest):
+    """
+    Generates a legally grounded Exemption Notice grounded in the finalized September 2026 Delegated Act.
+    Defends automotive seats, luxury goods, and bovine leather products (HS 4101, 4104, 4107) from customs detention.
+    """
+    return StatutoryExemptionIssuer.issue_certificate(payload)
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/exemption/certificate/html",
+    response_class=HTMLResponse,
+    tags=["EUDR Regulations"],
+    summary="Render printable EU Customs SWE-C Green Lane Statutory Exemption Certificate HTML"
+)
+async def get_statutory_exemption_certificate_html(
+    cert_id: str = Query("EU-EXEMPT-001"),
+    hs: str = Query("4107.12.00"),
+    importer: str = Query("European Automotive Group"),
+    eori: str = Query("DE123456789"),
+    desc: str = Query("Bovine Leather Automotive Upholstery")
+):
+    """Renders a styled, official European Commission SWE-C Green Lane certificate for customs inspectors."""
+    html_content = StatutoryExemptionIssuer.generate_html_certificate(
+        cert_id=cert_id,
+        hs_code=hs,
+        importer_name=importer,
+        importer_eori=eori,
+        product_description=desc
+    )
+    return HTMLResponse(content=html_content, status_code=200)
+
+# -------------------------------------------------------------------------
+# Advanced EUDR Elevation: Smallholder Parcel Auto-Slicing (Article 9 Single-Plot Defense)
+# -------------------------------------------------------------------------
+@app.post(
+    f"{settings.API_V1_PREFIX}/spatial/slice-aggregated-plot",
+    response_model=ParcelSlicingResponse,
+    tags=["Spatial GIS Validation"],
+    summary="Sub-divide an aggregated or oversized (>4ha) smallholder polygon into compliant parcels (<4ha each)"
+)
+async def slice_aggregated_plot(payload: ParcelSlicingRequest):
+    """
+    Eliminates '코걸이 2번' (Aggregated Multi-Grower Rejection Trap).
+    Automatically subdivides multi-grower cooperatives into independent, closed-ring sub-parcels (<4.0 ha each).
+    """
+    return ParcelSlicingEngine.slice_aggregated_plot(payload)
 
 @app.post(
     f"{settings.API_V1_PREFIX}/eudr/simulate",

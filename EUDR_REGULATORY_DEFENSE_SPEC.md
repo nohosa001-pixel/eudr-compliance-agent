@@ -128,10 +128,48 @@
 | **3. 위험 농가 사전 필터링** | 벌채 의심 농가 자동 배제 및 청정 배치 재구성 | Clean Batch Roster |
 | **4. TRACES 호환 DDS 발급기** | EU 집행위 포털 직결 표준 실사보고서 자동 생성 | DDS XML / JSON |
 | **5. 온체인 무결성 앵커링 게이트** | Security Gate 검사 + 블록체인 불변 해시 기록 | EIP-712 인증서 URL |
+| **6. 제29조 국가 벤치마킹 & 간이실사(Art 13)** | Low/Standard/High 3단계 리스크 평가 및 감사비율(1%/3%/9%) 산출 | 면제 판정서 & 검사 면제 증빙 |
+| **7. 제4조(8) 하류 공급망 참조 체이닝 & 전파 감시** | 상류 DDS 참조번호 승계 및 실시간 회수/결함 오염 전파 감시 | DDS 하류 참조 체인 & 무결성 검증서 |
+| **8. 2026 위임규정 법정 면제 증명서 발행기** | 소 가죽(HS 4101/4104/4107) 관세청 표적검사 방어용 그린 레인 증명서 | EU SWE-C 통관용 법정 면제서 |
+| **9. 소농 필지 자동 분할 엔진(Auto-Slicing)** | 제9조 4헥타르 초과 대형 농가/협동조합 필지의 6자리 WGS84 서브 필지 자동 분할 | TRACES 호환 다각형 분할 GeoJSON |
 
 ---
 
-## 4. 에이그리드 4대 자율 에이전트 연합과의 연계
+## 4. 고도화 모듈 상세 아키텍처 (Advanced EUDR Elevation)
+
+### 4.1 제29조 국가 벤치마킹 & 제13조 간이 실사 (Country Benchmarking & Simplified Due Diligence)
+- **모듈**: `app/modules/country_benchmarking.py`
+- **엔드포인트**: `GET /api/v1/benchmarking/country-tier?country_code=XX`, `POST /api/v1/benchmarking/evaluate`
+- **주요 기능**:
+  - 저위험국(Low Risk - 1% 검사율), 표준위험국(Standard Risk - 3% 검사율), 고위험국(High Risk - 9% 검사율) 자동 맵핑.
+  - 저위험국 소싱 건에 대해 제10조(위험 평가) 및 제11조(위험 완화) 절차 자동 면제 판정(`simplified_due_diligence_applicable=True`).
+  - 우회/혼입/부패 정황 인입 시 즉시 간이 실사 철회 및 9% 고위험 감사 모드로 자동 강등.
+
+### 4.2 제4조(8) 하류 공급망 DDS 참조 체이닝 & 연쇄 리스크 모니터 (Downstream Reference Chaining)
+- **모듈**: `app/modules/downstream_chain_manager.py`
+- **엔드포인트**: `POST /api/v1/dds/chain/link`, `GET /api/v1/dds/chain/{dds_number}/status`
+- **주요 기능**:
+  - 하류 사업자(Downstream Operator/Trader)가 상류 수입업자의 DDS 참조번호(`EU-DDS-YYYY-XXXX...`)를 합법적으로 승계.
+  - 상류 공급망 실사 중복 비용을 0원으로 감축.
+  - 상류 DDS가 회원국 세관에서 회수(Revoked)되거나 벌채 의심 필지로 오염(Tainted)될 경우, 하류 체인의 모든 완제품 DDS에 대해 즉각적인 경보 및 리콜 방어 지침 전파.
+
+### 4.3 2026년 9월 위임규정 법정 면제 증명서 발급기 (Statutory Exemption Certificate Engine)
+- **모듈**: `app/modules/statutory_exemption_issuer.py`
+- **엔드포인트**: `POST /api/v1/exemptions/statutory-certificate`
+- **주요 기능**:
+  - 유럽의회·이사회 스크루티니 기간(2026-09-14)이 종료된 소 가죽 제품(HS 4101, 4104, 4107)에 대한 법적 면제 증빙 자동 발급.
+  - EU 단일 관세창구(EU SWE-C) 세관 감사관 대응용 공식 Green Lane HTML 면제 증명서(고유 Certificate ID, QR/체크섬 검증 코드 내장) 렌더링.
+
+### 4.4 제9조 소규모 농가 필지 자동 분할 슬라이싱 엔진 (Smallholder Parcel Auto-Slicing Engine)
+- **모듈**: `app/modules/parcel_slicing_engine.py`
+- **엔드포인트**: `POST /api/v1/geo/slice-parcel`
+- **주요 기능**:
+  - 인도네시아, 코트디부아르, 브라질 등 소농 협동조합의 4ha 초과 단일 다각형을 TRACES 규격인 4ha 미만 서브 필지로 자동 수직/수평 분할.
+  - WGS84 소수점 6자리 좌표 정밀도 보존 및 폐쇄 링(Closed ring) 검증 보장.
+
+---
+
+## 5. 에이그리드 4대 자율 에이전트 연합과의 연계
 
 - **`x402-cleanweb-agent`**: 수출입 B/L 및 농가 계약서 PDF에서 농가 좌표 자동 추출
 - **`security-gate-x402`**: 좌표 데이터 및 산림 수치의 환각/위조 5ms 사전 차단

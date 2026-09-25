@@ -255,3 +255,93 @@ async def test_mcp_new_3_tools_execution():
     })
     assert res_bid["status"] == "SUBMITTED"
     assert "submitted for RFQ" in res_bid["agent_summary"]
+
+
+def test_rigorous_edge_cases_and_error_recovery():
+    """Verify strict validation and error recovery on edge-case inputs."""
+    # 1. Fact-check with None or zero/negative mass
+    res_neg = AgentSecurityGateAdapter.inspect_compliance_fact_check(
+        commodity="coffee",
+        hs_code="0901.11",
+        declared_net_mass_kg=-50.0,
+        total_area_ha=2.0
+    )
+    assert res_neg["is_plausible"] is False
+    assert any("Invalid declared net mass" in a for a in res_neg["anomalies"])
+
+    # 2. Fact-check with None or 0 area (auto-healed to 0.1 without ZeroDivisionError)
+    res_zero_ha = AgentSecurityGateAdapter.inspect_compliance_fact_check(
+        commodity="coffee",
+        hs_code="0901.11",
+        declared_net_mass_kg=500.0,
+        total_area_ha=0.0
+    )
+    assert "computed_yield_kg_per_ha" in res_zero_ha
+    assert res_zero_ha["computed_yield_kg_per_ha"] > 0
+
+    # 3. RFQ creation with non-positive volume or price
+    with pytest.raises(ValueError, match="volume_kg must be greater than 0"):
+        AutonomousBiddingMarketplace.create_rfq(
+            buyer_agent_id="BUYER-EDGE",
+            buyer_agent_wallet="0x1111111111111111111111111111111111111111",
+            commodity="coffee",
+            hs_code="0901.11",
+            volume_kg=0.0,
+            max_price_usdc_per_kg=5.0
+        )
+
+    with pytest.raises(ValueError, match="max_price_usdc_per_kg must be greater than 0"):
+        AutonomousBiddingMarketplace.create_rfq(
+            buyer_agent_id="BUYER-EDGE",
+            buyer_agent_wallet="0x1111111111111111111111111111111111111111",
+            commodity="coffee",
+            hs_code="0901.11",
+            volume_kg=100.0,
+            max_price_usdc_per_kg=-1.0
+        )
+
+    # 4. Bid submission with non-positive price or empty plots
+    valid_rfq = AutonomousBiddingMarketplace.create_rfq(
+        buyer_agent_id="BUYER-EDGE",
+        buyer_agent_wallet="0x1111111111111111111111111111111111111111",
+        commodity="coffee",
+        hs_code="0901.11",
+        volume_kg=100.0,
+        max_price_usdc_per_kg=5.0
+    )
+    with pytest.raises(ValueError, match="price_usdc_per_kg must be greater than 0"):
+        AutonomousBiddingMarketplace.submit_bid(
+            rfq_id=valid_rfq["rfq_id"],
+            seller_agent_id="SELLER-EDGE",
+            seller_agent_wallet="0x2222222222222222222222222222222222222222",
+            price_usdc_per_kg=-2.0,
+            declared_plots=[{"plot_id": "P1"}]
+        )
+
+    with pytest.raises(ValueError, match="declared_plots cannot be empty"):
+        AutonomousBiddingMarketplace.submit_bid(
+            rfq_id=valid_rfq["rfq_id"],
+            seller_agent_id="SELLER-EDGE",
+            seller_agent_wallet="0x2222222222222222222222222222222222222222",
+            price_usdc_per_kg=4.0,
+            declared_plots=[]
+        )
+
+    # 5. Continuous monitor with malformed plot data does not crash
+    malformed_escrow = AgentEscrowManager.create_escrow({
+        "buyer_agent_id": "BUYER-MALFORMED",
+        "seller_agent_id": "SELLER-MALFORMED",
+        "buyer_wallet": "0x1111111111111111111111111111111111111111",
+        "seller_wallet": "0x2222222222222222222222222222222222222222",
+        "amount_usdc": 1000.0,
+        "plots": [{"plot_id": "CORRUPTED", "coordinates": "invalid-non-array-geometry"}],
+        "commodity": "coffee",
+        "hs_code": "0901.11"
+    })
+    AgentEscrowManager.fund_escrow({
+        "escrow_id": malformed_escrow.escrow_id,
+        "tx_hash": "0x" + "b" * 64
+    })
+    results = ContinuousSentinelMonitor.scan_active_escrows()
+    assert len(results) >= 1
+

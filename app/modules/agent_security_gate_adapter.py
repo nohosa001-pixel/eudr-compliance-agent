@@ -121,11 +121,18 @@ class AgentSecurityGateAdapter:
                 matched_yield_ceiling = ceiling
                 break
 
-        effective_ha = max(total_area_ha, 0.1)
-        yield_per_ha = declared_net_mass_kg / effective_ha
+        if declared_net_mass_kg is None or float(declared_net_mass_kg) <= 0:
+            anomalies.append(f"Invalid declared net mass: {declared_net_mass_kg}. Must be greater than 0 kg.")
+            anomaly_score += 50
+            effective_mass = 0.0
+        else:
+            effective_mass = float(declared_net_mass_kg)
+
+        effective_ha = max(float(total_area_ha or 0.1), 0.1)
+        yield_per_ha = effective_mass / effective_ha
 
         # If declared yield exceeds 3x world-record biological limit -> Flag severe hallucination/fraud
-        if yield_per_ha > (matched_yield_ceiling * 3.0):
+        if effective_mass > 0 and yield_per_ha > (matched_yield_ceiling * 3.0):
             anomalies.append(
                 f"Agronomic yield anomaly: {yield_per_ha:,.1f} kg/ha exceeds biological ceiling "
                 f"({matched_yield_ceiling * 3.0:,.1f} kg/ha). Possible fabricated data or smallholder volume inflation."

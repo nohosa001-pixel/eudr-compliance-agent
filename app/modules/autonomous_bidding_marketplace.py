@@ -37,6 +37,12 @@ class AutonomousBiddingMarketplace:
         AI Buyer agent broadcasts an EUDR compliance RFQ to the agent network.
         Validates prompt security and agronomic realism via x402 Security Gate.
         """
+        # 0. Numerical bounds check
+        if float(volume_kg) <= 0:
+            raise ValueError(f"volume_kg must be greater than 0, got {volume_kg}")
+        if float(max_price_usdc_per_kg) <= 0:
+            raise ValueError(f"max_price_usdc_per_kg must be greater than 0, got {max_price_usdc_per_kg}")
+
         # 1. Security Gate Prompt & AST check
         sec_check = AgentSecurityGateAdapter.inspect_text_security(f"{commodity} {notes}")
         if not sec_check["is_safe"]:
@@ -95,6 +101,11 @@ class AutonomousBiddingMarketplace:
         """
         AI Supplier agent submits a formal compliance bid for an active RFQ.
         """
+        if float(price_usdc_per_kg) <= 0:
+            raise ValueError(f"price_usdc_per_kg must be greater than 0, got {price_usdc_per_kg}")
+        if not declared_plots:
+            raise ValueError("declared_plots cannot be empty")
+
         if rfq_id not in cls._rfqs:
             raise KeyError(f"RFQ ID '{rfq_id}' not found.")
 

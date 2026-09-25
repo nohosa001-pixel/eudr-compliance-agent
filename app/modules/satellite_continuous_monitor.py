@@ -28,6 +28,20 @@ class ContinuousSentinelMonitor:
         scanned_results = []
         now_str = datetime.now(timezone.utc).isoformat()
 
+        # Sync database records with FUNDED_LOCKED status into memory if not present
+        try:
+            from app.db.session import SessionLocal
+            from app.db.models import EscrowAgreementRecord
+            db = SessionLocal() if SessionLocal else None
+            if db:
+                db_recs = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.status == "FUNDED_LOCKED").all()
+                for rec in db_recs:
+                    if rec.escrow_id not in AgentEscrowManager._escrows:
+                        AgentEscrowManager._escrows[rec.escrow_id] = AgentEscrowManager._model_to_dict(rec)
+                db.close()
+        except Exception:
+            pass
+
         # Iterate over registered in-memory escrows
         for escrow_id, escrow in list(AgentEscrowManager._escrows.items()):
             status = escrow.get("status")
@@ -43,30 +57,34 @@ class ContinuousSentinelMonitor:
             loss_detail = None
 
             if plots:
-                parsed_plots = []
-                for i, p in enumerate(plots):
-                    geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
-                    if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
-                        geom = {"type": "Point", "coordinates": geom}
-                    elif isinstance(geom, list):
-                        geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
+                try:
+                    parsed_plots = []
+                    for i, p in enumerate(plots):
+                        geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
+                        if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
+                            geom = {"type": "Point", "coordinates": geom}
+                        elif isinstance(geom, list):
+                            geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
 
-                    from datetime import date
-                    parsed_plots.append(ProductionPlotInput(
-                        plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
-                        country_code=p.get("country_code", "ID"),
-                        area_hectares=float(p.get("area_hectares", 2.0)),
-                        production_date=p.get("production_date", date(2024, 6, 1)),
-                        geometry=geom
-                    ))
+                        from datetime import date
+                        parsed_plots.append(ProductionPlotInput(
+                            plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
+                            country_code=p.get("country_code", "ID"),
+                            area_hectares=float(p.get("area_hectares", 2.0)),
+                            production_date=p.get("production_date", date(2024, 6, 1)),
+                            geometry=geom
+                        ))
 
-                from app.modules.traceability_collector import TraceabilityCollector
-                _, spatial_res, _ = TraceabilityCollector.collect_and_validate(parsed_plots)
-                deforest_free, sat_results, _ = DeforestationSimulator.analyze_all_plots(parsed_plots, spatial_res)
+                    from app.modules.traceability_collector import TraceabilityCollector
+                    _, spatial_res, _ = TraceabilityCollector.collect_and_validate(parsed_plots)
+                    deforest_free, sat_results, _ = DeforestationSimulator.analyze_all_plots(parsed_plots, spatial_res)
 
-                if not deforest_free:
-                    has_loss = True
-                    loss_detail = "Sentinel SAR radar detected post-cutoff forest clearing during maritime transit."
+                    if not deforest_free:
+                        has_loss = True
+                        loss_detail = "Sentinel SAR radar detected post-cutoff forest clearing during maritime transit."
+                except Exception as e:
+                    # Corrupted plot data in an escrow should not crash the monitor daemon
+                    has_loss = False
             
             metrics_collector.inc_counter(
                 "eudr_satellite_inspections_total",

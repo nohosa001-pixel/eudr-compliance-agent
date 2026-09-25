@@ -1438,111 +1438,8 @@ async def verify_vat_number(
 # -------------------------------------------------------------------
 # Autonomous Agent-to-Agent Smart Escrow Endpoints (Dispute-Free)
 # -------------------------------------------------------------------
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/create",
-    response_model=EscrowAgreementResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
-    summary="Create an autonomous B2B trade Smart Escrow agreement"
-)
-async def create_agent_escrow(
-    req: EscrowCreateRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Creates an immutable agent-to-agent smart escrow agreement for commodity trade batches.
-    Locks buyer payment until verifiable EU customs compliance is proven.
-    """
-    return AgentEscrowManager.create_escrow(req, db_session=db)
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/fund",
-    response_model=EscrowAgreementResponse,
-    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
-    summary="Confirm blockchain funding deposit for a Smart Escrow"
-)
-async def fund_agent_escrow(
-    req: EscrowFundRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Validates on-chain transaction hash for escrow deposit and transitions status to FUNDED_LOCKED.
-    """
-    try:
-        return AgentEscrowManager.fund_escrow(req, db_session=db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/release-by-compliance",
-    response_model=EscrowAgreementResponse,
-    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
-    summary="Release Escrow funds upon EU Single Window clearance or compliant DDS verification"
-)
-async def release_escrow_by_compliance(
-    req: EscrowReleaseByComplianceRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Inspects EU SWE-C customs declaration clearance code (EU-SWEC-CLEARED-*) or verifies
-    satellite radar telemetry to programmatically release escrow funds to the seller agent.
-    """
-    try:
-        return AgentEscrowManager.release_by_compliance(req, db_session=db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/dispute-arbitrate",
-    response_model=EscrowAgreementResponse,
-    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
-    summary="Algorithmic autonomous dispute arbitration via Sentinel satellite radar"
-)
-async def arbitrate_escrow_dispute(
-    req: EscrowDisputeArbitrateRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Zero-human algorithmic dispute arbitrator:
-    Evaluates Sentinel-1/2 radar and optical satellite telemetry over production plots.
-    If deforestation is detected post-2020: 100% refund to Buyer Agent.
-    If 0.0% deforestation: false dispute dismissed and funds released to Seller Agent.
-    """
-    try:
-        return AgentEscrowManager.arbitrate_dispute(req, db_session=db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/payment/escrow/{{escrow_id}}",
-    response_model=EscrowAgreementResponse,
-    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
-    summary="Query live status and audit trail of a Smart Escrow agreement"
-)
-async def get_agent_escrow(
-    escrow_id: str,
-    db: Session = Depends(get_db)
-):
-    """
-    Returns live status, locked USDC amount, and cryptographic HMAC release signature.
-    """
-    try:
-        return AgentEscrowManager.get_escrow(escrow_id, db_session=db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
-
-
-
-
-
-
-# --- Enterprise Lead Capture & Demo Requests ---
+# Enterprise Lead Capture & Demo Requests
+# -------------------------------------------------------------------
 
 @app.post(
     f"{settings.API_V1_PREFIX}/leads",
@@ -1789,12 +1686,19 @@ async def _handle_mcp_request(request: Request):
     return JSONResponse(status_code=status.HTTP_200_OK, content=res)
 
 
-@app.api_route(
+@app.post(
     f"{settings.API_V1_PREFIX}/mcp",
-    methods=["GET", "POST", "HEAD", "OPTIONS"],
     tags=["Autonomous AI Agent Tools"],
-    summary="Model Context Protocol (MCP v2024-11-05) Endpoint (JSON-RPC & SSE)"
+    summary="Model Context Protocol (MCP v2024-11-05) Endpoint (JSON-RPC 2.0)",
+    operation_id="mcp_post_jsonrpc"
 )
+@app.get(
+    f"{settings.API_V1_PREFIX}/mcp",
+    tags=["Autonomous AI Agent Tools"],
+    summary="Model Context Protocol (MCP v2024-11-05) Endpoint (SSE & Server Card)",
+    operation_id="mcp_get_sse"
+)
+@app.api_route(f"{settings.API_V1_PREFIX}/mcp", methods=["HEAD", "OPTIONS"], include_in_schema=False)
 async def mcp_endpoint(request: Request):
     return await _handle_mcp_request(request)
 
@@ -2048,6 +1952,7 @@ async def view_export_bundle_html(
 @app.post(
     f"{settings.API_V1_PREFIX}/payment/escrow/create",
     response_model=EscrowAgreementResponse,
+    status_code=status.HTTP_201_CREATED,
     tags=["Agent Escrow & Web3 Settlement"],
     summary="Create a new B2B trade Smart Escrow agreement locking USDC in payment vaults"
 )
@@ -2090,6 +1995,11 @@ async def fund_agent_escrow(
     tags=["Agent Escrow & Web3 Settlement"],
     summary="Conditionally release locked escrow funds to seller upon verified EU customs clearance"
 )
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/release-by-compliance",
+    response_model=EscrowAgreementResponse,
+    include_in_schema=False
+)
 async def release_agent_escrow(
     payload: EscrowReleaseByComplianceRequest,
     db: Session = Depends(get_db)
@@ -2109,6 +2019,11 @@ async def release_agent_escrow(
     response_model=EscrowAgreementResponse,
     tags=["Agent Escrow & Web3 Settlement"],
     summary="Execute deterministic autonomous dispute arbitration using Copernicus satellite telemetry"
+)
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/dispute-arbitrate",
+    response_model=EscrowAgreementResponse,
+    include_in_schema=False
 )
 async def arbitrate_agent_escrow(
     payload: EscrowDisputeArbitrateRequest,

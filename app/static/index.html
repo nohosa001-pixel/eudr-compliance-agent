@@ -97,28 +97,58 @@
         <button id="btn-view-html-report" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
           💾 Machine Audit Proof
         </button>
-      </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main>
-    <!-- Preset Toolbar -->
-    <div class="preset-bar">
-      <div class="preset-title">
-        <span>⚡ <strong>Autonomous Test Vectors (Ground Truth Presets):</strong></span>
-      </div>
-      <div class="preset-buttons">
-        <button class="btn-preset active" data-preset="compliant_vietnam">🟢 1. Compliant Coffee (Vietnam)</button>
-        <button class="btn-preset" data-preset="deforestation_indonesia">🔴 2. Deforestation Detected (Indonesia)</button>
-        <button class="btn-preset" data-preset="spatial_violation_brazil">🟡 3. 4ha Point Violation (Brazil)</button>
-        <button class="btn-preset" data-preset="legal_violation_ghana">🟠 4. Expired Permit (Ghana)</button>
-        <button class="btn-preset" data-preset="suzano_timber_hybrid">🪵 5. Certified Pulp &amp; Timber (Brazil FSC-Hybrid)</button>
-      </div>
-    </div>
+  <!-- Autonomous Agent Mission Control Cockpit HUD Navigation -->
+  <div class="cockpit-tabs-bar">
+    <button class="cockpit-tab-btn active" data-cockpit-tab="panel-satellite">
+      <span>🛰️ Satellite Radar &amp; DDS</span>
+      <span class="tab-badge">Pillars 1-5</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-security">
+      <span>🛡️ Security Gate x402</span>
+      <span class="tab-badge">NLI / AST Shield</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-marketplace">
+      <span>⚖️ B2B RFQ Marketplace</span>
+      <span class="tab-badge">A2A Clearing</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-transit">
+      <span>🚢 In-Transit Surveillance</span>
+      <span class="tab-badge">EIP-712 Slashing</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-mcp">
+      <span>🤖 30 MCP Tools Studio</span>
+      <span class="tab-badge">JSON-RPC 2.0</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-telemetry">
+      <span>📈 Prometheus Telemetry</span>
+      <span class="tab-badge">OpenMetrics</span>
+    </button>
+  </div>
 
-    <!-- Main Dashboard Grid -->
-    <div class="dashboard-grid">
+  <!-- Main Content -->
+  <main style="padding: 1.25rem 1.5rem;">
+
+    <!-- PANEL 1: SATELLITE RADAR & DDS ENGINE -->
+    <div id="panel-satellite" class="cockpit-tab-panel active">
+      <!-- Preset Toolbar -->
+      <div class="preset-bar">
+        <div class="preset-title">
+          <span>⚡ <strong>Autonomous Test Vectors (Ground Truth Presets):</strong></span>
+        </div>
+        <div class="preset-buttons">
+          <button class="btn-preset active" data-preset="compliant_vietnam">🟢 1. Compliant Coffee (Vietnam)</button>
+          <button class="btn-preset" data-preset="deforestation_indonesia">🔴 2. Deforestation Detected (Indonesia)</button>
+          <button class="btn-preset" data-preset="spatial_violation_brazil">🟡 3. 4ha Point Violation (Brazil)</button>
+          <button class="btn-preset" data-preset="legal_violation_ghana">🟠 4. Expired Permit (Ghana)</button>
+          <button class="btn-preset" data-preset="suzano_timber_hybrid">🪵 5. Certified Pulp &amp; Timber (Brazil FSC-Hybrid)</button>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Grid -->
+      <div class="dashboard-grid">
       
       <!-- Left Column: Input Payload Editor, Bulk Ingest & HS Code Quick Checker -->
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
@@ -318,8 +348,349 @@
         </div>
 
       </div>
-
     </div>
+    <!-- END PANEL 1 -->
+
+    <!-- PANEL 2: SECURITY GATE X402 (SHERIFF OF AGENT FINANCE) -->
+    <div id="panel-security" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">🛡️ Security Gate x402: The Sheriff of Autonomous Agent Finance</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Deterministic sub-millisecond Prompt Injection Barrier, Python AST Code Execution Blocker &amp; Agronomic Yield NLI Validator.
+          </p>
+        </div>
+        <div class="threat-badge safe" id="sheriff-live-status">
+          <span>🟢 Sheriff Guard: ACTIVE</span>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Security Inspector Input -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔬 Live Threat &amp; Payload Inspector</div>
+            <span style="font-size: 0.72rem; color: #38bdf8;">POST /api/v1/security/inspect</span>
+          </div>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" style="font-size: 0.74rem; padding: 4px 10px;" id="btn-sec-preset-clean">🟢 Clean Payload</button>
+            <button class="btn btn-secondary" style="font-size: 0.74rem; padding: 4px 10px; color: #f43f5e; border-color: rgba(244,63,94,0.4);" id="btn-sec-preset-injection">🔴 Prompt Injection (DAN)</button>
+            <button class="btn btn-secondary" style="font-size: 0.74rem; padding: 4px 10px; color: #f43f5e; border-color: rgba(244,63,94,0.4);" id="btn-sec-preset-code">🔴 Malicious AST Code (os.system)</button>
+            <button class="btn btn-secondary" style="font-size: 0.74rem; padding: 4px 10px; color: #f59e0b; border-color: rgba(245,158,11,0.4);" id="btn-sec-preset-yield">🟠 Agronomic Yield Inflation</button>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Text / Prompt Payload to Inspect:</label>
+            <textarea id="sec-text-input" style="height: 120px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false" placeholder="Enter untrusted agent prompt or code snippet..."></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity</label>
+              <select id="sec-commodity-select" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                <option value="COFFEE" selected>COFFEE</option>
+                <option value="OIL_PALM">OIL_PALM</option>
+                <option value="COCOA">COCOA</option>
+                <option value="SOYA">SOYA</option>
+                <option value="RUBBER">RUBBER</option>
+                <option value="WOOD">WOOD</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Net Mass (kg)</label>
+              <input type="number" id="sec-mass-input" value="24000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Total Area (ha)</label>
+              <input type="number" id="sec-area-input" value="10.0" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+          </div>
+
+          <button id="btn-run-security-inspect" class="btn btn-primary" style="width: 100%; font-size: 0.82rem; padding: 8px;">
+            ⚡ Inspect with Security Gate x402
+          </button>
+        </div>
+
+        <!-- Security Inspection Results Console -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🛡️ Deterministic Inspection Verdict</div>
+            <span id="sec-verdict-tag" class="threat-badge safe">PENDING AUDIT</span>
+          </div>
+          <div id="sec-result-terminal" class="cyber-terminal" style="min-height: 280px;">
+            <div class="terminal-line"><span class="t-prompt">[Sheriff]</span> Security Gate x402 initialized. Ready to inspect inbound agent vectors.</div>
+            <div class="terminal-line"><span class="t-prompt">[AST]</span> Dangerous module barriers loaded: eval, exec, os, subprocess, pty, socket.</div>
+            <div class="terminal-line"><span class="t-prompt">[NLI]</span> Agronomic biological upper bounds: Coffee 5,000kg/ha, Cocoa 3,500kg/ha, Palm 30,000kg/ha.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 2 -->
+
+    <!-- PANEL 3: AUTONOMOUS B2B REVERSE-AUCTION MARKETPLACE -->
+    <div id="panel-marketplace" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">⚖️ Autonomous B2B Reverse-Auction Marketplace</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Agent-to-Agent (A2A) Procurement Clearing House. Automatic bid evaluation &amp; smart escrow deployment.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-refresh-rfqs" class="btn btn-secondary" style="font-size: 0.75rem; padding: 5px 12px;">🔄 Refresh Board</button>
+          <button id="btn-seed-market-demo" class="btn btn-emerald" style="font-size: 0.75rem; padding: 5px 12px;">⚡ Seed A2A Demo Match</button>
+        </div>
+      </div>
+
+      <div class="market-grid">
+        <!-- Publish RFQ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 Publish Compliance RFQ (Buyer Agent)</div>
+            <span style="font-size: 0.72rem; color: #38bdf8;">POST /api/v1/marketplace/rfq/create</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity</label>
+              <select id="rfq-commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                <option value="COFFEE">COFFEE (Arabica)</option>
+                <option value="COCOA">COCOA</option>
+                <option value="OIL_PALM">OIL_PALM</option>
+                <option value="WOOD">WOOD / TIMBER</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Required Volume (kg)</label>
+              <input type="number" id="rfq-volume" value="30000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Max Price (USDC)</label>
+              <input type="number" id="rfq-max-price" value="75000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Destination Port</label>
+              <input type="text" id="rfq-dest" value="Port of Rotterdam (NLRTM)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+          </div>
+          <button id="btn-create-rfq-submit" class="btn btn-primary" style="width: 100%; font-size: 0.8rem; padding: 7px;">
+            📢 Broadcast Compliance RFQ to Agent Mesh
+          </button>
+        </div>
+
+        <!-- Submit Bid -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💼 Submit Supplier Bid (Supplier Agent)</div>
+            <span style="font-size: 0.72rem; color: #34d399;">POST /api/v1/marketplace/bid/submit</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Target RFQ ID</label>
+              <input type="text" id="bid-target-rfq" placeholder="Enter or select RFQ ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Offered Price (USDC)</label>
+              <input type="number" id="bid-price" value="71000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Production Plot Geometry (WGS84)</label>
+            <input type="text" id="bid-plot-id" value="VN-LAMDONG-001 (108.4400, 11.9400)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+          </div>
+          <button id="btn-submit-bid-submit" class="btn btn-emerald" style="width: 100%; font-size: 0.8rem; padding: 7px;">
+            🚀 Submit Competitive Cryptographic Bid
+          </button>
+        </div>
+      </div>
+
+      <!-- Live RFQs Board & Match Terminal -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📡 Active A2A RFQ Clearing Board</div>
+            <span id="rfq-count-badge" style="font-size: 0.72rem; color: var(--text-muted);">0 Active</span>
+          </div>
+          <div id="rfq-list-container" style="max-height: 280px; overflow-y: auto;">
+            <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 20px;">No RFQs published yet. Click "Seed A2A Demo Match" above.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Auto-Match &amp; Smart Escrow Engine</div>
+            <span style="font-size: 0.72rem; color: #38bdf8;">x402 AgentEscrow</span>
+          </div>
+          <div id="market-terminal" class="cyber-terminal" style="min-height: 280px;">
+            <div class="terminal-line"><span class="t-prompt">[Market]</span> Reverse-Auction clearing house operational.</div>
+            <div class="terminal-line"><span class="t-prompt">[Escrow]</span> Polygon Mainnet contract: 0x255F9991233f86B29dB847c8d5b8CB9915e80dCf</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 3 -->
+
+    <!-- PANEL 4: IN-TRANSIT MARITIME CONTINUOUS SURVEILLANCE -->
+    <div id="panel-transit" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">🚢 In-Transit Maritime Radar Continuous Surveillance</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Active Sentinel-1/2 SAR/NDVI Radar Surveillance during ocean shipping. Automated EIP-712 Slashing Attestations on post-departure forest loss.
+          </p>
+        </div>
+        <div class="threat-badge safe">
+          <span>🛰️ Radar Polling: 300s Interval</span>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🛰️ Trigger Real-Time Transit Radar Scan</div>
+            <span style="font-size: 0.72rem; color: #38bdf8;">POST /api/v1/satellite/continuous-surveillance</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
+            Simulate live Sentinel-2/Hansen radar sweeps across production origin plots tied to active maritime escrow shipments.
+          </p>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <button id="btn-scan-transit-clean" class="btn btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 8px; color: #34d399;">
+              🟢 Clean Origin (No Disturbance)
+            </button>
+            <button id="btn-scan-transit-breach" class="btn btn-secondary" style="flex: 1; font-size: 0.75rem; padding: 8px; color: #f43f5e; border-color: rgba(244,63,94,0.4);">
+              🔴 In-Transit Deforestation Trigger
+            </button>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;">
+            <div>⚖️ <strong>Automated Slashing Guarantee:</strong></div>
+            <div>If deforestation &gt; 0.1ha is detected while cargo is in transit, the escrow status is frozen to <code>DISPUTED</code> and cryptographic EIP-712 attestation proof is generated for smart contract <code>slashJob()</code>.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📡 Maritime Surveillance Stream &amp; Slashing Proof</div>
+            <span id="transit-alert-badge" class="threat-badge safe">MONITORING NORMAL</span>
+          </div>
+          <div id="transit-terminal" class="cyber-terminal" style="min-height: 280px;">
+            <div class="terminal-line"><span class="t-prompt">[TransitDaemon]</span> Continuous satellite monitor standing by.</div>
+            <div class="terminal-line"><span class="t-prompt">[SAR]</span> Sentinel-1 Synthetic Aperture Radar active (Cloud-penetrating C-band).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 4 -->
+
+    <!-- PANEL 5: 30 NATIVE MCP TOOLS INTERACTIVE STUDIO -->
+    <div id="panel-mcp" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">🤖 30 Native Model Context Protocol (MCP) Tools Studio</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Explore and execute all 30 official EUDR MCP tools via JSON-RPC 2.0. Native Claude Desktop, Cursor &amp; Agent-Ready.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" id="mcp-search-input" placeholder="Search 30 tools..." style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; color: #fff; width: 180px;" />
+          <span class="threat-badge safe">30 Tools Registered</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <!-- Left: 30 Tools Browser -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Tools Manifest (JSON-RPC v2024-11-05)</div>
+            <span style="font-size: 0.72rem; color: #38bdf8;">Click to load tool template</span>
+          </div>
+          <div id="mcp-tools-container" class="mcp-tools-grid">
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Loading 30 MCP tools from server...</p>
+          </div>
+        </div>
+
+        <!-- Right: Execution Playground -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="mcp-selected-tool-title">⚡ Interactive Tool Executor</div>
+            <span style="font-size: 0.72rem; color: #34d399;">POST /api/v1/agent/tools/execute</span>
+          </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Tool Arguments (JSON):</label>
+            <textarea id="mcp-args-editor" style="height: 140px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false">{ "commodity": "COFFEE", "net_mass_kg": 24000 }</textarea>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button id="btn-execute-mcp-tool" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 14px;">
+              ⚡ Execute JSON-RPC Tool
+            </button>
+            <button id="btn-copy-mcp-snippet" class="btn btn-secondary" style="font-size: 0.72rem; padding: 4px 8px;">
+              📋 Copy MCP Tool Call JSON
+            </button>
+          </div>
+          <div id="mcp-output-terminal" class="cyber-terminal" style="min-height: 220px;">
+            <div class="terminal-line"><span class="t-prompt">[MCP]</span> Select a tool from the catalog on the left to inspect and run.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 5 -->
+
+    <!-- PANEL 6: PROMETHEUS APM TELEMETRY & OPENMETRICS -->
+    <div id="panel-telemetry" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">📈 Prometheus Telemetry &amp; OpenMetrics 0.0.4</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Live Application Performance Monitoring (APM) Stream scrapable by Datadog, Prometheus &amp; Grafana at <code>GET /metrics</code>.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-refresh-metrics" class="btn btn-secondary" style="font-size: 0.75rem; padding: 5px 12px;">🔄 Poll Metrics</button>
+          <a href="/metrics" target="_blank" class="btn btn-emerald" style="font-size: 0.75rem; padding: 5px 12px; text-decoration: none;">
+            🌐 Open /metrics Endpoint
+          </a>
+        </div>
+      </div>
+
+      <!-- 4 Live Gauge Boxes -->
+      <div class="apm-metrics-row">
+        <div class="apm-metric-box green">
+          <div class="apm-metric-label">System Uptime</div>
+          <div id="metric-uptime" class="apm-metric-val">-- s</div>
+          <div class="apm-metric-sub">Zero-downtime micro-daemon</div>
+        </div>
+        <div class="apm-metric-box">
+          <div class="apm-metric-label">Escrow Locked (USDC)</div>
+          <div id="metric-escrow-locked" class="apm-metric-val">$0</div>
+          <div class="apm-metric-sub">Polygon Mainnet Smart Vaults</div>
+        </div>
+        <div class="apm-metric-box rose">
+          <div class="apm-metric-label">Total Slashed (USDC)</div>
+          <div id="metric-slashed-total" class="apm-metric-val">$0</div>
+          <div class="apm-metric-sub">Forest Disturbance Penalties</div>
+        </div>
+        <div class="apm-metric-box purple">
+          <div class="apm-metric-label">Security Threats Blocked</div>
+          <div id="metric-threats-blocked" class="apm-metric-val">0</div>
+          <div class="apm-metric-sub">x402 Injection &amp; AST Intercepts</div>
+        </div>
+      </div>
+
+      <!-- Raw OpenMetrics Output Console -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📄 Raw OpenMetrics Stream (text/plain; version=0.0.4)</div>
+          <button class="btn btn-secondary" style="font-size: 0.72rem; padding: 4px 8px;" onclick="copyToClipboard('raw-metrics-viewer')">
+            📋 Copy Prometheus Output
+          </button>
+        </div>
+        <pre id="raw-metrics-viewer" class="cyber-terminal" style="max-height: 340px; color: #93c5fd;"># Loading Prometheus telemetry...</pre>
+      </div>
+    </div>
+    <!-- END PANEL 6 -->
+
   </main>
 
   <!-- Machine Audit Proof Modal (formerly HTML report) -->

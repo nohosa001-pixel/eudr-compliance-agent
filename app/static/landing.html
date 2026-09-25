@@ -901,14 +901,42 @@
 
       <div class="hero-btns">
         <a href="/dashboard" class="btn btn-primary" style="padding: 12px 24px; font-size: 0.95rem;">
-          🤖 Launch Agent Console
+          🤖 Launch Mission Control Cockpit
         </a>
         <a href="/api/v1/agent/tools" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
-          ⚡ Inspect MCP Tool Schemas
+          ⚡ 30 MCP Tool Schemas
         </a>
-        <a href="/api/v1/payment/x402/challenge" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
-          🌐 Query x402 Challenge
+        <a href="/metrics" target="_blank" class="btn btn-ghost" style="padding: 12px 20px; font-size: 0.95rem; border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+          📈 Prometheus APM (/metrics)
         </a>
+      </div>
+
+      <!-- Agent Fast-Connection Box -->
+      <div style="max-width: 860px; margin: 0 auto 40px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 18px 24px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.1rem;">⚡</span>
+            <strong style="color: #f8fafc; font-size: 0.9rem;">1-Click Agent Integration (MCP v2024-11-05 &amp; REST)</strong>
+          </div>
+          <div style="display: flex; gap: 8px; font-size: 0.75rem;">
+            <a href="/llms.txt" style="color: #38bdf8; text-decoration: none; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.2);">📄 llms.txt</a>
+            <a href="/llms-full.txt" style="color: #34d399; text-decoration: none; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">📚 llms-full.txt</a>
+            <a href="/server-card.json" style="color: #c084fc; text-decoration: none; background: rgba(168,85,247,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(168,85,247,0.2);">🎴 server-card.json</a>
+            <a href="/openapi.json" style="color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">📐 openapi.json</a>
+          </div>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+          Add to <code>claude_desktop_config.json</code> or Cursor / Cline / AutoGPT:
+        </div>
+        <pre style="background: #020617; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: #38bdf8; overflow-x: auto;">
+{
+  "mcpServers": {
+    "eudr-compliance": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch", "https://api.eudragent.com/api/v1/mcp"]
+    }
+  }
+}</pre>
       </div>
 
       <!-- Video Showcase -->
@@ -1009,62 +1037,64 @@
 
   <!-- Pricing Section (Autonomous Agent M2M Protocol) -->
   <section id="pricing" class="container">
-    <h2 class="section-title">Autonomous Agent Pricing (M2M Protocol)</h2>
-    <p class="section-desc">Zero human intervention. Native on-chain USDC settlement via Base, Polygon, Arbitrum &amp; Model Context Protocol (MCP).</p>
+    <h2 class="section-title">Autonomous Agent Settlement Architecture</h2>
+    <p class="section-desc">Zero human intervention. Native RFC 9110 HTTP 402, EIP-3009 Gasless USDC, and x402 Smart Escrow Contracts.</p>
 
     <!-- Autonomous M2M Notice Badge -->
     <div style="display: flex; justify-content: center; margin-bottom: 24px;">
       <span style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 6px 16px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px;">
-        🤖 <span>Human Checkout Disabled &bull; Autonomous Machine-to-Machine Settlement Only (x402 / MCP)</span>
+        🤖 <span>Zero Human Friction &bull; No Credit Cards &bull; Autonomous Machine Settlement Only</span>
       </span>
     </div>
 
     <div class="pricing-grid">
       <div class="price-card">
-        <div class="price-name">Starter Agent</div>
-        <div class="price-sub">Small automated pipelines &amp; single agents</div>
-        <div id="price-starter" class="price-val">$490 <span>USDC /mo</span></div>
+        <div class="price-name">⚡ HTTP 402 Micro-Settle</div>
+        <div class="price-sub">Instant On-Demand Machine Queries</div>
+        <div class="price-val">0.01 <span>USDC / plot</span></div>
         <ul class="price-list">
-          <li><span>✔</span> Up to 5,000 plots / mo</li>
-          <li><span>✔</span> Multi-satellite radar verification</li>
-          <li><span>✔</span> TRACES-NT XML auto-export</li>
-          <li><span>✔</span> MCP &amp; REST API Access</li>
+          <li><span>✔</span> RFC 9110 HTTP 402 Payment Required</li>
+          <li><span>✔</span> EIP-3009 Gasless USDC authorization</li>
+          <li><span>✔</span> Sub-second 3-way radar verification</li>
+          <li><span>✔</span> Zero subscriptions &amp; zero commitments</li>
+          <li><span>✔</span> Stateless cryptographic response</li>
         </ul>
-        <button class="btn btn-ghost" style="width: 100%;" onclick="openPaymentModal('STARTER', 490)">
-          🤖 Agent Deploy Starter
-        </button>
+        <a href="/api/v1/payment/x402/challenge" class="btn btn-ghost" style="width: 100%; text-decoration: none;">
+          ⚡ Query 402 Challenge Spec
+        </a>
       </div>
 
       <div class="price-card popular">
-        <div class="pop-badge">M2M RECOMMENDED</div>
-        <div class="price-name">Pro Agent Mesh</div>
-        <div class="price-sub">High-throughput autonomous supply chains</div>
-        <div id="price-pro" class="price-val">$1,490 <span>USDC /mo</span></div>
+        <div class="pop-badge">CORE PROTOCOL</div>
+        <div class="price-name">🛡️ x402 Smart Escrow</div>
+        <div class="price-sub">Autonomous Multi-Chain Trade Clearing</div>
+        <div class="price-val">0.00% <span>Clearing Fee</span></div>
         <ul class="price-list">
-          <li><span>✔</span> Up to 50,000 plots / mo</li>
-          <li><span>✔</span> Automated polygon topology healing</li>
-          <li><span>✔</span> Batch GeoJSON / Shapefile streaming</li>
-          <li><span>✔</span> Autonomous budget caps &amp; micro-settle</li>
-          <li><span>✔</span> Real-time x402 HTTP challenges</li>
+          <li><span>✔</span> Smart Contract on Polygon &amp; Base</li>
+          <li><span>✔</span> Contract: <code>0x255F999...0dCf</code></li>
+          <li><span>✔</span> Auto-lock upon B2B RFQ/Bid match</li>
+          <li><span>✔</span> In-transit radar continuous surveillance</li>
+          <li><span>✔</span> Automated EIP-712 slashing attestations</li>
         </ul>
-        <button class="btn btn-primary" style="width: 100%;" onclick="openPaymentModal('PRO', 1490)">
-          ⚡ Agent Connect Pro
-        </button>
+        <a href="/dashboard" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+          🚀 Open Escrow Cockpit
+        </a>
       </div>
 
       <div class="price-card">
-        <div class="price-name">Enterprise Mesh</div>
-        <div class="price-sub">Global commodity houses &amp; multi-agent swarms</div>
-        <div id="price-enterprise" class="price-val">$4,900 <span>USDC /mo</span></div>
+        <div class="price-name">🤖 30 Native MCP Tools</div>
+        <div class="price-sub">Anthropic Model Context Protocol</div>
+        <div class="price-val">FREE <span>Open Spec</span></div>
         <ul class="price-list">
-          <li><span>✔</span> Unlimited plots &amp; agent swarms</li>
-          <li><span>✔</span> Custom ERP &amp; SAP autonomous connectors</li>
-          <li><span>✔</span> Dedicated cryptographic node cluster</li>
-          <li><span>✔</span> 99.99% SLA guarantee</li>
+          <li><span>✔</span> 30 tools mapped to JSON-RPC 2.0</li>
+          <li><span>✔</span> Compatible with Claude Desktop, Cursor, Cline</li>
+          <li><span>✔</span> Reverse-Auction RFQ broadcast &amp; bidding</li>
+          <li><span>✔</span> Prompt injection &amp; AST code security guard</li>
+          <li><span>✔</span> Native TRACES-NT XML compiler</li>
         </ul>
-        <button class="btn btn-ghost" style="width: 100%;" onclick="openPaymentModal('ENTERPRISE', 4900)">
-          🌐 Mesh Deploy Enterprise
-        </button>
+        <a href="/api/v1/agent/tools" class="btn btn-ghost" style="width: 100%; text-decoration: none; border-color: rgba(56,189,248,0.4); color: #38bdf8;">
+          📋 Inspect 30 MCP Tools
+        </a>
       </div>
     </div>
   </section>

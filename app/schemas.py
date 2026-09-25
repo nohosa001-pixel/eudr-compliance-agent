@@ -1012,9 +1012,11 @@ class OnchainAttestationVerifyResponse(BaseModel):
 
 class SecurityInspectRequest(BaseModel):
     text: Optional[str] = Field("", description="Raw prompt text or agent instructions to inspect for injection/AST code")
+    payload_text: Optional[str] = Field(None, description="Convenience alias for text")
     commodity: Optional[str] = Field(None, description="Declared commodity name, e.g. 'coffee'")
     hs_code: Optional[str] = Field(None, description="6-digit Harmonized System code, e.g. '0901.11'")
     declared_net_mass_kg: Optional[float] = Field(None, description="Declared total net mass in kilograms")
+    net_mass_kg: Optional[float] = Field(None, description="Convenience alias for declared_net_mass_kg")
     total_area_ha: Optional[float] = Field(None, description="Total cultivation area in hectares")
 
 
@@ -1023,6 +1025,10 @@ class SecurityInspectResponse(BaseModel):
     verdict: str
     threat_score: int
     threats: List[str]
+    threat_detected: bool = False
+    prompt_injection_blocked: bool = False
+    ast_code_violation_blocked: bool = False
+    nli_anomaly_detected: bool = False
     fact_check: Optional[Dict[str, Any]] = None
     sheriff_status: str = "ENFORCED"
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)

@@ -1601,7 +1601,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnExecuteMcpTool = document.getElementById('btn-execute-mcp-tool');
   const btnCopyMcpSnippet = document.getElementById('btn-copy-mcp-snippet');
   const mcpOutputTerminal = document.getElementById('mcp-output-terminal');
-  let selectedMcpToolName = "eudr_evaluate_compliance";
+  let selectedMcpToolName = "eudr_verify_plot";
 
   async function loadMcpToolsCatalog() {
     if (cachedMcpTools.length > 0) return;
@@ -1651,8 +1651,16 @@ document.addEventListener('DOMContentLoaded', () => {
       sampleArgs = { commodity: "COFFEE", volume_kg: 24000, max_price_usdc: 75000, destination_port: "Port of Rotterdam" };
     } else if (name.includes('bid')) {
       sampleArgs = { rfq_id: "RFQ-2026-09-COFFEE", offered_price_usdc: 71000, supplier_agent_id: "agent-supplier-01" };
-    } else if (name.includes('polygon') || name.includes('gis')) {
-      sampleArgs = { coordinates: [[[108.438, 11.94], [108.442, 11.94], [108.442, 11.9435], [108.438, 11.9435], [108.438, 11.94]]] };
+    } else if (name.includes('polygon') || name.includes('plot') || name.includes('gis')) {
+      sampleArgs = {
+        plot_id: "VN-LAMDONG-001",
+        country_code: "VN",
+        geometry: {
+          type: "Polygon",
+          coordinates: [[[108.438, 11.94], [108.442, 11.94], [108.442, 11.9435], [108.438, 11.9435], [108.438, 11.94]]]
+        },
+        declared_area_ha: 17.5
+      };
     } else if (name.includes('hs_code')) {
       sampleArgs = { hs_code: "0901.11" };
     } else {

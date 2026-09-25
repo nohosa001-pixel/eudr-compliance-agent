@@ -14,10 +14,10 @@ class AgentSecurityGateAdapter:
 
     # Prompt Injection & Jailbreak RegEx patterns
     INJECTION_PATTERNS = [
-        r"(?i)ignore\s+(all\s+)?prior\s+instructions",
-        r"(?i)system\s+prompt\s+override",
-        r"(?i)you\s+are\s+now\s+in\s+dan\s+mode",
-        r"(?i)bypass\s+(all\s+)?security\s+(filters|rules)",
+        r"(?i)(ignore|disregard|forget)\s+(all\s+)?(prior|previous|past|above|system)?\s*instructions",
+        r"(?i)system\s+prompt\s*(override|bypass)",
+        r"(?i)(override|bypass)\s+(all\s+)?(checks|security|rules|filters|safeguards)",
+        r"(?i)you\s+are\s+now\s+in\s+(dan|developer)\s+mode",
         r"(?i)grant\s+(me\s+)?admin(istrator)?\s+privileges",
         r"(?i)drop\s+table\s+",
         r"(?i)<script\b[^>]*>",

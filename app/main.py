@@ -2166,13 +2166,17 @@ async def inspect_agent_security(req: SecurityInspectRequest):
     - Dangerous AST code execution prevention (eval, exec, subprocess, os.system).
     - NLI Fact-Checking against biological crop yield limits and HS code conflicts.
     """
-    sec = AgentSecurityGateAdapter.inspect_text_security(req.text or "")
+    raw_text = req.text or req.payload_text or ""
+    mass_kg = req.declared_net_mass_kg if req.declared_net_mass_kg is not None else req.net_mass_kg
+
+    sec = AgentSecurityGateAdapter.inspect_text_security(raw_text)
     fact = None
-    if req.commodity and req.hs_code and req.declared_net_mass_kg:
+    if req.commodity and mass_kg:
+        resolved_hs = req.hs_code or ("0901.11" if req.commodity.upper() == "COFFEE" else "1801.00")
         fact = AgentSecurityGateAdapter.inspect_compliance_fact_check(
             commodity=req.commodity,
-            hs_code=req.hs_code,
-            declared_net_mass_kg=req.declared_net_mass_kg,
+            hs_code=resolved_hs,
+            declared_net_mass_kg=mass_kg,
             total_area_ha=req.total_area_ha or 1.0
         )
         if not fact["is_plausible"]:
@@ -2181,11 +2185,20 @@ async def inspect_agent_security(req: SecurityInspectRequest):
             sec["threat_score"] = max(sec["threat_score"], fact["anomaly_score"])
             sec["threats"].extend(fact["anomalies"])
 
+    has_threat = not sec["is_safe"]
+    prompt_blocked = any("prompt" in t.lower() or "dan" in t.lower() or "override" in t.lower() for t in sec["threats"])
+    ast_blocked = any("ast" in t.lower() or "module" in t.lower() or "code" in t.lower() for t in sec["threats"])
+    nli_blocked = fact is not None and not fact.get("is_plausible", True)
+
     return SecurityInspectResponse(
         is_safe=sec["is_safe"],
         verdict=sec["verdict"],
         threat_score=sec["threat_score"],
         threats=sec["threats"],
+        threat_detected=has_threat,
+        prompt_injection_blocked=prompt_blocked,
+        ast_code_violation_blocked=ast_blocked,
+        nli_anomaly_detected=nli_blocked,
         fact_check=fact,
         sheriff_status=sec.get("sheriff_status", "ENFORCED")
     )

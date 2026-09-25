@@ -319,3 +319,199 @@ def test_m2m_x402_and_autonomous_mesh_interoperability():
     assert PolygonMetaMaskConfig.CHAIN_ID == 137
     assert PolygonMetaMaskConfig.NATIVE_CURRENCY == "POL"
     assert PolygonMetaMaskConfig.WALLET_ADDRESS.startswith("0x")
+
+
+def test_agent_json_root_navigation():
+    """Verifies that an autonomous agent requesting / with JSON headers gets a machine-readable index."""
+    # 1. Accept: application/json
+    res = client.get("/", headers={"Accept": "application/json"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["service"] == "eudr-compliance-agent"
+    assert data["mode"] == "autonomous-agent-first"
+    assert data["total_tools"] == 21
+    assert "tools_manifest" in data
+    assert "mcp_server" in data
+    assert "meta" in data
+
+    # 2. X-Agent: true header
+    res_agent = client.get("/", headers={"X-Agent": "true"})
+    assert res_agent.status_code == 200
+    assert res_agent.json()["mode"] == "autonomous-agent-first"
+
+
+def test_agent_404_recovery_guidance():
+    """Verifies that API 404s provide actionable recovery advice and valid entrypoint lists."""
+    res = client.get("/api/v1/unknown_agent_action")
+    assert res.status_code == 404
+    data = res.json()
+    assert "error" in data
+    assert data["error"]["code"] == "ENDPOINT_NOT_FOUND"
+    assert data["error"]["recoverable"] is True
+    assert "valid_agent_entrypoints" in data["error"]
+    assert len(data["error"]["valid_agent_entrypoints"]) >= 3
+
+
+def test_server_card_and_glama_all_21_tools():
+    """Verifies that server-card.json and glama.json index all 21 tools with inputSchema."""
+    # 1. server-card.json
+    res_card = client.get("/.well-known/mcp/server-card.json")
+    assert res_card.status_code == 200
+    data_card = res_card.json()
+    assert len(data_card["tools"]) == 21
+    for tool in data_card["tools"]:
+        assert "name" in tool
+        assert "inputSchema" in tool
+
+    # 2. glama.json
+    res_glama = client.get("/glama.json")
+    assert res_glama.status_code == 200
+    data_glama = res_glama.json()
+    assert len(data_glama["tools"]) == 21
+
+
+def test_llm_auto_healing_countries_and_commodities():
+    """Verifies system resilience against common LLM variations in country names and commodity aliases."""
+    # 1. Country Name / Alpha-3 Auto-Healing in Benchmark Tool
+    cases = [
+        ("Germany", "LOW", 1.0),
+        ("DEU", "LOW", 1.0),
+        ("Brazil", "HIGH", 9.0),
+        ("BRA", "HIGH", 9.0),
+        ("Indonesia", "STANDARD", 3.0),
+        ("CIV", "STANDARD", 3.0),
+        ("Ivory Coast", "STANDARD", 3.0)
+    ]
+    for raw_country, expected_tier, expected_rate in cases:
+        payload = {"tool_name": "eudr_benchmark_country", "arguments": {"country_code": raw_country}}
+        res = client.post("/api/v1/agent/tools/execute", json=payload)
+        assert res.status_code == 200, f"Failed on {raw_country}"
+        result = res.json()["result"]
+        assert result["risk_tier"] == expected_tier, f"Mismatch on {raw_country}: got {result['risk_tier']}"
+        assert result["customs_inspection_rate_pct"] == expected_rate
+
+    # 2. Commodity Name & Area String Coercion Auto-Healing in Plot Verification
+    res_plot = client.post("/api/v1/agent/tools/execute", json={
+        "tool_name": "eudr_verify_plot",
+        "arguments": {
+            "plot_id": "PLOT-AUTO-HEAL-100",
+            "country_code": "Germany",
+            "commodity": "palm oil",  # Auto-heals to oil_palm
+            "coordinates": [10.5, 52.0],
+            "area_hectares": "3.5"  # String coercion to float 3.5
+        }
+    })
+    assert res_plot.status_code == 200
+    plot_data = res_plot.json()["result"]
+    assert plot_data["country_code"] == "DE"
+    assert plot_data["commodity"] == "oil_palm"
+    assert plot_data["area_hectares"] == 3.5
+    assert plot_data["is_valid"] is True
+
+
+def test_autonomous_agent_default_curl_root():
+    """Verifies that machine clients with default headers (curl, python-requests, httpx) receive JSON on root."""
+    res = client.get("/", headers={"User-Agent": "curl/7.88.1", "Accept": "*/*"})
+    assert res.status_code == 200
+    assert "application/json" in res.headers.get("content-type", "")
+    data = res.json()
+    assert data["status"] == "online"
+    assert data["mode"] == "autonomous-agent-first"
+    assert data["total_tools"] == 21
+    assert "llms_full_txt" in data
+    assert "server_card" in data
+
+
+def test_autonomous_agent_method_not_allowed_405():
+    """Verifies that an agent sending wrong HTTP verb receives actionable self-healing recovery instructions."""
+    res = client.get("/api/v1/agent/tools/execute", headers={"Accept": "application/json"})
+    assert res.status_code == 405
+    data = res.json()
+    assert "error" in data
+    assert data["error"]["code"] == "METHOD_NOT_ALLOWED"
+    assert data["error"]["recoverable"] is True
+    assert "suggested_fix" in data["error"]
+
+
+def test_autonomous_agent_all_api_validation_self_healing():
+    """Verifies that any API validation failure across all endpoints returns self-healing error envelope."""
+    res = client.post("/api/v1/leads", json={"unexpected_field": True})
+    assert res.status_code == 422
+    data = res.json()
+    assert "error" in data
+    assert data["error"]["code"].startswith("VALIDATION_ERROR_")
+    assert data["error"]["recoverable"] is True
+    assert "suggested_fix" in data["error"]
+    assert "details" in data["error"]
+
+
+@pytest.mark.asyncio
+async def test_autonomous_agent_vies_vat_and_dds_auto_healing():
+    """Verifies VIES auto country code extraction and DDS plot ID parsing from strings/dicts."""
+    # 1. Full VAT string auto-extraction
+    res_vat = await AgentToolsRegistry.execute_tool("eudr_verify_vies_vat", {
+        "vat_number": "DE123456789"
+    })
+    assert res_vat["country_code"] == "DE"
+    assert res_vat["vat_number"] == "123456789"
+
+    # 2. DDS generation with comma-separated plots and mass string
+    res_dds = await AgentToolsRegistry.execute_tool("eudr_generate_dds", {
+        "operator_name": "Autonomous Agent Corp",
+        "operator_vat": "DE123456789",
+        "commodity": "cocoa beans",  # Auto-healed to cocoa
+        "total_net_mass_kg": "12500.50 kg",  # Auto-healed to float
+        "plot_ids": "PLOT-001, PLOT-002, PLOT-003"  # Auto-healed from comma-separated string
+    })
+    assert res_dds["compliance_status"] == "CERTIFIED_DUE_DILIGENCE"
+    assert res_dds["net_mass_kg"] == 12500.5
+    assert res_dds["plots_included"] == 3
+    assert res_dds["commodity"] == "cocoa"
+
+
+@pytest.mark.asyncio
+async def test_autonomous_agent_geojson_feature_auto_healing():
+    """Verifies that tools accept GeoJSON Feature objects directly without pre-unwrapping."""
+    feature = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[101.0, 0.0], [101.02, 0.0], [101.02, 0.02], [101.0, 0.02], [101.0, 0.0]]]
+        },
+        "properties": {"name": "Smallholder Cooperative"}
+    }
+    # 1. Verify plot with Feature dict
+    res_plot = await AgentToolsRegistry.execute_tool("eudr_verify_plot", {
+        "plot_id": "PLOT-GEOJSON-1",
+        "country_code": "Indonesia",
+        "commodity": "oil_palm",
+        "coordinates": feature,
+        "area_hectares": 3.2
+    })
+    assert res_plot["is_valid"] is True
+    assert res_plot["geometry_type"] == "Polygon"
+
+    # 2. Slice parcel with Feature dict
+    res_slice = await AgentToolsRegistry.execute_tool("eudr_slice_parcel", {
+        "parent_plot_id": "PLOT-GEOJSON-PARENT",
+        "country_code": "ID",
+        "geometry": feature,
+        "declared_area_ha": 8.0,
+        "target_parcel_max_ha": 3.0
+    })
+    assert res_slice["total_sub_parcels"] >= 2
+
+
+def test_get_mcp_returns_21_tools_server_card():
+    """Verifies that GET /api/v1/mcp and GET /mcp dynamically return all 21 tools."""
+    res_api = client.get("/api/v1/mcp")
+    assert res_api.status_code == 200
+    data_api = res_api.json()
+    assert len(data_api["tools"]) == 21
+
+    res_root = client.get("/mcp")
+    assert res_root.status_code == 200
+    data_root = res_root.json()
+    assert len(data_root["tools"]) == 21
+
+

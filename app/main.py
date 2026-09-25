@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Response, UploadFile, File, Form, Depends, Request, Query, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
@@ -149,36 +150,81 @@ async def agent_self_correction_handler(request: Request, exc: AgentSelfCorrecti
 @app.exception_handler(RequestValidationError)
 async def agent_validation_error_handler(request: Request, exc: RequestValidationError):
     """
-    Returns an actionable, self-healing diagnostic error envelope when
-    invoked by autonomous AI agents.
+    Actionable, self-healing diagnostic error envelope for autonomous AI agents.
+    Guarantees deterministic error diagnostics for all API endpoints.
     """
-    is_agent_request = (
-        request.url.path.startswith(f"{settings.API_V1_PREFIX}/agent") or 
-        request.url.path.startswith(f"{settings.API_V1_PREFIX}/mcp") or
-        request.headers.get("X-Agent", "").lower() in ("true", "1")
-    )
-    if is_agent_request:
-        errors = exc.errors()
-        first_err = errors[0] if errors else {}
-        loc_str = " -> ".join([str(x) for x in first_err.get("loc", [])])
-        msg = first_err.get("msg", "Validation error")
-        err_type = first_err.get("type", "value_error")
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "error": {
-                    "code": f"VALIDATION_ERROR_{err_type.upper()}",
-                    "message": f"Input validation failed at '{loc_str}': {msg}",
-                    "recoverable": True,
-                    "suggested_fix": f"Provide valid data for field '{loc_str}'. Detail: {msg}",
-                    "agent_action_hint": "Self-heal input parameters and retry with corrected data types.",
-                    "details": errors
-                }
-            }
-        )
+    errors = exc.errors()
+    first_err = errors[0] if errors else {}
+    loc_str = " -> ".join([str(x) for x in first_err.get("loc", [])])
+    msg = first_err.get("msg", "Validation error")
+    err_type = first_err.get("type", "value_error")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors()}
+        content={
+            "error": {
+                "code": f"VALIDATION_ERROR_{err_type.upper()}",
+                "message": f"Input validation failed at '{loc_str}': {msg}",
+                "recoverable": True,
+                "suggested_fix": f"Provide valid data for field '{loc_str}'. Detail: {msg}",
+                "agent_action_hint": "Self-heal input parameters and retry with corrected data types.",
+                "details": errors
+            },
+            "detail": errors
+        }
+    )
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """
+    Actionable self-healing HTTP exception handler for autonomous AI agents.
+    Provides valid alternative endpoints when a 404 or 405 error occurs.
+    """
+    accept = request.headers.get("Accept", "")
+    is_agent = (
+        "text/html" not in accept or
+        request.url.path.startswith(f"{settings.API_V1_PREFIX}") or
+        request.url.path.startswith("/mcp") or
+        request.headers.get("X-Agent", "").lower() in ("true", "1")
+    )
+    if is_agent:
+        if exc.status_code == 404:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "error": {
+                        "code": "ENDPOINT_NOT_FOUND",
+                        "message": f"Endpoint '{request.url.path}' was not found on this server.",
+                        "recoverable": True,
+                        "suggested_fix": "Use one of the standard autonomous agent entrypoints: POST /api/v1/agent/tools/execute, POST /api/v1/mcp, or GET /api/v1/agent/tools",
+                        "agent_action_hint": "Inspect available routes at /openapi.json or tool manifest at /api/v1/agent/tools.",
+                        "valid_agent_entrypoints": [
+                            f"{settings.API_V1_PREFIX}/agent/tools",
+                            f"{settings.API_V1_PREFIX}/agent/tools/execute",
+                            f"{settings.API_V1_PREFIX}/mcp",
+                            "/openapi.json",
+                            "/llms.txt"
+                        ]
+                    },
+                    "detail": exc.detail
+                }
+            )
+        elif exc.status_code == 405:
+            return JSONResponse(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                content={
+                    "error": {
+                        "code": "METHOD_NOT_ALLOWED",
+                        "message": f"HTTP {request.method} is not permitted on '{request.url.path}'.",
+                        "recoverable": True,
+                        "suggested_fix": "Consult /openapi.json for allowed HTTP verbs on this path. Tool executions require POST.",
+                        "agent_action_hint": "Switch HTTP method to POST for execution endpoints."
+                    },
+                    "detail": exc.detail
+                }
+            )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
     )
 
 @app.exception_handler(Exception)
@@ -230,9 +276,41 @@ NO_CACHE_HEADERS = {
 
 @app.api_route("/", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def serve_landing(request: Request):
-    """Serves the eudragent.com Official SaaS Landing Page."""
+    """Serves the eudragent.com Official SaaS Landing Page, or JSON index for autonomous agents."""
     if request.method in ("HEAD", "OPTIONS"):
         return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS"})
+    
+    accept = request.headers.get("Accept", "")
+    ua = request.headers.get("User-Agent", "").lower()
+    is_agent = (
+        request.headers.get("X-Agent", "").lower() in ("true", "1") or
+        request.query_params.get("format") == "json" or
+        "application/json" in accept or
+        "text/html" not in accept or
+        any(bot in ua for bot in ("agent", "bot", "python", "curl", "httpx", "aiohttp", "langchain", "postman"))
+    )
+    if is_agent:
+        tools = AgentToolsRegistry.list_tools()
+        return JSONResponse({
+            "service": "eudr-compliance-agent",
+            "platform": "EUDRAgent",
+            "name": "EUDRAgent EUDR Compliance Platform",
+            "version": "1.2.0",
+            "mode": "autonomous-agent-first",
+            "status": "online",
+            "description": "Autonomous EU Deforestation Regulation (Regulation (EU) 2023/1115) EUDR Compliance & TRACES-NT Engine",
+            "documentation": "https://eudragent.com/llms.txt",
+            "llms_full_txt": "https://eudragent.com/llms-full.txt",
+            "pricing": "Micro-USDC Autonomous Settlement / Pricing Model",
+            "openapi_schema": "/openapi.json",
+            "mcp_server": f"{settings.API_V1_PREFIX}/mcp",
+            "server_card": "/server-card.json",
+            "tools_manifest": f"{settings.API_V1_PREFIX}/agent/tools",
+            "execute_tool": f"{settings.API_V1_PREFIX}/agent/tools/execute",
+            "total_tools": len(tools),
+            "meta": get_default_meta_dict()
+        }, headers=NO_CACHE_HEADERS)
+
     landing_file = STATIC_DIR / "landing.html"
     if landing_file.exists():
         return FileResponse(str(landing_file), headers=NO_CACHE_HEADERS)
@@ -327,16 +405,33 @@ async def serve_agent_manifest():
 @app.api_route("/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 @app.api_route("/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def serve_mcp_server_card(request: Request):
-    """Serves the standard MCP server-card.json metadata for Smithery.ai and MCP registries."""
-    if request.method in ("HEAD", "OPTIONS"):
+    """Serves the standard MCP server-card.json metadata for Smithery.ai, Glama.ai, and MCP registries."""
+    if request is not None and request.method in ("HEAD", "OPTIONS"):
         return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
-    card_file = STATIC_DIR / "server-card.json"
-    if card_file.exists():
-        return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
+    
+    # Dynamically build server card containing all registered agent tools with inputSchema
+    tools = []
+    for t in AgentToolsRegistry.list_tools():
+        tools.append({
+            "name": t["name"],
+            "description": t["description"],
+            "inputSchema": t["parameters"]
+        })
+    
     return JSONResponse({
-        "serverInfo": {"name": "eudr-compliance-agent", "version": "1.2.0"},
+        "serverInfo": {
+            "name": "eudr-compliance-agent",
+            "version": "1.2.0",
+            "description": "Autonomous AI Agent compliance engine for European Union Deforestation Regulation (EU 2023/1115)."
+        },
         "authentication": {"required": False},
-        "tools": []
+        "tools": tools,
+        "prompts": [
+            {
+                "name": "eudr_compliance_audit_prompt",
+                "description": "Guides an autonomous agent through an end-to-end EUDR Art. 9 audit workflow: GIS plot check, deforestation check, VAT validation, and TRACES-NT DDS compilation."
+            }
+        ]
     }, headers=NO_CACHE_HEADERS)
 
 @app.api_route("/glama.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
@@ -1566,14 +1661,7 @@ async def _handle_mcp_request(request: Request):
                 yield f"event: endpoint\ndata: {settings.API_V1_PREFIX}/mcp\n\n"
             return StreamingResponse(event_generator(), media_type="text/event-stream", headers=NO_CACHE_HEADERS)
         
-        card_file = STATIC_DIR / "server-card.json"
-        if card_file.exists():
-            return FileResponse(str(card_file), media_type="application/json", headers=NO_CACHE_HEADERS)
-        return JSONResponse({
-            "name": "eudr-compliance-mcp-server",
-            "protocolVersion": "2024-11-05",
-            "status": "online"
-        }, headers=NO_CACHE_HEADERS)
+        return await serve_mcp_server_card(request)
     
     # POST: JSON-RPC 2.0
     try:

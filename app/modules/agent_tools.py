@@ -637,6 +637,47 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
 ]
 
 
+def _normalize_commodity_input(val: Any) -> str:
+    """Tolerates LLM variation in commodity naming (e.g. 'palm oil', 'cacao', 'soybeans')."""
+    c = str(val or "cocoa").lower().strip().replace("-", "_").replace(" ", "_")
+    if "palm" in c:
+        return "oil_palm"
+    if "cocoa" in c or "cacao" in c:
+        return "cocoa"
+    if "coffee" in c or "cafe" in c:
+        return "coffee"
+    if "soy" in c:
+        return "soya"
+    if "rubber" in c or "latex" in c:
+        return "rubber"
+    if "wood" in c or "timber" in c or "lumber" in c or "pulp" in c or "log" in c:
+        return "wood"
+    if "cattle" in c or "beef" in c or "cow" in c or "bovine" in c:
+        return "cattle"
+    return c
+
+
+def _safe_float(val: Any, default: float = 0.0) -> float:
+    """Safely converts string or numeric inputs to float without crashing on None or whitespace."""
+    if val is None:
+        return default
+    try:
+        clean = str(val).strip()
+        for unit in ("hectares", "ha", "kg", "eur", "usdc", "usd", "%"):
+            if clean.lower().endswith(unit):
+                clean = clean[:-len(unit)].strip()
+        clean = clean.replace(",", "")
+        return float(clean)
+    except (ValueError, TypeError):
+        return default
+
+
+def _resolve_country(val: Any) -> str:
+    """Resolves country names, Alpha-3, or Alpha-2 codes to canonical ISO 3166-1 alpha-2."""
+    from app.modules.country_benchmarking import CountryBenchmarkingService
+    return CountryBenchmarkingService.normalize_country_code(str(val or ""))
+
+
 class AgentToolsRegistry:
     """Registry providing tool metadata and execution for AI Agents."""
 
@@ -675,6 +716,24 @@ class AgentToolsRegistry:
                 suggested_fix="Check the tool name spelling against available tools.",
                 agent_action_hint=f"Choose from: {[t['name'] for t in AGENT_TOOLS_MANIFEST]}"
             )
+
+        # Pre-execution auto-healing for autonomous agent parameter aliases
+        if name == "eudr_slice_parcel":
+            if "plot_id" not in arguments and "parent_plot_id" in arguments:
+                arguments["plot_id"] = arguments["parent_plot_id"]
+            if "coordinates" not in arguments and "geometry" in arguments:
+                arguments["coordinates"] = arguments["geometry"]
+            if "commodity" not in arguments:
+                arguments["commodity"] = "cocoa"
+        elif name == "eudr_verify_vies_vat":
+            if "country_code" not in arguments and "vat_number" in arguments:
+                vat_val = str(arguments["vat_number"]).strip().replace(" ", "").replace("-", "")
+                if len(vat_val) >= 3 and vat_val[:2].isalpha():
+                    arguments["country_code"] = vat_val[:2].upper()
+                    arguments["vat_number"] = vat_val[2:]
+        elif name == "eudr_link_downstream_chain":
+            if "upstream_dds_references" not in arguments and "upstream_dds_reference" in arguments:
+                arguments["upstream_dds_references"] = [arguments["upstream_dds_reference"]]
 
         # Validate required parameters
         required_params = tool["parameters"].get("required", [])
@@ -750,11 +809,23 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_verify_plot(cls, args: Dict[str, Any]) -> Dict[str, Any]:
-        plot_id = args["plot_id"]
-        country_code = args["country_code"].upper()
-        commodity = args["commodity"].lower()
+        plot_id = str(args["plot_id"]).strip()
+        country_code = _resolve_country(args["country_code"])
+        commodity = _normalize_commodity_input(args["commodity"])
         coords = args["coordinates"]
-        area_ha = float(args.get("area_hectares", 1.5))
+        if isinstance(coords, str):
+            try:
+                coords = json.loads(coords)
+            except Exception:
+                pass
+        # Unpack GeoJSON Feature or Geometry dict if agent passed spatial object
+        if isinstance(coords, dict):
+            if coords.get("type") == "Feature":
+                coords = coords.get("geometry", {}).get("coordinates", [])
+            elif coords.get("type") in ("Polygon", "MultiPolygon", "Point"):
+                coords = coords.get("coordinates", [])
+
+        area_ha = _safe_float(args.get("area_hectares"), default=1.5)
 
         # Basic shape detection
         is_polygon = isinstance(coords, list) and len(coords) > 0 and isinstance(coords[0], list) and (len(coords) >= 3 or (len(coords) == 1 and isinstance(coords[0][0], list)))
@@ -780,7 +851,7 @@ class AgentToolsRegistry:
             flat_coords = [coords]
 
         for pt in flat_coords:
-            if len(pt) < 2:
+            if not isinstance(pt, (list, tuple)) or len(pt) < 2:
                 raise AgentSelfCorrectionError(
                     message="Coordinate points must have at least [longitude, latitude].",
                     code="COORDINATE_FORMAT_INVALID",
@@ -816,8 +887,8 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_check_deforestation(cls, args: Dict[str, Any]) -> Dict[str, Any]:
-        plot_id = args["plot_id"]
-        country_code = args["country_code"].upper()
+        plot_id = str(args["plot_id"]).strip()
+        country_code = _resolve_country(args["country_code"])
         cutoff_date = args.get("cutoff_date", "2020-12-31")
 
         # Analyze using deforestation analyzer
@@ -845,8 +916,16 @@ class AgentToolsRegistry:
         vies_cls = ViesValidator
         if vies_cls is None:
             from app.modules.vies_validator import ViesValidator as vies_cls
-        country_code = args["country_code"].upper()
-        vat_number = args["vat_number"].strip()
+        raw_country = str(args.get("country_code", "")).strip()
+        country_code = _resolve_country(raw_country)
+        vat_number = str(args.get("vat_number", "")).strip().replace(" ", "").replace("-", "")
+
+        # Auto-extract country code if agent passes full VAT (e.g. DE123456789)
+        if (country_code == "UNKNOWN" or not country_code) and len(vat_number) >= 3 and vat_number[:2].isalpha():
+            country_code = vat_number[:2].upper()
+            vat_number = vat_number[2:].strip()
+        elif country_code and vat_number.upper().startswith(country_code):
+            vat_number = vat_number[len(country_code):].strip()
 
         result = await vies_cls.validate_vat_async(f"{country_code}{vat_number}")
         is_valid = bool(result.get("valid", False))
@@ -866,11 +945,17 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_generate_dds(cls, args: Dict[str, Any]) -> Dict[str, Any]:
-        operator_name = args["operator_name"]
-        operator_vat = args["operator_vat"]
-        commodity = args["commodity"]
-        net_mass = float(args["total_net_mass_kg"])
-        plots = args["plot_ids"]
+        operator_name = str(args["operator_name"]).strip()
+        operator_vat = str(args["operator_vat"]).strip()
+        commodity = _normalize_commodity_input(args["commodity"])
+        net_mass = _safe_float(args.get("total_net_mass_kg") or args.get("net_mass_kg"), default=1000.0)
+        raw_plots = args.get("plot_ids") or args.get("plots", [])
+        if isinstance(raw_plots, str):
+            plots = [p.strip() for p in raw_plots.split(",") if p.strip()]
+        elif isinstance(raw_plots, list):
+            plots = [p.get("plot_id") if isinstance(p, dict) else str(p).strip() for p in raw_plots]
+        else:
+            plots = [str(raw_plots)]
 
         ref_id = f"EUDR-DDS-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
         xml_declaration = f"""<DueDiligenceStatement xmlns="http://eudr.ec.europa.eu/traces-nt/v1">
@@ -919,7 +1004,10 @@ class AgentToolsRegistry:
     @classmethod
     async def _exec_estimate_cost(cls, args: Dict[str, Any]) -> Dict[str, Any]:
         from app.modules.payment_manager import PLAN_PRICING_USDC
-        num_plots = int(args["num_plots"])
+        try:
+            num_plots = int(float(str(args.get("num_plots", 1)).replace(",", "").strip()))
+        except Exception:
+            num_plots = 1
         resolution = args.get("satellite_resolution", "sentinel_10m")
         include_traces = bool(args.get("include_traces_submission", True))
 
@@ -946,7 +1034,13 @@ class AgentToolsRegistry:
     async def _exec_create_payment_order(cls, args: Dict[str, Any]) -> Dict[str, Any]:
         from app.modules.payment_manager import PaymentManager, PLAN_PRICING_USDC
         from app.schemas import PaymentOrderCreateRequest
-        plan_tier = args["plan_tier"].upper()
+        raw_plan = str(args.get("plan_tier", "PRO")).upper().strip()
+        if "ENTERPRISE" in raw_plan:
+            plan_tier = "ENTERPRISE"
+        elif "STARTER" in raw_plan:
+            plan_tier = "STARTER"
+        else:
+            plan_tier = "PRO"
         amount_usdc = PLAN_PRICING_USDC.get(plan_tier, 299.00)
         max_budget = args.get("max_budget_usdc")
 
@@ -1084,10 +1178,24 @@ class AgentToolsRegistry:
 
     @classmethod
     async def _exec_render_satellite_map(cls, args: Dict[str, Any]) -> Dict[str, Any]:
-        plot_id = args["plot_id"]
-        coords = args["coordinates"]
-        year = int(args.get("year", 2020))
-        layer = args.get("layer", "ndvi_vegetation")
+        plot_id = str(args.get("plot_id", "PLOT-1")).strip()
+        coords = args.get("coordinates")
+        if isinstance(coords, str):
+            try:
+                coords = json.loads(coords)
+            except Exception:
+                pass
+        if isinstance(coords, dict):
+            if coords.get("type") == "Feature":
+                coords = coords.get("geometry", {}).get("coordinates", [])
+            elif coords.get("type") in ("Polygon", "MultiPolygon", "Point"):
+                coords = coords.get("coordinates", [])
+
+        try:
+            year = int(float(str(args.get("year", 2020)).strip()))
+        except Exception:
+            year = 2020
+        layer = str(args.get("layer", "ndvi_vegetation")).strip()
 
         ndvi_score = 0.86 if year == 2020 else 0.84
         canopy_status = "Dense Tropical Canopy (>80%)" if ndvi_score >= 0.8 else "Moderate Forest"
@@ -1494,7 +1602,7 @@ class AgentToolsRegistry:
     @classmethod
     async def _exec_benchmark_country(cls, arguments: Dict[str, Any]) -> Dict[str, Any]:
         from app.modules.country_benchmarking import CountryBenchmarkingService
-        country_code = arguments.get("country_code", "").upper().strip()
+        country_code = _resolve_country(arguments.get("country_code", ""))
         suspected_circumvention = bool(arguments.get("suspected_circumvention", False))
         suspected_mixing = bool(arguments.get("suspected_mixing", False))
         
@@ -1512,19 +1620,30 @@ class AgentToolsRegistry:
         from app.modules.downstream_chain_manager import DownstreamChainManager
         from app.schemas import DownstreamChainRequest
         
-        refs = arguments.get("upstream_dds_references")
-        if not refs:
+        raw_refs = arguments.get("upstream_dds_references")
+        if not raw_refs:
             single_ref = arguments.get("upstream_dds_reference")
-            refs = [single_ref] if single_ref else []
+            raw_refs = [single_ref] if single_ref else []
+        elif isinstance(raw_refs, str):
+            raw_refs = [r.strip() for r in raw_refs.split(",") if r.strip()]
+
+        refs = [str(r).strip() for r in raw_refs if str(r).strip()]
+        if not refs:
+            raise AgentSelfCorrectionError(
+                message="At least one upstream DDS reference is required to link a downstream supply chain.",
+                code="MISSING_UPSTREAM_DDS",
+                suggested_fix="Provide upstream DDS reference number(s) in 'upstream_dds_references' (e.g. ['EU.DDS.2026.XYZ12345']).",
+                agent_action_hint="Extract the upstream supplier's DDS reference from preceding trade documents."
+            )
             
         req = DownstreamChainRequest(
             downstream_operator_name=arguments.get("downstream_operator_name") or arguments.get("operator_name", "Downstream Operator"),
             downstream_operator_eori=arguments.get("downstream_operator_eori") or arguments.get("operator_eori", "DE123456789"),
             commodity_code=arguments.get("commodity_code") or arguments.get("product_hs_code", "1806"),
             commodity_description=arguments.get("commodity_description") or arguments.get("product_description", "Finished Goods"),
-            net_mass_kg=float(arguments.get("net_mass_kg") or arguments.get("consignment_mass_kg", 1000.0)),
+            net_mass_kg=_safe_float(arguments.get("net_mass_kg") or arguments.get("consignment_mass_kg"), default=1000.0),
             upstream_dds_references=refs,
-            manufacturing_country=arguments.get("manufacturing_country", "DE"),
+            manufacturing_country=_resolve_country(arguments.get("manufacturing_country", "DE")),
             shipment_bl_number=arguments.get("shipment_bl_number") or arguments.get("consignment_id")
         )
         res = DownstreamChainManager.register_downstream_chain(req)
@@ -1535,13 +1654,16 @@ class AgentToolsRegistry:
         from app.modules.statutory_exemption_issuer import StatutoryExemptionIssuer
         from app.schemas import StatutoryExemptionNoticeRequest
         
+        origin = _resolve_country(arguments.get("origin_country", "US"))
+        dest = _resolve_country(arguments.get("destination_country") or arguments.get("destination_member_state", "DE"))
+
         req = StatutoryExemptionNoticeRequest(
             hs_code=str(arguments.get("hs_code", "")).strip(),
             product_description=str(arguments.get("product_description", "")),
             importer_name=arguments.get("importer_name") or arguments.get("operator_name", "EU Importer"),
             importer_eori=arguments.get("importer_eori") or arguments.get("operator_eori", "DE999999999"),
-            origin_country=arguments.get("origin_country", "US"),
-            destination_country=arguments.get("destination_country") or arguments.get("destination_member_state", "DE"),
+            origin_country=origin,
+            destination_country=dest,
             b_l_number=arguments.get("b_l_number") or arguments.get("consignment_id")
         )
         res = StatutoryExemptionIssuer.issue_certificate(req)
@@ -1554,8 +1676,28 @@ class AgentToolsRegistry:
         
         geom = arguments.get("geometry")
         coords = arguments.get("coordinates")
+        if isinstance(geom, str):
+            try:
+                geom = json.loads(geom)
+            except Exception:
+                pass
+        if isinstance(coords, str):
+            try:
+                coords = json.loads(coords)
+            except Exception:
+                pass
+
+        # Handle GeoJSON Feature
+        if isinstance(geom, dict) and geom.get("type") == "Feature":
+            geom = geom.get("geometry")
+
         if not geom and coords:
-            if isinstance(coords, list) and len(coords) > 0 and isinstance(coords[0], list):
+            if isinstance(coords, dict):
+                if coords.get("type") == "Feature":
+                    geom = coords.get("geometry")
+                elif coords.get("type") in ("Polygon", "MultiPolygon"):
+                    geom = coords
+            elif isinstance(coords, list) and len(coords) > 0 and isinstance(coords[0], list):
                 if isinstance(coords[0][0], (int, float)):
                     geom = {"type": "Polygon", "coordinates": [coords]}
                 else:
@@ -1565,11 +1707,13 @@ class AgentToolsRegistry:
                 
         req = ParcelSlicingRequest(
             parent_plot_id=arguments.get("parent_plot_id") or arguments.get("plot_id", "PLOT-PARENT"),
-            country_code=arguments.get("country_code", "ID"),
-            declared_area_ha=float(arguments.get("declared_area_ha") or arguments.get("area_hectares", 10.0)),
+            country_code=_resolve_country(arguments.get("country_code", "ID")),
+            declared_area_ha=_safe_float(arguments.get("declared_area_ha") or arguments.get("area_hectares"), default=10.0),
             geometry=geom or {"type": "Polygon", "coordinates": [[[101.0, 0.0], [101.01, 0.0], [101.01, 0.01], [101.0, 0.01], [101.0, 0.0]]]},
-            target_parcel_max_ha=float(arguments.get("target_parcel_max_ha") or arguments.get("target_max_ha", 3.5)),
+            target_parcel_max_ha=_safe_float(arguments.get("target_parcel_max_ha") or arguments.get("target_max_ha"), default=3.5),
             estimated_farmers_count=arguments.get("estimated_farmers_count")
         )
         res = ParcelSlicingEngine.slice_aggregated_plot(req)
-        return res.model_dump()
+        out = res.model_dump()
+        out["total_sub_parcels"] = out.get("slices_count", 0)
+        return out

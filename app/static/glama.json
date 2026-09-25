@@ -95,6 +95,30 @@
       "description": "Dispatches real-time compliance status alert or audit result notification to Telegram."
     },
     {
+      "name": "eudr_agent_eip3009_pay",
+      "description": "Executes 1-turn gasless USDC payment authorization via EIP-3009 TransferWithAuthorization for autonomous agents."
+    },
+    {
+      "name": "eudr_evaluate_compact",
+      "description": "Executes full 5-pillar EUDR compliance evaluation and returns a ~300-token compact summary saving >95% LLM context window."
+    },
+    {
+      "name": "eudr_benchmark_country",
+      "description": "Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and Article 13 simplified due diligence eligibility."
+    },
+    {
+      "name": "eudr_link_downstream_chain",
+      "description": "Implements EUDR Article 4(8) downstream DDS reference chaining and monitors cascading revocation/taint."
+    },
+    {
+      "name": "eudr_issue_statutory_exemption",
+      "description": "Issues official EU SWE-C Green Lane Customs Exemption Certificates under the Sept 2026 Delegated Act for excluded bovine leather (HS 4101, 4104, 4107)."
+    },
+    {
+      "name": "eudr_slice_parcel",
+      "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with closed rings."
+    },
+    {
       "name": "eudr_submit_agent_feedback",
       "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine."
     }

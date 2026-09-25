@@ -37,6 +37,14 @@ class CountryBenchmarkingService:
         "GB": {"name": "United Kingdom", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
         "NO": {"name": "Norway", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
         "CH": {"name": "Switzerland", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "DK": {"name": "Denmark", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "IE": {"name": "Ireland", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "PT": {"name": "Portugal", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "GR": {"name": "Greece", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "CZ": {"name": "Czech Republic", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "RO": {"name": "Romania", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "HU": {"name": "Hungary", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
+        "SG": {"name": "Singapore", "tier": CountryBenchmarkingTierEnum.LOW, "rate": 1.0},
 
         # Standard Risk Countries (Standard Due Diligence applies: Art. 8, 9, 10, 11)
         "VN": {"name": "Vietnam", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
@@ -49,6 +57,18 @@ class CountryBenchmarkingService:
         "PE": {"name": "Peru", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
         "CL": {"name": "Chile", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
         "IN": {"name": "India", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "MX": {"name": "Mexico", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "AR": {"name": "Argentina", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "NG": {"name": "Nigeria", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "CM": {"name": "Cameroon", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "EC": {"name": "Ecuador", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "GT": {"name": "Guatemala", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "HN": {"name": "Honduras", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "PG": {"name": "Papua New Guinea", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "CN": {"name": "China", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "PH": {"name": "Philippines", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "TR": {"name": "Turkey", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
+        "ZA": {"name": "South Africa", "tier": CountryBenchmarkingTierEnum.STANDARD, "rate": 3.0},
 
         # High Risk Countries (Strict Due Diligence: 9% inspection, mandatory FPIC & double-radar)
         "BR": {"name": "Brazil", "tier": CountryBenchmarkingTierEnum.HIGH, "rate": 9.0},
@@ -60,12 +80,59 @@ class CountryBenchmarkingService:
         "PY": {"name": "Paraguay", "tier": CountryBenchmarkingTierEnum.HIGH, "rate": 9.0}
     }
 
+    _COUNTRY_ALIASES: Dict[str, str] = {
+        # Alpha-3 to Alpha-2
+        "DEU": "DE", "FRA": "FR", "ITA": "IT", "ESP": "ES", "NLD": "NL", "POL": "PL", "SWE": "SE", "FIN": "FI",
+        "AUT": "AT", "BEL": "BE", "USA": "US", "CAN": "CA", "JPN": "JP", "KOR": "KR", "AUS": "AU", "NZL": "NZ",
+        "GBR": "GB", "NOR": "NO", "CHE": "CH", "DNK": "DK", "IRL": "IE", "PRT": "PT", "GRC": "GR", "CZE": "CZ",
+        "ROU": "RO", "HUN": "HU", "SGP": "SG", "VNM": "VN", "IDN": "ID", "MYS": "MY", "THA": "TH", "CIV": "CI",
+        "GHA": "GH", "COL": "CO", "PER": "PE", "CHL": "CL", "IND": "IN", "MEX": "MX", "ARG": "AR", "NGA": "NG",
+        "CMR": "CM", "ECU": "EC", "GTM": "GT", "HND": "HN", "PNG": "PG", "CHN": "CN", "PHL": "PH", "TUR": "TR",
+        "ZAF": "ZA", "BRA": "BR", "MMR": "MM", "BLR": "BY", "RUS": "RU", "COD": "CD", "BOL": "BO", "PRY": "PY",
+        # Full Names (lowercase stripped)
+        "germany": "DE", "deutschland": "DE", "france": "FR", "italy": "IT", "spain": "ES", "netherlands": "NL",
+        "holland": "NL", "poland": "PL", "sweden": "SE", "finland": "FI", "austria": "AT", "belgium": "BE",
+        "denmark": "DK", "ireland": "IE", "portugal": "PT", "greece": "GR", "czech republic": "CZ", "czechia": "CZ",
+        "romania": "RO", "hungary": "HU", "singapore": "SG",
+        "united states": "US", "united states of america": "US", "usa": "US", "america": "US",
+        "canada": "CA", "japan": "JP", "south korea": "KR", "korea": "KR", "australia": "AU", "new zealand": "NZ",
+        "united kingdom": "GB", "uk": "GB", "great britain": "GB", "norway": "NO", "switzerland": "CH",
+        "vietnam": "VN", "viet nam": "VN", "indonesia": "ID", "malaysia": "MY", "thailand": "TH",
+        "cote d'ivoire": "CI", "côte d'ivoire": "CI", "ivory coast": "CI", "ghana": "GH", "colombia": "CO",
+        "peru": "PE", "chile": "CL", "india": "IN", "mexico": "MX", "argentina": "AR", "nigeria": "NG",
+        "cameroon": "CM", "ecuador": "EC", "guatemala": "GT", "honduras": "HN", "papua new guinea": "PG",
+        "china": "CN", "philippines": "PH", "turkey": "TR", "türkiye": "TR", "south africa": "ZA",
+        "brazil": "BR", "brasil": "BR", "myanmar": "MM", "burma": "MM", "belarus": "BY", "russia": "RU",
+        "russian federation": "RU", "drc": "CD", "democratic republic of the congo": "CD",
+        "congo": "CD", "bolivia": "BO", "paraguay": "PY"
+    }
+
+    @classmethod
+    def normalize_country_code(cls, country_input: Optional[str]) -> str:
+        """
+        Normalizes any country input (ISO 2, ISO 3, or common full country name)
+        into a canonical ISO 3166-1 alpha-2 code to tolerate LLM output variance.
+        """
+        if not country_input:
+            return "UNKNOWN"
+        raw = str(country_input).strip()
+        if len(raw) == 2 and raw.isalpha():
+            return raw.upper()
+        clean_lower = raw.lower()
+        if clean_lower in cls._COUNTRY_ALIASES:
+            return cls._COUNTRY_ALIASES[clean_lower]
+        clean_upper = raw.upper()
+        if clean_upper in cls._COUNTRY_ALIASES:
+            return cls._COUNTRY_ALIASES[clean_upper]
+        return clean_upper[:2] if len(clean_upper) >= 2 else clean_upper
+
     @classmethod
     def get_benchmarking(cls, country_code: str) -> CountryBenchmarkingResponse:
         """
         Retrieves the EUDR Article 29 Benchmarking tier and Article 13 simplified status.
+        Tolerates Alpha-3 and full country names from autonomous LLMs.
         """
-        code = country_code.strip().upper() if country_code else "UNKNOWN"
+        code = cls.normalize_country_code(country_code)
         info = cls._COUNTRY_TIERS.get(code, {
             "name": f"Country ({code})",
             "tier": CountryBenchmarkingTierEnum.STANDARD,

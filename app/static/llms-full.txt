@@ -143,9 +143,49 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
   - `agent_id` (string, required): Calling agent identifier or handle.
   - `title` (string, required): Concise summary of the improvement proposal.
   - `content` (string, required): Detailed explanation, required parameters, or architectural reasoning.
-  - `feedback_type` (string, default: "FEATURE_REQUEST"): "FEATURE_REQUEST", "PROTOCOL_PROPOSAL", "DATASET_SUGGESTION", or "EDGE_CASE".
-  - `caller_model` (string, default: "autonomous-agent"): Underlying model identifier.
-  - `contact_channel` (string, optional): Webhook URI or contact handle for status alerts.
+  - `feedback_type` (string, default: "FEATURE_REQUEST")
+  - `caller_model` (string, default: "autonomous-agent")
+  - `contact_channel` (string, optional)
+
+### 12. `eudr_render_satellite_map`
+- **Purpose**: Multi-spectral Sentinel-2 visualization metadata, SVG radar preview, and canopy health NDVI score.
+- **Parameters**: `plot_id`, `coordinates`, optional `year` (2020/2026), `layer`.
+
+### 13. `eudr_export_traces_xml`
+- **Purpose**: Compiles production-grade EU TRACES-NT DDS XML file ready for submission to the EU Commission portal.
+- **Parameters**: `operator_name`, `operator_vat`, `commodity`, `total_net_mass_kg`, `plot_ids`.
+
+### 14. `eudr_generate_customs_certificate`
+- **Purpose**: Generates cryptographic customs clearance certificate with SHA-256 hash and verification link.
+- **Parameters**: `execution_id`, optional `destination_port`, `customs_office_code`.
+
+### 15. `eudr_send_telegram_alert`
+- **Purpose**: Real-time webhook alerting for compliance failure, tainted supply chain, or DDS approval.
+- **Parameters**: `channel_id`, `alert_type`, `message`, `plot_id`, `severity`.
+
+### 16. `eudr_agent_eip3009_pay`
+- **Purpose**: 1-turn gasless USDC payment authorization via EIP-3009 `TransferWithAuthorization` for zero-friction machine settlement.
+- **Parameters**: `agent_id`, `num_plots`, `from_address`, `valid_after`, `valid_before`, `nonce`, `signature`.
+
+### 17. `eudr_evaluate_compact`
+- **Purpose**: Executes 5-pillar EUDR audit and returns a ~300-token compact summary saving >95% LLM context window tokens.
+- **Parameters**: `operator_name`, `operator_eori`, `commodity`, `hs_code`, `plots`.
+
+### 18. `eudr_benchmark_country`
+- **Purpose**: Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and determines Article 13 simplified due diligence eligibility with official EU customs audit rates (1%, 3%, 9%).
+- **Parameters**: `country_code` (ISO 2, ISO 3, or full country name), optional `suspected_circumvention`, `suspected_mixing`.
+
+### 19. `eudr_link_downstream_chain`
+- **Purpose**: Implements EUDR Article 4(8) downstream DDS reference chaining, inheriting upstream supplier DDS reference, eliminating redundant smallholder audits, and tracking cascade taint.
+- **Parameters**: `operator_id`, `operator_name`, `operator_eori`, `upstream_dds_reference` or `upstream_dds_references`, `consignment_mass_kg`.
+
+### 20. `eudr_issue_statutory_exemption`
+- **Purpose**: Issues official EU SWE-C Green Lane Customs Exemption Certificates under the Sept 2026 Delegated Act for excluded bovine leather (HS 4101, 4104, 4107).
+- **Parameters**: `hs_code`, `product_description`, `consignment_id`, `operator_name`, optional `destination_member_state`.
+
+### 21. `eudr_slice_parcel`
+- **Purpose**: Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings.
+- **Parameters**: `plot_id`, `country_code`, `commodity`, `coordinates` (or `geometry`), optional `area_hectares`, `target_max_ha`.
 
 ---
 

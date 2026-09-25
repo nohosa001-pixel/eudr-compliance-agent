@@ -305,6 +305,7 @@ class PaymentManager:
             contact_email=order["contact_email"],
             tier=order["plan_tier"]
         )
+        monthly_quota = getattr(record, "monthly_quota_plots", None) or (50000 if order["plan_tier"] == "PRO" else (1000000 if order["plan_tier"] == "ENTERPRISE" else 5000))
 
         order["status"] = PaymentOrderStatusEnum.CONFIRMED
         order["tx_hash"] = tx_hash
@@ -320,12 +321,13 @@ class PaymentManager:
                     db_record.status = "CONFIRMED"
                     db_record.tx_hash = tx_hash
                     db_record.api_key_issued = raw_api_key
-                    db_record.confirmed_at = datetime.datetime.utcnow()
+                    db_record.confirmed_at = datetime.now(timezone.utc)
                     db.commit()
             except Exception:
                 pass
-            if not db_session:
-                db.close()
+            finally:
+                if not db_session:
+                    db.close()
 
         # Send Telegram notification on successful payment activation
         try:
@@ -349,7 +351,7 @@ class PaymentManager:
             tx_hash=tx_hash,
             plan_tier=order["plan_tier"],
             api_key_issued=raw_api_key,
-            monthly_quota_plots=record.monthly_quota_plots,
+            monthly_quota_plots=monthly_quota,
             invoice_number=order["invoice_number"],
             receipt_url=f"/api/v1/payment/invoice/{order_id}",
             message="Payment verified! Pro License activated with 50,000 monthly plot validations.",
@@ -552,15 +554,17 @@ class PaymentManager:
         plan = "NONE"
         is_active = False
 
+        total_spent = 0.0
         if db:
             try:
                 rec = db.query(ApiKeyRecord).filter(
-                    (ApiKeyRecord.owner_email.like(f"%{agent_id}%")) | (ApiKeyRecord.company_name.like(f"%{agent_id}%"))
+                    (ApiKeyRecord.contact_email.like(f"%{agent_id}%")) | (ApiKeyRecord.company_name.like(f"%{agent_id}%"))
                 ).first()
                 if rec:
                     quota = max(0, rec.monthly_quota_plots - rec.used_plots_this_month)
-                    plan = rec.plan_tier
+                    plan = rec.tier
                     is_active = rec.is_active
+                    total_spent = PLAN_PRICING_USDC.get(plan, round(rec.monthly_quota_plots * 0.10, 2))
             except Exception:
                 pass
             if not db_session:
@@ -571,7 +575,7 @@ class PaymentManager:
             "plan_tier": plan,
             "is_active": is_active,
             "remaining_quota_plots": quota,
-            "total_usdc_spent": PLAN_PRICING_USDC.get(plan, 0.0),
+            "total_usdc_spent": total_spent,
             "status": "ACTIVE" if is_active else "NO_ACTIVE_SUBSCRIPTION"
         }
 

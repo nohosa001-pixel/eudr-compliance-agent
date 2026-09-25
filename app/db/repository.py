@@ -225,9 +225,46 @@ class ApiKeyRepository:
         return record, raw_api_key
 
     @classmethod
+    def create_key(
+        cls,
+        db: Session,
+        owner_email: Optional[str] = None,
+        contact_email: Optional[str] = None,
+        company_name: str = "Autonomous Agent",
+        plan_tier: str = "MICRO",
+        tier: Optional[str] = None,
+        monthly_quota_plots: int = 100,
+        raw_key: Optional[str] = None
+    ) -> ApiKeyRecord:
+        import hashlib
+        import uuid
+        import secrets
+
+        email = contact_email or owner_email or "agent@autonomous-agent.net"
+        tier_val = (tier or plan_tier or "MICRO").upper()
+        raw_token = raw_key or f"eudr_agent_micro_{secrets.token_hex(16)}"
+        api_key_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        key_id = f"key_{uuid.uuid4().hex[:12]}"
+
+        record = ApiKeyRecord(
+            key_id=key_id,
+            api_key_hash=api_key_hash,
+            company_name=company_name,
+            contact_email=email,
+            tier=tier_val,
+            monthly_quota_plots=monthly_quota_plots,
+            rate_limit_per_min=300,
+            is_active=True
+        )
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+        return record
+
+    @classmethod
     def verify_api_key(cls, db: Session, raw_api_key: str) -> Optional[ApiKeyRecord]:
         import hashlib
-        if not raw_api_key or not raw_api_key.startswith("eudr_live_"):
+        if not raw_api_key or not any(raw_api_key.startswith(pfx) for pfx in ("eudr_live_", "eudr_agent_", "eudr_eip3009_")):
             return None
         
         target_hash = hashlib.sha256(raw_api_key.encode()).hexdigest()

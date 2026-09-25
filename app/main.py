@@ -67,8 +67,14 @@ from app.schemas import (
     StatutoryExemptionNoticeRequest,
     StatutoryExemptionNoticeResponse,
     ParcelSlicingRequest,
-    ParcelSlicingResponse
+    ParcelSlicingResponse,
+    EscrowCreateRequest,
+    EscrowFundRequest,
+    EscrowReleaseByComplianceRequest,
+    EscrowDisputeArbitrateRequest,
+    EscrowAgreementResponse
 )
+from app.modules.agent_escrow_manager import AgentEscrowManager
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
 from app.modules.parcel_slicing_engine import ParcelSlicingEngine
 from app.modules.country_benchmarking import CountryBenchmarkingService
@@ -1423,6 +1429,109 @@ async def verify_vat_number(
     res = await ViesValidator.validate_vat_async(vat_number)
     res["is_reverse_charge_eligible"] = res.get("reverse_charge_eligible", False)
     return res
+
+
+# -------------------------------------------------------------------
+# Autonomous Agent-to-Agent Smart Escrow Endpoints (Dispute-Free)
+# -------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/create",
+    response_model=EscrowAgreementResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
+    summary="Create an autonomous B2B trade Smart Escrow agreement"
+)
+async def create_agent_escrow(
+    req: EscrowCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Creates an immutable agent-to-agent smart escrow agreement for commodity trade batches.
+    Locks buyer payment until verifiable EU customs compliance is proven.
+    """
+    return AgentEscrowManager.create_escrow(req, db_session=db)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/fund",
+    response_model=EscrowAgreementResponse,
+    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
+    summary="Confirm blockchain funding deposit for a Smart Escrow"
+)
+async def fund_agent_escrow(
+    req: EscrowFundRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Validates on-chain transaction hash for escrow deposit and transitions status to FUNDED_LOCKED.
+    """
+    try:
+        return AgentEscrowManager.fund_escrow(req, db_session=db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/release-by-compliance",
+    response_model=EscrowAgreementResponse,
+    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
+    summary="Release Escrow funds upon EU Single Window clearance or compliant DDS verification"
+)
+async def release_escrow_by_compliance(
+    req: EscrowReleaseByComplianceRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Inspects EU SWE-C customs declaration clearance code (EU-SWEC-CLEARED-*) or verifies
+    satellite radar telemetry to programmatically release escrow funds to the seller agent.
+    """
+    try:
+        return AgentEscrowManager.release_by_compliance(req, db_session=db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/dispute-arbitrate",
+    response_model=EscrowAgreementResponse,
+    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
+    summary="Algorithmic autonomous dispute arbitration via Sentinel satellite radar"
+)
+async def arbitrate_escrow_dispute(
+    req: EscrowDisputeArbitrateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Zero-human algorithmic dispute arbitrator:
+    Evaluates Sentinel-1/2 radar and optical satellite telemetry over production plots.
+    If deforestation is detected post-2020: 100% refund to Buyer Agent.
+    If 0.0% deforestation: false dispute dismissed and funds released to Seller Agent.
+    """
+    try:
+        return AgentEscrowManager.arbitrate_dispute(req, db_session=db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/escrow/{{escrow_id}}",
+    response_model=EscrowAgreementResponse,
+    tags=["Autonomous Agent Smart Escrow (Dispute-Free)"],
+    summary="Query live status and audit trail of a Smart Escrow agreement"
+)
+async def get_agent_escrow(
+    escrow_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Returns live status, locked USDC amount, and cryptographic HMAC release signature.
+    """
+    try:
+        return AgentEscrowManager.get_escrow(escrow_id, db_session=db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 
 
 

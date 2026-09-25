@@ -187,11 +187,28 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
 - **Purpose**: Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings.
 - **Parameters**: `plot_id`, `country_code`, `commodity`, `coordinates` (or `geometry`), optional `area_hectares`, `target_max_ha`.
 
+### 22. `eudr_create_agent_escrow`
+- **Purpose**: Creates an immutable B2B trade Smart Escrow agreement locking USDC in payment vaults until verifiable EU customs compliance is proven.
+- **Parameters**: `buyer_agent_id`, `buyer_wallet`, `seller_agent_id`, `seller_wallet`, `amount_usdc`, `hs_code`, `commodity_description`, optional `chain`, `declared_net_mass_kg`, `expiry_hours`.
+
+### 23. `eudr_fund_agent_escrow`
+- **Purpose**: Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.
+- **Parameters**: `escrow_id`, `tx_hash`.
+
+### 24. `eudr_release_agent_escrow`
+- **Purpose**: Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference.
+- **Parameters**: `escrow_id`, optional `customs_declaration_code`, `dds_reference_id`, `plots`.
+
+### 25. `eudr_arbitrate_agent_escrow`
+- **Purpose**: Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2). 100% refund to Buyer Agent if deforestation is confirmed; released to Seller Agent if deforestation-free.
+- **Parameters**: `escrow_id`, `initiator_agent_id`, `reason`, optional `plots`.
+
 ---
 
-## 4. Autonomous Agent Payment & RFC 9110 / x402 Protocol
+## 4. Autonomous Agent Payment, Smart Escrow & RFC 9110 / x402 Protocol
 
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents:
+- **Autonomous Agent Smart Escrow**: `POST /api/v1/payment/escrow/*` eliminates commercial default and compliance disputes between trading bots. Funds release upon verified EU SWE-C customs clearance (`EU-SWEC-CLEARED-*`).
 - **x402 Protocol**: `GET /api/v1/payment/x402/challenge?resource=satellite_radar_scan&plots={N}` returns HTTP 402 with `WWW-Authenticate: X402` and exact payment instructions in machine-readable JSON.
 - **Micro-Settlement**: `POST /api/v1/payment/agent/micro-settle` settles plots on-demand via Base, Polygon, Arbitrum, or Solana.
 - **Subscription Orders**: `POST /api/v1/payment/orders` and `POST /api/v1/payment/confirm` provision high-throughput API keys automatically.

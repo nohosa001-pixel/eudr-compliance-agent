@@ -898,3 +898,74 @@ class ParcelSlicingResponse(BaseModel):
     message: str
 
 
+# -------------------------------------------------------------
+# Autonomous Agent-to-Agent Smart Escrow Schemas
+# -------------------------------------------------------------
+
+class EscrowStatusEnum(str, Enum):
+    AWAITING_DEPOSIT = "AWAITING_DEPOSIT"
+    FUNDED_LOCKED = "FUNDED_LOCKED"
+    RELEASED = "RELEASED"
+    DISPUTED = "DISPUTED"
+    REFUNDED = "REFUNDED"
+
+
+class EscrowCreateRequest(BaseModel):
+    buyer_agent_id: str = Field(..., description="Calling buyer agent ID / system name")
+    buyer_wallet: str = Field(..., description="Buyer EVM / Solana wallet address for refunds")
+    seller_agent_id: str = Field(..., description="Target seller agent ID / supplier identifier")
+    seller_wallet: str = Field(..., description="Seller EVM / Solana wallet address for payout")
+    amount_usdc: float = Field(..., gt=0, description="Escrow lock amount in USDC")
+    chain: SupportedCryptoChainEnum = SupportedCryptoChainEnum.BASE
+    hs_code: str = Field(..., description="Regulated commodity HS code (e.g. 18010000, 44071100)")
+    commodity_description: str = Field(..., description="Description of the trade shipment batch")
+    declared_net_mass_kg: float = Field(default=1000.0, gt=0, description="Declared shipment net weight in kg")
+    plots: Optional[List[Dict[str, Any]]] = Field(None, description="Optional production plot coordinates for upfront validation")
+    expiry_hours: int = Field(default=72, ge=1, le=720, description="Auto-refund expiration window in hours")
+
+
+class EscrowFundRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID (e.g. ESC-EUDR-2026-XXXXXXXX)")
+    tx_hash: str = Field(..., description="Blockchain transaction hash confirming USDC deposit to vault")
+
+
+class EscrowReleaseByComplianceRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID to release")
+    dds_reference_id: Optional[str] = Field(None, description="Official compliant DDS reference ID (e.g. DDS-EUDR-...)")
+    customs_declaration_code: Optional[str] = Field(None, description="EU SWE-C customs declaration clearance code (e.g. EU-SWEC-CLEARED-...)")
+    plots: Optional[List[Dict[str, Any]]] = Field(None, description="Optional production plots to verify via satellite radar")
+
+
+class EscrowDisputeArbitrateRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID under dispute")
+    initiator_agent_id: str = Field(..., description="Agent triggering dispute (buyer or seller)")
+    reason: str = Field(..., description="Detailed dispute cause (e.g. 'Deforestation detected on Plot-4')")
+    plots: Optional[List[Dict[str, Any]]] = Field(None, description="Production plot coordinates for algorithmic satellite arbitration")
+
+
+class EscrowAgreementResponse(BaseModel):
+    escrow_id: str
+    status: EscrowStatusEnum
+    amount_usdc: float
+    chain: str
+    buyer_agent_id: str
+    buyer_wallet: str
+    seller_agent_id: str
+    seller_wallet: str
+    hs_code: str
+    commodity_description: str
+    declared_net_mass_kg: float
+    vault_deposit_address: str
+    deposit_tx_hash: Optional[str] = None
+    release_tx_hash: Optional[str] = None
+    dds_reference_id: Optional[str] = None
+    customs_declaration_code: Optional[str] = None
+    arbitration_verdict: Optional[str] = None
+    hmac_release_signature: Optional[str] = None
+    created_at_utc: str
+    expires_at_utc: Optional[str] = None
+    message: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+

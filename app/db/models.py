@@ -242,3 +242,44 @@ class AgentEvolutionFeedbackRecord(Base):
     votes = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
+
+class EscrowAgreementRecord(Base):
+    """
+    Autonomous Agent-to-Agent Smart Escrow Record for EUDR Trade.
+    Secures B2B commodity transactions with programmatic dispute elimination:
+    Funds are released if EUDR DDS is compliant & customs code issued,
+    or refunded to buyer if satellite radar confirms post-2020 deforestation.
+    """
+    __tablename__ = "escrow_agreements"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    escrow_id = Column(String(64), unique=True, index=True, nullable=False)
+    
+    buyer_agent_id = Column(String(64), index=True, nullable=False)
+    buyer_wallet = Column(String(128), nullable=False)
+    seller_agent_id = Column(String(64), index=True, nullable=False)
+    seller_wallet = Column(String(128), nullable=False)
+    
+    amount_usdc = Column(Float, nullable=False)
+    chain = Column(String(64), default="Base (Low Gas $0.01)")
+    
+    hs_code = Column(String(32), nullable=False)
+    commodity_description = Column(String(256), nullable=False)
+    declared_net_mass_kg = Column(Float, default=0.0)
+    
+    status = Column(String(32), default="AWAITING_DEPOSIT", index=True)
+    deposit_tx_hash = Column(String(128), nullable=True)
+    release_tx_hash = Column(String(128), nullable=True)
+    
+    dds_reference_id = Column(String(64), nullable=True)
+    customs_declaration_code = Column(String(64), nullable=True)
+    
+    arbitration_verdict = Column(Text, nullable=True)
+    hmac_release_signature = Column(String(128), nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    funded_at = Column(DateTime, nullable=True)
+    resolved_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+
+

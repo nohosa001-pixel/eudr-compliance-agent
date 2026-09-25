@@ -119,6 +119,22 @@
       "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with closed rings."
     },
     {
+      "name": "eudr_create_agent_escrow",
+      "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven."
+    },
+    {
+      "name": "eudr_fund_agent_escrow",
+      "description": "Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED."
+    },
+    {
+      "name": "eudr_release_agent_escrow",
+      "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference."
+    },
+    {
+      "name": "eudr_arbitrate_agent_escrow",
+      "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2)."
+    },
+    {
       "name": "eudr_submit_agent_feedback",
       "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine."
     }

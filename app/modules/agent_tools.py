@@ -633,6 +633,66 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["plot_id", "country_code", "commodity", "coordinates"]
         }
+    },
+    {
+        "name": "eudr_create_agent_escrow",
+        "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven. Eliminates commercial default risk.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+                "buyer_wallet": {"type": "string", "description": "Buyer EVM / Solana wallet address for refunds."},
+                "seller_agent_id": {"type": "string", "description": "Target seller agent ID / supplier identifier."},
+                "seller_wallet": {"type": "string", "description": "Seller EVM / Solana wallet address for payout."},
+                "amount_usdc": {"type": "number", "description": "Escrow lock amount in USDC."},
+                "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Blockchain network for settlement."},
+                "hs_code": {"type": "string", "description": "Regulated commodity HS code (e.g. '18010000', '44071100')."},
+                "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+                "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+                "expiry_hours": {"type": "number", "default": 72, "description": "Auto-refund window in hours."}
+            },
+            "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+        }
+    },
+    {
+        "name": "eudr_fund_agent_escrow",
+        "description": "Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID (e.g. 'ESC-EUDR-2026-XXXXXXXX')."},
+                "tx_hash": {"type": "string", "description": "On-chain deposit transaction hash."}
+            },
+            "required": ["escrow_id", "tx_hash"]
+        }
+    },
+    {
+        "name": "eudr_release_agent_escrow",
+        "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or verifiable compliant DDS reference.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID to release."},
+                "customs_declaration_code": {"type": "string", "description": "EU SWE-C customs declaration clearance code."},
+                "dds_reference_id": {"type": "string", "description": "Compliant DDS reference ID."},
+                "plots": {"type": "array", "description": "Optional plot coordinates for on-demand radar check."}
+            },
+            "required": ["escrow_id"]
+        }
+    },
+    {
+        "name": "eudr_arbitrate_agent_escrow",
+        "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry. If deforestation is detected post-2020: 100% refund to Buyer Agent; if deforestation-free: released to Seller Agent.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID under dispute."},
+                "initiator_agent_id": {"type": "string", "description": "Agent initiating dispute."},
+                "reason": {"type": "string", "description": "Dispute claim / cause."},
+                "plots": {"type": "array", "description": "Production plots for satellite radar arbitration."}
+            },
+            "required": ["escrow_id", "initiator_agent_id", "reason"]
+        }
     }
 ]
 
@@ -791,6 +851,14 @@ class AgentToolsRegistry:
                 res = await cls._exec_issue_statutory_exemption(arguments)
             elif name == "eudr_slice_parcel":
                 res = await cls._exec_slice_parcel(arguments)
+            elif name == "eudr_create_agent_escrow":
+                res = await cls._exec_create_agent_escrow(arguments)
+            elif name == "eudr_fund_agent_escrow":
+                res = await cls._exec_fund_agent_escrow(arguments)
+            elif name == "eudr_release_agent_escrow":
+                res = await cls._exec_release_agent_escrow(arguments)
+            elif name == "eudr_arbitrate_agent_escrow":
+                res = await cls._exec_arbitrate_agent_escrow(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
 
@@ -1717,3 +1785,84 @@ class AgentToolsRegistry:
         out = res.model_dump()
         out["total_sub_parcels"] = out.get("slices_count", 0)
         return out
+
+    @classmethod
+    async def _exec_create_agent_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowCreateRequest
+
+        req = EscrowCreateRequest(
+            buyer_agent_id=str(args["buyer_agent_id"]),
+            buyer_wallet=str(args["buyer_wallet"]),
+            seller_agent_id=str(args["seller_agent_id"]),
+            seller_wallet=str(args["seller_wallet"]),
+            amount_usdc=float(args["amount_usdc"]),
+            chain=args.get("chain", "Base (Low Gas $0.01)"),
+            hs_code=str(args["hs_code"]),
+            commodity_description=str(args["commodity_description"]),
+            declared_net_mass_kg=float(args.get("declared_net_mass_kg", 1000.0)),
+            expiry_hours=int(args.get("expiry_hours", 72))
+        )
+        res = AgentEscrowManager.create_escrow(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Smart Escrow {res.escrow_id} created for ${res.amount_usdc:.2f} USDC ({res.chain}). "
+            f"Buyer Agent must deposit funds to vault '{res.vault_deposit_address}'."
+        )
+        return out
+
+    @classmethod
+    async def _exec_fund_agent_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowFundRequest
+
+        req = EscrowFundRequest(
+            escrow_id=str(args["escrow_id"]),
+            tx_hash=str(args["tx_hash"])
+        )
+        res = AgentEscrowManager.fund_escrow(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Smart Escrow {res.escrow_id} funded and locked (${res.amount_usdc:.2f} USDC). "
+            f"Funds locked until EUDR customs green lane verification."
+        )
+        return out
+
+    @classmethod
+    async def _exec_release_agent_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowReleaseByComplianceRequest
+
+        req = EscrowReleaseByComplianceRequest(
+            escrow_id=str(args["escrow_id"]),
+            customs_declaration_code=args.get("customs_declaration_code"),
+            dds_reference_id=args.get("dds_reference_id"),
+            plots=args.get("plots")
+        )
+        res = AgentEscrowManager.release_by_compliance(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Smart Escrow {res.escrow_id} release evaluation completed. Status: {res.status}. "
+            f"Result: {res.message}"
+        )
+        return out
+
+    @classmethod
+    async def _exec_arbitrate_agent_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowDisputeArbitrateRequest
+
+        req = EscrowDisputeArbitrateRequest(
+            escrow_id=str(args["escrow_id"]),
+            initiator_agent_id=str(args["initiator_agent_id"]),
+            reason=str(args["reason"]),
+            plots=args.get("plots")
+        )
+        res = AgentEscrowManager.arbitrate_dispute(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Smart Escrow {res.escrow_id} autonomous arbitration completed. Status: {res.status}. "
+            f"Verdict: {res.arbitration_verdict}"
+        )
+        return out
+

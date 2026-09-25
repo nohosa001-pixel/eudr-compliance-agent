@@ -809,6 +809,66 @@
           "coordinates"
         ]
       }
+    },
+    {
+      "name": "eudr_create_agent_escrow",
+      "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven. Eliminates commercial default risk.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+          "buyer_wallet": {"type": "string", "description": "Buyer EVM / Solana wallet address for refunds."},
+          "seller_agent_id": {"type": "string", "description": "Target seller agent ID / supplier identifier."},
+          "seller_wallet": {"type": "string", "description": "Seller EVM / Solana wallet address for payout."},
+          "amount_usdc": {"type": "number", "description": "Escrow lock amount in USDC."},
+          "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Blockchain network for settlement."},
+          "hs_code": {"type": "string", "description": "Regulated commodity HS code (e.g. '18010000', '44071100')."},
+          "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+          "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+          "expiry_hours": {"type": "number", "default": 72, "description": "Auto-refund window in hours."}
+        },
+        "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+      }
+    },
+    {
+      "name": "eudr_fund_agent_escrow",
+      "description": "Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID (e.g. 'ESC-EUDR-2026-XXXXXXXX')."},
+          "tx_hash": {"type": "string", "description": "On-chain deposit transaction hash."}
+        },
+        "required": ["escrow_id", "tx_hash"]
+      }
+    },
+    {
+      "name": "eudr_release_agent_escrow",
+      "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID to release."},
+          "customs_declaration_code": {"type": "string", "description": "EU SWE-C customs declaration clearance code."},
+          "dds_reference_id": {"type": "string", "description": "Compliant DDS reference ID."},
+          "plots": {"type": "array", "description": "Optional plot coordinates for on-demand radar check."}
+        },
+        "required": ["escrow_id"]
+      }
+    },
+    {
+      "name": "eudr_arbitrate_agent_escrow",
+      "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry. If deforestation is detected post-2020: 100% refund to Buyer Agent; if deforestation-free: released to Seller Agent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID under dispute."},
+          "initiator_agent_id": {"type": "string", "description": "Agent initiating dispute."},
+          "reason": {"type": "string", "description": "Dispute claim / cause."},
+          "plots": {"type": "array", "description": "Production plots for satellite radar arbitration."}
+        },
+        "required": ["escrow_id", "initiator_agent_id", "reason"]
+      }
     }
   ],
   "resources": [],

@@ -329,7 +329,7 @@ def test_agent_json_root_navigation():
     data = res.json()
     assert data["service"] == "eudr-compliance-agent"
     assert data["mode"] == "autonomous-agent-first"
-    assert data["total_tools"] == 21
+    assert data["total_tools"] == 25
     assert "tools_manifest" in data
     assert "mcp_server" in data
     assert "meta" in data
@@ -353,12 +353,12 @@ def test_agent_404_recovery_guidance():
 
 
 def test_server_card_and_glama_all_21_tools():
-    """Verifies that server-card.json and glama.json index all 21 tools with inputSchema."""
+    """Verifies that server-card.json and glama.json index all tools with inputSchema."""
     # 1. server-card.json
     res_card = client.get("/.well-known/mcp/server-card.json")
     assert res_card.status_code == 200
     data_card = res_card.json()
-    assert len(data_card["tools"]) == 21
+    assert len(data_card["tools"]) == 25
     for tool in data_card["tools"]:
         assert "name" in tool
         assert "inputSchema" in tool
@@ -367,7 +367,7 @@ def test_server_card_and_glama_all_21_tools():
     res_glama = client.get("/glama.json")
     assert res_glama.status_code == 200
     data_glama = res_glama.json()
-    assert len(data_glama["tools"]) == 21
+    assert len(data_glama["tools"]) == 25
 
 
 def test_llm_auto_healing_countries_and_commodities():
@@ -417,7 +417,7 @@ def test_autonomous_agent_default_curl_root():
     data = res.json()
     assert data["status"] == "online"
     assert data["mode"] == "autonomous-agent-first"
-    assert data["total_tools"] == 21
+    assert data["total_tools"] == 25
     assert "llms_full_txt" in data
     assert "server_card" in data
 
@@ -503,15 +503,15 @@ async def test_autonomous_agent_geojson_feature_auto_healing():
 
 
 def test_get_mcp_returns_21_tools_server_card():
-    """Verifies that GET /api/v1/mcp and GET /mcp dynamically return all 21 tools."""
+    """Verifies that GET /api/v1/mcp and GET /mcp dynamically return all tools."""
     res_api = client.get("/api/v1/mcp")
     assert res_api.status_code == 200
     data_api = res_api.json()
-    assert len(data_api["tools"]) == 21
+    assert len(data_api["tools"]) == 25
 
     res_root = client.get("/mcp")
     assert res_root.status_code == 200
     data_root = res_root.json()
-    assert len(data_root["tools"]) == 21
+    assert len(data_root["tools"]) == 25
 
 

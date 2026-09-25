@@ -15,6 +15,7 @@ from app.schemas import (
 )
 from app.modules.payment_manager import PaymentManager, AGENT_PAYMENT_VAULTS, DEPOSIT_WALLETS
 from app.modules.deforestation_simulator import DeforestationSimulator
+from app.modules.web3_escrow_adapter import web3_escrow_adapter
 from app.core.config import settings
 
 
@@ -442,6 +443,85 @@ class AgentEscrowManager:
             raise ValueError(f"Escrow ID '{escrow_id}' not found.")
 
         return cls._dict_to_response(escrow, f"Escrow details retrieved successfully. Current status: {escrow['status']}.")
+
+    @classmethod
+    def issue_onchain_attestation(
+        cls,
+        escrow_id: str,
+        job_id: int,
+        deliverable_hash: Optional[str] = None,
+        risk_score: Optional[int] = None,
+        validity_days: int = 7,
+        db_session=None
+    ) -> Dict[str, Any]:
+        """
+        Issue an EIP-712 cryptographic attestation as official EUDR Oracle Signer
+        for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.
+        """
+        escrow = cls._escrows.get(escrow_id)
+        from app.db.session import SessionLocal
+        from app.db.models import EscrowAgreementRecord
+        db = db_session or (SessionLocal() if SessionLocal else None)
+
+        if not escrow and db:
+            try:
+                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
+                if db_rec:
+                    escrow = cls._model_to_dict(db_rec)
+                    cls._escrows[escrow_id] = escrow
+            except Exception:
+                pass
+            finally:
+                if not db_session:
+                    db.close()
+
+        if not escrow:
+            raise ValueError(f"Escrow ID '{escrow_id}' not found.")
+
+        current_status = escrow["status"]
+        if hasattr(current_status, "value"):
+            current_status = current_status.value
+
+        # Derive verdict & risk score from verified compliance state
+        if current_status == "RELEASED":
+            verdict = "PASSED"
+            computed_risk = risk_score if risk_score is not None else 10
+        elif current_status in ("DISPUTED", "REFUNDED"):
+            verdict = "BLOCKED"
+            computed_risk = risk_score if risk_score is not None else 85
+        elif current_status == "FUNDED_LOCKED":
+            # In progress / pre-cleared
+            verdict = "PASSED"
+            computed_risk = risk_score if risk_score is not None else 15
+        else:
+            verdict = "BLOCKED"
+            computed_risk = 99
+
+        # Generate 32-byte deliverable hash if not provided
+        if not deliverable_hash:
+            seed = f"{escrow_id}|{escrow.get('dds_reference_id')}|{escrow.get('customs_declaration_code')}|{escrow.get('hmac_release_signature')}"
+            deliverable_hash = "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()
+
+        attestation = web3_escrow_adapter.sign_attestation(
+            job_id=job_id,
+            deliverable_hash=deliverable_hash,
+            risk_score=computed_risk,
+            verdict=verdict,
+            validity_duration_seconds=validity_days * 86400
+        )
+
+        # Store on-chain proof in memory
+        escrow["onchain_job_id"] = job_id
+        escrow["onchain_attestation"] = attestation
+
+        return attestation
+
+    @classmethod
+    def verify_onchain_attestation(cls, attestation: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Verify an on-chain EIP-712 attestation proof against the EUDR Oracle public address.
+        """
+        return web3_escrow_adapter.verify_attestation(attestation)
 
     @classmethod
     def _model_to_dict(cls, rec) -> Dict[str, Any]:

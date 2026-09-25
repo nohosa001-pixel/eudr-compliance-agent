@@ -4,7 +4,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-174%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-236%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers)
 [![Smithery](https://img.shields.io/badge/Smithery.ai-Verified%20MCP-FF6B6B.svg)](https://smithery.ai/servers/nohosa001/eudr-compliance-agent)
@@ -26,6 +26,7 @@
 | **4% Revenue Fines & Blocked Cargo** | ➔ | **0% Fine Guarantee & Verified Clearance** |
 | **Weeks of Manual Satellite GIS Checks** | ➔ | **2-Second Multi-Satellite Radar Scan** |
 | **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Validated Official TRACES-NT XML** |
+| **Trading Counterparty Fraud & Bad Data** | ➔ | **Web3 AgentEscrow & EIP-712 Economic Slashing** |
 
 ---
 
@@ -86,19 +87,37 @@ npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 }
 ```
 
-### 9 Registered Autonomous Agent Tools
+### 27 Registered Autonomous Agent Tools
 
-| Tool Name | Purpose |
-| :--- | :--- |
-| `eudr_verify_plot` | Validates GIS coordinates, WGS84 bounds, and polygon 4.0ha threshold |
-| `eudr_check_deforestation` | Radar & optical satellite canopy loss analysis against 2020-12-31 baseline |
-| `eudr_render_satellite_map` | Generates Sentinel-2 NDVI canopy density SVG radar visualization |
-| `eudr_verify_vies_vat` | Real-time EU Commission VIES VAT cross-border reverse charge check |
-| `eudr_generate_dds` | Compiles official TRACES-NT XML Due Diligence Statement declaration |
-| `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
-| `eudr_estimate_compliance_cost` | Automated budget estimation based on plot volume and resolution |
-| `eudr_create_payment_order` | On-chain USDC payment order with budget cap safety guardrails |
-| `eudr_confirm_payment` | Validates on-chain tx_hash and provisions live Pro API Key |
+| Category | Tool Name | Purpose |
+| :--- | :--- | :--- |
+| **GIS & Verification** | `eudr_verify_plot` | Validates GIS coordinates, WGS84 bounds, and polygon 4.0ha threshold |
+| **Deforestation Radar** | `eudr_check_deforestation` | Radar & optical satellite canopy loss analysis against 2020-12-31 baseline |
+| **Satellite Mapping** | `eudr_render_satellite_map` | Generates Sentinel-2 NDVI canopy density SVG radar visualization |
+| **Customs & Legality** | `eudr_verify_vies_vat` | Real-time EU Commission VIES VAT cross-border reverse charge check |
+| **Compliance Filing** | `eudr_generate_dds` | Compiles official TRACES-NT XML Due Diligence Statement declaration |
+| **Security & Merkle** | `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
+| **Pricing Estimation** | `eudr_estimate_compliance_cost` | Automated budget estimation based on plot volume and resolution |
+| **USDC Payment** | `eudr_create_payment_order` | On-chain USDC payment order with budget cap safety guardrails |
+| **Tx Confirmation** | `eudr_confirm_payment` | Validates on-chain tx_hash and provisions live Pro API Key |
+| **Micro Settlement** | `eudr_agent_micro_pay` | M2M on-demand plot micro-payment on Base/Polygon/Arbitrum |
+| **Gasless Permit** | `eudr_agent_eip3009_pay` | Gasless USDC authorization without requiring ETH/MATIC gas |
+| **Budget Telemetry** | `eudr_get_agent_budget_status` | Real-time agent budget and monthly plot balance inquiry |
+| **Customs Clearance** | `eudr_generate_customs_certificate` | Generates official EU SWE-C Green Lane Customs Certificate |
+| **TRACES Direct XML** | `eudr_export_traces_xml` | Direct XSD v2.4 compliant EU customs XML export |
+| **Risk Benchmarking** | `eudr_benchmark_country` | Article 29 Country Benchmarking risk tier (Low, Standard, High) |
+| **Supply Chain Chaining**| `eudr_link_downstream_chain` | Article 4(8) downstream pass-through DDS reference chaining |
+| **Statutory Exemption**| `eudr_issue_statutory_exemption`| Evaluates Delegated Act Sept 2026 statutory exemption (Bovine leather) |
+| **Parcel Slicing** | `eudr_slice_parcel` | Sub-divides oversized (>4ha) smallholder parcels into <4ha polygons |
+| **Compact Summary** | `eudr_evaluate_compact` | Ultra-compact (~300 token) token-efficient summary for LLMs |
+| **Instant Alerts** | `eudr_send_telegram_alert` | Instant real-time alerts to maintainer Telegram channel |
+| **Agent Evolution** | `eudr_submit_agent_feedback` | Allows autonomous bots to submit evolution proposals |
+| **Smart Escrow Create**| `eudr_create_agent_escrow` | Creates B2B trade Smart Escrow locking USDC in payment vaults |
+| **Smart Escrow Fund** | `eudr_fund_agent_escrow` | Confirms on-chain USDC transfer and transitions to FUNDED_LOCKED |
+| **Smart Escrow Release**| `eudr_release_agent_escrow`| Releases locked escrow upon verified EU customs clearance code |
+| **Smart Escrow Arbitrate**| `eudr_arbitrate_agent_escrow`| Deterministic satellite arbitration (100% refund or release) |
+| **Web3 Oracle Attest** | `eudr_issue_eip712_attestation`| **Issues EIP-712 Attestation as EUDR Oracle for AgentEscrow.sol** |
+| **Web3 Oracle Verify** | `eudr_verify_eip712_attestation`| **Cryptographically verifies EIP-712 proof for completeJob/slashJob** |
 
 ---
 

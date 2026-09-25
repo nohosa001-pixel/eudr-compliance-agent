@@ -968,4 +968,44 @@ class EscrowAgreementResponse(BaseModel):
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 
+class OnchainAttestationIssueRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID in EUDR system")
+    job_id: int = Field(..., description="On-chain jobId in AgentEscrow.sol")
+    deliverable_hash: Optional[str] = Field(None, description="Hex-encoded 32-byte hash of DDS report or deliverable")
+    risk_score: Optional[int] = Field(None, description="Optional override risk score (0-100), default derived from compliance state")
+    validity_days: Optional[int] = Field(7, description="Attestation signature validity period in days")
+
+
+class OnchainAttestationVerifyRequest(BaseModel):
+    attestation: Dict[str, Any] = Field(..., description="EIP-712 EscrowAttestation dictionary with v, r, s signatures")
+
+
+class OnchainAttestationResponse(BaseModel):
+    jobId: int
+    deliverableHash: str
+    riskScore: int
+    verdict: str
+    expiresAt: int
+    v: int
+    r: str
+    s: str
+    oracleSigner: str
+    chainId: int
+    verifyingContract: str
+    message: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+class OnchainAttestationVerifyResponse(BaseModel):
+    is_valid: bool
+    recovered_signer: str
+    expected_oracle: str
+    is_signer_match: bool
+    is_expired: bool
+    is_acceptable_risk: bool
+    action_recommendation: str
+    message: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
 

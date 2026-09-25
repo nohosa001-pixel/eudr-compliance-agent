@@ -135,6 +135,14 @@
       "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2)."
     },
     {
+      "name": "eudr_issue_eip712_attestation",
+      "description": "Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) for submission into AgentEscrow.sol on Base/Polygon/Arbitrum."
+    },
+    {
+      "name": "eudr_verify_eip712_attestation",
+      "description": "Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB)."
+    },
+    {
       "name": "eudr_submit_agent_feedback",
       "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine."
     }

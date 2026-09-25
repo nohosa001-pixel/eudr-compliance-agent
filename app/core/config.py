@@ -72,5 +72,11 @@ class Settings(BaseModel):
     CLEANWEB_MCP_URL: str = os.getenv("CLEANWEB_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent")
     MINERALS_ORACLE_MCP_URL: str = os.getenv("MINERALS_ORACLE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/minerals-oracle-x402")
 
+    # AgentEscrow.sol On-chain & EIP-712 Oracle Configuration
+    AGENT_ESCROW_CONTRACT_ADDRESS: str = os.getenv("AGENT_ESCROW_CONTRACT_ADDRESS", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
+    AGENT_ESCROW_CHAIN_ID: int = int(os.getenv("AGENT_ESCROW_CHAIN_ID", "8453")) # 8453: Base Mainnet, 137: Polygon
+    ORACLE_SIGNER_PRIVATE_KEY: str = os.getenv("ORACLE_SIGNER_PRIVATE_KEY", "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d")
+    ORACLE_MAX_ACCEPTABLE_RISK_SCORE: int = int(os.getenv("ORACLE_MAX_ACCEPTABLE_RISK_SCORE", "25"))
+
 
 settings = Settings()

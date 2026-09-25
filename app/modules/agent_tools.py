@@ -693,6 +693,32 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["escrow_id", "initiator_agent_id", "reason"]
         }
+    },
+    {
+        "name": "eudr_issue_eip712_attestation",
+        "description": "Issues an official EIP-712 cryptographic attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) as the EUDR Oracle for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID in EUDR system."},
+                "job_id": {"type": "integer", "description": "On-chain jobId in AgentEscrow.sol smart contract."},
+                "deliverable_hash": {"type": "string", "description": "Hex-encoded 32-byte hash of DDS report or deliverable."},
+                "risk_score": {"type": "integer", "description": "Optional override risk score (0-100), default derived from compliance state."},
+                "validity_days": {"type": "integer", "description": "Attestation validity duration in days (default: 7)."}
+            },
+            "required": ["escrow_id", "job_id"]
+        }
+    },
+    {
+        "name": "eudr_verify_eip712_attestation",
+        "description": "Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "attestation": {"type": "object", "description": "EIP-712 EscrowAttestation dictionary with v, r, s signatures."}
+            },
+            "required": ["attestation"]
+        }
     }
 ]
 
@@ -859,6 +885,10 @@ class AgentToolsRegistry:
                 res = await cls._exec_release_agent_escrow(arguments)
             elif name == "eudr_arbitrate_agent_escrow":
                 res = await cls._exec_arbitrate_agent_escrow(arguments)
+            elif name == "eudr_issue_eip712_attestation":
+                res = await cls._exec_issue_eip712_attestation(arguments)
+            elif name == "eudr_verify_eip712_attestation":
+                res = await cls._exec_verify_eip712_attestation(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
 
@@ -1865,4 +1895,42 @@ class AgentToolsRegistry:
             f"Verdict: {res.arbitration_verdict}"
         )
         return out
+
+    @classmethod
+    async def _exec_issue_eip712_attestation(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        escrow_id = str(args["escrow_id"])
+        job_id = int(args["job_id"])
+        deliv_hash = args.get("deliverable_hash")
+        risk_score = int(args["risk_score"]) if args.get("risk_score") is not None else None
+        validity_days = int(args.get("validity_days", 7))
+
+        proof = AgentEscrowManager.issue_onchain_attestation(
+            escrow_id=escrow_id,
+            job_id=job_id,
+            deliverable_hash=deliv_hash,
+            risk_score=risk_score,
+            validity_days=validity_days
+        )
+        return {
+            **proof,
+            "status": "ATTESTATION_ISSUED",
+            "agent_summary": (
+                f"EIP-712 Oracle Attestation successfully issued for jobId {job_id} "
+                f"({proof['verdict']}, riskScore={proof['riskScore']}). Ready to submit to AgentEscrow.sol."
+            )
+        }
+
+    @classmethod
+    async def _exec_verify_eip712_attestation(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        attestation = args["attestation"]
+        res = AgentEscrowManager.verify_onchain_attestation(attestation)
+        return {
+            **res,
+            "agent_summary": (
+                f"EIP-712 Oracle proof verified. Signer valid: {res['is_valid']}. "
+                f"Recommended action: {res['action_recommendation']}."
+            )
+        }
 

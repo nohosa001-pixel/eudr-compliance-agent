@@ -72,7 +72,11 @@ from app.schemas import (
     EscrowFundRequest,
     EscrowReleaseByComplianceRequest,
     EscrowDisputeArbitrateRequest,
-    EscrowAgreementResponse
+    EscrowAgreementResponse,
+    OnchainAttestationIssueRequest,
+    OnchainAttestationVerifyRequest,
+    OnchainAttestationResponse,
+    OnchainAttestationVerifyResponse
 )
 from app.modules.agent_escrow_manager import AgentEscrowManager
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
@@ -2035,6 +2039,168 @@ async def view_export_bundle_html(
 
     html_content = _export_bundle_orchestrator.render_html_dossier(bundle)
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+
+
+# -------------------------------------------------------------------------
+# Autonomous Agent-to-Agent Smart Escrow Endpoints (Multi-Chain USDC Vaults)
+# -------------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/create",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Create a new B2B trade Smart Escrow agreement locking USDC in payment vaults"
+)
+async def create_agent_escrow(
+    payload: EscrowCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Creates an immutable Smart Escrow agreement between autonomous trading agents.
+    Locks USDC in multi-chain payment vaults until EUDR compliance is proven.
+    """
+    try:
+        return AgentEscrowManager.create_escrow(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/fund",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Confirm on-chain blockchain funding for a Smart Escrow agreement"
+)
+async def fund_agent_escrow(
+    payload: EscrowFundRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Confirms on-chain USDC transfer to the payment vault and locks the escrow.
+    """
+    try:
+        return AgentEscrowManager.fund_escrow(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/release",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Conditionally release locked escrow funds to seller upon verified EU customs clearance"
+)
+async def release_agent_escrow(
+    payload: EscrowReleaseByComplianceRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Releases escrow funds to seller agent upon EU Single Window customs clearance
+    (EU-SWEC-CLEARED-*) and satellite deforestation verification.
+    """
+    try:
+        return AgentEscrowManager.release_by_compliance(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/arbitrate",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Execute deterministic autonomous dispute arbitration using Copernicus satellite telemetry"
+)
+async def arbitrate_agent_escrow(
+    payload: EscrowDisputeArbitrateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Deterministically arbitrates commercial disputes using Copernicus Sentinel-1/2 radar:
+    - Deforestation confirmed -> 100% refund to Buyer Agent.
+    - Deforestation-free -> 100% release to Seller Agent.
+    """
+    try:
+        return AgentEscrowManager.arbitrate_dispute(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/escrow/{{escrow_id}}",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Query status, vault address, and cryptographic proof of an existing escrow agreement"
+)
+async def get_agent_escrow(
+    escrow_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves full details of a Smart Escrow agreement by ID.
+    """
+    try:
+        return AgentEscrowManager.get_escrow(escrow_id, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+
+
+# -------------------------------------------------------------------------
+# AgentEscrow.sol Web3 On-chain EIP-712 Oracle Attestation Endpoints
+# -------------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/onchain/attestation",
+    response_model=OnchainAttestationResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Issue official EIP-712 cryptographic Oracle Attestation for submission to AgentEscrow.sol"
+)
+async def issue_onchain_attestation(
+    payload: OnchainAttestationIssueRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Issues an EIP-712 signed Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s)
+    from the EUDR Compliance Agent as the designated on-chain Oracle Signer.
+    Can be directly submitted to AgentEscrow.sol (completeJob or slashJob).
+    """
+    try:
+        proof = AgentEscrowManager.issue_onchain_attestation(
+            escrow_id=payload.escrow_id,
+            job_id=payload.job_id,
+            deliverable_hash=payload.deliverable_hash,
+            risk_score=payload.risk_score,
+            validity_days=payload.validity_days or 7,
+            db_session=db
+        )
+        return OnchainAttestationResponse(
+            **proof,
+            message="EIP-712 Oracle Attestation successfully signed by EUDR Compliance Oracle."
+        )
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/onchain/verify",
+    response_model=OnchainAttestationVerifyResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Verify an on-chain EIP-712 attestation proof against official EUDR Oracle key"
+)
+async def verify_onchain_attestation(
+    payload: OnchainAttestationVerifyRequest
+):
+    """
+    Cryptographically verifies an EIP-712 attestation against the EUDR Oracle public address
+    and assesses riskScore and expiration status.
+    """
+    try:
+        res = AgentEscrowManager.verify_onchain_attestation(payload.attestation)
+        return OnchainAttestationVerifyResponse(
+            **res,
+            message=f"Oracle verification complete. Recommended action: {res['action_recommendation']}"
+        )
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
 

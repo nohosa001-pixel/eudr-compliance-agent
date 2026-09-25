@@ -869,6 +869,32 @@
         },
         "required": ["escrow_id", "initiator_agent_id", "reason"]
       }
+    },
+    {
+      "name": "eudr_issue_eip712_attestation",
+      "description": "Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) as the EUDR Oracle for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID in EUDR system."},
+          "job_id": {"type": "integer", "description": "On-chain jobId in AgentEscrow.sol smart contract."},
+          "deliverable_hash": {"type": "string", "description": "Hex-encoded 32-byte hash of DDS report or deliverable."},
+          "risk_score": {"type": "integer", "description": "Optional override risk score (0-100), default derived from compliance state."},
+          "validity_days": {"type": "integer", "description": "Attestation validity duration in days (default: 7)."}
+        },
+        "required": ["escrow_id", "job_id"]
+      }
+    },
+    {
+      "name": "eudr_verify_eip712_attestation",
+      "description": "Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "attestation": {"type": "object", "description": "EIP-712 EscrowAttestation dictionary with v, r, s signatures."}
+        },
+        "required": ["attestation"]
+      }
     }
   ],
   "resources": [],

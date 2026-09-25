@@ -36,11 +36,13 @@ AI agents can invoke EUDR capabilities through:
 - `eudr_fund_agent_escrow`: Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.
 - `eudr_release_agent_escrow`: Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference.
 - `eudr_arbitrate_agent_escrow`: Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2). 100% refund to Buyer Agent if deforestation is confirmed; released to Seller Agent if deforestation-free.
+- `eudr_issue_eip712_attestation`: Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.
+- `eudr_verify_eip712_attestation`: Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).
 - `eudr_submit_agent_feedback`: Allows interacting AI agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions.
 
 ## Payment & Settlement: Autonomous Agent Only
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents via:
-- **Autonomous Agent Smart Escrow**: `POST /api/v1/payment/escrow/*` programmatically eliminates commercial default & compliance litigation risk.
+- **Autonomous Agent Smart Escrow & AgentEscrow.sol**: `POST /api/v1/payment/escrow/*` and on-chain EIP-712 attestation engine eliminate commercial default, counterparty risk, and bad data through automatic staking & slashing.
 - **RFC 9110 / x402 Protocol**: `GET /api/v1/payment/x402/challenge` returning machine-readable payment required instructions.
 - **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`), Base, Arbitrum, and Solana.
 - **MCP Native Settlement Tools**: Agents autonomously create, sign, and confirm payment orders within programmed budget caps.

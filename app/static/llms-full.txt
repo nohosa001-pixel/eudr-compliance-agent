@@ -203,12 +203,20 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
 - **Purpose**: Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2). 100% refund to Buyer Agent if deforestation is confirmed; released to Seller Agent if deforestation-free.
 - **Parameters**: `escrow_id`, `initiator_agent_id`, `reason`, optional `plots`.
 
+### 26. `eudr_issue_eip712_attestation`
+- **Purpose**: Issues an official EIP-712 cryptographic Oracle Attestation (`jobId`, `deliverableHash`, `riskScore`, `verdict`, `expiresAt`, `v`, `r`, `s`) as the official EUDR Compliance Oracle for on-chain submission to `AgentEscrow.sol` (Base, Polygon, Arbitrum).
+- **Parameters**: `escrow_id`, `job_id`, optional `deliverable_hash`, `risk_score`, `validity_days`.
+
+### 27. `eudr_verify_eip712_attestation`
+- **Purpose**: Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public address, checking signature validity, expiration, and recommended on-chain action (`COMPLETE_JOB` or `SLASH_JOB`).
+- **Parameters**: `attestation` (dict containing EIP-712 proof).
+
 ---
 
 ## 4. Autonomous Agent Payment, Smart Escrow & RFC 9110 / x402 Protocol
 
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents:
-- **Autonomous Agent Smart Escrow**: `POST /api/v1/payment/escrow/*` eliminates commercial default and compliance disputes between trading bots. Funds release upon verified EU SWE-C customs clearance (`EU-SWEC-CLEARED-*`).
+- **Autonomous Agent Smart Escrow & AgentEscrow.sol**: `POST /api/v1/payment/escrow/*` and on-chain EIP-712 attestations eliminate commercial default, bad-data delivery, and counterparty litigation through automated staking and economic slashing.
 - **x402 Protocol**: `GET /api/v1/payment/x402/challenge?resource=satellite_radar_scan&plots={N}` returns HTTP 402 with `WWW-Authenticate: X402` and exact payment instructions in machine-readable JSON.
 - **Micro-Settlement**: `POST /api/v1/payment/agent/micro-settle` settles plots on-demand via Base, Polygon, Arbitrum, or Solana.
 - **Subscription Orders**: `POST /api/v1/payment/orders` and `POST /api/v1/payment/confirm` provision high-throughput API keys automatically.

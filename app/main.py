@@ -2203,6 +2203,202 @@ async def verify_onchain_attestation(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
+# -------------------------------------------------------------------------
+# Prometheus APM Telemetry & Metrics Exporter (OpenMetrics standard)
+# -------------------------------------------------------------------------
+from app.modules.prometheus_metrics import metrics_collector
+
+@app.get(
+    "/metrics",
+    tags=["Prometheus APM Telemetry"],
+    summary="Prometheus APM Telemetry & Metrics (OpenMetrics text/plain)"
+)
+async def get_prometheus_metrics():
+    """
+    Exposes real-time agent metrics, escrow TVL, slashing history,
+    threat blocks, and satellite inspection counters in standard Prometheus format.
+    """
+    return Response(
+        content=metrics_collector.render_prometheus_text(),
+        media_type="text/plain; version=0.0.4"
+    )
+
+
+# -------------------------------------------------------------------------
+# Security Gate x402: Prompt Injection, AST Shield & Agronomic Fact-Check
+# -------------------------------------------------------------------------
+from app.modules.agent_security_gate_adapter import AgentSecurityGateAdapter
+from app.schemas import (
+    SecurityInspectRequest,
+    SecurityInspectResponse,
+    MarketplaceRFQCreateRequest,
+    MarketplaceBidSubmitRequest,
+    MarketplaceAutoMatchRequest,
+    MarketplaceAutoMatchResponse,
+    ContinuousSurveillanceScanResponse
+)
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/security/inspect",
+    response_model=SecurityInspectResponse,
+    tags=["Agent Security Gate x402"],
+    summary="Inspect payload for prompt injection, AST code vulnerabilities, and agronomic yield anomalies"
+)
+async def inspect_agent_security(req: SecurityInspectRequest):
+    """
+    Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance):
+    - Sub-millisecond prompt injection & jailbreak detection (DAN, system override).
+    - Dangerous AST code execution prevention (eval, exec, subprocess, os.system).
+    - NLI Fact-Checking against biological crop yield limits and HS code conflicts.
+    """
+    sec = AgentSecurityGateAdapter.inspect_text_security(req.text or "")
+    fact = None
+    if req.commodity and req.hs_code and req.declared_net_mass_kg:
+        fact = AgentSecurityGateAdapter.inspect_compliance_fact_check(
+            commodity=req.commodity,
+            hs_code=req.hs_code,
+            declared_net_mass_kg=req.declared_net_mass_kg,
+            total_area_ha=req.total_area_ha or 1.0
+        )
+        if not fact["is_plausible"]:
+            sec["is_safe"] = False
+            sec["verdict"] = "BLOCK"
+            sec["threat_score"] = max(sec["threat_score"], fact["anomaly_score"])
+            sec["threats"].extend(fact["anomalies"])
+
+    return SecurityInspectResponse(
+        is_safe=sec["is_safe"],
+        verdict=sec["verdict"],
+        threat_score=sec["threat_score"],
+        threats=sec["threats"],
+        fact_check=fact,
+        sheriff_status=sec.get("sheriff_status", "ENFORCED")
+    )
+
+
+# -------------------------------------------------------------------------
+# Autonomous B2B Reverse-Auction Marketplace (Agent-to-Agent Clearing)
+# -------------------------------------------------------------------------
+from app.modules.autonomous_bidding_marketplace import AutonomousBiddingMarketplace
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/marketplace/rfq/create",
+    tags=["Autonomous B2B Reverse-Auction Marketplace"],
+    summary="Buyer AI Agent broadcasts an EUDR-compliant commodity procurement RFQ"
+)
+async def create_marketplace_rfq(req: MarketplaceRFQCreateRequest):
+    """
+    Buyer agent broadcasts procurement terms to the autonomous agent network.
+    Validates input through x402 prompt shielding and agronomic fact-checking.
+    """
+    try:
+        return AutonomousBiddingMarketplace.create_rfq(
+            buyer_agent_id=req.buyer_agent_id,
+            buyer_agent_wallet=req.buyer_agent_wallet,
+            commodity=req.commodity,
+            hs_code=req.hs_code,
+            volume_kg=req.volume_kg,
+            max_price_usdc_per_kg=req.max_price_usdc_per_kg,
+            max_acceptable_risk_score=req.max_acceptable_risk_score or 20,
+            destination_port=req.destination_port or "Rotterdam",
+            notes=req.notes or ""
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/marketplace/bid/submit",
+    tags=["Autonomous B2B Reverse-Auction Marketplace"],
+    summary="Supplier AI Agent submits a competitive compliance bid for an active RFQ"
+)
+async def submit_marketplace_bid(req: MarketplaceBidSubmitRequest):
+    """
+    Supplier agent submits a formal bid including geolocated plots and offered price.
+    """
+    try:
+        return AutonomousBiddingMarketplace.submit_bid(
+            rfq_id=req.rfq_id,
+            seller_agent_id=req.seller_agent_id,
+            seller_agent_wallet=req.seller_agent_wallet,
+            price_usdc_per_kg=req.price_usdc_per_kg,
+            declared_plots=req.declared_plots,
+            estimated_risk_score=req.estimated_risk_score or 5,
+            compliance_diligence_reference=req.compliance_diligence_reference
+        )
+    except KeyError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/marketplace/rfq/auto-match",
+    response_model=MarketplaceAutoMatchResponse,
+    tags=["Autonomous B2B Reverse-Auction Marketplace"],
+    summary="Autonomous clearing house evaluates bids, picks winner, and provisions Smart Escrow"
+)
+async def auto_match_marketplace_rfq(req: MarketplaceAutoMatchRequest):
+    """
+    Autonomous clearing engine:
+    Evaluates all bids against price ceiling and risk threshold.
+    Selects winning bid and automatically provisions a Smart Escrow vault on Base/Polygon.
+    """
+    try:
+        res = AutonomousBiddingMarketplace.auto_match_rfq(req.rfq_id)
+        return MarketplaceAutoMatchResponse(**res)
+    except KeyError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/marketplace/rfq/{{rfq_id}}",
+    tags=["Autonomous B2B Reverse-Auction Marketplace"],
+    summary="Retrieve details and bids for an RFQ"
+)
+async def get_marketplace_rfq(rfq_id: str):
+    rfq = AutonomousBiddingMarketplace.get_rfq(rfq_id)
+    if not rfq:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"RFQ '{rfq_id}' not found.")
+    return rfq
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/marketplace/rfqs",
+    tags=["Autonomous B2B Reverse-Auction Marketplace"],
+    summary="List active or filtered RFQs across the agent network"
+)
+async def list_marketplace_rfqs(status_filter: Optional[str] = None):
+    return AutonomousBiddingMarketplace.list_rfqs(status_filter)
+
+
+# -------------------------------------------------------------------------
+# Continuous Sentinel Surveillance Daemon (Transit Monitoring & Slashing)
+# -------------------------------------------------------------------------
+from app.modules.satellite_continuous_monitor import ContinuousSentinelMonitor
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/satellite/continuous-surveillance",
+    response_model=ContinuousSurveillanceScanResponse,
+    tags=["Satellite Radar Verification"],
+    summary="Sentinel-1 SAR / Sentinel-2 continuous surveillance scan across active transit escrows"
+)
+async def run_continuous_satellite_surveillance():
+    """
+    Scans all locked trade escrows during maritime transit against live satellite feeds.
+    Triggers automatic dispute, slashing proof, and Telegram alerts upon forest disturbance.
+    """
+    results = ContinuousSentinelMonitor.scan_active_escrows()
+    return ContinuousSurveillanceScanResponse(
+        scanned_count=len(results),
+        results=results,
+        scan_timestamp_utc=datetime.now(timezone.utc).isoformat()
+    )
+
+
+
 
 
 

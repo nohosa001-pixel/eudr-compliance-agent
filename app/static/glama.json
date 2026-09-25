@@ -25,7 +25,9 @@
   "server": {
     "type": "stdio",
     "command": "python",
-    "args": ["mcp_server_stdio.py"],
+    "args": [
+      "mcp_server_stdio.py"
+    ],
     "buildSteps": [
       "pip install --no-cache-dir -r requirements.txt"
     ],
@@ -40,15 +42,11 @@
   "tools": [
     {
       "name": "eudr_verify_plot",
-      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards."
+      "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards. Auto-heals inverted coordinates and self-intersecting polygons. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference."
     },
     {
       "name": "eudr_check_deforestation",
-      "description": "Performs satellite radar triangulation and canopy loss detection against the 2020-12-31 baseline."
-    },
-    {
-      "name": "eudr_render_satellite_map",
-      "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization."
+      "description": "Performs satellite radar triangulation and canopy loss detection against the EUDR cut-off date of 31 December 2020. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference."
     },
     {
       "name": "eudr_verify_vies_vat",
@@ -68,7 +66,7 @@
     },
     {
       "name": "eudr_create_payment_order",
-      "description": "Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails."
+      "description": "Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails. Returns deposit wallet address, amount, invoice number, and QR payload."
     },
     {
       "name": "eudr_confirm_payment",
@@ -79,48 +77,56 @@
       "description": "Executes autonomous real-time on-chain USDC micro-settlement per plot or batch. Human checkout is excluded."
     },
     {
+      "name": "eudr_agent_eip3009_pay",
+      "description": "Executes gasless, 1-turn autonomous USDC settlement via EIP-3009 (transferWithAuthorization). Zero native gas required by the calling agent."
+    },
+    {
       "name": "eudr_get_agent_budget_status",
       "description": "Queries live plot quota, spent USDC, and autonomous safety budget status for the calling agent."
     },
     {
+      "name": "eudr_render_satellite_map",
+      "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization for an EUDR plot."
+    },
+    {
       "name": "eudr_export_traces_xml",
-      "description": "Exports production-grade TRACES-NT XML file for direct customs submission."
+      "description": "Generates European Commission TRACES-NT XML (XSD v2.4 compliant) document with cryptographic digital signature for official EU customs filing under Regulation (EU) 2023/1115."
     },
     {
       "name": "eudr_generate_customs_certificate",
-      "description": "Generates a verifiable customs clearance certificate hash and verification URL."
+      "description": "Generates official EU Single Window Environment for Customs (EU SWE-C) Green Lane Clearance Certificate HTML with verification QR code and official seals."
     },
     {
       "name": "eudr_send_telegram_alert",
-      "description": "Dispatches real-time compliance status alert or audit result notification to Telegram."
+      "description": "Dispatches instant real-time compliance alert, post-2020 deforestation warning, or TRACES-NT clearance notice to Telegram bot."
     },
     {
-      "name": "eudr_agent_eip3009_pay",
-      "description": "Executes 1-turn gasless USDC payment authorization via EIP-3009 TransferWithAuthorization for autonomous agents."
+      "name": "eudr_submit_agent_feedback",
+      "description": "Allows an autonomous AI agent to submit an evolution proposal, feature request, edge-case report, or dataset addition to continuously evolve the EUDR.agent engine."
     },
     {
       "name": "eudr_evaluate_compact",
-      "description": "Executes full 5-pillar EUDR compliance evaluation and returns a ~300-token compact summary saving >95% LLM context window."
+      "description": "Executes end-to-end 5-pillar EUDR compliance evaluation (Traceability, Satellite Radar, Legal Audit, Cryptographic Signing, OMR & Customs) and returns an ultra-compact summary (~300 tokens) saving >95% LLM context tokens. Full audit evidence is securely persisted and accessible via persistent download URLs."
     },
     {
       "name": "eudr_benchmark_country",
-      "description": "Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and Article 13 simplified due diligence eligibility."
+      "description": "Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and determines Article 13 simplified due diligence eligibility with official EU customs audit rates (1%, 3%, 9%)."
     },
     {
       "name": "eudr_link_downstream_chain",
-      "description": "Implements EUDR Article 4(8) downstream DDS reference chaining and monitors cascading revocation/taint."
+      "description": "Implements EUDR Article 4(8) downstream Due Diligence Statement (DDS) reference chaining. Inherits upstream supplier DDS reference, eliminates redundant assessment costs, and monitors cascading revocation/taint."
     },
     {
       "name": "eudr_issue_statutory_exemption",
-      "description": "Issues official EU SWE-C Green Lane Customs Exemption Certificates under the Sept 2026 Delegated Act for excluded bovine leather (HS 4101, 4104, 4107)."
+      "description": "Evaluates statutory exemption under the EUDR Delegated Act (effective Sept 2026) for excluded commodities such as bovine leather (HS 4101, 4104, 4107) and generates an official EU SWE-C Green Lane Customs Exemption Certificate."
     },
     {
       "name": "eudr_slice_parcel",
-      "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with closed rings."
+      "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings, satisfying EUDR Article 9 smallholder rules."
     },
     {
       "name": "eudr_create_agent_escrow",
-      "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven."
+      "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven. Eliminates commercial default risk."
     },
     {
       "name": "eudr_fund_agent_escrow",
@@ -128,23 +134,31 @@
     },
     {
       "name": "eudr_release_agent_escrow",
-      "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference."
+      "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or verifiable compliant DDS reference."
     },
     {
       "name": "eudr_arbitrate_agent_escrow",
-      "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2)."
+      "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry. If deforestation is detected post-2020: 100% refund to Buyer Agent; if deforestation-free: released to Seller Agent."
     },
     {
       "name": "eudr_issue_eip712_attestation",
-      "description": "Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) for submission into AgentEscrow.sol on Base/Polygon/Arbitrum."
+      "description": "Issues an official EIP-712 cryptographic attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) as the EUDR Oracle for submission into AgentEscrow.sol on Base/Polygon/Arbitrum."
     },
     {
       "name": "eudr_verify_eip712_attestation",
       "description": "Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB)."
     },
     {
-      "name": "eudr_submit_agent_feedback",
-      "description": "Allows interacting autonomous agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions to continuously evolve the engine."
+      "name": "eudr_inspect_payload_security",
+      "description": "Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications."
+    },
+    {
+      "name": "eudr_publish_compliance_rfq",
+      "description": "Buyer AI Agent broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network."
+    },
+    {
+      "name": "eudr_submit_compliance_bid",
+      "description": "Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price."
     }
   ],
   "prompts": [

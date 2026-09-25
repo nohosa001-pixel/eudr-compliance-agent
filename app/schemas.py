@@ -1008,4 +1008,76 @@ class OnchainAttestationVerifyResponse(BaseModel):
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 
+# --- Security Gate x402 & Fact-Checking Schemas ---
+
+class SecurityInspectRequest(BaseModel):
+    text: Optional[str] = Field("", description="Raw prompt text or agent instructions to inspect for injection/AST code")
+    commodity: Optional[str] = Field(None, description="Declared commodity name, e.g. 'coffee'")
+    hs_code: Optional[str] = Field(None, description="6-digit Harmonized System code, e.g. '0901.11'")
+    declared_net_mass_kg: Optional[float] = Field(None, description="Declared total net mass in kilograms")
+    total_area_ha: Optional[float] = Field(None, description="Total cultivation area in hectares")
+
+
+class SecurityInspectResponse(BaseModel):
+    is_safe: bool
+    verdict: str
+    threat_score: int
+    threats: List[str]
+    fact_check: Optional[Dict[str, Any]] = None
+    sheriff_status: str = "ENFORCED"
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+# --- Autonomous B2B Reverse-Auction Marketplace Schemas ---
+
+class MarketplaceRFQCreateRequest(BaseModel):
+    buyer_agent_id: str = Field(..., description="Unique autonomous buyer agent identifier")
+    buyer_agent_wallet: str = Field(..., description="Buyer EVM/Solana wallet address for escrow funding")
+    commodity: str = Field(..., description="Target commodity, e.g. coffee, cocoa, wood, oil_palm")
+    hs_code: str = Field(..., description="6-digit Harmonized System tariff code")
+    volume_kg: float = Field(..., gt=0, description="Required volume in kilograms")
+    max_price_usdc_per_kg: float = Field(..., gt=0, description="Ceiling price in USDC per kilogram")
+    max_acceptable_risk_score: Optional[int] = Field(20, description="Maximum acceptable EUDR risk score (0-100)")
+    destination_port: Optional[str] = Field("Rotterdam", description="EU port of entry")
+    notes: Optional[str] = Field("", description="Special terms, certifications, or delivery specifications")
+
+
+class MarketplaceBidSubmitRequest(BaseModel):
+    rfq_id: str = Field(..., description="Target RFQ identifier")
+    seller_agent_id: str = Field(..., description="Supplier agent identifier")
+    seller_agent_wallet: str = Field(..., description="Supplier EVM wallet address to receive escrow settlement")
+    price_usdc_per_kg: float = Field(..., gt=0, description="Offered price in USDC per kilogram")
+    declared_plots: List[Dict[str, Any]] = Field(..., min_length=1, description="Geolocated production plot parcels")
+    estimated_risk_score: Optional[int] = Field(5, description="Supplier self-attested risk score")
+    compliance_diligence_reference: Optional[str] = Field(None, description="Pre-existing DDS reference or certification ID")
+
+
+class MarketplaceAutoMatchRequest(BaseModel):
+    rfq_id: str = Field(..., description="Target RFQ identifier to clear and auto-match")
+
+
+class MarketplaceAutoMatchResponse(BaseModel):
+    matched: bool
+    rfq_id: str
+    winning_bid_id: Optional[str] = None
+    clearing_price_usdc_per_kg: Optional[float] = None
+    total_settlement_usdc: Optional[float] = None
+    seller_agent_id: Optional[str] = None
+    escrow_id: Optional[str] = None
+    escrow_status: Optional[str] = None
+    escrow_contract: Optional[str] = None
+    message: Optional[str] = None
+    created_at: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+class ContinuousSurveillanceScanResponse(BaseModel):
+    scanned_count: int
+    results: List[Dict[str, Any]]
+    surveillance_provider: str = "Copernicus Sentinel-1 SAR & Sentinel-2 MSI"
+    scan_timestamp_utc: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+
 

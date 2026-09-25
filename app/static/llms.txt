@@ -11,7 +11,7 @@ AI agents can invoke EUDR capabilities through:
 2. **Unified Agent Tools API**: Inspect tool schemas at `GET /api/v1/agent/tools` and execute tools via `POST /api/v1/agent/tools/execute`.
 3. **RESTful OpenAPI**: Full interactive documentation at `/docs` and raw specification at `/openapi.json`.
 
-## Core Agent Tools (21 Autonomous Tools)
+## Core Agent Tools (30 Autonomous Tools)
 - `eudr_verify_plot`: Validates WGS84 coordinates and polygons. Auto-heals inverted coordinates and enforces the Art. 9 polygon rule (plots >= 4.0 ha require polygons).
 - `eudr_check_deforestation`: Runs Sentinel-1 SAR and Sentinel-2 optical radar verification against the 2020-12-31 regulatory cut-off baseline.
 - `eudr_render_satellite_map`: Generates multi-spectral Sentinel-2 visualization metadata, SVG radar preview, and canopy health NDVI score.
@@ -38,7 +38,16 @@ AI agents can invoke EUDR capabilities through:
 - `eudr_arbitrate_agent_escrow`: Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2). 100% refund to Buyer Agent if deforestation is confirmed; released to Seller Agent if deforestation-free.
 - `eudr_issue_eip712_attestation`: Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.
 - `eudr_verify_eip712_attestation`: Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).
+- `eudr_inspect_payload_security`: Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications.
+- `eudr_publish_compliance_rfq`: Broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network.
+- `eudr_submit_compliance_bid`: Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.
 - `eudr_submit_agent_feedback`: Allows interacting AI agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions.
+
+## Autonomous Agent Economy & Enterprise Infrastructure
+- **Agent Security Gate x402 (The Sheriff of Agent Finance)**: Sub-millisecond Prompt Injection Defense, AST Code execution prevention, and Agronomic NLI Fact-Checking via `POST /api/v1/security/inspect`.
+- **Autonomous B2B Reverse-Auction Marketplace**: Zero-human Agent-to-Agent procurement network (`POST /api/v1/marketplace/rfq/create`, `POST /api/v1/marketplace/bid/submit`, `POST /api/v1/marketplace/rfq/auto-match`) automatically linking winning bids to Smart Escrow contracts.
+- **Continuous Sentinel-1/2 Transit Surveillance**: Daemon monitoring active trade escrows during ocean shipment via `POST /api/v1/satellite/continuous-surveillance` with automatic slashing proofs.
+- **Prometheus APM Telemetry**: Real-time metrics and TVL tracking exported in OpenMetrics standard format at `GET /metrics`.
 
 ## Payment & Settlement: Autonomous Agent Only
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents via:

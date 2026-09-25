@@ -4,7 +4,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-236%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-242%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers)
 [![Smithery](https://img.shields.io/badge/Smithery.ai-Verified%20MCP-FF6B6B.svg)](https://smithery.ai/servers/nohosa001/eudr-compliance-agent)
@@ -27,6 +27,8 @@
 | **Weeks of Manual Satellite GIS Checks** | ➔ | **2-Second Multi-Satellite Radar Scan** |
 | **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Validated Official TRACES-NT XML** |
 | **Trading Counterparty Fraud & Bad Data** | ➔ | **Web3 AgentEscrow & EIP-712 Economic Slashing** |
+| **Prompt Injections & Trade Data Hallucinations** | ➔ | **Security Gate x402 & NLI Yield Fact-Checking** |
+| **Manual B2B Procurement Overhead** | ➔ | **Autonomous Reverse-Auction A2A Clearing** |
 
 ---
 
@@ -43,6 +45,9 @@
 | 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
 | 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/docs) | Swagger UI for ERP, SAP, and customs system integration |
 | 🩺 **System Health Endpoint** | [`/api/v1/eudr/health`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/eudr/health) | EUDR cut-off baseline date & cluster health status |
+| 📊 **Prometheus APM Telemetry** | [`/metrics`](https://eudragent.com/metrics) | Standard OpenMetrics 0.0.4 text export for 24/7 APM surveillance |
+| 🛡️ **x402 Security Gate Inspector** | [`/api/v1/security/inspect`](https://eudragent.com/api/v1/security/inspect) | Sub-millisecond Prompt Injection & Agronomic Fact-Check |
+| 🤝 **Autonomous A2A Marketplace** | [`/api/v1/marketplace/rfq/create`](https://eudragent.com/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and bid auto-clearing |
 | 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudragent.com/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude, Cursor & AI Agents |
 | 📄 **LLM Discovery Spec** | [`/llms.txt`](https://eudragent.com/llms.txt) | LLM crawler & agent standard summary |
 
@@ -87,7 +92,7 @@ npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 }
 ```
 
-### 27 Registered Autonomous Agent Tools
+### 30 Registered Autonomous Agent Tools
 
 | Category | Tool Name | Purpose |
 | :--- | :--- | :--- |
@@ -118,6 +123,9 @@ npx -y @smithery/cli install nohosa001/eudr-compliance-agent --client claude
 | **Smart Escrow Arbitrate**| `eudr_arbitrate_agent_escrow`| Deterministic satellite arbitration (100% refund or release) |
 | **Web3 Oracle Attest** | `eudr_issue_eip712_attestation`| **Issues EIP-712 Attestation as EUDR Oracle for AgentEscrow.sol** |
 | **Web3 Oracle Verify** | `eudr_verify_eip712_attestation`| **Cryptographically verifies EIP-712 proof for completeJob/slashJob** |
+| **x402 Security Shield**| `eudr_inspect_payload_security`| **Prompt injection defense, AST code barrier & agronomic yield fact-check** |
+| **A2A RFQ Broadcast** | `eudr_publish_compliance_rfq`| **Buyer AI Agent broadcasts EUDR compliance RFQ to supplier network** |
+| **A2A Bid Submit** | `eudr_submit_compliance_bid` | **Supplier AI Agent submits competitive geolocated compliance bid** |
 
 ---
 

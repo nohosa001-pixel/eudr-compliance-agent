@@ -719,6 +719,60 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["attestation"]
         }
+    },
+    {
+        "name": "eudr_inspect_payload_security",
+        "description": "Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "text": {"type": "string", "description": "Inbound text or system instructions to scan for jailbreak / prompt injection attacks."},
+                "commodity": {"type": "string", "description": "Target commodity name (e.g. 'coffee', 'cocoa', 'wood', 'oil_palm')."},
+                "hs_code": {"type": "string", "description": "6-digit Harmonized System tariff code."},
+                "declared_net_mass_kg": {"type": "number", "description": "Declared total harvest/trade net mass in kilograms."},
+                "total_area_ha": {"type": "number", "description": "Total cultivation area in hectares across production plots."}
+            }
+        }
+    },
+    {
+        "name": "eudr_publish_compliance_rfq",
+        "description": "Buyer AI Agent broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Unique identifier of the autonomous purchasing agent."},
+                "buyer_agent_wallet": {"type": "string", "description": "Buyer EVM/Solana wallet address for funding escrow."},
+                "commodity": {"type": "string", "description": "Target commodity type (e.g. coffee, cocoa, wood, oil_palm)."},
+                "hs_code": {"type": "string", "description": "6-digit Harmonized System tariff code."},
+                "volume_kg": {"type": "number", "description": "Requested commodity volume in kilograms."},
+                "max_price_usdc_per_kg": {"type": "number", "description": "Ceiling purchase price in USDC per kilogram."},
+                "max_acceptable_risk_score": {"type": "integer", "description": "Maximum acceptable EUDR risk score (0-100, default 20)."},
+                "destination_port": {"type": "string", "description": "EU port of destination (e.g. 'Rotterdam', 'Hamburg')."},
+                "notes": {"type": "string", "description": "Specific procurement terms or delivery guidelines."}
+            },
+            "required": ["buyer_agent_id", "buyer_agent_wallet", "commodity", "hs_code", "volume_kg", "max_price_usdc_per_kg"]
+        }
+    },
+    {
+        "name": "eudr_submit_compliance_bid",
+        "description": "Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "rfq_id": {"type": "string", "description": "Target RFQ identifier to bid on."},
+                "seller_agent_id": {"type": "string", "description": "Unique supplier agent identifier."},
+                "seller_agent_wallet": {"type": "string", "description": "Supplier EVM wallet address to receive escrow settlement."},
+                "price_usdc_per_kg": {"type": "number", "description": "Offered unit price in USDC per kilogram."},
+                "declared_plots": {
+                    "type": "array",
+                    "description": "List of geolocated production plot parcels with WGS84 coordinates.",
+                    "items": {"type": "object"}
+                },
+                "estimated_risk_score": {"type": "integer", "description": "Supplier self-attested EUDR risk score (default 5)."},
+                "compliance_diligence_reference": {"type": "string", "description": "Existing Due Diligence Statement or certification reference."}
+            },
+            "required": ["rfq_id", "seller_agent_id", "seller_agent_wallet", "price_usdc_per_kg", "declared_plots"]
+        }
     }
 ]
 
@@ -889,6 +943,12 @@ class AgentToolsRegistry:
                 res = await cls._exec_issue_eip712_attestation(arguments)
             elif name == "eudr_verify_eip712_attestation":
                 res = await cls._exec_verify_eip712_attestation(arguments)
+            elif name == "eudr_inspect_payload_security":
+                res = await cls._exec_inspect_payload_security(arguments)
+            elif name == "eudr_publish_compliance_rfq":
+                res = await cls._exec_publish_compliance_rfq(arguments)
+            elif name == "eudr_submit_compliance_bid":
+                res = await cls._exec_submit_compliance_bid(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
 
@@ -1933,4 +1993,78 @@ class AgentToolsRegistry:
                 f"Recommended action: {res['action_recommendation']}."
             )
         }
+
+    @classmethod
+    async def _exec_inspect_payload_security(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_security_gate_adapter import AgentSecurityGateAdapter
+        text = str(args.get("text") or "")
+        sec = AgentSecurityGateAdapter.inspect_text_security(text)
+        fact = None
+        comm = args.get("commodity")
+        hs = args.get("hs_code")
+        mass = args.get("declared_net_mass_kg")
+        if comm and hs and mass:
+            fact = AgentSecurityGateAdapter.inspect_compliance_fact_check(
+                commodity=str(comm),
+                hs_code=str(hs),
+                declared_net_mass_kg=float(mass),
+                total_area_ha=float(args.get("total_area_ha", 1.0))
+            )
+            if not fact["is_plausible"]:
+                sec["is_safe"] = False
+                sec["verdict"] = "BLOCK"
+                sec["threat_score"] = max(sec["threat_score"], fact["anomaly_score"])
+                sec["threats"].extend(fact["anomalies"])
+        
+        return {
+            **sec,
+            "fact_check": fact,
+            "agent_summary": (
+                f"x402 Security inspection complete: {sec['verdict']} "
+                f"(Threat Score: {sec['threat_score']}/100, Sheriff: {sec.get('sheriff_status', 'ENFORCED')})."
+            )
+        }
+
+    @classmethod
+    async def _exec_publish_compliance_rfq(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.autonomous_bidding_marketplace import AutonomousBiddingMarketplace
+        rfq = AutonomousBiddingMarketplace.create_rfq(
+            buyer_agent_id=str(args["buyer_agent_id"]),
+            buyer_agent_wallet=str(args["buyer_agent_wallet"]),
+            commodity=str(args["commodity"]),
+            hs_code=str(args["hs_code"]),
+            volume_kg=float(args["volume_kg"]),
+            max_price_usdc_per_kg=float(args["max_price_usdc_per_kg"]),
+            max_acceptable_risk_score=int(args.get("max_acceptable_risk_score", 20)),
+            destination_port=str(args.get("destination_port", "Rotterdam")),
+            notes=str(args.get("notes", ""))
+        )
+        return {
+            **rfq,
+            "agent_summary": (
+                f"Compliance RFQ '{rfq['rfq_id']}' published successfully for {rfq['volume_kg']:,.0f} kg of {rfq['commodity']}. "
+                f"Budget: ${rfq['max_budget_usdc']:,.2f} USDC."
+            )
+        }
+
+    @classmethod
+    async def _exec_submit_compliance_bid(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.autonomous_bidding_marketplace import AutonomousBiddingMarketplace
+        bid = AutonomousBiddingMarketplace.submit_bid(
+            rfq_id=str(args["rfq_id"]),
+            seller_agent_id=str(args["seller_agent_id"]),
+            seller_agent_wallet=str(args["seller_agent_wallet"]),
+            price_usdc_per_kg=float(args["price_usdc_per_kg"]),
+            declared_plots=list(args.get("declared_plots", [])),
+            estimated_risk_score=int(args.get("estimated_risk_score", 5)),
+            compliance_diligence_reference=args.get("compliance_diligence_reference")
+        )
+        return {
+            **bid,
+            "agent_summary": (
+                f"Compliance Bid '{bid['bid_id']}' submitted for RFQ '{bid['rfq_id']}' at "
+                f"${bid['price_usdc_per_kg']:.2f}/kg (Total: ${bid['total_price_usdc']:,.2f} USDC)."
+            )
+        }
+
 

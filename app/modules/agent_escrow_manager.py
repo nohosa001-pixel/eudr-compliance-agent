@@ -30,7 +30,20 @@ class AgentEscrowManager:
     _escrows: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
-    def create_escrow(cls, payload: EscrowCreateRequest, db_session=None) -> EscrowAgreementResponse:
+    def create_escrow(cls, payload: Any = None, db_session=None, **kwargs) -> EscrowAgreementResponse:
+        if payload is None and kwargs:
+            payload = kwargs
+        if isinstance(payload, dict):
+            p = dict(payload)
+            if "commodity" in p and "commodity_description" not in p:
+                p["commodity_description"] = p.pop("commodity")
+            if "net_mass_kg" in p and "declared_net_mass_kg" not in p:
+                p["declared_net_mass_kg"] = p.pop("net_mass_kg")
+            # Filter unknown fields
+            valid_keys = {"buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "chain", "hs_code", "commodity_description", "declared_net_mass_kg", "plots", "expiry_hours"}
+            p_clean = {k: v for k, v in p.items() if k in valid_keys}
+            payload = EscrowCreateRequest(**p_clean)
+
         escrow_id = f"ESC-EUDR-2026-{uuid.uuid4().hex[:8].upper()}"
         chain_name = payload.chain.value if hasattr(payload.chain, "value") else str(payload.chain)
         vault_wallet = AGENT_PAYMENT_VAULTS.get(chain_name, DEPOSIT_WALLETS.get(chain_name, "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"))
@@ -125,7 +138,17 @@ class AgentEscrowManager:
         )
 
     @classmethod
-    def fund_escrow(cls, payload: EscrowFundRequest, db_session=None) -> EscrowAgreementResponse:
+    def fund_escrow(cls, payload: Any = None, db_session=None, **kwargs) -> EscrowAgreementResponse:
+        if payload is None and kwargs:
+            payload = kwargs
+        if isinstance(payload, dict):
+            p = dict(payload)
+            if "funding_tx_hash" in p and "tx_hash" not in p:
+                p["tx_hash"] = p.pop("funding_tx_hash")
+            valid_keys = {"escrow_id", "tx_hash"}
+            p_clean = {k: v for k, v in p.items() if k in valid_keys}
+            payload = EscrowFundRequest(**p_clean)
+
         escrow = cls._escrows.get(payload.escrow_id)
         from app.db.session import SessionLocal
         from app.db.models import EscrowAgreementRecord

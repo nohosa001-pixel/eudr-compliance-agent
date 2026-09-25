@@ -211,9 +211,49 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
 - **Purpose**: Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public address, checking signature validity, expiration, and recommended on-chain action (`COMPLETE_JOB` or `SLASH_JOB`).
 - **Parameters**: `attestation` (dict containing EIP-712 proof).
 
+### 28. `eudr_inspect_payload_security`
+- **Purpose**: Zero-trust inspection shield derived from `security-gate-x402` (The Sheriff of Agent Finance). Detects adversarial prompt injections, jailbreaks, dangerous AST code executions (`eval`, `exec`, `subprocess`), and agronomic crop yield fabrications.
+- **Parameters**: `text` (optional), `commodity` (optional), `hs_code` (optional), `declared_net_mass_kg` (optional), `total_area_ha` (optional).
+
+### 29. `eudr_publish_compliance_rfq`
+- **Purpose**: Buyer AI Agent broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network.
+- **Parameters**: `buyer_agent_id`, `buyer_agent_wallet`, `commodity`, `hs_code`, `volume_kg`, `max_price_usdc_per_kg`, optional `max_acceptable_risk_score`, `destination_port`, `notes`.
+
+### 30. `eudr_submit_compliance_bid`
+- **Purpose**: Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.
+- **Parameters**: `rfq_id`, `seller_agent_id`, `seller_agent_wallet`, `price_usdc_per_kg`, `declared_plots`, optional `estimated_risk_score`, `compliance_diligence_reference`.
+
 ---
 
-## 4. Autonomous Agent Payment, Smart Escrow & RFC 9110 / x402 Protocol
+## 4. Autonomous Agent Economy & Enterprise Infrastructure
+
+### A. Agent Security Gate x402 (The Sheriff of Agent Finance)
+Sub-millisecond adversarial shielding and agronomic truth verification:
+- **Jailbreak Defense**: Blocks instruction overrides, DAN mode, and evasion techniques.
+- **AST Execution Shield**: Intercepts dangerous runtime calls (`os.system`, `subprocess`, `eval`).
+- **NLI Fact-Checking**: Validates declared net mass against biological yield ceilings (e.g. coffee max ~4,000 kg/ha, cocoa max ~3,000 kg/ha). Flags >3x yield inflation.
+- **REST Endpoint**: `POST /api/v1/security/inspect`.
+
+### B. Autonomous B2B Reverse-Auction Marketplace
+Zero-human Agent-to-Agent commodity procurement and clearing:
+- **RFQ Creation**: `POST /api/v1/marketplace/rfq/create`.
+- **Bid Submission**: `POST /api/v1/marketplace/bid/submit`.
+- **Autonomous Clearing**: `POST /api/v1/marketplace/rfq/auto-match` evaluates bids against price ceilings and risk thresholds, selects winning supplier, and programmatically spawns Smart Escrow contracts.
+- **Querying**: `GET /api/v1/marketplace/rfq/{rfq_id}` and `GET /api/v1/marketplace/rfqs`.
+
+### C. Continuous Sentinel-1/2 Transit Surveillance Daemon
+Maintains 24/7 radar watch over active transit shipments:
+- Monitors all escrows in `FUNDED_LOCKED` status during maritime voyage.
+- Automatically issues EIP-712 Slashing Attestations and Telegram alerts if mid-transit forest clearing is detected.
+- **REST Endpoint**: `POST /api/v1/satellite/continuous-surveillance`.
+
+### D. Prometheus APM Telemetry Exporter
+- Standard Prometheus / OpenMetrics 0.0.4 text export at `GET /metrics`.
+- Tracks `eudr_uptime_seconds`, `eudr_escrow_locked_usdc`, `eudr_agent_requests_total`, `eudr_escrow_slashed_usdc_total`, and `eudr_security_gate_threats_blocked_total`.
+
+---
+
+## 5. Autonomous Agent Payment, Smart Escrow & RFC 9110 / x402 Protocol
 
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents:
 - **Autonomous Agent Smart Escrow & AgentEscrow.sol**: `POST /api/v1/payment/escrow/*` and on-chain EIP-712 attestations eliminate commercial default, bad-data delivery, and counterparty litigation through automated staking and economic slashing.
@@ -223,7 +263,7 @@ Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **complete
 
 ---
 
-## 5. Self-Healing & Self-Correction Contract
+## 6. Self-Healing & Self-Correction Contract
 When an autonomous agent provides malformed coordinates or missing parameters, the response returns HTTP 400/422 with actionable guidance:
 - `error.code`: Machine-readable category (e.g. `COORDINATE_OUT_OF_BOUNDS`, `MISSING_REQUIRED_PARAMETER`).
 - `error.recoverable`: `true` indicates the agent should adjust parameters and retry immediately.
@@ -232,7 +272,7 @@ When an autonomous agent provides malformed coordinates or missing parameters, t
 
 ---
 
-## 6. Zero-Liability & Legal Safe Harbor
+## 7. Zero-Liability & Legal Safe Harbor
 All machine responses include top-level `meta` guarantees:
 1. **Algorithmic Reference Only**: Telemetry and analysis are heuristic approximations and DO NOT constitute an official regulatory filing or legal advice.
 2. **Stateless P2P Execution**: No permanent PII or persistent custodial lock-in.

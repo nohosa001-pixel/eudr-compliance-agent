@@ -501,6 +501,138 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["operator_name", "operator_eori", "hs_code", "plots"]
         }
+    },
+    {
+        "name": "eudr_benchmark_country",
+        "description": "Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and determines Article 13 simplified due diligence eligibility with official EU customs audit rates (1%, 3%, 9%).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code of production origin (e.g. 'DE', 'ID', 'BR', 'MM', 'KP')."
+                },
+                "suspected_circumvention": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Whether transshipment laundering or regulatory circumvention is suspected."
+                },
+                "suspected_mixing": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Whether bulk mixing with unknown or high-risk origin plots is suspected."
+                },
+                "corruption_index_override": {
+                    "type": "number",
+                    "description": "Optional CPI score override (0-100)."
+                }
+            },
+            "required": ["country_code"]
+        }
+    },
+    {
+        "name": "eudr_link_downstream_chain",
+        "description": "Implements EUDR Article 4(8) downstream Due Diligence Statement (DDS) reference chaining. Inherits upstream supplier DDS reference, eliminates redundant assessment costs, and monitors cascading revocation/taint.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_id": {
+                    "type": "string",
+                    "description": "Internal identifier for downstream operator."
+                },
+                "operator_name": {
+                    "type": "string",
+                    "description": "Legal company name of the downstream operator or trader."
+                },
+                "operator_eori": {
+                    "type": "string",
+                    "description": "Downstream operator EU EORI or VAT number."
+                },
+                "upstream_dds_reference": {
+                    "type": "string",
+                    "description": "Official EU TRACES-NT DDS reference number of upstream importer (e.g. 'EU-DDS-2026-ABC123XYZ')."
+                },
+                "consignment_mass_kg": {
+                    "type": "number",
+                    "description": "Net mass of the downstream batch in kilograms."
+                },
+                "product_hs_code": {
+                    "type": "string",
+                    "description": "Optional Harmonized System code of the finished product."
+                },
+                "product_description": {
+                    "type": "string",
+                    "description": "Optional commercial description of the downstream finished goods."
+                }
+            },
+            "required": ["operator_id", "operator_name", "operator_eori", "upstream_dds_reference", "consignment_mass_kg"]
+        }
+    },
+    {
+        "name": "eudr_issue_statutory_exemption",
+        "description": "Evaluates statutory exemption under the EUDR Delegated Act (effective Sept 2026) for excluded commodities such as bovine leather (HS 4101, 4104, 4107) and generates an official EU SWE-C Green Lane Customs Exemption Certificate.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "hs_code": {
+                    "type": "string",
+                    "description": "Harmonized System 4-6 digit commodity code (e.g. '4101', '4104', '4107')."
+                },
+                "product_description": {
+                    "type": "string",
+                    "description": "Commercial description of the consignment goods (e.g. 'Tanned bovine leather', 'Leather car seats')."
+                },
+                "consignment_id": {
+                    "type": "string",
+                    "description": "Shipment B/L or consignment tracking identifier."
+                },
+                "operator_name": {
+                    "type": "string",
+                    "description": "Name of the importing EU operator or customs broker."
+                },
+                "destination_member_state": {
+                    "type": "string",
+                    "default": "DE",
+                    "description": "EU destination member state 2-letter code (e.g. 'DE', 'FR', 'NL', 'IT')."
+                }
+            },
+            "required": ["hs_code", "product_description", "consignment_id", "operator_name"]
+        }
+    },
+    {
+        "name": "eudr_slice_parcel",
+        "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings, satisfying EUDR Article 9 smallholder rules.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plot_id": {
+                    "type": "string",
+                    "description": "Original plot or cooperative identifier."
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. 'ID', 'CI', 'BR', 'GH')."
+                },
+                "commodity": {
+                    "type": "string",
+                    "description": "Target commodity (e.g. 'coffee', 'cocoa', 'oil_palm', 'rubber')."
+                },
+                "coordinates": {
+                    "type": "array",
+                    "description": "List of [longitude, latitude] coordinate pairs forming the polygon perimeter."
+                },
+                "area_hectares": {
+                    "type": "number",
+                    "description": "Known or estimated area in hectares."
+                },
+                "target_max_ha": {
+                    "type": "number",
+                    "default": 3.9,
+                    "description": "Target maximum sub-parcel size in hectares (default: 3.9 ha)."
+                }
+            },
+            "required": ["plot_id", "country_code", "commodity", "coordinates"]
+        }
     }
 ]
 
@@ -592,6 +724,14 @@ class AgentToolsRegistry:
                 res = await cls._exec_submit_agent_feedback(arguments)
             elif name == "eudr_evaluate_compact":
                 res = await cls._exec_evaluate_compact(arguments)
+            elif name == "eudr_benchmark_country":
+                res = await cls._exec_benchmark_country(arguments)
+            elif name == "eudr_link_downstream_chain":
+                res = await cls._exec_link_downstream_chain(arguments)
+            elif name == "eudr_issue_statutory_exemption":
+                res = await cls._exec_issue_statutory_exemption(arguments)
+            elif name == "eudr_slice_parcel":
+                res = await cls._exec_slice_parcel(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
 
@@ -1350,3 +1490,86 @@ class AgentToolsRegistry:
         if hasattr(compact_report.status, "value"):
             res["status"] = compact_report.status.value
         return res
+
+    @classmethod
+    async def _exec_benchmark_country(cls, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.country_benchmarking import CountryBenchmarkingService
+        country_code = arguments.get("country_code", "").upper().strip()
+        suspected_circumvention = bool(arguments.get("suspected_circumvention", False))
+        suspected_mixing = bool(arguments.get("suspected_mixing", False))
+        
+        evaluation = CountryBenchmarkingService.get_benchmarking(country_code)
+        res = evaluation.model_dump()
+        if suspected_circumvention or suspected_mixing:
+            res["simplified_due_diligence_eligible"] = False
+            res["risk_assessment_required"] = True
+            res["risk_mitigation_required"] = True
+            res["alert"] = "Circumvention or mixing suspected: Simplified Due Diligence revoked under Art. 13(2)."
+        return res
+
+    @classmethod
+    async def _exec_link_downstream_chain(cls, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.downstream_chain_manager import DownstreamChainManager
+        from app.schemas import DownstreamChainRequest
+        
+        refs = arguments.get("upstream_dds_references")
+        if not refs:
+            single_ref = arguments.get("upstream_dds_reference")
+            refs = [single_ref] if single_ref else []
+            
+        req = DownstreamChainRequest(
+            downstream_operator_name=arguments.get("downstream_operator_name") or arguments.get("operator_name", "Downstream Operator"),
+            downstream_operator_eori=arguments.get("downstream_operator_eori") or arguments.get("operator_eori", "DE123456789"),
+            commodity_code=arguments.get("commodity_code") or arguments.get("product_hs_code", "1806"),
+            commodity_description=arguments.get("commodity_description") or arguments.get("product_description", "Finished Goods"),
+            net_mass_kg=float(arguments.get("net_mass_kg") or arguments.get("consignment_mass_kg", 1000.0)),
+            upstream_dds_references=refs,
+            manufacturing_country=arguments.get("manufacturing_country", "DE"),
+            shipment_bl_number=arguments.get("shipment_bl_number") or arguments.get("consignment_id")
+        )
+        res = DownstreamChainManager.register_downstream_chain(req)
+        return res.model_dump()
+
+    @classmethod
+    async def _exec_issue_statutory_exemption(cls, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.statutory_exemption_issuer import StatutoryExemptionIssuer
+        from app.schemas import StatutoryExemptionNoticeRequest
+        
+        req = StatutoryExemptionNoticeRequest(
+            hs_code=str(arguments.get("hs_code", "")).strip(),
+            product_description=str(arguments.get("product_description", "")),
+            importer_name=arguments.get("importer_name") or arguments.get("operator_name", "EU Importer"),
+            importer_eori=arguments.get("importer_eori") or arguments.get("operator_eori", "DE999999999"),
+            origin_country=arguments.get("origin_country", "US"),
+            destination_country=arguments.get("destination_country") or arguments.get("destination_member_state", "DE"),
+            b_l_number=arguments.get("b_l_number") or arguments.get("consignment_id")
+        )
+        res = StatutoryExemptionIssuer.issue_certificate(req)
+        return res.model_dump()
+
+    @classmethod
+    async def _exec_slice_parcel(cls, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.parcel_slicing_engine import ParcelSlicingEngine
+        from app.schemas import ParcelSlicingRequest
+        
+        geom = arguments.get("geometry")
+        coords = arguments.get("coordinates")
+        if not geom and coords:
+            if isinstance(coords, list) and len(coords) > 0 and isinstance(coords[0], list):
+                if isinstance(coords[0][0], (int, float)):
+                    geom = {"type": "Polygon", "coordinates": [coords]}
+                else:
+                    geom = {"type": "Polygon", "coordinates": coords}
+            else:
+                geom = {"type": "Polygon", "coordinates": [coords]}
+                
+        req = ParcelSlicingRequest(
+            parent_plot_id=arguments.get("parent_plot_id") or arguments.get("plot_id", "PLOT-PARENT"),
+            country_code=arguments.get("country_code", "ID"),
+            declared_area_ha=float(arguments.get("declared_area_ha") or arguments.get("area_hectares", 10.0)),
+            geometry=geom or {"type": "Polygon", "coordinates": [[[101.0, 0.0], [101.01, 0.0], [101.01, 0.01], [101.0, 0.01], [101.0, 0.0]]]},
+            target_parcel_max_ha=float(arguments.get("target_parcel_max_ha") or arguments.get("target_max_ha", 3.5)),
+            estimated_farmers_count=arguments.get("estimated_farmers_count")
+        )
+        res = ParcelSlicingEngine.slice_aggregated_plot(req)
+        return res.model_dump()

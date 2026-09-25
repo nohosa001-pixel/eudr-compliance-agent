@@ -22,7 +22,10 @@ AI agents can invoke EUDR capabilities through:
 - `eudr_create_payment_order`: Generates autonomous on-chain USDC payment order with budget cap guardrails. (Human checkout is strictly excluded).
 - `eudr_confirm_payment`: Verifies blockchain tx_hash and provisions live Pro API Key for the autonomous agent.
 - `eudr_agent_micro_pay`: Real-time on-chain micro-settlement per plot ($0.10 USDC/plot) without human subscription friction.
-- `eudr_get_agent_budget_status`: Real-time inspection of agent quota, spent USDC, and safety budget limits.
+- `eudr_benchmark_country`: Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and determines Article 13 simplified due diligence eligibility with official EU customs audit rates (1%, 3%, 9%).
+- `eudr_link_downstream_chain`: Implements EUDR Article 4(8) downstream DDS reference chaining and monitors cascading revocation/taint.
+- `eudr_issue_statutory_exemption`: Evaluates statutory exemption under the EUDR Delegated Act (effective Sept 2026) for excluded commodities such as bovine leather (HS 4101, 4104, 4107) and generates an official EU SWE-C Green Lane Customs Exemption Certificate.
+- `eudr_slice_parcel`: Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings, satisfying EUDR Article 9 smallholder rules.
 - `eudr_submit_agent_feedback`: Allows interacting AI agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions.
 
 ## Payment & Settlement: Autonomous Agent Only

@@ -127,7 +127,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Automated EUDR (EU Deforestation Regulation) Supply Chain Compliance & TRACES-NT DDS Generator API",
-    version="1.2.0",
+    version="1.4.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -438,7 +438,7 @@ async def serve_mcp_server_card(request: Request):
     return JSONResponse({
         "serverInfo": {
             "name": "eudr-compliance-agent",
-            "version": "1.2.0",
+            "version": "1.4.0",
             "description": "Autonomous AI Agent compliance engine for European Union Deforestation Regulation (EU 2023/1115)."
         },
         "authentication": {"required": False},

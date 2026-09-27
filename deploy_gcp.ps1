@@ -31,15 +31,21 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 $tgToken = ""
 $tgChatId = ""
 $polygonWallet = "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+$copernicusId = ""
+$copernicusSecret = ""
+$useLiveCopernicus = "true"
 if (Test-Path ".env") {
     foreach ($line in (Get-Content ".env")) {
         if ($line -match "^TELEGRAM_BOT_TOKEN=(.+)$") { $tgToken = $matches[1].Trim() }
         if ($line -match "^TELEGRAM_CHAT_ID=(.+)$") { $tgChatId = $matches[1].Trim() }
         if ($line -match "^POLYGON_METAMASK_WALLET_ADDRESS=(.+)$") { $polygonWallet = $matches[1].Trim() }
+        if ($line -match "^COPERNICUS_CLIENT_ID=(.+)$") { $copernicusId = $matches[1].Trim() }
+        if ($line -match "^COPERNICUS_CLIENT_SECRET=(.+)$") { $copernicusSecret = $matches[1].Trim() }
+        if ($line -match "^USE_LIVE_COPERNICUS_API=(.+)$") { $useLiveCopernicus = $matches[1].Trim() }
     }
 }
 
-$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId,POLYGON_METAMASK_WALLET_ADDRESS=$polygonWallet,POLYGON_CHAIN_ID=137,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,BASE_CHAIN_ID=8453,BASE_RPC_URL=https://mainnet.base.org,ARBITRUM_CHAIN_ID=42161,ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc,POLYGON_AGENT_PAYMENT_VAULT=0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861,BASE_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,ARBITRUM_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD"
+$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId,POLYGON_METAMASK_WALLET_ADDRESS=$polygonWallet,POLYGON_CHAIN_ID=137,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,BASE_CHAIN_ID=8453,BASE_RPC_URL=https://mainnet.base.org,ARBITRUM_CHAIN_ID=42161,ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc,POLYGON_AGENT_PAYMENT_VAULT=0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861,BASE_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,ARBITRUM_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,COPERNICUS_CLIENT_ID=$copernicusId,COPERNICUS_CLIENT_SECRET=$copernicusSecret,USE_LIVE_COPERNICUS_API=$useLiveCopernicus"
 
 
 # 4. Deploy to Cloud Run (us-central1 - Domain Mapping Target)

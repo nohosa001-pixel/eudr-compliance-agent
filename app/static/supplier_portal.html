@@ -330,24 +330,24 @@
 </head>
 <body>
 
-  <!-- Autonomous Agent Top Notice Bar -->
-  <div style="background: #020617; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 16px; font-size: 0.74rem; text-align: center; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
-    <span style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 1px 8px; border-radius: 10px; font-weight: 700;">🤖 AUTONOMOUS AGENT M2M GATEWAY ONLY</span>
-    <span>Stateless autonomous telemetry ingestion for IoT drones, agricultural robots, and ERP bots. Zero human intervention &bull; Zero PII storage.</span>
+  <!-- Executive Compliance Notice Bar -->
+  <div style="background: #020617; border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 16px; font-size: 0.74rem; text-align: center; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; padding: 1px 8px; border-radius: 10px; font-weight: 700;">🇪🇺 EU 2023/1115 COMPLIANCE</span>
+    <span>글로벌 공급업체 및 원산지 농장 실사 데이터 등록 포털 (Supplier &amp; Farm Due Diligence Portal)</span>
     <span style="color: #64748b;">|</span>
-    <span style="color: #cbd5e1;">License: <strong>AS-IS</strong> (Stateless Heuristic Calculator)</span>
+    <span style="color: #cbd5e1;">산림벌채 기준일: <strong>2020년 12월 31일</strong></span>
   </div>
 
   <header class="header">
     <a href="/" class="brand">
       <span>🌲</span>
-      <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Agent</span><span class="brand-tld">.com</span></span>
-      <span style="font-size: 0.7rem; background: rgba(56,189,248,0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; align-self: center; font-weight: 700;">M2M Gateway</span>
+      <span class="brand-name"><strong class="brand-eudr">EUDR</strong> <span class="brand-agent">Compliance</span><span class="brand-tld">.portal</span></span>
+      <span style="font-size: 0.7rem; background: rgba(52,211,153,0.15); color: #34d399; padding: 2px 6px; border-radius: 4px; align-self: center; font-weight: 700;">Supplier Portal</span>
     </a>
     <div class="nav-actions">
       <select id="portal-lang" class="lang-selector" onchange="changePortalLang(this.value)">
-        <option value="en" selected>🇬🇧 English</option>
-        <option value="ko">🇰🇷 한국어</option>
+        <option value="ko" selected>🇰🇷 한국어</option>
+        <option value="en">🇬🇧 English</option>
         <option value="fr">🇫🇷 Français</option>
         <option value="es">🇪🇸 Español</option>
         <option value="pt">🇧🇷 Português</option>
@@ -355,16 +355,16 @@
         <option value="id">🇮🇩 Bahasa Indonesia</option>
       </select>
       <a href="/dashboard" class="btn" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); font-size: 0.8rem; padding: 6px 12px;">
-        <span id="nav-operator-btn">🤖 Observability Console &rarr;</span>
+        <span id="nav-operator-btn">📊 통합 관제 콘솔 바로가기 &rarr;</span>
       </a>
     </div>
   </header>
 
   <div class="container">
     <div class="hero-box">
-      <h1 id="txt-hero-title" class="hero-title">Autonomous Farm Agent M2M Ingestion Gateway</h1>
+      <h1 id="txt-hero-title" class="hero-title">글로벌 공급업체 EUDR 원산지 실사 등록 포털</h1>
       <p id="txt-hero-subtitle" style="color: var(--text-muted); font-size: 0.95rem;">
-        Stateless Machine-to-Machine Gateway for IoT Drones, RTK Field Harvesters, and Supply Chain ERP Agents under Regulation (EU) 2023/1115.
+        유럽연합 산림벌채방지법(EU 2023/1115) 준수를 위해 농장 생산지 필지 좌표를 등록하고 실시간 위성 산림 보존 여부를 사전 검증하는 포털입니다.
       </p>
     </div>
 
@@ -505,40 +505,40 @@
 
     const I18N = {
       en: {
-        heroTitle: "Autonomous Farm Agent M2M Ingestion Gateway",
-        heroSub: "Stateless Machine-to-Machine Gateway for IoT Drones, RTK Field Harvesters, and Supply Chain ERP Agents under Regulation (EU) 2023/1115.",
-        sec1: "📡 1. Machine Telemetry & Production Plot Stream",
-        sec2: "🛰️ 2. Autonomous Satellite Radar Consensus & Telemetry Proof",
-        presetLbl: "🤖 1-Click Load Preset:",
-        nameLbl: "Autonomous Agent / Producer Node ID",
+        heroTitle: "Global Supplier & Farm Compliance Ingestion Portal",
+        heroSub: "Official compliance portal for Regulation (EU) 2023/1115. Register production coordinates, verify 4ha polygon boundaries, and validate deforestation-free status via live Sentinel-2 satellite radar.",
+        sec1: "📡 1. Production Plot & Verification Data",
+        sec2: "🛰️ 2. Live Satellite Radar Forest Verification Proof",
+        presetLbl: "📋 1-Click Load Scenario:",
+        nameLbl: "Supplier / Farm / Producer Organization Name",
         commLbl: "Commodity",
         countryLbl: "Country of Origin",
         areaLbl: "Declared Production Area (Hectares)",
-        gpsBtn: "Ingest Drone / RTK GPS",
-        titleLbl: "Stateless Land Title / Usage Rights Hash",
-        runBtn: "Trigger Autonomous Spatial & Radar Consensus",
-        opNav: "🤖 Observability Console →",
+        gpsBtn: "Capture GPS / Drone Telemetry",
+        titleLbl: "Land Title / Harvest Permit Reference",
+        runBtn: "Run Spatial & Satellite Radar Verification",
+        opNav: "📊 Compliance Console →",
         polyRule: "⚠️ Polygon Boundary Required (EUDR Art. 9: Area ≥ 4.0 ha)",
         pointRule: "✅ Single Point or Polygon Allowed (Area < 4.0 ha)",
-        certTitle: "AUTONOMOUS M2M SPATIAL RADAR PROOF"
+        certTitle: "EUDR SATELLITE RADAR VERIFICATION PROOF"
       },
       ko: {
-        heroTitle: "자율 에이전트 농장 M2M 데이터 수신 게이트웨이",
-        heroSub: "EU 산림벌채방지법(EU 2023/1115) 규정에 따라 농업용 드론, RTK 센서 및 ERP 봇을 위한 무상태 머신 전용 게이트웨이입니다.",
-        sec1: "📡 1. 머신 텔레메트리 및 경작지 데이터 스트림",
-        sec2: "🛰️ 2. 자율 위성 레이더 합의 및 머신 검증 증명",
-        presetLbl: "🤖 원클릭 에이전트 노드 불러오기:",
-        nameLbl: "자율 에이전트 / 생산자 노드 식별자(ID)",
-        commLbl: "품목(Commodity)",
+        heroTitle: "글로벌 공급업체 EUDR 원산지 실사 등록 포털",
+        heroSub: "EU 산림벌채방지법(EU 2023/1115) 규정에 따라 농장 생산지 필지 좌표를 등록하고 실시간 위성 산림 보존 여부를 사전 검증하는 포털입니다.",
+        sec1: "📡 1. 생산지 필지 및 지리정보 데이터",
+        sec2: "🛰️ 2. 실시간 위성 산림 보존 검증 증명서",
+        presetLbl: "📋 실무 시나리오 불러오기:",
+        nameLbl: "공급업체 / 농장 및 기업명",
+        commLbl: "대상 품목 (Commodity)",
         countryLbl: "원산지 국가",
         areaLbl: "신고 경작 면적 (Hectares)",
-        gpsBtn: "드론/RTK GPS 텔레메트리 수신",
-        titleLbl: "토지 소유권 / 영농 허가권 해시",
-        runBtn: "자율 공간 및 위성 레이더 합의 실행",
-        opNav: "🤖 관측성 콘솔로 이동 →",
+        gpsBtn: "GPS 좌표 자동 수신",
+        titleLbl: "토지 소유권 / 수확 허가 번호",
+        runBtn: "지리정보 및 위성 산림 적합성 검증 실행",
+        opNav: "📊 통합 관제 콘솔로 이동 →",
         polyRule: "⚠️ 폴리곤 다각형 필수 (EUDR 제9조: 4ha 이상)",
         pointRule: "✅ 단일 위경도 좌표 또는 폴리곤 가능 (4ha 미만)",
-        certTitle: "자율 에이전트 M2M 공간 레이더 증명"
+        certTitle: "EUDR 위성 레이더 산림 준법 증명서"
       },
       fr: {
         heroTitle: "Passerelle d'Ingestion M2M pour Agents Autonomes",

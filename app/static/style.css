@@ -78,6 +78,75 @@ body::before {
   z-index: 0;
 }
 
+/* Executive Top Bar */
+.executive-top-bar {
+  background: #030712;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 1.75rem;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  z-index: 1001;
+  position: relative;
+}
+
+.executive-top-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.compliance-badge {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  color: #60a5fa;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.executive-top-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.satellite-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+.cutoff-notice {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.executive-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.executive-top-right .divider {
+  color: rgba(255, 255, 255, 0.15);
+}
+
 /* Header */
 header {
   position: sticky;
@@ -760,13 +829,15 @@ pre.code-viewer {
    AUTONOMOUS AGENT COMMAND CENTER & HUD COMPONENT SUITE
    ======================================================== */
 
-/* Mission Control HUD Navigation Tabs */
+/* Executive Compliance Console Navigation Tabs */
 .cockpit-tabs-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 1.5rem;
-  background: rgba(11, 17, 32, 0.85);
+  padding: 10px 1.75rem;
+  background: rgba(8, 12, 24, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
   scrollbar-width: thin;
@@ -778,8 +849,8 @@ pre.code-viewer {
   gap: 8px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 7px 16px;
+  border-radius: 8px;
+  padding: 8px 16px;
   color: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: 0.82rem;
@@ -790,29 +861,31 @@ pre.code-viewer {
 }
 
 .cockpit-tab-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #fff;
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #f8fafc;
   transform: translateY(-1px);
 }
 
 .cockpit-tab-btn.active {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
-  border-color: #38bdf8;
-  color: #38bdf8;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(52, 211, 153, 0.5);
+  color: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.18);
 }
 
 .tab-badge {
-  font-size: 0.7rem;
-  padding: 1px 6px;
+  font-size: 0.68rem;
+  padding: 1px 7px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
 }
 
 .cockpit-tab-btn.active .tab-badge {
-  background: #38bdf8;
-  color: #020617;
+  background: rgba(52, 211, 153, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
   font-weight: 700;
 }
 

@@ -949,6 +949,106 @@
         },
         "required": ["rfq_id", "seller_agent_id", "seller_agent_wallet", "price_usdc_per_kg", "declared_plots"]
       }
+    },
+    {
+      "name": "eudr_create_milestone_escrow",
+      "description": "Creates a 3-stage conditional milestone escrow (Satellite 30%, DDS 40%, Customs 30%) with optional First-Mile multi-party split allocations for smallholder co-ops and mills.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+          "buyer_wallet": {"type": "string", "description": "Buyer EVM wallet address for refunds."},
+          "seller_agent_id": {"type": "string", "description": "Calling seller agent ID / co-op / mill name."},
+          "seller_wallet": {"type": "string", "description": "Seller EVM wallet address to receive unlocked funds."},
+          "amount_usdc": {"type": "number", "description": "Total trade principal amount in USDC locked into escrow."},
+          "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Target EVM chain for vault deposit and settlement."},
+          "hs_code": {"type": "string", "description": "EUDR commodity Harmonized System tariff code (e.g. 15111000 for crude palm oil)."},
+          "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+          "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+          "milestone_weights": {"type": "array", "description": "Weight percentages for milestones 1, 2, 3 (default: [30, 40, 30])."},
+          "split_recipients": {"type": "array", "description": "First-mile multi-party split distribution (e.g. Smallholder Co-op 75%, Mill 25%)."}
+        },
+        "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+      }
+    },
+    {
+      "name": "eudr_release_escrow_milestone",
+      "description": "Releases a specific milestone (1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane) in a 3-stage conditional escrow, issuing EIP-712 attestation and executing First-Mile split transfers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID to release milestone for."},
+          "milestone_index": {"type": "integer", "description": "1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane."},
+          "plots": {"type": "array", "description": "Required for Milestone 1: Production plot coordinates for satellite radar audit."},
+          "dds_reference_id": {"type": "string", "description": "Required for Milestone 2: Compliant DDS Reference ID."},
+          "customs_declaration_code": {"type": "string", "description": "Required for Milestone 3: Customs Green Lane clearance code."}
+        },
+        "required": ["escrow_id", "milestone_index"]
+      }
+    },
+    {
+      "name": "eudr_auto_slash_disputed_escrow",
+      "description": "Executes autonomous on-chain slashing for escrows with verified deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "escrow_id": {"type": "string", "description": "Unique Escrow ID in DISPUTED status to automatically slash."},
+          "reason": {"type": "string", "description": "Cause for slashing (e.g. 'Post-2020 deforestation confirmed by Sentinel radar')."},
+          "slashing_penalty_pct": {"type": "number", "default": 100.0, "description": "Percentage of locked escrow to refund to buyer."}
+        },
+        "required": ["escrow_id"]
+      }
+    },
+    {
+      "name": "eudr_verify_producer_registry",
+      "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "identifier": {"type": "string", "description": "Official registry identifier or cadastral parcel code (e.g. 'BR-MT-5107909-...', 'VN-COFFEE-LDG-...', 'SIPUHH-ID-...')."},
+          "country_code": {"type": "string", "description": "Optional 2-letter ISO country code (BR, ID, VN, GH, CI, MY). If omitted, automatically detected from format."}
+        },
+        "required": ["identifier"]
+      }
+    },
+    {
+      "name": "eudr_score_kfs_checklist",
+      "description": "Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance checklist (100-point scale).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary with operator, commodity, plots, and legal documents."},
+          "producer_registry_id": {"type": "string", "description": "Optional producer land registry code for cross-validation."}
+        },
+        "required": ["payload"]
+      }
+    },
+    {
+      "name": "eudr_generate_export_bundle",
+      "description": "Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary including plots, commodity, and legal documents."},
+          "producer_registry_id": {"type": "string", "description": "Optional producer land registry code (e.g. BR CAR or Vietnam MARD)."},
+          "producer_country_code": {"type": "string", "description": "Optional 2-letter ISO producer country code."}
+        },
+        "required": ["payload"]
+      }
+    },
+    {
+      "name": "eudr_underwrite_trade_credit",
+      "description": "Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary specifying commodity, volume, and production plots."},
+          "producer_registry_id": {"type": "string", "description": "Optional producer registry ID (e.g. CAR, SIPUHH, or MARD code)."},
+          "staked_escrow_usdc": {"type": "number", "description": "Optional USDC amount staked on AgentEscrow.sol as credit collateral enhancement."},
+          "applicant_agent_id": {"type": "string", "description": "Optional applicant agent or operator ID requesting trade credit."}
+        },
+        "required": ["payload"]
+      }
     }
   ],
   "resources": [],

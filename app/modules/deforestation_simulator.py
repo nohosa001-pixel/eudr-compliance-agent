@@ -188,8 +188,33 @@ class DeforestationSimulator:
             baseline_forest_pct = 92.0
             ndvi_trend = "HEALTHY_CONTINUOUS_CANOPY"
             ndvi_series = copernicus_stats["ndvi_time_series"]
+        elif copernicus_stats.get("is_live_data"):
+            # Live European Space Agency Copernicus CDSE Sentinel-2 Telemetry Mode
+            canopy_stab = copernicus_stats.get("canopy_stability")
+            if canopy_stab == "DEFORESTATION_DETECTED":
+                loss_year_val = 22
+                treecover_val = 90
+                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
+                loss_detected = True
+                loss_year = 2022
+                loss_area_ha = round(plot.area_hectares * 0.40, 2)
+                loss_ratio_pct = 40.0
+                baseline_forest_pct = 90.0
+                ndvi_trend = "POST_2020_DEFORESTATION_LIVE_CDSE"
+                ndvi_series = copernicus_stats["ndvi_time_series"]
+            else:
+                loss_year_val = 0
+                treecover_val = 92
+                hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
+                loss_detected = False
+                loss_year = None
+                loss_area_ha = 0.0
+                loss_ratio_pct = 0.0
+                baseline_forest_pct = 92.0
+                ndvi_trend = "HEALTHY_CONTINUOUS_CANOPY_LIVE_CDSE"
+                ndvi_series = copernicus_stats["ndvi_time_series"]
         else:
-            # Deterministic coordinate hash
+            # Deterministic coordinate hash fallback
             hash_seed = int(hashlib.md5(f"{plot.plot_id}_{plot.country_code}".encode()).hexdigest(), 16) % 100
             if hash_seed < 85:
                 loss_year_val = 0

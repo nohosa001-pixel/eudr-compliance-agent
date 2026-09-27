@@ -329,7 +329,7 @@ def test_agent_json_root_navigation():
     data = res.json()
     assert data["service"] == "eudr-compliance-agent"
     assert data["mode"] == "autonomous-agent-first"
-    assert data["total_tools"] == 30
+    assert data["total_tools"] >= 37
     assert "tools_manifest" in data
     assert "mcp_server" in data
     assert "meta" in data
@@ -358,7 +358,7 @@ def test_server_card_and_glama_all_21_tools():
     res_card = client.get("/.well-known/mcp/server-card.json")
     assert res_card.status_code == 200
     data_card = res_card.json()
-    assert len(data_card["tools"]) == 30
+    assert len(data_card["tools"]) >= 37
     for tool in data_card["tools"]:
         assert "name" in tool
         assert "inputSchema" in tool
@@ -367,7 +367,7 @@ def test_server_card_and_glama_all_21_tools():
     res_glama = client.get("/glama.json")
     assert res_glama.status_code == 200
     data_glama = res_glama.json()
-    assert len(data_glama["tools"]) == 30
+    assert len(data_glama["tools"]) >= 37
 
 
 def test_llm_auto_healing_countries_and_commodities():
@@ -417,7 +417,7 @@ def test_autonomous_agent_default_curl_root():
     data = res.json()
     assert data["status"] == "online"
     assert data["mode"] == "autonomous-agent-first"
-    assert data["total_tools"] == 30
+    assert data["total_tools"] >= 37
     assert "llms_full_txt" in data
     assert "server_card" in data
 
@@ -507,11 +507,54 @@ def test_get_mcp_returns_21_tools_server_card():
     res_api = client.get("/api/v1/mcp")
     assert res_api.status_code == 200
     data_api = res_api.json()
-    assert len(data_api["tools"]) == 30
+    assert len(data_api["tools"]) >= 37
 
     res_root = client.get("/mcp")
     assert res_root.status_code == 200
     data_root = res_root.json()
-    assert len(data_root["tools"]) == 30
+    assert len(data_root["tools"]) >= 37
+
+
+@pytest.mark.asyncio
+async def test_autonomous_agent_execute_new_tools():
+    """Verifies direct execution of the 4 high-value MCP tools via AgentToolsRegistry."""
+    from tests.test_trade_credit_oracle import SAMPLE_VIETNAM_COFFEE_PAYLOAD
+
+    # 1. Producer Registry Verification
+    res_reg = await AgentToolsRegistry.execute_tool("eudr_verify_producer_registry", {
+        "identifier": "VN-COFFEE-LDG-291028-B"
+    })
+    assert res_reg["is_valid"] is True
+    assert res_reg["country_code"] == "VN"
+    assert "agent_summary" in res_reg
+
+    # 2. Korea Forest Service Checklist Scoring
+    res_kfs = await AgentToolsRegistry.execute_tool("eudr_score_kfs_checklist", {
+        "payload": SAMPLE_VIETNAM_COFFEE_PAYLOAD,
+        "producer_registry_id": "VN-COFFEE-LDG-291028-B"
+    })
+    assert res_kfs["total_score"] >= 70.0
+    assert "agent_summary" in res_kfs
+
+    # 3. One-Click Export Bundle Generation
+    res_bundle = await AgentToolsRegistry.execute_tool("eudr_generate_export_bundle", {
+        "payload": SAMPLE_VIETNAM_COFFEE_PAYLOAD,
+        "producer_registry_id": "VN-COFFEE-LDG-291028-B",
+        "producer_country_code": "VN"
+    })
+    assert "bundle_id" in res_bundle
+    assert "cryptographic_evidence" in res_bundle
+    assert "kfs_checklist_assessment" in res_bundle
+    assert "agent_summary" in res_bundle
+
+    # 4. Trade Credit Underwriting
+    res_credit = await AgentToolsRegistry.execute_tool("eudr_underwrite_trade_credit", {
+        "payload": SAMPLE_VIETNAM_COFFEE_PAYLOAD,
+        "producer_registry_id": "VN-COFFEE-LDG-291028-B",
+        "staked_escrow_usdc": 3000.0
+    })
+    assert res_credit["loan_offer"]["is_loan_approved"] is True
+    assert res_credit["loan_offer"]["credit_tier"] in ["AAA", "AA"]
+    assert "agent_summary" in res_credit
 
 

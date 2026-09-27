@@ -25,7 +25,7 @@ SAMPLE_PAYLOAD = {
     "execution_id": "BATCH-KFS-2026-TEST",
     "plots": [
         {
-            "plot_id": "PLOT-KR-001",
+            "plot_id": "PLOT-KR-CLEAN-001",
             "country_code": "KR",
             "area_hectares": 5.2,
             "production_date": "2024-05-15",
@@ -127,6 +127,25 @@ def test_indonesia_timber_palm_adapter():
     assert res_peat.status == "VIOLATION_PEATLAND_MORATORIUM"
 
 
+from app.modules.producer_adapters.vietnam_coffee_timber_adapter import VietnamCoffeeTimberAdapter
+
+def test_vietnam_coffee_timber_adapter():
+    adapter = VietnamCoffeeTimberAdapter()
+
+    # Valid Coffee LURC in Dak Lak
+    res_coffee = adapter.verify_registration("VN-COFFEE-DLK-109283-A")
+    assert res_coffee.is_valid is True
+    assert res_coffee.country_code == "VN"
+    assert res_coffee.status == "ACTIVE_AND_COMPLIANT_LURC"
+    assert "Coffee" in res_coffee.details["commodity"]
+
+    # Special-Use Forest Encroachment
+    res_enc = adapter.verify_registration("VN-COFFEE-LDG-PARK999999")
+    assert res_enc.is_valid is False
+    assert res_enc.status == "REJECTED_SPECIAL_USE_FOREST_ENCROACHMENT"
+    assert res_enc.deforestation_infraction_flag is True
+
+
 def test_registry_hub_auto_routing():
     hub = ProducerCountryRegistryHub()
     
@@ -139,6 +158,11 @@ def test_registry_hub_auto_routing():
     res_gh = hub.verify("GH-CMS-ASH-102938-02")
     assert res_gh.country_code == "GH"
     assert res_gh.is_valid is True
+
+    # Auto-detect Vietnam
+    res_vn = hub.verify("VN-COFFEE-DLK-109283-A")
+    assert res_vn.country_code == "VN"
+    assert res_vn.is_valid is True
 
     # Unsupported country
     res_un = hub.verify("XX-999999")

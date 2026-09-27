@@ -129,6 +129,10 @@
       "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven. Eliminates commercial default risk."
     },
     {
+      "name": "eudr_create_milestone_escrow",
+      "description": "Creates a 3-stage conditional milestone escrow (Satellite 30%, DDS 40%, Customs 30%) with optional First-Mile multi-party split allocations for smallholders and processing mills."
+    },
+    {
       "name": "eudr_fund_agent_escrow",
       "description": "Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED."
     },
@@ -137,8 +141,16 @@
       "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or verifiable compliant DDS reference."
     },
     {
+      "name": "eudr_release_escrow_milestone",
+      "description": "Releases a specific milestone (1: Satellite, 2: DDS, 3: Customs) in a 3-stage escrow, issuing EIP-712 attestation and executing First-Mile split payouts."
+    },
+    {
       "name": "eudr_arbitrate_agent_escrow",
       "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry. If deforestation is detected post-2020: 100% refund to Buyer Agent; if deforestation-free: released to Seller Agent."
+    },
+    {
+      "name": "eudr_auto_slash_disputed_escrow",
+      "description": "Executes autonomous on-chain slashing for escrows with verified deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer."
     },
     {
       "name": "eudr_issue_eip712_attestation",
@@ -159,6 +171,22 @@
     {
       "name": "eudr_submit_compliance_bid",
       "description": "Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price."
+    },
+    {
+      "name": "eudr_verify_producer_registry",
+      "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO)."
+    },
+    {
+      "name": "eudr_score_kfs_checklist",
+      "description": "Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance checklist (100-point scale)."
+    },
+    {
+      "name": "eudr_generate_export_bundle",
+      "description": "Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier."
+    },
+    {
+      "name": "eudr_underwrite_trade_credit",
+      "description": "Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring."
     }
   ],
   "prompts": [

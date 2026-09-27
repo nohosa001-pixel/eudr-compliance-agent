@@ -789,11 +789,14 @@ def test_50_malicious_cases_pipeline_resilience():
     assert (passed_count + clean_error_count) == 50, "All 50 cases must be deterministically accounted for"
 
 
-def test_batch_api_simulate_with_malicious_dataset():
+def test_batch_api_simulate_with_malicious_dataset(monkeypatch):
     """
     Test end-to-end API simulation endpoint (/api/v1/eudr/simulate) with the 50 malicious plots.
     Ensures HTTP 200 response, comprehensive summary metrics, and zero server crashes.
     """
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "USE_LIVE_COPERNICUS_API", False)
+
     plots = generate_50_malicious_plots()
     payload = {
         "supplier_id": "SUPP-STRESS-50-MALICIOUS",

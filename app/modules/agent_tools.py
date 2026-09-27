@@ -721,6 +721,55 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
         }
     },
     {
+        "name": "eudr_create_milestone_escrow",
+        "description": "Creates a 3-Stage Milestone Conditional Escrow agreement with optional First-Mile split payouts to smallholder cooperatives and mills (Stage 1: Satellite 30%, Stage 2: DDS 40%, Stage 3: Customs Green Lane 30%).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+                "buyer_wallet": {"type": "string", "description": "Buyer EVM / Solana wallet address for refunds."},
+                "seller_agent_id": {"type": "string", "description": "Target seller agent ID / supplier identifier."},
+                "seller_wallet": {"type": "string", "description": "Seller EVM / Solana wallet address for payout."},
+                "amount_usdc": {"type": "number", "description": "Escrow lock amount in USDC."},
+                "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Blockchain network for settlement."},
+                "hs_code": {"type": "string", "description": "Regulated commodity HS code (e.g. '18010000', '44071100')."},
+                "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+                "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+                "milestone_weights": {"type": "array", "description": "Weight percentages for milestones 1, 2, 3 (default: [30, 40, 30])."},
+                "split_recipients": {"type": "array", "description": "First-mile multi-party split distribution (e.g. Smallholder Co-op 75%, Mill 25%)."}
+            },
+            "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+        }
+    },
+    {
+        "name": "eudr_release_escrow_milestone",
+        "description": "Releases a specific milestone (1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane) in a 3-stage conditional escrow, issuing EIP-712 attestation and executing First-Mile split transfers.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID to release milestone for."},
+                "milestone_index": {"type": "integer", "description": "1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane."},
+                "plots": {"type": "array", "description": "Required for Milestone 1: Production plot coordinates for satellite radar audit."},
+                "dds_reference_id": {"type": "string", "description": "Required for Milestone 2: Compliant DDS Reference ID."},
+                "customs_declaration_code": {"type": "string", "description": "Required for Milestone 3: Customs Green Lane clearance code."}
+            },
+            "required": ["escrow_id", "milestone_index"]
+        }
+    },
+    {
+        "name": "eudr_auto_slash_disputed_escrow",
+        "description": "Executes autonomous on-chain slashing for escrows with verified deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID in DISPUTED status to automatically slash."},
+                "reason": {"type": "string", "description": "Cause for slashing (e.g. 'Post-2020 deforestation confirmed by Sentinel radar')."},
+                "slashing_penalty_pct": {"type": "number", "default": 100.0, "description": "Percentage of locked escrow to refund to buyer."}
+            },
+            "required": ["escrow_id"]
+        }
+    },
+    {
         "name": "eudr_inspect_payload_security",
         "description": "Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications.",
         "parameters": {
@@ -772,6 +821,57 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
                 "compliance_diligence_reference": {"type": "string", "description": "Existing Due Diligence Statement or certification reference."}
             },
             "required": ["rfq_id", "seller_agent_id", "seller_agent_wallet", "price_usdc_per_kg", "declared_plots"]
+        }
+    },
+    {
+        "name": "eudr_verify_producer_registry",
+        "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string", "description": "Official registry identifier or cadastral parcel code (e.g. 'BR-MT-5107909-...', 'VN-COFFEE-LDG-...', 'SIPUHH-ID-...')."},
+                "country_code": {"type": "string", "description": "Optional 2-letter ISO country code (BR, ID, VN, GH, CI, MY). If omitted, automatically detected from format."}
+            },
+            "required": ["identifier"]
+        }
+    },
+    {
+        "name": "eudr_score_kfs_checklist",
+        "description": "Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance checklist (100-point scale).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary with operator, commodity, plots, and legal documents."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer land registry code for cross-validation."}
+            },
+            "required": ["payload"]
+        }
+    },
+    {
+        "name": "eudr_generate_export_bundle",
+        "description": "Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary including plots, commodity, and legal documents."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer land registry code (e.g. BR CAR or Vietnam MARD)."},
+                "producer_country_code": {"type": "string", "description": "Optional 2-letter ISO producer country code."}
+            },
+            "required": ["payload"]
+        }
+    },
+    {
+        "name": "eudr_underwrite_trade_credit",
+        "description": "Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary specifying commodity, volume, and production plots."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer registry ID (e.g. CAR, SIPUHH, or MARD code)."},
+                "staked_escrow_usdc": {"type": "number", "description": "Optional USDC amount staked on AgentEscrow.sol as credit collateral enhancement."},
+                "applicant_agent_id": {"type": "string", "description": "Optional applicant agent or operator ID requesting trade credit."}
+            },
+            "required": ["payload"]
         }
     }
 ]
@@ -933,12 +1033,18 @@ class AgentToolsRegistry:
                 res = await cls._exec_slice_parcel(arguments)
             elif name == "eudr_create_agent_escrow":
                 res = await cls._exec_create_agent_escrow(arguments)
+            elif name == "eudr_create_milestone_escrow":
+                res = await cls._exec_create_milestone_escrow(arguments)
             elif name == "eudr_fund_agent_escrow":
                 res = await cls._exec_fund_agent_escrow(arguments)
             elif name == "eudr_release_agent_escrow":
                 res = await cls._exec_release_agent_escrow(arguments)
+            elif name == "eudr_release_escrow_milestone":
+                res = await cls._exec_release_escrow_milestone(arguments)
             elif name == "eudr_arbitrate_agent_escrow":
                 res = await cls._exec_arbitrate_agent_escrow(arguments)
+            elif name == "eudr_auto_slash_disputed_escrow":
+                res = await cls._exec_auto_slash_disputed_escrow(arguments)
             elif name == "eudr_issue_eip712_attestation":
                 res = await cls._exec_issue_eip712_attestation(arguments)
             elif name == "eudr_verify_eip712_attestation":
@@ -949,6 +1055,14 @@ class AgentToolsRegistry:
                 res = await cls._exec_publish_compliance_rfq(arguments)
             elif name == "eudr_submit_compliance_bid":
                 res = await cls._exec_submit_compliance_bid(arguments)
+            elif name == "eudr_verify_producer_registry":
+                res = await cls._exec_verify_producer_registry(arguments)
+            elif name == "eudr_score_kfs_checklist":
+                res = await cls._exec_score_kfs_checklist(arguments)
+            elif name == "eudr_generate_export_bundle":
+                res = await cls._exec_generate_export_bundle(arguments)
+            elif name == "eudr_underwrite_trade_credit":
+                res = await cls._exec_underwrite_trade_credit(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
 
@@ -2066,5 +2180,192 @@ class AgentToolsRegistry:
                 f"${bid['price_usdc_per_kg']:.2f}/kg (Total: ${bid['total_price_usdc']:,.2f} USDC)."
             )
         }
+
+    @classmethod
+    async def _exec_create_milestone_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import MilestoneEscrowCreateRequest, FirstMileSplitRecipient
+
+        split_recipients = None
+        if args.get("split_recipients"):
+            split_recipients = [
+                FirstMileSplitRecipient(
+                    recipient_role=r["recipient_role"],
+                    wallet_address=r["wallet_address"],
+                    share_percentage=float(r["share_percentage"])
+                ) for r in args["split_recipients"]
+            ]
+
+        req = MilestoneEscrowCreateRequest(
+            buyer_agent_id=str(args["buyer_agent_id"]),
+            buyer_wallet=str(args["buyer_wallet"]),
+            seller_agent_id=str(args["seller_agent_id"]),
+            seller_wallet=str(args["seller_wallet"]),
+            amount_usdc=float(args["amount_usdc"]),
+            chain=args.get("chain", "Base (Low Gas $0.01)"),
+            hs_code=str(args["hs_code"]),
+            commodity_description=str(args["commodity_description"]),
+            declared_net_mass_kg=float(args.get("declared_net_mass_kg", 1000.0)),
+            expiry_hours=int(args.get("expiry_hours", 72)),
+            milestone_weights=args.get("milestone_weights", [30.0, 40.0, 30.0]),
+            split_recipients=split_recipients
+        )
+        res = AgentEscrowManager.create_milestone_escrow(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"3-Stage Milestone Escrow {res.escrow_id} created for ${res.amount_usdc:.2f} USDC ({res.chain}). "
+            f"3 Stages: Satellite (30%) -> DDS (40%) -> Customs (30%). "
+            f"Buyer must deposit to vault '{res.vault_deposit_address}'."
+        )
+        return out
+
+    @classmethod
+    async def _exec_release_escrow_milestone(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowMilestoneReleaseRequest
+
+        req = EscrowMilestoneReleaseRequest(
+            escrow_id=str(args["escrow_id"]),
+            milestone_index=int(args["milestone_index"]),
+            plots=args.get("plots"),
+            dds_reference_id=args.get("dds_reference_id"),
+            customs_declaration_code=args.get("customs_declaration_code")
+        )
+        res = AgentEscrowManager.release_milestone(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Milestone #{res.milestone_index} ({res.milestone_name}) unlocked on {res.escrow_id}. "
+            f"Released: ${res.released_amount_usdc:.2f} USDC / Cumulative: ${res.cumulative_released_usdc:.2f} USDC. "
+            f"EIP-712 on-chain proof issued."
+        )
+        return out
+
+    @classmethod
+    async def _exec_auto_slash_disputed_escrow(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.agent_escrow_manager import AgentEscrowManager
+        from app.schemas import EscrowAutoSlashRequest
+
+        req = EscrowAutoSlashRequest(
+            escrow_id=str(args["escrow_id"]),
+            reason=args.get("reason", "Algorithmic satellite deforestation detection post-2020"),
+            slashing_penalty_pct=float(args.get("slashing_penalty_pct", 100.0))
+        )
+        res = AgentEscrowManager.auto_slash_disputed_escrow(req)
+        out = res.model_dump()
+        out["agent_summary"] = (
+            f"Autonomous on-chain slashing executed on {res.escrow_id}. "
+            f"EIP-712 BLOCKED attestation issued for AgentEscrow.sol. "
+            f"100% of remaining funds refunded to Buyer '{res.buyer_wallet}'."
+        )
+        return out
+
+    @classmethod
+    async def _exec_verify_producer_registry(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
+        hub = ProducerCountryRegistryHub()
+        identifier = str(args["identifier"]).strip()
+        country_code = args.get("country_code")
+        res = hub.verify(identifier=identifier, country_code=country_code)
+        out = res.model_dump()
+        status_str = "VALID" if res.is_valid else "INVALID / DEFICIENT"
+        out["agent_summary"] = (
+            f"Producer registry check: [{res.country_code}] {res.registry_name} -> {status_str} ({res.status}). "
+            f"Cadastral ID: {res.identifier}. Legal Reserve: {res.legal_reserve_compliance_pct}%."
+        )
+        return out
+
+    @classmethod
+    async def _exec_score_kfs_checklist(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.schemas import EUDRSupplyChainPayload
+        from app.modules.traceability_collector import TraceabilityCollector
+        from app.modules.deforestation_simulator import DeforestationSimulator
+        from app.modules.legal_document_auditor import LegalAuditor
+        from app.modules.kfs_checklist_scorer import KoreaForestServiceChecklistScorer
+        from datetime import datetime, timezone
+
+        raw_payload = args["payload"]
+        payload = EUDRSupplyChainPayload(**raw_payload) if isinstance(raw_payload, dict) else raw_payload
+
+        _, spatial_res, _ = TraceabilityCollector.collect_and_validate(payload.plots)
+        _, satellite_res, _ = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_res)
+        legal_res = LegalAuditor.audit_documents(documents=payload.documents, plots=payload.plots, commodity=payload.commodity)
+        timestamp_str = datetime.now(timezone.utc).isoformat()
+
+        assessment = KoreaForestServiceChecklistScorer.evaluate(
+            payload=payload,
+            spatial_results=spatial_res,
+            satellite_results=satellite_res,
+            legal_audit=legal_res,
+            timestamp_str=timestamp_str
+        )
+        out = assessment.model_dump()
+        out["agent_summary"] = (
+            f"Korea Forest Service (산림청) EUDR Readiness Score: {assessment.total_score:.1f}/100.0 "
+            f"({assessment.compliance_tier}). Items evaluated: {len(assessment.items)}."
+        )
+        return out
+
+    @classmethod
+    async def _exec_generate_export_bundle(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.schemas import EUDRSupplyChainPayload
+        from app.modules.traceability_collector import TraceabilityCollector
+        from app.modules.deforestation_simulator import DeforestationSimulator
+        from app.modules.legal_document_auditor import LegalAuditor
+        from app.modules.export_bundle_orchestrator import OneClickExportBundleOrchestrator
+
+        raw_payload = args["payload"]
+        payload = EUDRSupplyChainPayload(**raw_payload) if isinstance(raw_payload, dict) else raw_payload
+        producer_registry_id = args.get("producer_registry_id")
+        producer_country_code = args.get("producer_country_code")
+
+        _, spatial_res, _ = TraceabilityCollector.collect_and_validate(payload.plots)
+        _, satellite_res, _ = DeforestationSimulator.analyze_all_plots(payload.plots, spatial_res)
+        legal_res = LegalAuditor.audit_documents(documents=payload.documents, plots=payload.plots, commodity=payload.commodity)
+
+        orchestrator = OneClickExportBundleOrchestrator()
+        bundle_data = orchestrator.build_export_bundle(
+            payload=payload,
+            spatial_results=spatial_res,
+            satellite_results=satellite_res,
+            legal_audit=legal_res,
+            producer_registry_id=producer_registry_id,
+            producer_country_code=producer_country_code
+        )
+        out = bundle_data
+        kfs_score = out.get('kfs_checklist_assessment', {}).get('total_score', 0)
+        seal = out.get('cryptographic_evidence', {}).get('bundle_hash', '')[:16]
+        out["agent_summary"] = (
+            f"Unified EUDR Export Bundle generated: {out.get('bundle_id')}. "
+            f"KFS Score: {kfs_score:.1f}/100. "
+            f"HMAC Seal: {seal}... "
+            f"Status: {out.get('overall_clearance_status')}."
+        )
+        return out
+
+    @classmethod
+    async def _exec_underwrite_trade_credit(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.trade_credit_oracle import TradeCreditUnderwriter
+
+        underwriter = TradeCreditUnderwriter()
+        raw_payload = args["payload"]
+        producer_registry_id = args.get("producer_registry_id")
+        staked_escrow_usdc = float(args.get("staked_escrow_usdc", 0.0))
+        applicant_agent_id = args.get("applicant_agent_id")
+
+        res = underwriter.evaluate_credit_and_underwrite_loan(
+            payload=raw_payload,
+            producer_registry_id=producer_registry_id,
+            staked_escrow_usdc=staked_escrow_usdc,
+            applicant_agent_id=applicant_agent_id
+        )
+        out = res.model_dump()
+        approved_str = "APPROVED" if res.loan_offer.is_loan_approved else "REJECTED"
+        out["agent_summary"] = (
+            f"Trade Credit Underwriting: {approved_str} (Tier: {res.loan_offer.credit_tier}). "
+            f"Max Loan: ${res.loan_offer.max_loan_amount_usdc:,.2f} USDC (APR: {res.loan_offer.annual_percentage_rate_apr}%). "
+            f"Total Credit Score: {res.credit_score.total_credit_score:.1f}/1000."
+        )
+        return out
+
 
 

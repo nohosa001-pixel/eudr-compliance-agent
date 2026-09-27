@@ -7,8 +7,11 @@ from app.schemas import EUDRSupplyChainPayload, ComplianceStatusEnum
 client = TestClient(app)
 
 
-def test_100_plots_batch_stress_latency():
+def test_100_plots_batch_stress_latency(monkeypatch):
     """Stress test: 100 production plots batch evaluation performance (< 500ms)."""
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "USE_LIVE_COPERNICUS_API", False)
+
     plots = []
     for i in range(100):
         plots.append({

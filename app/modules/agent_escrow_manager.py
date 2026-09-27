@@ -6,11 +6,17 @@ from typing import Dict, Any, Optional, List
 
 from app.schemas import (
     EscrowCreateRequest,
+    MilestoneEscrowCreateRequest,
     EscrowFundRequest,
     EscrowReleaseByComplianceRequest,
+    EscrowMilestoneReleaseRequest,
+    EscrowAutoSlashRequest,
+    EscrowMilestoneReleaseResponse,
     EscrowDisputeArbitrateRequest,
     EscrowAgreementResponse,
     EscrowStatusEnum,
+    EscrowMilestoneItem,
+    FirstMileSplitRecipient,
     ResponseMetaDisclaimer
 )
 from app.modules.payment_manager import PaymentManager, AGENT_PAYMENT_VAULTS, DEPOSIT_WALLETS
@@ -26,6 +32,8 @@ class AgentEscrowManager:
     - Funds (USDC) are locked in multi-chain payment vaults until verifiable compliance.
     - Automated release on EU Single Window customs green lane clearance (EU-SWEC-CLEARED-*).
     - Deterministic algorithmic arbitration using Copernicus satellite telemetry if disputes occur.
+    - 3-Stage Milestone Escrow: Pre-shipment Satellite (30%) -> DDS Issuance (40%) -> Customs Green Lane (30%).
+    - Multi-party First-Mile Split: Direct payouts to smallholder cooperatives and mills.
     """
     _escrows: Dict[str, Dict[str, Any]] = {}
 
@@ -70,6 +78,11 @@ class AgentEscrowManager:
             "customs_declaration_code": None,
             "arbitration_verdict": None,
             "hmac_release_signature": None,
+            "current_milestone": kwargs.get("current_milestone", 0),
+            "milestones": kwargs.get("milestones") or [],
+            "split_recipients": kwargs.get("split_recipients") or [],
+            "released_amount_usdc": kwargs.get("released_amount_usdc", 0.0),
+            "remaining_locked_usdc": kwargs.get("remaining_locked_usdc", payload.amount_usdc),
             "created_at_utc": now.isoformat(),
             "expires_at_utc": expires_at.isoformat(),
             "plots": payload.plots or []
@@ -119,23 +132,121 @@ class AgentEscrowManager:
         except Exception:
             pass
 
-        return EscrowAgreementResponse(
-            escrow_id=escrow_id,
-            status=EscrowStatusEnum.AWAITING_DEPOSIT,
-            amount_usdc=payload.amount_usdc,
-            chain=chain_name,
-            buyer_agent_id=payload.buyer_agent_id,
-            buyer_wallet=payload.buyer_wallet,
-            seller_agent_id=payload.seller_agent_id,
-            seller_wallet=payload.seller_wallet,
-            hs_code=payload.hs_code,
-            commodity_description=payload.commodity_description,
-            declared_net_mass_kg=payload.declared_net_mass_kg,
-            vault_deposit_address=vault_wallet,
-            created_at_utc=now.isoformat(),
-            expires_at_utc=expires_at.isoformat(),
-            message=f"Smart Escrow agreement created. Buyer Agent must deposit {payload.amount_usdc:.2f} USDC to vault '{vault_wallet}' on {chain_name}."
+        return cls._dict_to_response(
+            record_data,
+            f"Smart Escrow agreement created. Buyer Agent must deposit {payload.amount_usdc:.2f} USDC to vault '{vault_wallet}' on {chain_name}."
         )
+
+    @classmethod
+    def _parse_plots(cls, plots_to_check: List[Any]):
+        from app.schemas import ProductionPlotInput
+        from datetime import date
+        parsed_plots = []
+        for i, p in enumerate(plots_to_check):
+            if isinstance(p, ProductionPlotInput):
+                parsed_plots.append(p)
+                continue
+            geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
+            if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
+                geom = {"type": "Point", "coordinates": geom}
+            elif isinstance(geom, list):
+                geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
+
+            parsed_plots.append(ProductionPlotInput(
+                plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
+                country_code=p.get("country_code", "XX"),
+                area_hectares=float(p.get("area_hectares", 2.0)),
+                geometry=geom,
+                production_date=date.today()
+            ))
+        return parsed_plots
+
+    @classmethod
+    def create_milestone_escrow(cls, payload: Any = None, db_session=None, **kwargs) -> EscrowAgreementResponse:
+        """
+        Creates a 3-Stage Milestone Conditional Escrow with optional First-Mile split recipients.
+        Stage 1: Pre-shipment Polygon & Satellite Verification (Default 30%)
+        Stage 2: EU TRACES-NT DDS Issuance (Default 40%)
+        Stage 3: EU Customs Green Lane Clearance (Default 30%)
+        """
+        if payload is None and kwargs:
+            payload = kwargs
+        if isinstance(payload, dict):
+            p = dict(payload)
+            if "commodity" in p and "commodity_description" not in p:
+                p["commodity_description"] = p.pop("commodity")
+            if "net_mass_kg" in p and "declared_net_mass_kg" not in p:
+                p["declared_net_mass_kg"] = p.pop("net_mass_kg")
+            payload = MilestoneEscrowCreateRequest(**p)
+
+        weights = getattr(payload, "milestone_weights", None) or [30.0, 40.0, 30.0]
+        if len(weights) != 3 or abs(sum(weights) - 100.0) > 0.01:
+            raise ValueError("milestone_weights must contain exactly 3 percentages summing to 100.0 (e.g. [30.0, 40.0, 30.0])")
+
+        split_recipients_data = []
+        raw_splits = getattr(payload, "split_recipients", None)
+        if raw_splits:
+            total_share = sum(r.share_percentage if hasattr(r, "share_percentage") else r["share_percentage"] for r in raw_splits)
+            if abs(total_share - 100.0) > 0.01:
+                raise ValueError(f"split_recipients share percentages must sum to 100.0%, got {total_share}%")
+            for r in raw_splits:
+                share_pct = r.share_percentage if hasattr(r, "share_percentage") else r["share_percentage"]
+                role = r.recipient_role if hasattr(r, "recipient_role") else r["recipient_role"]
+                wallet = (r.wallet_address if hasattr(r, "wallet_address") else r["wallet_address"]).strip()
+                alloc = round(payload.amount_usdc * (share_pct / 100.0), 2)
+                split_recipients_data.append({
+                    "recipient_role": role,
+                    "wallet_address": wallet,
+                    "share_percentage": share_pct,
+                    "allocated_amount_usdc": alloc
+                })
+
+        milestone_items = [
+            {
+                "milestone_index": 1,
+                "name": "1. Pre-Shipment Geolocation & Satellite Verification",
+                "payout_percentage": weights[0],
+                "amount_usdc": round(payload.amount_usdc * (weights[0] / 100.0), 2),
+                "status": "PENDING",
+                "cleared_at_utc": None,
+                "release_tx_hash": None,
+                "attestation_job_id": None,
+                "eip712_attestation": None
+            },
+            {
+                "milestone_index": 2,
+                "name": "2. EU TRACES-NT DDS Issuance",
+                "payout_percentage": weights[1],
+                "amount_usdc": round(payload.amount_usdc * (weights[1] / 100.0), 2),
+                "status": "PENDING",
+                "cleared_at_utc": None,
+                "release_tx_hash": None,
+                "attestation_job_id": None,
+                "eip712_attestation": None
+            },
+            {
+                "milestone_index": 3,
+                "name": "3. EU Customs Green Lane Clearance",
+                "payout_percentage": weights[2],
+                "amount_usdc": round(payload.amount_usdc * (weights[2] / 100.0), 2),
+                "status": "PENDING",
+                "cleared_at_utc": None,
+                "release_tx_hash": None,
+                "attestation_job_id": None,
+                "eip712_attestation": None
+            }
+        ]
+
+        return cls.create_escrow(
+            payload,
+            db_session=db_session,
+            milestones=milestone_items,
+            split_recipients=split_recipients_data,
+            current_milestone=0,
+            released_amount_usdc=0.0,
+            remaining_locked_usdc=payload.amount_usdc
+        )
+
 
     @classmethod
     def fund_escrow(cls, payload: Any = None, db_session=None, **kwargs) -> EscrowAgreementResponse:
@@ -444,6 +555,273 @@ class AgentEscrowManager:
         return cls._dict_to_response(escrow, msg)
 
     @classmethod
+    def release_milestone(cls, payload: EscrowMilestoneReleaseRequest, db_session=None) -> EscrowMilestoneReleaseResponse:
+        """
+        Releases a specific milestone in a 3-stage conditional escrow:
+        Milestone 1: Pre-shipment satellite deforestation check (releases Milestone 1 USDC)
+        Milestone 2: EU TRACES-NT DDS Issuance (releases Milestone 2 USDC)
+        Milestone 3: EU Customs Green Lane clearance (releases Milestone 3 USDC, marks escrow RELEASED)
+        Also handles First-Mile multi-party split distribution if configured.
+        """
+        escrow = cls._escrows.get(payload.escrow_id)
+        from app.db.session import SessionLocal
+        from app.db.models import EscrowAgreementRecord
+        db = db_session or (SessionLocal() if SessionLocal else None)
+
+        if not escrow and db:
+            try:
+                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
+                if db_rec:
+                    escrow = cls._model_to_dict(db_rec)
+                    cls._escrows[payload.escrow_id] = escrow
+            except Exception:
+                pass
+
+        if not escrow:
+            if db and not db_session:
+                db.close()
+            raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
+
+        if escrow["status"] not in (EscrowStatusEnum.FUNDED_LOCKED, EscrowStatusEnum.PARTIALLY_RELEASED):
+            if db and not db_session:
+                db.close()
+            raise ValueError(f"Cannot release milestone in state '{escrow['status']}': must be in FUNDED_LOCKED or PARTIALLY_RELEASED status.")
+
+        milestones = escrow.get("milestones")
+        if not milestones:
+            # Auto-initialize default 3 milestones
+            w = [30.0, 40.0, 30.0]
+            milestones = [
+                {"milestone_index": 1, "name": "1. Pre-Shipment Geolocation & Satellite Verification", "payout_percentage": w[0], "amount_usdc": round(escrow["amount_usdc"] * 0.3, 2), "status": "PENDING", "cleared_at_utc": None, "release_tx_hash": None, "attestation_job_id": None, "eip712_attestation": None},
+                {"milestone_index": 2, "name": "2. EU TRACES-NT DDS Issuance", "payout_percentage": w[1], "amount_usdc": round(escrow["amount_usdc"] * 0.4, 2), "status": "PENDING", "cleared_at_utc": None, "release_tx_hash": None, "attestation_job_id": None, "eip712_attestation": None},
+                {"milestone_index": 3, "name": "3. EU Customs Green Lane Clearance", "payout_percentage": w[2], "amount_usdc": round(escrow["amount_usdc"] * 0.3, 2), "status": "PENDING", "cleared_at_utc": None, "release_tx_hash": None, "attestation_job_id": None, "eip712_attestation": None}
+            ]
+            escrow["milestones"] = milestones
+
+        m_idx = payload.milestone_index
+        if m_idx < 1 or m_idx > len(milestones):
+            raise ValueError(f"Invalid milestone_index {m_idx}. Must be between 1 and {len(milestones)}.")
+
+        target_m = milestones[m_idx - 1]
+        if target_m["status"] in ("CLEARED", "RELEASED"):
+            return EscrowMilestoneReleaseResponse(
+                escrow_id=payload.escrow_id,
+                milestone_index=m_idx,
+                milestone_name=target_m["name"],
+                status=target_m["status"],
+                released_amount_usdc=target_m["amount_usdc"],
+                cumulative_released_usdc=escrow.get("released_amount_usdc", target_m["amount_usdc"]),
+                remaining_locked_usdc=escrow.get("remaining_locked_usdc", 0.0),
+                split_allocations=None,
+                release_tx_hash=target_m.get("release_tx_hash") or "0xALREADY_RELEASED",
+                eip712_attestation=target_m.get("eip712_attestation"),
+                message=f"Milestone #{m_idx} ({target_m['name']}) has already been released."
+            )
+
+        # Milestone 1: Pre-shipment Satellite Check
+        if m_idx == 1:
+            plots_to_check = payload.plots or escrow.get("plots", [])
+            if not plots_to_check:
+                raise ValueError("Milestone 1 requires production plot coordinates to verify zero-deforestation via satellite.")
+            parsed_plots = cls._parse_plots(plots_to_check)
+            from app.modules.traceability_collector import TraceabilityCollector
+            spatial_valid, spatial_results, _ = TraceabilityCollector.collect_and_validate(parsed_plots)
+            deforest_free, sat_results, _ = DeforestationSimulator.analyze_all_plots(parsed_plots, spatial_results)
+            if not deforest_free:
+                target_m["status"] = "BLOCKED"
+                escrow["status"] = EscrowStatusEnum.DISPUTED
+                escrow["arbitration_verdict"] = "Milestone 1 FAILED: Post-2020 deforestation detected by Sentinel radar."
+                raise ValueError("Milestone 1 compliance check failed: Deforestation detected on supply chain plot. Escrow transitioned to DISPUTED.")
+            target_m["status"] = "RELEASED"
+
+        # Milestone 2: DDS Reference Issuance Check
+        elif m_idx == 2:
+            dds_ref = payload.dds_reference_id or escrow.get("dds_reference_id") or f"DDS-EUDR-2026-{uuid.uuid4().hex[:8].upper()}"
+            escrow["dds_reference_id"] = dds_ref
+            target_m["status"] = "RELEASED"
+
+        # Milestone 3: Customs Green Lane Clearance
+        elif m_idx == 3:
+            customs_code = payload.customs_declaration_code or escrow.get("customs_declaration_code") or f"EU-SWEC-CLEARED-{uuid.uuid4().hex[:6].upper()}"
+            escrow["customs_declaration_code"] = customs_code
+            target_m["status"] = "RELEASED"
+
+        now_utc = datetime.now(timezone.utc)
+        target_m["cleared_at_utc"] = now_utc.isoformat()
+        rel_tx = f"0x{uuid.uuid4().hex}{uuid.uuid4().hex[:32]}"
+        target_m["release_tx_hash"] = rel_tx
+
+        # Issue on-chain EIP-712 proof for AgentEscrow.sol
+        m_job_id = int(hashlib.md5(f"{escrow['escrow_id']}-M{m_idx}".encode()).hexdigest(), 16) % 1000000 + 1000
+        target_m["attestation_job_id"] = m_job_id
+        deliverable_hash = "0x" + hashlib.sha256(f"{escrow['escrow_id']}|M{m_idx}|{target_m['amount_usdc']}".encode()).hexdigest()
+        eip712_proof = web3_escrow_adapter.sign_attestation(
+            job_id=m_job_id,
+            deliverable_hash=deliverable_hash,
+            risk_score=5,
+            verdict="PASSED"
+        )
+        target_m["eip712_attestation"] = eip712_proof
+
+        # Update cumulative amounts
+        rel_amount = target_m["amount_usdc"]
+        cumulative_rel = round(escrow.get("released_amount_usdc", 0.0) + rel_amount, 2)
+        escrow["released_amount_usdc"] = cumulative_rel
+        remaining = max(0.0, round(escrow["amount_usdc"] - cumulative_rel, 2))
+        escrow["remaining_locked_usdc"] = remaining
+        escrow["current_milestone"] = m_idx
+
+        # First-mile multi-party split distribution
+        split_allocations = []
+        if escrow.get("split_recipients"):
+            for rec in escrow["split_recipients"]:
+                share_pct = rec["share_percentage"] if isinstance(rec, dict) else rec.share_percentage
+                role = rec["recipient_role"] if isinstance(rec, dict) else rec.recipient_role
+                wallet = rec["wallet_address"] if isinstance(rec, dict) else rec.wallet_address
+                m_share = round(rel_amount * (share_pct / 100.0), 2)
+                split_allocations.append({
+                    "recipient_role": role,
+                    "wallet_address": wallet,
+                    "share_percentage": share_pct,
+                    "milestone_released_usdc": m_share,
+                    "transfer_tx_hash": f"0x{uuid.uuid4().hex}{uuid.uuid4().hex[:32]}"
+                })
+
+        # Check if all milestones completed
+        all_done = all(m.get("status") == "RELEASED" for m in milestones)
+        if all_done or m_idx == len(milestones) or remaining == 0.0:
+            escrow["status"] = EscrowStatusEnum.RELEASED
+            escrow["release_tx_hash"] = rel_tx
+            escrow["resolved_at_utc"] = now_utc.isoformat()
+        else:
+            escrow["status"] = EscrowStatusEnum.PARTIALLY_RELEASED
+
+        raw_sig = f"{escrow['escrow_id']}|M{m_idx}|{rel_amount}|{rel_tx}"
+        escrow["hmac_release_signature"] = hmac.new(
+            settings.SECRET_KEY_FOR_SIGNING.encode("utf-8"),
+            raw_sig.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+
+        # Update DB
+        if db:
+            try:
+                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
+                if rec:
+                    rec.status = escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"])
+                    rec.release_tx_hash = rel_tx
+                    rec.resolved_at = now_utc if all_done else None
+                    db.commit()
+            except Exception:
+                pass
+            finally:
+                if not db_session:
+                    db.close()
+
+        msg = (
+            f"Milestone #{m_idx} ({target_m['name']}) unlocked: {rel_amount:.2f} USDC released. "
+            f"Cumulative released: {cumulative_rel:.2f} USDC / Remaining locked: {remaining:.2f} USDC."
+        )
+
+        return EscrowMilestoneReleaseResponse(
+            escrow_id=payload.escrow_id,
+            milestone_index=m_idx,
+            milestone_name=target_m["name"],
+            status=target_m["status"],
+            released_amount_usdc=rel_amount,
+            cumulative_released_usdc=cumulative_rel,
+            remaining_locked_usdc=remaining,
+            split_allocations=split_allocations or None,
+            release_tx_hash=rel_tx,
+            eip712_attestation=eip712_proof,
+            message=msg
+        )
+
+    @classmethod
+    def auto_slash_disputed_escrow(cls, payload: EscrowAutoSlashRequest, db_session=None) -> EscrowAgreementResponse:
+        """
+        Autonomous On-Chain Slashing & Buyer Restitution.
+        Issues an official EIP-712 BLOCKED attestation ready for AgentEscrow.sol slashJob(),
+        confiscates seller stake, and instantly refunds 100% principal back to Buyer wallet.
+        """
+        escrow = cls._escrows.get(payload.escrow_id)
+        from app.db.session import SessionLocal
+        from app.db.models import EscrowAgreementRecord
+        db = db_session or (SessionLocal() if SessionLocal else None)
+
+        if not escrow and db:
+            try:
+                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
+                if db_rec:
+                    escrow = cls._model_to_dict(db_rec)
+                    cls._escrows[payload.escrow_id] = escrow
+            except Exception:
+                pass
+
+        if not escrow:
+            if db and not db_session:
+                db.close()
+            raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
+
+        if escrow["status"] not in (EscrowStatusEnum.DISPUTED, EscrowStatusEnum.FUNDED_LOCKED, EscrowStatusEnum.PARTIALLY_RELEASED):
+            if db and not db_session:
+                db.close()
+            raise ValueError(f"Cannot auto-slash escrow in state '{escrow['status']}': must be in DISPUTED, FUNDED_LOCKED, or PARTIALLY_RELEASED status.")
+
+        now_utc = datetime.now(timezone.utc)
+        slash_job_id = int(hashlib.md5(f"{escrow['escrow_id']}-SLASH".encode()).hexdigest(), 16) % 1000000 + 9000
+        deliverable_hash = "0x" + hashlib.sha256(f"{escrow['escrow_id']}|DEFORESTATION_VIOLATION_SLASH".encode()).hexdigest()
+
+        # Sign on-chain EIP-712 BLOCKED attestation (compatible with AgentEscrow.sol slashJob)
+        slashing_attestation = web3_escrow_adapter.sign_attestation(
+            job_id=slash_job_id,
+            deliverable_hash=deliverable_hash,
+            risk_score=95,
+            verdict="BLOCKED",
+            validity_duration_seconds=86400 * 7
+        )
+
+        refund_amount = escrow.get("remaining_locked_usdc", escrow["amount_usdc"])
+        if refund_amount <= 0.0:
+            refund_amount = escrow["amount_usdc"]
+
+        escrow["status"] = EscrowStatusEnum.REFUNDED
+        escrow["release_tx_hash"] = f"0x{uuid.uuid4().hex}{uuid.uuid4().hex[:32]}"
+        verdict = (
+            f"AUTONOMOUS ON-CHAIN SLASHING EXECUTED: EIP-712 BLOCKED attestation issued (jobId={slash_job_id}, riskScore=95). "
+            f"Cause: {payload.reason}. 100% of remaining locked capital (${refund_amount:.2f} USDC) refunded to Buyer Wallet '{escrow['buyer_wallet']}'. "
+            f"Seller collateral forfeited pursuant to AgentEscrow.sol slashing protocol."
+        )
+        escrow["arbitration_verdict"] = verdict
+        escrow["resolved_at_utc"] = now_utc.isoformat()
+        escrow["onchain_attestation"] = slashing_attestation
+
+        raw_sig = f"{escrow['escrow_id']}|SLASHED|{refund_amount}|{verdict}"
+        escrow["hmac_release_signature"] = hmac.new(
+            settings.SECRET_KEY_FOR_SIGNING.encode("utf-8"),
+            raw_sig.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+
+        if db:
+            try:
+                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
+                if rec:
+                    rec.status = "REFUNDED"
+                    rec.release_tx_hash = escrow["release_tx_hash"]
+                    rec.arbitration_verdict = verdict
+                    rec.hmac_release_signature = escrow["hmac_release_signature"]
+                    rec.resolved_at = now_utc
+                    db.commit()
+            except Exception:
+                pass
+            finally:
+                if not db_session:
+                    db.close()
+
+        return cls._dict_to_response(escrow, f"Autonomous slashing executed successfully. {refund_amount:.2f} USDC refunded to Buyer.")
+
+    @classmethod
     def get_escrow(cls, escrow_id: str, db_session=None) -> EscrowAgreementResponse:
         escrow = cls._escrows.get(escrow_id)
         from app.db.session import SessionLocal
@@ -567,6 +945,11 @@ class AgentEscrowManager:
             "customs_declaration_code": rec.customs_declaration_code,
             "arbitration_verdict": rec.arbitration_verdict,
             "hmac_release_signature": rec.hmac_release_signature,
+            "current_milestone": 0,
+            "milestones": [],
+            "split_recipients": [],
+            "released_amount_usdc": 0.0,
+            "remaining_locked_usdc": rec.amount_usdc,
             "created_at_utc": rec.created_at.isoformat() if rec.created_at else datetime.now(timezone.utc).isoformat(),
             "expires_at_utc": rec.expires_at.isoformat() if rec.expires_at else None,
             "plots": []
@@ -597,6 +980,11 @@ class AgentEscrowManager:
             customs_declaration_code=d.get("customs_declaration_code"),
             arbitration_verdict=d.get("arbitration_verdict"),
             hmac_release_signature=d.get("hmac_release_signature"),
+            current_milestone=d.get("current_milestone", 0),
+            milestones=[EscrowMilestoneItem(**m) if isinstance(m, dict) else m for m in d["milestones"]] if d.get("milestones") else None,
+            split_recipients=[FirstMileSplitRecipient(**s) if isinstance(s, dict) else s for s in d["split_recipients"]] if d.get("split_recipients") else None,
+            released_amount_usdc=d.get("released_amount_usdc", 0.0),
+            remaining_locked_usdc=d.get("remaining_locked_usdc", d["amount_usdc"] if status_enum in (EscrowStatusEnum.AWAITING_DEPOSIT, EscrowStatusEnum.FUNDED_LOCKED) else 0.0),
             created_at_utc=d["created_at_utc"],
             expires_at_utc=d.get("expires_at_utc"),
             message=msg,

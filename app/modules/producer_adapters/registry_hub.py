@@ -6,12 +6,13 @@ from app.modules.producer_adapters.base_adapter import (
 from app.modules.producer_adapters.brazil_car_adapter import BrazilCarAdapter
 from app.modules.producer_adapters.ghana_cocoa_adapter import GhanaCocoaAdapter
 from app.modules.producer_adapters.indonesia_timber_palm_adapter import IndonesiaTimberPalmAdapter
+from app.modules.producer_adapters.vietnam_coffee_timber_adapter import VietnamCoffeeTimberAdapter
 
 class ProducerCountryRegistryHub:
     """
     Central router for producer country official registries.
     Auto-detects or routes queries to Brazil CAR, Ghana Cocoa CMS,
-    Indonesia SIPUHH/ISPO, and Malaysia MSPO.
+    Indonesia SIPUHH/ISPO, Malaysia MSPO, and Vietnam MARD/VNTLAS.
     """
 
     def __init__(self):
@@ -21,6 +22,7 @@ class ProducerCountryRegistryHub:
             "CI": GhanaCocoaAdapter(),
             "ID": IndonesiaTimberPalmAdapter(),
             "MY": IndonesiaTimberPalmAdapter(),
+            "VN": VietnamCoffeeTimberAdapter(),
         }
 
     def detect_country_code(self, identifier: str) -> Optional[str]:
@@ -35,6 +37,8 @@ class ProducerCountryRegistryHub:
             return "ID"
         if clean.startswith("MY-") or "MSPO" in clean:
             return "MY"
+        if clean.startswith("VN-") or "VNTLAS" in clean or "LURC" in clean or "COFFEE" in clean:
+            return "VN"
         return None
 
     def verify(self, identifier: str, country_code: Optional[str] = None) -> ProducerRegistryVerificationResult:

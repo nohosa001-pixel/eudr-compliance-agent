@@ -223,6 +223,34 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
 - **Purpose**: Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.
 - **Parameters**: `rfq_id`, `seller_agent_id`, `seller_agent_wallet`, `price_usdc_per_kg`, `declared_plots`, optional `estimated_risk_score`, `compliance_diligence_reference`.
 
+### 31. `eudr_create_milestone_escrow`
+- **Purpose**: Provisions a 3-stage conditional milestone escrow (Stage 1: Satellite Radar 30%, Stage 2: TRACES-NT DDS 40%, Stage 3: Port Customs Clearance 30%) with optional First-Mile multi-party split allocations.
+- **Parameters**: `buyer_agent_id`, `buyer_wallet`, `seller_agent_id`, `seller_wallet`, `total_amount_usdc`, `hs_code`, `commodity_description`, optional `first_mile_beneficiaries`.
+
+### 32. `eudr_release_escrow_milestone`
+- **Purpose**: Unlocks a specific milestone stage in a 3-stage escrow, issuing EIP-712 cryptographic Oracle proof and releasing pro-rata USDC settlement.
+- **Parameters**: `escrow_id`, `milestone_index` (1, 2, or 3), optional `plots`, `dds_reference_id`, `customs_declaration_code`.
+
+### 33. `eudr_auto_slash_disputed_escrow`
+- **Purpose**: Autonomous on-chain economic slashing for disputed trade vaults with verified post-2020 deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer.
+- **Parameters**: `escrow_id`, optional `reason`, `slashing_penalty_pct` (default: 100.0).
+
+### 34. `eudr_verify_producer_registry`
+- **Purpose**: Queries and verifies official land title and cadastral forest registries in primary agricultural origin nations (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO).
+- **Parameters**: `identifier` (required cadastral property ID), optional `country_code` (auto-detected if omitted).
+
+### 35. `eudr_score_kfs_checklist`
+- **Purpose**: Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance readiness checklist (100-point scale).
+- **Parameters**: `payload` (EUDR supply chain cargo object), optional `producer_registry_id`.
+
+### 36. `eudr_generate_export_bundle`
+- **Purpose**: Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier.
+- **Parameters**: `payload` (EUDR supply chain object), optional `producer_registry_id`, `producer_country_code`.
+
+### 37. `eudr_underwrite_trade_credit`
+- **Purpose**: Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring.
+- **Parameters**: `payload` (cargo declaration), optional `producer_registry_id`, `staked_escrow_usdc`, `applicant_agent_id`.
+
 ---
 
 ## 4. Autonomous Agent Economy & Enterprise Infrastructure

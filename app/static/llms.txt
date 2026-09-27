@@ -11,7 +11,7 @@ AI agents can invoke EUDR capabilities through:
 2. **Unified Agent Tools API**: Inspect tool schemas at `GET /api/v1/agent/tools` and execute tools via `POST /api/v1/agent/tools/execute`.
 3. **RESTful OpenAPI**: Full interactive documentation at `/docs` and raw specification at `/openapi.json`.
 
-## Core Agent Tools (30 Autonomous Tools)
+## Core Agent Tools (37 Autonomous Tools)
 - `eudr_verify_plot`: Validates WGS84 coordinates and polygons. Auto-heals inverted coordinates and enforces the Art. 9 polygon rule (plots >= 4.0 ha require polygons).
 - `eudr_check_deforestation`: Runs Sentinel-1 SAR and Sentinel-2 optical radar verification against the 2020-12-31 regulatory cut-off baseline.
 - `eudr_render_satellite_map`: Generates multi-spectral Sentinel-2 visualization metadata, SVG radar preview, and canopy health NDVI score.
@@ -33,14 +33,21 @@ AI agents can invoke EUDR capabilities through:
 - `eudr_issue_statutory_exemption`: Evaluates statutory exemption under the EUDR Delegated Act (effective Sept 2026) for excluded commodities such as bovine leather (HS 4101, 4104, 4107) and generates an official EU SWE-C Green Lane Customs Exemption Certificate.
 - `eudr_slice_parcel`: Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings, satisfying EUDR Article 9 smallholder rules.
 - `eudr_create_agent_escrow`: Creates an immutable B2B trade Smart Escrow agreement locking USDC in payment vaults until verifiable EUDR customs compliance is proven.
+- `eudr_create_milestone_escrow`: Creates a 3-stage conditional milestone escrow (Satellite 30%, DDS 40%, Customs 30%) with optional First-Mile multi-party split allocations for smallholder co-ops and mills.
 - `eudr_fund_agent_escrow`: Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.
 - `eudr_release_agent_escrow`: Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or compliant DDS reference.
+- `eudr_release_escrow_milestone`: Releases a specific milestone (1: Satellite, 2: DDS, 3: Customs) in a 3-stage escrow, issuing EIP-712 attestation and executing First-Mile split payouts.
 - `eudr_arbitrate_agent_escrow`: Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry (Sentinel-1/2). 100% refund to Buyer Agent if deforestation is confirmed; released to Seller Agent if deforestation-free.
+- `eudr_auto_slash_disputed_escrow`: Autonomous on-chain slashing for disputed escrows with verified deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer.
 - `eudr_issue_eip712_attestation`: Issues an official EIP-712 cryptographic Oracle Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.
 - `eudr_verify_eip712_attestation`: Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).
 - `eudr_inspect_payload_security`: Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications.
 - `eudr_publish_compliance_rfq`: Broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network.
 - `eudr_submit_compliance_bid`: Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.
+- `eudr_verify_producer_registry`: Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO).
+- `eudr_score_kfs_checklist`: Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance checklist (100-point scale).
+- `eudr_generate_export_bundle`: Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier.
+- `eudr_underwrite_trade_credit`: Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring.
 - `eudr_submit_agent_feedback`: Allows interacting AI agents to submit evolution proposals, feature requests, edge-case reports, or dataset suggestions.
 
 ## Autonomous Agent Economy & Enterprise Infrastructure

@@ -58,6 +58,8 @@ from app.schemas import (
     KFSChecklistScoreResponse,
     OneClickExportBundleRequest,
     OneClickExportBundleResponse,
+    TradeCreditUnderwritingRequest,
+    TradeCreditUnderwritingResponse,
     get_default_meta_dict,
     LEGAL_DISCLAIMER_TEXT,
     LEGAL_WARRANTY_TEXT,
@@ -69,8 +71,12 @@ from app.schemas import (
     ParcelSlicingRequest,
     ParcelSlicingResponse,
     EscrowCreateRequest,
+    MilestoneEscrowCreateRequest,
     EscrowFundRequest,
     EscrowReleaseByComplianceRequest,
+    EscrowMilestoneReleaseRequest,
+    EscrowMilestoneReleaseResponse,
+    EscrowAutoSlashRequest,
     EscrowDisputeArbitrateRequest,
     EscrowAgreementResponse,
     OnchainAttestationIssueRequest,
@@ -92,6 +98,7 @@ from app.modules.dds_prebuilder import DDSPrebuilder
 from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
 from app.modules.kfs_checklist_scorer import KoreaForestServiceChecklistScorer
 from app.modules.export_bundle_orchestrator import OneClickExportBundleOrchestrator
+from app.modules.trade_credit_oracle import TradeCreditUnderwriter
 from app.modules.bulk_file_parser import BulkFileParser
 from app.modules.traces_b2g_client import TracesNTB2GClient, TRACESB2GSubmissionResponse
 from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
@@ -1794,6 +1801,7 @@ async def list_agent_feedbacks(
 
 _producer_registry_hub = ProducerCountryRegistryHub()
 _export_bundle_orchestrator = OneClickExportBundleOrchestrator()
+_trade_credit_underwriter = TradeCreditUnderwriter()
 _export_bundles_cache: dict = {}
 
 
@@ -1946,6 +1954,45 @@ async def view_export_bundle_html(
 
 
 # -------------------------------------------------------------------------
+# Autonomous Trade Credit & Lending Oracle (The Sheriff of Agent Finance)
+# -------------------------------------------------------------------------
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/finance/trade-credit/underwrite",
+    response_model=TradeCreditUnderwritingResponse,
+    tags=["Autonomous Trade Finance & Lending"],
+    summary="Underwrite instant EUDR trade loan with security-gate-x402 credit scoring (Polygon PoS USDC / Base)"
+)
+async def underwrite_trade_credit(
+    req: TradeCreditUnderwritingRequest
+):
+    """
+    Evaluates real-time EUDR satellite signals and legal land registries
+    to calculate creditworthiness and underwrite autonomous trade loans in collaboration
+    with security-gate-x402 (The Sheriff of Agent Finance).
+    """
+    res = _trade_credit_underwriter.evaluate_credit_and_underwrite_loan(
+        payload=req.payload,
+        producer_registry_id=req.producer_registry_id,
+        staked_escrow_usdc=req.staked_escrow_usdc,
+        applicant_agent_id=req.applicant_agent_id
+    )
+    return TradeCreditUnderwritingResponse(
+        assessment_id=res.assessment_id,
+        timestamp_utc=res.timestamp_utc,
+        operator_name=res.operator_name,
+        operator_eori=res.operator_eori,
+        commodity_code=res.commodity_code,
+        commodity_description=res.commodity_description,
+        security_gate_clearance=res.security_gate_clearance,
+        credit_score=res.credit_score.model_dump(),
+        loan_offer=res.loan_offer.model_dump(),
+        underwriting_verdict=res.underwriting_verdict,
+        executive_summary=res.executive_summary
+    )
+
+
+# -------------------------------------------------------------------------
 # Autonomous Agent-to-Agent Smart Escrow Endpoints (Multi-Chain USDC Vaults)
 # -------------------------------------------------------------------------
 
@@ -2057,6 +2104,74 @@ async def get_agent_escrow(
         return AgentEscrowManager.get_escrow(escrow_id, db_session=db)
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/milestone/create",
+    response_model=EscrowAgreementResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Create a 3-Stage Milestone Conditional Escrow with First-Mile split payouts"
+)
+async def create_milestone_agent_escrow(
+    payload: MilestoneEscrowCreateRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Creates a 3-stage milestone conditional escrow agreement:
+    - Milestone 1: Pre-shipment Polygon & Satellite Verification (Default 30%)
+    - Milestone 2: EU TRACES-NT DDS Issuance (Default 40%)
+    - Milestone 3: EU Customs Green Lane Clearance (Default 30%)
+    Supports First-Mile multi-party split payouts to smallholder cooperatives and mills.
+    """
+    try:
+        return AgentEscrowManager.create_milestone_escrow(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/milestone/release",
+    response_model=EscrowMilestoneReleaseResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Release a specific milestone in a 3-stage conditional escrow"
+)
+async def release_milestone_agent_escrow(
+    payload: EscrowMilestoneReleaseRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Releases a specific milestone (1, 2, or 3) upon compliance verification:
+    - Milestone 1: Satellite zero-deforestation check
+    - Milestone 2: Compliant DDS Reference check
+    - Milestone 3: EU Customs Green Lane code check
+    Issues EIP-712 cryptographic attestation and executes First-Mile split transfers.
+    """
+    try:
+        return AgentEscrowManager.release_milestone(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/payment/escrow/auto-slash",
+    response_model=EscrowAgreementResponse,
+    tags=["Agent Escrow & Web3 Settlement"],
+    summary="Execute autonomous on-chain slashing & buyer refund for failed/disputed escrows"
+)
+async def auto_slash_disputed_escrow(
+    payload: EscrowAutoSlashRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Executes autonomous on-chain slashing for escrows with verified deforestation violations:
+    Issues EIP-712 BLOCKED attestation (compatible with AgentEscrow.sol slashJob),
+    confiscates seller stake, and instantly refunds 100% of remaining locked capital to Buyer.
+    """
+    try:
+        return AgentEscrowManager.auto_slash_disputed_escrow(payload, db_session=db)
+    except Exception as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
 # -------------------------------------------------------------------------

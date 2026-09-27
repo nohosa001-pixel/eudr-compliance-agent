@@ -132,6 +132,8 @@
 | **7. 제4조(8) 하류 공급망 참조 체이닝 & 전파 감시** | 상류 DDS 참조번호 승계 및 실시간 회수/결함 오염 전파 감시 | DDS 하류 참조 체인 & 무결성 검증서 |
 | **8. 2026 위임규정 법정 면제 증명서 발행기** | 소 가죽(HS 4101/4104/4107) 관세청 표적검사 방어용 그린 레인 증명서 | EU SWE-C 통관용 법정 면제서 |
 | **9. 소농 필지 자동 분할 엔진(Auto-Slicing)** | 제9조 4헥타르 초과 대형 농가/협동조합 필지의 6자리 WGS84 서브 필지 자동 분할 | TRACES 호환 다각형 분할 GeoJSON |
+| **10. 생산국 공공/지적 레지스트리(Land Registries) 실시간 연동** | 브라질 CAR/SICAR·IBAMA, 인도네시아 SIPUHH·ISPO, 베트남 MARD·VNTLAS, 서아프리카 COCOBOD CMS 자동 검증 | 생산국 지적 공인 검증서 & 불법벌채 엠바고 차단서 |
+| **11. 자율 무역 신용 대출 오라클 (Trade Credit Underwriter)** | security-gate-x402 및 온체인 금고 연동, 위성+지적 기반 신용평가(AAA~BBB) 및 Polygon USDC 즉시대출 | 무역 신용평가서 & 온체인 대출 제안서 |
 
 ---
 
@@ -166,6 +168,30 @@
 - **주요 기능**:
   - 인도네시아, 코트디부아르, 브라질 등 소농 협동조합의 4ha 초과 단일 다각형을 TRACES 규격인 4ha 미만 서브 필지로 자동 수직/수평 분할.
   - WGS84 소수점 6자리 좌표 정밀도 보존 및 폐쇄 링(Closed ring) 검증 보장.
+
+### 4.5 생산국 공식 지적·환경 레지스트리 실시간 검증 (Producer Country Public Land Registries Integration)
+- **모듈**: `app/modules/producer_adapters/` (`registry_hub.py`, `brazil_car_adapter.py`, `indonesia_timber_palm_adapter.py`, `vietnam_coffee_timber_adapter.py`, `ghana_cocoa_adapter.py`)
+- **엔드포인트**: `POST /api/v1/compliance/producer-registry/verify`, `POST /api/v1/compliance/export-bundle/generate`
+- **주요 기능**:
+  - **브라질 (BR)**: 연방 환경부 **SICAR(Cadastro Ambiental Rural)** 등록 번호 정규화 검증, **INPE PRODES** 위성 벌채 알림 대조, **IBAMA 불법벌채 엠바고(Embargo)** 압류 토지 실시간 차단.
+  - **인도네시아 (ID) & 말레이시아 (MY)**: 환경산림부(KLHK) **SIPUHH**(목재 합법성), **ISPO/MSPO**(지속가능 팜유 인증) 지적 대조, **PIPPIB 일차 이탄지(Peatland) 모라토리엄** 구역 침범 자동 기각.
+  - **베트남 (VN)**: 농업농촌개발부(MARD) **전국 커피 지적 데이터베이스**, **Sổ Đỏ(토지사용권증명서 - LURC)** 대조, **VNTLAS**(목재 합법성 보장 체계) 적합성 검증, 국립공원/특수용도림(Rừng đặc dụng) 무단 침범 자동 차단.
+  - **서아프리카 (GH/CI)**: 가나 **COCOBOD CMS**, 코트디부아르 **Conseil du Café-Cacao (CCC)** 공식 카카오 농가 GPS 등록부 연계.
+
+### 4.6 자율 무역 금융 및 온체인 신용 대출 오라클 (Autonomous Trade Credit & Lending Oracle)
+- **모듈**: `app/modules/trade_credit_oracle.py`
+- **협력 에이전트**: `security-gate-x402` (The Sheriff of Agent Finance), `AgentEscrow.sol` (Polygon/Base)
+- **엔드포인트**: `POST /api/v1/finance/trade-credit/underwrite`
+- **주요 기능**:
+  - **다차원 신용평가 (0~1000점)**: Sentinel-2 위성 무벌채 실측(400점) + 생산국 공공지적 검증(300점) + EORI/추적성(200점) + 에스크로 스테이킹(100점).
+  - **등급별 스마트 대출 조건**:
+    - **AAA (900~1000점)**: LTV 85%, 연이율 3.2% 그린 무역 최저금리 즉시대출
+    - **AA (800~899점)**: LTV 75%, 연이율 4.5%
+    - **A (700~799점)**: LTV 60%, 연이율 6.0%
+    - **BBB (600~699점)**: LTV 40%, 연이율 8.5%
+    - **REJECT (<600점 또는 벌채/엠바고/조작 감지)**: 대출 즉시 거절
+  - **security-gate-x402 온체인 슬래싱 연동**: 허위 수확량 날조, 탈옥 프롬프트 주입 또는 국립공원 침범 적발 시 `AgentEscrow.sol`에 예치된 스테이킹 보증금 강제 청산(Slashing) 집행.
+  - **Polygon PoS USDC 즉시 정산**: 대출금 승인 시 MetaMask 지갑 레일(`Chain ID: 137`)을 통해 자율 에이전트 간 즉시 자금 공급.
 
 ---
 

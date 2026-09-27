@@ -806,6 +806,27 @@ class OneClickExportBundleResponse(BaseModel):
     dossier_html_url: Optional[str] = None
 
 
+class TradeCreditUnderwritingRequest(BaseModel):
+    payload: EUDRSupplyChainPayload
+    producer_registry_id: Optional[str] = None
+    staked_escrow_usdc: float = 0.0
+    applicant_agent_id: Optional[str] = None
+
+
+class TradeCreditUnderwritingResponse(BaseModel):
+    assessment_id: str
+    timestamp_utc: str
+    operator_name: str
+    operator_eori: str
+    commodity_code: str
+    commodity_description: str
+    security_gate_clearance: Dict[str, Any]
+    credit_score: Dict[str, Any]
+    loan_offer: Dict[str, Any]
+    underwriting_verdict: str
+    executive_summary: str
+
+
 # --- Advanced EUDR 2026 Elevation Schemas ---
 
 class CountryBenchmarkingTierEnum(str, Enum):
@@ -905,9 +926,29 @@ class ParcelSlicingResponse(BaseModel):
 class EscrowStatusEnum(str, Enum):
     AWAITING_DEPOSIT = "AWAITING_DEPOSIT"
     FUNDED_LOCKED = "FUNDED_LOCKED"
+    PARTIALLY_RELEASED = "PARTIALLY_RELEASED"
     RELEASED = "RELEASED"
     DISPUTED = "DISPUTED"
     REFUNDED = "REFUNDED"
+
+
+class FirstMileSplitRecipient(BaseModel):
+    recipient_role: str = Field(..., description="Role in supply chain: SMALLHOLDER_COOP, LOCAL_AGGREGATOR, MILL_OPERATOR")
+    wallet_address: str = Field(..., description="EVM wallet address of recipient")
+    share_percentage: float = Field(..., gt=0, le=100, description="Percentage of payout share (0-100)")
+    allocated_amount_usdc: Optional[float] = Field(None, description="Calculated USDC amount")
+
+
+class EscrowMilestoneItem(BaseModel):
+    milestone_index: int = Field(..., ge=1, le=3, description="1: Pre-Shipment Satellite, 2: DDS Registration, 3: Customs Green Lane")
+    name: str = Field(..., description="Milestone title")
+    payout_percentage: float = Field(..., gt=0, le=100, description="Percentage of total escrow amount unlocked at this stage")
+    amount_usdc: float = Field(..., gt=0, description="USDC amount for this milestone")
+    status: str = Field(default="PENDING", description="PENDING, CLEARED, RELEASED, or BLOCKED")
+    cleared_at_utc: Optional[str] = None
+    release_tx_hash: Optional[str] = None
+    attestation_job_id: Optional[int] = None
+    eip712_attestation: Optional[Dict[str, Any]] = None
 
 
 class EscrowCreateRequest(BaseModel):
@@ -924,6 +965,17 @@ class EscrowCreateRequest(BaseModel):
     expiry_hours: int = Field(default=72, ge=1, le=720, description="Auto-refund expiration window in hours")
 
 
+class MilestoneEscrowCreateRequest(EscrowCreateRequest):
+    milestone_weights: Optional[List[float]] = Field(
+        default=[30.0, 40.0, 30.0],
+        description="Weights for Milestone 1 (Pre-shipment Satellite), Milestone 2 (DDS), Milestone 3 (Customs). Must sum to 100."
+    )
+    split_recipients: Optional[List[FirstMileSplitRecipient]] = Field(
+        default=None,
+        description="First-mile multi-party split distribution (e.g. 75% Smallholder Co-op, 25% Mill). Must sum to 100."
+    )
+
+
 class EscrowFundRequest(BaseModel):
     escrow_id: str = Field(..., description="Unique Escrow ID (e.g. ESC-EUDR-2026-XXXXXXXX)")
     tx_hash: str = Field(..., description="Blockchain transaction hash confirming USDC deposit to vault")
@@ -934,6 +986,35 @@ class EscrowReleaseByComplianceRequest(BaseModel):
     dds_reference_id: Optional[str] = Field(None, description="Official compliant DDS reference ID (e.g. DDS-EUDR-...)")
     customs_declaration_code: Optional[str] = Field(None, description="EU SWE-C customs declaration clearance code (e.g. EU-SWEC-CLEARED-...)")
     plots: Optional[List[Dict[str, Any]]] = Field(None, description="Optional production plots to verify via satellite radar")
+
+
+class EscrowMilestoneReleaseRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID to release milestone for")
+    milestone_index: int = Field(..., ge=1, le=3, description="1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane")
+    plots: Optional[List[Dict[str, Any]]] = Field(None, description="Required for Milestone 1: Production plot coordinates")
+    dds_reference_id: Optional[str] = Field(None, description="Required for Milestone 2: Compliant DDS Reference ID")
+    customs_declaration_code: Optional[str] = Field(None, description="Required for Milestone 3: Customs Green Lane code")
+
+
+class EscrowAutoSlashRequest(BaseModel):
+    escrow_id: str = Field(..., description="Unique Escrow ID in DISPUTED status to automatically slash")
+    reason: Optional[str] = Field("Algorithmic satellite deforestation detection post-2020", description="Cause for slashing")
+    slashing_penalty_pct: float = Field(default=100.0, ge=1.0, le=100.0, description="Percentage of locked escrow to refund to buyer")
+
+
+class EscrowMilestoneReleaseResponse(BaseModel):
+    escrow_id: str
+    milestone_index: int
+    milestone_name: str
+    status: str
+    released_amount_usdc: float
+    cumulative_released_usdc: float
+    remaining_locked_usdc: float
+    split_allocations: Optional[List[Dict[str, Any]]] = None
+    release_tx_hash: str
+    eip712_attestation: Optional[Dict[str, Any]] = None
+    message: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 
 class EscrowDisputeArbitrateRequest(BaseModel):
@@ -962,6 +1043,11 @@ class EscrowAgreementResponse(BaseModel):
     customs_declaration_code: Optional[str] = None
     arbitration_verdict: Optional[str] = None
     hmac_release_signature: Optional[str] = None
+    current_milestone: Optional[int] = None
+    milestones: Optional[List[EscrowMilestoneItem]] = None
+    split_recipients: Optional[List[FirstMileSplitRecipient]] = None
+    released_amount_usdc: Optional[float] = None
+    remaining_locked_usdc: Optional[float] = None
     created_at_utc: str
     expires_at_utc: Optional[str] = None
     message: str

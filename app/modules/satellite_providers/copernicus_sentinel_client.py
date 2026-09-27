@@ -3,6 +3,7 @@ import time
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import date
 import hashlib
+import json
 from app.core.config import settings
 
 
@@ -42,6 +43,8 @@ class CopernicusSentinelClient:
 
     # In-memory OAuth2 token cache: (token_str, expiry_timestamp)
     _token_cache: Dict[str, Tuple[str, float]] = {}
+    # In-memory High-speed Telemetry Cache: (cache_key -> telemetry_result)
+    _telemetry_cache: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
     def get_access_token(
@@ -109,8 +112,8 @@ class CopernicusSentinelClient:
                 "evalscript": cls.SENTINEL_NDVI_EVALSCRIPT
             },
             "calculations": {
-                "ndvi": {"statistics": ["mean", "stDev", "min", "max"]},
-                "ndmi": {"statistics": ["mean", "stDev", "min", "max"]}
+                "ndvi": {},
+                "ndmi": {}
             }
         }
 
@@ -169,13 +172,27 @@ class CopernicusSentinelClient:
     ) -> Dict[str, Any]:
         """
         Executes Copernicus API query or provides deterministic high-fidelity telemetry if credentials are omitted.
+        Features sub-millisecond in-memory caching to eliminate redundant remote calls.
         """
-        payload = cls.build_stat_request_payload(geometry)
         c_id = client_id or settings.COPERNICUS_CLIENT_ID
         c_secret = client_secret or settings.COPERNICUS_CLIENT_SECRET
-        
+        live_active = bool(c_id and c_secret and (settings.USE_LIVE_COPERNICUS_API or client_id is not None))
+
+        payload = cls.build_stat_request_payload(geometry)
+        cache_context = {
+            "payload": payload,
+            "c_id": c_id,
+            "live_active": live_active
+        }
+        cache_key = hashlib.sha256(json.dumps(cache_context, sort_keys=True).encode()).hexdigest()
+
+        if cache_key in cls._telemetry_cache:
+            cached_res = dict(cls._telemetry_cache[cache_key])
+            cached_res["is_cached"] = True
+            return cached_res
+
         # If API credentials present and live mode is active
-        if c_id and c_secret and (settings.USE_LIVE_COPERNICUS_API or client_id is not None):
+        if live_active:
             token = cls.get_access_token(c_id, c_secret)
             if token:
                 try:
@@ -187,7 +204,7 @@ class CopernicusSentinelClient:
                         )
                         if stat_resp.status_code == 200:
                             parsed = cls.parse_statistics_response(stat_resp.json())
-                            return {
+                            live_result = {
                                 "provider": "Copernicus CDSE Live (Sentinel-2 L2A)",
                                 "evalscript_hash": hashlib.sha256(cls.SENTINEL_NDVI_EVALSCRIPT.encode()).hexdigest()[:12],
                                 "ndvi_time_series": parsed["ndvi_time_series"],
@@ -196,6 +213,8 @@ class CopernicusSentinelClient:
                                 "request_spec": payload,
                                 "is_live_data": True
                             }
+                            cls._telemetry_cache[cache_key] = live_result
+                            return live_result
                 except Exception:
                     pass  # Graceful fallback to deterministic engine on network error
 
@@ -247,4 +266,11 @@ class CopernicusSentinelClient:
             "resolution_meters": 10,
             "status": "LIVE_AUTHENTICATED" if token_active else ("CREDENTIALS_SET" if has_credentials else "DETERMINISTIC_SIMULATION_READY")
         }
+
+    @classmethod
+    def clear_cache(cls):
+        """Clears both access token and telemetry cache."""
+        cls._telemetry_cache.clear()
+        cls._token_cache.clear()
+
 

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Universal Escrow Client for EUDRAgent & Security Gate x402 Interoperability.
 =============================================================================
 Enables EUDRAgent to trigger physical-truth-conditioned on-chain escrow disbursements
@@ -79,6 +79,46 @@ class UniversalEscrowClient:
             resp = client.post(url, json=payload)
             resp.raise_for_status()
             return resp.json()
+
+    def request_solana_eudr_truth_attestation(
+        self,
+        job_id: str,
+        commodity: str,
+        country_code: str,
+        polygon_coordinates: List[Any],
+        dds_reference_id: str,
+        deforestation_detected: bool,
+        legal_harvest_verified: bool,
+        risk_tier: str = "LOW"
+    ) -> Dict[str, Any]:
+        """Obtains Ed25519 EUDR Truth Attestation for Solana Mainnet."""
+        from app.modules.solana_escrow_adapter import solana_escrow_adapter
+        return solana_escrow_adapter.sign_eudr_truth_attestation(
+            job_id=job_id,
+            commodity=commodity,
+            country_code=country_code,
+            polygon_coordinates=polygon_coordinates,
+            dds_reference_id=dds_reference_id,
+            deforestation_detected=deforestation_detected,
+            legal_harvest_verified=legal_harvest_verified,
+            risk_tier=risk_tier
+        )
+
+    def settle_solana_eudr_direct_split(
+        self,
+        job_id: str,
+        buyer_wallet: str,
+        recipients: List[Dict[str, Any]],
+        attestation: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Executes instant SPL-USDC Direct Split on Solana Mainnet."""
+        from app.modules.solana_escrow_adapter import solana_escrow_adapter
+        return solana_escrow_adapter.execute_solana_direct_split(
+            job_id=job_id,
+            buyer_wallet=buyer_wallet,
+            recipients=recipients,
+            attestation=attestation
+        )
 
 
 universal_escrow_client = UniversalEscrowClient()

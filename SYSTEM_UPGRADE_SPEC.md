@@ -22,9 +22,9 @@ graph TD
         SubVault["🔑 Ephemeral Sub-Accounts<br/>(일회용 세션 서브 금고: $1~$5 캡)"]
     end
 
-    subgraph On-Chain Settlement Core ["4. 온체인 범용 자본 OS (Polygon / Base / Arbitrum)"]
-        Core["🏛️ UniversalEscrowCore.sol"]
-        DirectSplit["💸 Direct Split Engine<br/>(말단 소농·광산 노동자 1초 직불)"]
+    subgraph On-Chain Settlement Core ["4. 온체인 범용 자본 OS (Polygon / Base / Arbitrum / Solana Mainnet)"]
+        Core["🏛️ UniversalEscrowCore.sol / Solana Escrow PDA"]
+        DirectSplit["💸 Direct Split Engine<br/>(말단 소농·광산 노동자 0.4초 초고속 직불)"]
         RWA["📈 Sovereign Yield Vault<br/>(해운·통관 중 미국 단기 국채 RWA 환류)"]
     end
 
@@ -33,7 +33,7 @@ graph TD
     EUDR --> Gate
     Minerals --> Gate
     Gate --> SubVault
-    Gate -->|EIP-712 Dual Attestation| Core
+    Gate -->|EIP-712 & Ed25519 Attestation| Core
     Core --> DirectSplit
     Core --> RWA
 ```

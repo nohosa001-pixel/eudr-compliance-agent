@@ -2548,3 +2548,95 @@ async def settle_eudr_universal_escrow(req: EudrUniversalSettleRequest):
         "attestation": attestation,
         "settlement": settlement
     }
+
+
+# -------------------------------------------------------------------
+# Solana Mainnet-Beta Escrow Rail & Ed25519 Oracle Endpoints
+# -------------------------------------------------------------------
+from app.modules.solana_escrow_adapter import solana_escrow_adapter
+
+class SolanaEudrAttestRequest(BaseModel):
+    job_id: str
+    commodity: str
+    country_code: str
+    polygon_coordinates: List[Any]
+    dds_reference_id: str
+    deforestation_detected: bool = False
+    legal_harvest_verified: bool = True
+    risk_tier: str = "LOW"
+
+class SolanaEudrSettleRequest(BaseModel):
+    job_id: str
+    buyer_wallet: str
+    recipients: List[Dict[str, Any]]
+    attestation: Dict[str, Any]
+
+class SolanaPayLinkRequest(BaseModel):
+    recipient_pubkey: str
+    amount_usdc: float
+    reference_job_id: str
+    memo: str = "EUDR Compliance Settlement"
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/escrow/solana/attest",
+    tags=["Solana Mainnet Escrow Rail"],
+    summary="Generate Ed25519 EUDR Truth Attestation for Solana Programs"
+)
+async def attest_solana_eudr_truth(req: SolanaEudrAttestRequest):
+    """
+    Signs deterministic EUDR physical truth using Ed25519 for Solana Mainnet Programs.
+    """
+    return solana_escrow_adapter.sign_eudr_truth_attestation(
+        job_id=req.job_id,
+        commodity=req.commodity,
+        country_code=req.country_code,
+        polygon_coordinates=req.polygon_coordinates,
+        dds_reference_id=req.dds_reference_id,
+        deforestation_detected=req.deforestation_detected,
+        legal_harvest_verified=req.legal_harvest_verified,
+        risk_tier=req.risk_tier
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/escrow/solana/settle-eudr",
+    tags=["Solana Mainnet Escrow Rail"],
+    summary="Execute SPL-USDC Direct Split on Solana Mainnet"
+)
+async def settle_solana_eudr_escrow(req: SolanaEudrSettleRequest):
+    """
+    Executes instant SPL-USDC Direct Split payout to smallholders and cooperatives on Solana.
+    """
+    return solana_escrow_adapter.execute_solana_direct_split(
+        job_id=req.job_id,
+        buyer_wallet=req.buyer_wallet,
+        recipients=req.recipients,
+        attestation=req.attestation
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/escrow/solana/pay-url",
+    tags=["Solana Mainnet Escrow Rail"],
+    summary="Generate Solana Pay link and QR payload for M2M agent micro-settlement"
+)
+async def generate_solana_pay_link(req: SolanaPayLinkRequest):
+    """
+    Constructs standard Solana Pay URI and QR payload for M2M machine agent settlement.
+    """
+    return solana_escrow_adapter.generate_solana_pay_link(
+        recipient_pubkey=req.recipient_pubkey,
+        amount_usdc=req.amount_usdc,
+        reference_job_id=req.reference_job_id,
+        memo=req.memo
+    )
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/escrow/solana/cluster-status",
+    tags=["Solana Mainnet Escrow Rail"],
+    summary="Query Solana Mainnet-Beta cluster health, slot, and SPL-USDC configuration"
+)
+async def get_solana_cluster_status():
+    """
+    Returns Solana Mainnet cluster status, latest slot, block time, and SPL-USDC contract parameters.
+    """
+    return solana_escrow_adapter.get_solana_cluster_status()
+

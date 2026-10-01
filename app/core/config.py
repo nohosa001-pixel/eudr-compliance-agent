@@ -78,5 +78,13 @@ class Settings(BaseModel):
     ORACLE_SIGNER_PRIVATE_KEY: str = os.getenv("ORACLE_SIGNER_PRIVATE_KEY", "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d")
     ORACLE_MAX_ACCEPTABLE_RISK_SCORE: int = int(os.getenv("ORACLE_MAX_ACCEPTABLE_RISK_SCORE", "25"))
 
+    # Solana Mainnet-Beta & SPL-USDC Escrow Rail
+    SOLANA_RPC_URL: str = os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
+    SOLANA_NETWORK: str = os.getenv("SOLANA_NETWORK", "mainnet-beta")
+    SOLANA_USDC_MINT: str = os.getenv("SOLANA_USDC_MINT", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") # Native SPL-USDC
+    SOLANA_TREASURY_WALLET: str = os.getenv("SOLANA_TREASURY_WALLET", "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU")
+    SOLANA_ESCROW_PROGRAM_ID: str = os.getenv("SOLANA_ESCROW_PROGRAM_ID", "EUDRScrw11111111111111111111111111111111111")
+    SOLANA_ORACLE_PRIVATE_KEY: str = os.getenv("SOLANA_ORACLE_PRIVATE_KEY", "")
+
 
 settings = Settings()

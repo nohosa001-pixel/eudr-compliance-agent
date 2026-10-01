@@ -54,7 +54,7 @@ if ([string]::IsNullOrEmpty($solanaMint)) { $solanaMint = "EPjFWdd5AufqSSqeM2qN1
 if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp" }
 if ([string]::IsNullOrEmpty($solanaProgram)) { $solanaProgram = "EUDRScrw11111111111111111111111111111111111" }
 
-$secGateMcp = "https://agent-security-gate-x402-7qxtp3324q-du.a.run.app/api/v1/mcp"
+$secGateMcp = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/mcp"
 $mineralsMcp = "https://minerals-oracle-x402-7qxtp3324q-du.a.run.app/api/v1/mcp"
 $cleanwebMcp = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp"
 $agentEscrowContract = "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"

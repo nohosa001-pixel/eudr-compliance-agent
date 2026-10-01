@@ -487,6 +487,19 @@ async def get_inter_agent_mesh_status():
     from app.modules.inter_agent_mesh import InterAgentMeshCoordinator
     return InterAgentMeshCoordinator.get_mesh_status()
 
+@app.get(f"{settings.API_V1_PREFIX}/eudr/mesh/security-gate/diagnostics", tags=["Inter-Agent Mesh"])
+async def check_security_gate_integration():
+    """
+    Performs live end-to-end diagnostic probes against agent-security-gate-x402:
+    - Subsystem health heartbeat
+    - Sub-5ms cognitive firewall (MCP verify_agent_output)
+    - EVM EIP-712 EUDR truth oracle (Domain 3)
+    - Solana Ed25519 oracle attestation
+    """
+    from app.modules.inter_agent_mesh import InterAgentMeshCoordinator
+    return await InterAgentMeshCoordinator.check_security_gate_diagnostics()
+
+
 @app.get(
     f"{settings.API_V1_PREFIX}/eudr/classify-commodity",
     tags=["EUDR Regulations"],

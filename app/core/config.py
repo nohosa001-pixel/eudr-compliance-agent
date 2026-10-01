@@ -68,6 +68,7 @@ class Settings(BaseModel):
     ARBITRUM_AGENT_PAYMENT_VAULT: str = os.getenv("ARBITRUM_AGENT_PAYMENT_VAULT", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
 
     # Inter-Agent Mesh MCP JSON-RPC Live Cloud Run Endpoints
+    SECURITY_GATE_BASE_URL: str = os.getenv("SECURITY_GATE_BASE_URL", "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app")
     SECURITY_GATE_MCP_URL: str = os.getenv("SECURITY_GATE_MCP_URL", "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/mcp")
     CLEANWEB_MCP_URL: str = os.getenv("CLEANWEB_MCP_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp")
     MINERALS_ORACLE_MCP_URL: str = os.getenv("MINERALS_ORACLE_MCP_URL", "https://minerals-oracle-x402-7qxtp3324q-du.a.run.app/api/v1/mcp")

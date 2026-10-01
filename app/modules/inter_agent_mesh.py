@@ -122,9 +122,175 @@ class InterAgentMeshCoordinator:
             "message": "Input passed Zero-Trust Guardrails. Micro-settlement attested via MetaMask Polygon account."
         }
 
-    # -------------------------------------------------------------------------
-    # 2. x402-cleanweb-agent Integration (Web Cleaning & Document Ingestion)
-    # -------------------------------------------------------------------------
+    @classmethod
+    async def check_security_gate_diagnostics(cls) -> Dict[str, Any]:
+        """
+        Runs live end-to-end diagnostic checks against the connected security-gate-x402 node:
+        1. Health and subsystem heartbeat
+        2. Cognitive firewall (MCP verify_agent_output)
+        3. EVM EIP-712 EUDR truth oracle
+        4. Solana Ed25519 Oracle attestation
+        """
+        base_url = getattr(settings, "SECURITY_GATE_BASE_URL", "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app")
+        mcp_url = settings.SECURITY_GATE_MCP_URL
+        diag: Dict[str, Any] = {
+            "node_name": "security-gate-x402",
+            "base_url": base_url,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "overall_status": "UNKNOWN",
+            "checks": {}
+        }
+
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            # 1. Health check
+            try:
+                t0 = datetime.now()
+                r_health = await client.get(f"{base_url}/health")
+                latency_ms = (datetime.now() - t0).total_seconds() * 1000.0
+                diag["checks"]["health"] = {
+                    "status_code": r_health.status_code,
+                    "latency_ms": round(latency_ms, 2),
+                    "is_healthy": r_health.status_code == 200,
+                    "payload": r_health.json() if r_health.status_code == 200 else r_health.text
+                }
+            except Exception as e:
+                diag["checks"]["health"] = {"is_healthy": False, "error": str(e)}
+
+            # 2. MCP Cognitive Firewall
+            try:
+                t0 = datetime.now()
+                mcp_payload = {
+                    "jsonrpc": "2.0",
+                    "id": str(uuid.uuid4()),
+                    "method": "tools/call",
+                    "params": {
+                        "name": "verify_agent_output",
+                        "arguments": {"text": "EUDR Plot compliant with deforestation-free standards."}
+                    }
+                }
+                r_mcp = await client.post(mcp_url, json=mcp_payload)
+                latency_ms = (datetime.now() - t0).total_seconds() * 1000.0
+                mcp_data = r_mcp.json() if r_mcp.status_code == 200 else {}
+                diag["checks"]["mcp_firewall"] = {
+                    "status_code": r_mcp.status_code,
+                    "latency_ms": round(latency_ms, 2),
+                    "is_active": r_mcp.status_code == 200,
+                    "tool": "verify_agent_output"
+                }
+            except Exception as e:
+                diag["checks"]["mcp_firewall"] = {"is_active": False, "error": str(e)}
+
+            # 3. EVM Truth Oracle (EUDR Domain 3)
+            try:
+                t0 = datetime.now()
+                eudr_body = {
+                    "job_id": "job_diag_check_01",
+                    "commodity": "timber",
+                    "country_code": "ID",
+                    "polygon_coordinates": [[0.7893, 101.4321], [0.7895, 101.4330], [0.7880, 101.4325], [0.7893, 101.4321]],
+                    "dds_reference_id": "EU-DDS-2026-DIAG-01",
+                    "deforestation_detected": False,
+                    "legal_harvest_verified": True
+                }
+                r_truth = await client.post(f"{base_url}/api/v1/truth/eudr", json=eudr_body)
+                latency_ms = (datetime.now() - t0).total_seconds() * 1000.0
+                truth_json = r_truth.json() if r_truth.status_code == 200 else {}
+                diag["checks"]["evm_truth_oracle"] = {
+                    "status_code": r_truth.status_code,
+                    "latency_ms": round(latency_ms, 2),
+                    "domain": truth_json.get("domain"),
+                    "signer": truth_json.get("signer"),
+                    "is_valid": truth_json.get("is_valid", False)
+                }
+            except Exception as e:
+                diag["checks"]["evm_truth_oracle"] = {"is_valid": False, "error": str(e)}
+
+            # 4. Solana Ed25519 Oracle Attestation
+            try:
+                t0 = datetime.now()
+                job_hex = ("job_diag_check_01".encode().ljust(32, b"\x00")).hex()
+                sol_body = {
+                    "job_id_hex": job_hex,
+                    "domain": 3,
+                    "truth_hash_hex": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                    "recipients_hash_hex": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+                    "validity_seconds": 3600
+                }
+                r_sol = await client.post(f"{base_url}/api/v1/escrow/universal/solana/attest", json=sol_body)
+                latency_ms = (datetime.now() - t0).total_seconds() * 1000.0
+                sol_json = r_sol.json() if r_sol.status_code == 200 else {}
+                diag["checks"]["solana_oracle_attestation"] = {
+                    "status_code": r_sol.status_code,
+                    "latency_ms": round(latency_ms, 2),
+                    "chain": sol_json.get("chain"),
+                    "oracle_signer_pubkey": sol_json.get("oracle_signer_pubkey"),
+                    "has_signature": bool(sol_json.get("signature_b58"))
+                }
+            except Exception as e:
+                diag["checks"]["solana_oracle_attestation"] = {"has_signature": False, "error": str(e)}
+
+        all_ok = (
+            diag["checks"].get("health", {}).get("is_healthy", False)
+            and diag["checks"].get("mcp_firewall", {}).get("is_active", False)
+            and diag["checks"].get("evm_truth_oracle", {}).get("is_valid", False)
+            and diag["checks"].get("solana_oracle_attestation", {}).get("has_signature", False)
+        )
+        diag["overall_status"] = "CONNECTED_AND_VERIFIED" if all_ok else "DEGRADED"
+        return diag
+
+    @classmethod
+    async def request_eudr_truth_attestation(
+        cls,
+        job_id: str,
+        commodity: str,
+        country_code: str,
+        polygon_coordinates: List[Any],
+        dds_reference_id: str,
+        deforestation_detected: bool = False,
+        legal_harvest_verified: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Requests an official EIP-712 EUDR Domain 3 Truth Attestation from security-gate-x402.
+        """
+        base_url = getattr(settings, "SECURITY_GATE_BASE_URL", "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app")
+        body = {
+            "job_id": job_id,
+            "commodity": commodity,
+            "country_code": country_code,
+            "polygon_coordinates": polygon_coordinates,
+            "dds_reference_id": dds_reference_id,
+            "deforestation_detected": deforestation_detected,
+            "legal_harvest_verified": legal_harvest_verified
+        }
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.post(f"{base_url}/api/v1/truth/eudr", json=body)
+            resp.raise_for_status()
+            return resp.json()
+
+    @classmethod
+    async def request_universal_escrow_settle(
+        cls,
+        job_id: str,
+        domain: int,
+        recipients: List[Dict[str, Any]],
+        truth_payload: str,
+        attestation: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Calls security-gate-x402 Universal Escrow Settle to disburse Direct Split USDC.
+        """
+        base_url = getattr(settings, "SECURITY_GATE_BASE_URL", "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app")
+        body = {
+            "job_id": job_id,
+            "domain": domain,
+            "recipients": recipients,
+            "truth_payload": truth_payload,
+            "attestation": attestation
+        }
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.post(f"{base_url}/api/v1/escrow/universal/settle", json=body)
+            resp.raise_for_status()
+            return resp.json()
     @classmethod
     async def clean_supplier_web_source(
         cls,

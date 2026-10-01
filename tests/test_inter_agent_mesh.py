@@ -64,3 +64,21 @@ def test_api_mesh_status_endpoint():
     assert "security-gate-x402" in service_names
     assert "x402-cleanweb-agent" in service_names
     assert "minerals-oracle-x402" in service_names
+
+@pytest.mark.asyncio
+async def test_inter_agent_mesh_security_gate_diagnostics():
+    diag = await InterAgentMeshCoordinator.check_security_gate_diagnostics()
+    assert diag["node_name"] == "security-gate-x402"
+    assert "checks" in diag
+    assert "health" in diag["checks"]
+    assert "mcp_firewall" in diag["checks"]
+    assert "evm_truth_oracle" in diag["checks"]
+    assert "solana_oracle_attestation" in diag["checks"]
+
+def test_api_mesh_security_gate_diagnostics_endpoint():
+    response = client.get("/api/v1/eudr/mesh/security-gate/diagnostics")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["node_name"] == "security-gate-x402"
+    assert "checks" in data
+

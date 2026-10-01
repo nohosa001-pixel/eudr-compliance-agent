@@ -60,7 +60,7 @@ AI agents can invoke EUDR capabilities through:
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents via:
 - **Autonomous Agent Smart Escrow & AgentEscrow.sol**: `POST /api/v1/payment/escrow/*` and on-chain EIP-712 attestation engine eliminate commercial default, counterparty risk, and bad data through automatic staking & slashing.
 - **RFC 9110 / x402 Protocol**: `GET /api/v1/payment/x402/challenge` returning machine-readable payment required instructions.
-- **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0x255F9991233f86B29dB847c8d5b8CB9915e80dCf`), Base, Arbitrum, and Solana.
+- **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0xA185B43fDD19619f99952AAed6eabf1029bF36a1`), Base, Arbitrum, and Solana.
 - **MCP Native Settlement Tools**: Agents autonomously create, sign, and confirm payment orders within programmed budget caps.
 
 

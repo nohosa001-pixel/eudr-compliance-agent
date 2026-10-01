@@ -34,16 +34,18 @@ class TraceabilityCollector:
         if not HAS_SHAPELY or shape is None:
             return
 
+        result_map = {r.plot_id: r for r in results}
         shapely_polys = {}
         for p in plots:
+            r = result_map.get(p.plot_id)
+            geom_to_test = (r.standardized_geojson or {}).get("geometry") if r else p.geometry
+            geom_to_test = geom_to_test or p.geometry
             try:
-                g = shape(p.geometry)
+                g = shape(geom_to_test)
                 if isinstance(g, (Polygon, MultiPolygon)) and g.is_valid:
                     shapely_polys[p.plot_id] = g
             except Exception:
                 pass
-
-        result_map = {r.plot_id: r for r in results}
 
         plot_ids = list(shapely_polys.keys())
         for i in range(len(plot_ids)):

@@ -155,7 +155,7 @@ class DeforestationSimulator:
         loss_year_val = 0
         treecover_val = 92
 
-        if "deforestation_2022" in notes or "deforest_2022" in plot_id_lower:
+        if "deforestation_2022" in notes or "deforest_2022" in plot_id_lower or "deforestation_2022" in plot_id_lower:
             loss_year_val = 22
             treecover_val = 95
             hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)
@@ -166,7 +166,8 @@ class DeforestationSimulator:
             baseline_forest_pct = 95.0
             ndvi_trend = "SHARP_DROP_POST_2020"
             ndvi_series = {"2019": 0.82, "2020": 0.81, "2021": 0.79, "2022": 0.32, "2023": 0.28}
-        elif "deforestation_2018" in notes or "deforest_2018" in plot_id_lower:
+        elif "deforestation_2018" in notes or "deforest_2018" in plot_id_lower or "deforestation_2018" in plot_id_lower:
+
             loss_year_val = 18
             treecover_val = 20
             hansen_parsed = HansenGFCProvider.parse_hansen_loss(lon, lat, loss_year_val=loss_year_val, treecover_val=treecover_val)

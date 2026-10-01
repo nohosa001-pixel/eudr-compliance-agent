@@ -89,9 +89,10 @@ class CopernicusSentinelClient:
         cls,
         geojson_geometry: Dict[str, Any],
         start_date: str = "2019-01-01",
-        end_date: str = "2024-12-31"
+        end_date: Optional[str] = None
     ) -> Dict[str, Any]:
         """Builds standardized Copernicus Sentinel Hub Statistical API payload."""
+        effective_end = end_date or f"{date.today().year}-12-31"
         return {
             "input": {
                 "bounds": {
@@ -101,13 +102,13 @@ class CopernicusSentinelClient:
                 "data": [{
                     "type": "sentinel-2-l2a",
                     "dataFilter": {
-                        "timeRange": {"from": f"{start_date}T00:00:00Z", "to": f"{end_date}T23:59:59Z"},
+                        "timeRange": {"from": f"{start_date}T00:00:00Z", "to": f"{effective_end}T23:59:59Z"},
                         "maxCloudCoverage": 20
                     }
                 }]
             },
             "aggregation": {
-                "timeRange": {"from": f"{start_date}T00:00:00Z", "to": f"{end_date}T23:59:59Z"},
+                "timeRange": {"from": f"{start_date}T00:00:00Z", "to": f"{effective_end}T23:59:59Z"},
                 "aggregationInterval": {"of": "P1Y"},
                 "evalscript": cls.SENTINEL_NDVI_EVALSCRIPT
             },
@@ -147,8 +148,14 @@ class CopernicusSentinelClient:
         
         # Check post-2020 NDVI trajectory
         base_ndvi = ndvi_series.get("2020", ndvi_series.get("2019", 0.80))
-        latest_ndvi = ndvi_series.get("2024", ndvi_series.get("2023", base_ndvi))
-        drop = base_ndvi - latest_ndvi
+        post_2020_years = sorted([y for y in ndvi_series.keys() if y > "2020"])
+        if post_2020_years:
+            latest_ndvi = ndvi_series[post_2020_years[-1]]
+            min_post_2020 = min(ndvi_series[y] for y in post_2020_years)
+            drop = base_ndvi - min_post_2020
+        else:
+            latest_ndvi = base_ndvi
+            drop = 0.0
 
         if drop >= 0.20:
             stability = "DEFORESTATION_DETECTED"
@@ -229,7 +236,9 @@ class CopernicusSentinelClient:
             "2021": round(0.79 + (seed % 3) * 0.01, 2),
             "2022": round(0.80 + (seed % 4) * 0.01, 2),
             "2023": round(0.81 + (seed % 2) * 0.01, 2),
-            "2024": round(0.82, 2)
+            "2024": round(0.82, 2),
+            "2025": round(0.82, 2),
+            "2026": round(0.83, 2)
         }
 
         return {

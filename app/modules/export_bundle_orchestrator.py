@@ -67,9 +67,10 @@ class OneClickExportBundleOrchestrator:
         if not target_reg_id:
             for doc in payload.documents:
                 doc_clean = doc.doc_id.upper()
-                if any(k in doc_clean for k in ["CAR", "CMS", "CCC", "SIPUHH", "ISPO", "MSPO", "BR-", "GH-", "ID-", "CI-", "MY-"]):
+                if any(k in doc_clean for k in ["CAR", "CMS", "CCC", "SIPUHH", "ISPO", "MSPO", "BR-", "GH-", "CI-", "ID-", "MY-", "VN-", "VNTLAS", "LURC", "COFFEE"]):
                     target_reg_id = doc.doc_id
                     break
+
 
         if target_reg_id:
             detected_country = producer_country_code or getattr(payload.plots[0], "country_code", None) if payload.plots else None

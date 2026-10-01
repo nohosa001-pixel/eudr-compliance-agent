@@ -47,7 +47,7 @@ class Settings(BaseModel):
     USE_LIVE_COPERNICUS_API: bool = os.getenv("USE_LIVE_COPERNICUS_API", "false").lower() in ("true", "1", "yes")
 
     # Web3 / MetaMask Multi-Chain Configuration (Polygon, Base, Arbitrum)
-    POLYGON_METAMASK_WALLET_ADDRESS: str = os.getenv("POLYGON_METAMASK_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+    POLYGON_METAMASK_WALLET_ADDRESS: str = os.getenv("POLYGON_METAMASK_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
     POLYGON_CHAIN_ID: int = int(os.getenv("POLYGON_CHAIN_ID", "137"))
     POLYGON_RPC_URL: str = os.getenv("POLYGON_RPC_URL", "https://polygon-bor-rpc.publicnode.com")
 
@@ -67,10 +67,10 @@ class Settings(BaseModel):
     BASE_AGENT_PAYMENT_VAULT: str = os.getenv("BASE_AGENT_PAYMENT_VAULT", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
     ARBITRUM_AGENT_PAYMENT_VAULT: str = os.getenv("ARBITRUM_AGENT_PAYMENT_VAULT", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")
 
-    # Glama.ai Inter-Agent Mesh MCP Endpoints
-    SECURITY_GATE_MCP_URL: str = os.getenv("SECURITY_GATE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/security-gate-x402")
-    CLEANWEB_MCP_URL: str = os.getenv("CLEANWEB_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/x402-cleanweb-agent")
-    MINERALS_ORACLE_MCP_URL: str = os.getenv("MINERALS_ORACLE_MCP_URL", "https://glama.ai/mcp/servers/nohosa001-pixel/minerals-oracle-x402")
+    # Inter-Agent Mesh MCP JSON-RPC Live Cloud Run Endpoints
+    SECURITY_GATE_MCP_URL: str = os.getenv("SECURITY_GATE_MCP_URL", "https://agent-security-gate-x402-7qxtp3324q-du.a.run.app/api/v1/mcp")
+    CLEANWEB_MCP_URL: str = os.getenv("CLEANWEB_MCP_URL", "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp")
+    MINERALS_ORACLE_MCP_URL: str = os.getenv("MINERALS_ORACLE_MCP_URL", "https://minerals-oracle-x402-7qxtp3324q-du.a.run.app/api/v1/mcp")
 
     # AgentEscrow.sol On-chain & EIP-712 Oracle Configuration
     AGENT_ESCROW_CONTRACT_ADDRESS: str = os.getenv("AGENT_ESCROW_CONTRACT_ADDRESS", "0x28292D76E07E5539F15F3b97935dE8E0432E76DD")

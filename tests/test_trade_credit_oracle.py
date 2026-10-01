@@ -136,3 +136,38 @@ def test_api_trade_credit_underwrite_endpoint():
     assert data["loan_offer"]["credit_tier"] in ["AAA", "AA"]
     assert data["loan_offer"]["disbursement_token"] == "USDC (Polygon PoS)"
     assert data["credit_score"]["total_credit_score"] >= 800.0
+
+
+def test_trade_credit_underwriter_blocked_on_yield_anomaly_fact_check():
+    underwriter = TradeCreditUnderwriter()
+    fabricated_yield_payload = {
+        **SAMPLE_VIETNAM_COFFEE_PAYLOAD,
+        "commodity": {
+            "hs_code": "090111",
+            "description": "Arabica coffee beans",
+            "net_mass_kg": 500000.0  # 500 tons from 0.5 ha plot -> impossible agronomic yield
+        },
+        "plots": [
+            {
+                "plot_id": "PLOT-TINY",
+                "country_code": "VN",
+                "area_hectares": 0.5,
+                "production_date": "2024-03-20",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [108.438100, 11.940400]
+                }
+            }
+        ]
+    }
+
+    res = underwriter.evaluate_credit_and_underwrite_loan(
+        payload=fabricated_yield_payload,
+        producer_registry_id="VN-COFFEE-LDG-291028-B"
+    )
+
+    assert res.loan_offer.is_loan_approved is False
+    assert res.loan_offer.credit_tier == "REJECT"
+    assert res.security_gate_clearance["sheriff_status"] == "BLOCKED_MALICIOUS"
+    assert res.loan_offer.slashing_risk_flag is True
+

@@ -121,7 +121,7 @@ class TradeCreditUnderwriter:
             total_area_ha=total_area
         )
 
-        sec_cleared = (prompt_check.get("is_safe", True) and fact_check.get("is_factual", True))
+        sec_cleared = (prompt_check.get("is_safe", True) and fact_check.get("is_plausible", fact_check.get("is_factual", True)))
         sec_details = {
             "prompt_security": prompt_check,
             "fact_checking": fact_check,
@@ -150,7 +150,7 @@ class TradeCreditUnderwriter:
         if not reg_id:
             for d in payload.documents:
                 doc_clean = d.doc_id.upper()
-                if any(k in doc_clean for k in ["CAR", "CMS", "SIPUHH", "ISPO", "VN-", "BR-", "ID-", "GH-"]):
+                if any(k in doc_clean for k in ["CAR", "CMS", "CCC", "SIPUHH", "ISPO", "MSPO", "BR-", "GH-", "CI-", "ID-", "MY-", "VN-", "VNTLAS", "LURC", "COFFEE"]):
                     reg_id = d.doc_id
                     break
 

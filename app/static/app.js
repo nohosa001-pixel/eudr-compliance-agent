@@ -1406,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (marketTerminal) {
           marketTerminal.innerHTML += `
             <div class="terminal-line t-success"><span class="t-success">[MATCHED]</span> Winning Bid: ${data.winning_bid_id} by ${data.winning_supplier_agent}</div>
-            <div class="terminal-line"><span class="t-prompt">[Escrow]</span> Contract Instantiated: <code>${data.smart_escrow_contract || '0x255F9991233f86B29dB847c8d5b8CB9915e80dCf'}</code></div>
+            <div class="terminal-line"><span class="t-prompt">[Escrow]</span> Contract Instantiated: <code>${data.smart_escrow_contract || '0xA185B43fDD19619f99952AAed6eabf1029bF36a1'}</code></div>
             <div class="terminal-line"><span class="t-prompt">[Locked]</span> $${data.clearing_price_usdc} USDC locked in Polygon Smart Escrow.</div>
           `;
           marketTerminal.scrollTop = marketTerminal.scrollHeight;

@@ -35,6 +35,18 @@ class TracesNTSchemaMapper:
         """
         now_utc = datetime.now(timezone.utc).isoformat()
         
+        # Rigorous statutory compliance evaluation
+        all_deforest_free = all(not (sat.deforestation_detected if sat else False) for sat in satellite_results) if satellite_results else True
+        all_legally_produced = bool(legal_audit.overall_compliant) if legal_audit else False
+        is_overall_compliant = all_deforest_free and all_legally_produced
+
+        if not is_overall_compliant:
+            statement_type = "DDS_REJECTED_NON_COMPLIANT"
+        elif legal_audit.simplified_due_diligence_eligible:
+            statement_type = "DDS_SIMPLIFIED"
+        else:
+            statement_type = "DDS_STANDARD"
+
         # 1. Geolocation features mapping
         places_of_production = []
         spatial_map = {sr.plot_id: sr for sr in spatial_results}
@@ -74,7 +86,7 @@ class TracesNTSchemaMapper:
                 "system": "TRACES-NT",
                 "regulatoryAct": cls.REGULATORY_ACT,
                 "statementReferenceNumber": dds_reference_id,
-                "statementType": "DDS_STANDARD" if not legal_audit.simplified_due_diligence_eligible else "DDS_SIMPLIFIED",
+                "statementType": statement_type,
                 "submissionTimestamp": now_utc,
                 "submissionChannel": "REST_API_AGENT"
             },
@@ -117,8 +129,8 @@ class TracesNTSchemaMapper:
                 "dataIntegrityStandard": "WGS84 (EPSG:4326) Geodesic Polygon Topology Standard"
             },
             "dueDiligenceAttestation": {
-                "deforestationFreeArticle3a": True,
-                "legalProductionArticle3b": True,
+                "deforestationFreeArticle3a": all_deforest_free,
+                "legalProductionArticle3b": all_legally_produced,
                 "countryRiskClassification": legal_audit.country_risk_tier.value,
                 "simplifiedDueDiligenceApplied": legal_audit.simplified_due_diligence_eligible,
                 "outermostRegionExemptionApplied": getattr(legal_audit, "outermost_region_exemption_applied", False),
@@ -191,7 +203,19 @@ class TracesNTSchemaMapper:
         header = ET.SubElement(root, "Header")
         ET.SubElement(header, "RegulatoryAct").text = cls.REGULATORY_ACT
         ET.SubElement(header, "StatementReferenceNumber").text = dds_reference_id
-        statement_type = "DDS_SIMPLIFIED" if legal_audit.simplified_due_diligence_eligible else "DDS_STANDARD"
+        
+        # Rigorous statutory compliance evaluation
+        all_deforest_free = all(not (sat.deforestation_detected if sat else False) for sat in satellite_results) if satellite_results else True
+        all_legally_produced = bool(legal_audit.overall_compliant) if legal_audit else False
+        is_overall_compliant = all_deforest_free and all_legally_produced
+
+        if not is_overall_compliant:
+            statement_type = "DDS_REJECTED_NON_COMPLIANT"
+        elif legal_audit.simplified_due_diligence_eligible:
+            statement_type = "DDS_SIMPLIFIED"
+        else:
+            statement_type = "DDS_STANDARD"
+            
         ET.SubElement(header, "StatementType").text = statement_type
         ET.SubElement(header, "SubmissionTimestamp").text = now_utc
         ET.SubElement(header, "SubmissionChannel").text = "REST_API_AGENT"
@@ -261,8 +285,8 @@ class TracesNTSchemaMapper:
 
         # 5. Due Diligence Attestation
         attestation = ET.SubElement(root, "DueDiligenceAttestation")
-        ET.SubElement(attestation, "DeforestationFreeArticle3a").text = "true"
-        ET.SubElement(attestation, "LegalProductionArticle3b").text = "true"
+        ET.SubElement(attestation, "DeforestationFreeArticle3a").text = str(all_deforest_free).lower()
+        ET.SubElement(attestation, "LegalProductionArticle3b").text = str(all_legally_produced).lower()
         ET.SubElement(attestation, "CountryRiskClassification").text = legal_audit.country_risk_tier.value
         ET.SubElement(attestation, "SimplifiedDueDiligenceApplied").text = str(legal_audit.simplified_due_diligence_eligible).lower()
         ET.SubElement(attestation, "OutermostRegionExemptionApplied").text = str(getattr(legal_audit, "outermost_region_exemption_applied", False)).lower()

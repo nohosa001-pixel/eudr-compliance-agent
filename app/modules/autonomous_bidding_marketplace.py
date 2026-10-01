@@ -215,7 +215,7 @@ class AutonomousBiddingMarketplace:
         cls._update_active_rfq_gauge()
 
         status_str = escrow_result.status.value if hasattr(escrow_result.status, "value") else str(escrow_result.status)
-        vault_addr = getattr(escrow_result, "vault_deposit_address", None) or "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"
+        vault_addr = getattr(escrow_result, "vault_deposit_address", None) or "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
 
         return {
             "matched": True,

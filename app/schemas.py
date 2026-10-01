@@ -275,7 +275,13 @@ class SatellitePlotResult(BaseModel):
     canopy_multi_threshold: Optional[List[CanopyThresholdResult]] = None
     regulatory_defense_statement: Optional[str] = None
 
+    @property
+    def forest_loss_detected(self) -> bool:
+        """Backwards compatibility alias for deforestation_detected."""
+        return self.deforestation_detected
+
 class LegalAuditResult(BaseModel):
+
     overall_compliant: bool
     country_risk_tier: RiskTierEnum
     simplified_due_diligence_eligible: bool = False

@@ -23,8 +23,9 @@ class MCPServer:
 
     SERVER_INFO = {
         "name": "eudr-compliance-mcp-server",
-        "version": "1.2.0"
+        "version": "1.4.0"
     }
+
 
     CAPABILITIES = {
         "tools": {
@@ -74,25 +75,47 @@ class MCPServer:
     ]
 
     @classmethod
-    async def handle_jsonrpc_request(cls, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_jsonrpc_request(cls, request_data: Any) -> Any:
         """
-        Handles incoming JSON-RPC 2.0 MCP requests.
+        Handles incoming JSON-RPC 2.0 MCP requests (both single objects and batch arrays).
         """
+        if isinstance(request_data, list):
+            if not request_data:
+                return cls._error_response(None, -32600, "Invalid Request: Empty batch array.")
+            responses = []
+            for item in request_data:
+                if isinstance(item, dict):
+                    res = await cls._handle_single_request(item)
+                    if res is not None:
+                        responses.append(res)
+                else:
+                    responses.append(cls._error_response(None, -32600, "Invalid Request: Expected a JSON object in batch array."))
+            return responses if responses else None
+        elif isinstance(request_data, dict):
+            return await cls._handle_single_request(request_data)
+        else:
+            return cls._error_response(None, -32600, "Invalid Request: Expected a JSON object or array.")
+
+    @classmethod
+    async def _handle_single_request(cls, request_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         req_id = request_data.get("id")
         method = request_data.get("method")
         params = request_data.get("params") or {}
 
         if not method:
+            if req_id is None:
+                return None
             return cls._error_response(req_id, -32600, "Invalid Request: 'method' is required.")
 
         try:
             if method == "initialize":
                 return cls._handle_initialize(req_id, params)
-            elif method == "notifications/initialized":
-                # Notifications don't require response, but return empty result if ID is provided
-                return {"jsonrpc": "2.0", "id": req_id, "result": {}} if req_id is not None else {}
+            elif method.startswith("notifications/"):
+                return {"jsonrpc": "2.0", "id": req_id, "result": {}} if req_id is not None else None
             elif method == "ping":
                 return {"jsonrpc": "2.0", "id": req_id, "result": {}}
+            elif method == "logging/setLevel":
+                return {"jsonrpc": "2.0", "id": req_id, "result": {}} if req_id is not None else None
             elif method == "tools/list":
                 return cls._handle_tools_list(req_id)
             elif method == "tools/call":
@@ -107,10 +130,31 @@ class MCPServer:
                 return cls._handle_resources_read(req_id, params)
             elif method == "resources/templates/list":
                 return {"jsonrpc": "2.0", "id": req_id, "result": {"resourceTemplates": []}}
+            elif method in ("resources/subscribe", "resources/unsubscribe"):
+                return {"jsonrpc": "2.0", "id": req_id, "result": {}} if req_id is not None else None
+            elif method == "roots/list":
+                return {"jsonrpc": "2.0", "id": req_id, "result": {"roots": []}}
+            elif method == "completion/complete":
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {
+                        "completion": {
+                            "values": [],
+                            "total": 0,
+                            "hasMore": False
+                        }
+                    }
+                }
             else:
+                if req_id is None:
+                    # Notifications must never generate error responses per JSON-RPC 2.0
+                    return None
                 return cls._error_response(req_id, -32601, f"Method not found: '{method}'.")
         except Exception as exc:
             logger.exception("Internal error in MCP handler")
+            if req_id is None:
+                return None
             return cls._error_response(req_id, -32603, f"Internal JSON-RPC error: {str(exc)}")
 
     @classmethod
@@ -155,6 +199,11 @@ class MCPServer:
     async def _handle_tools_call(cls, req_id: Any, params: Dict[str, Any]) -> Dict[str, Any]:
         tool_name = params.get("name")
         arguments = params.get("arguments") or {}
+        if isinstance(arguments, str):
+            try:
+                arguments = json.loads(arguments)
+            except Exception:
+                arguments = {}
 
         try:
             registry = _get_agent_tools_registry()
@@ -166,7 +215,7 @@ class MCPServer:
                     "content": [
                         {
                             "type": "text",
-                            "text": json.dumps(result, ensure_ascii=False, indent=2)
+                            "text": json.dumps(result, ensure_ascii=False, indent=2, default=str)
                         }
                     ],
                     "isError": False
@@ -180,7 +229,7 @@ class MCPServer:
                     "content": [
                         {
                             "type": "text",
-                            "text": json.dumps(sce.to_dict(), ensure_ascii=False, indent=2)
+                            "text": json.dumps(sce.to_dict(), ensure_ascii=False, indent=2, default=str)
                         }
                     ],
                     "isError": True
@@ -200,7 +249,7 @@ class MCPServer:
                                     "message": str(e),
                                     "recoverable": False
                                 }
-                            })
+                            }, default=str)
                         }
                     ],
                     "isError": True

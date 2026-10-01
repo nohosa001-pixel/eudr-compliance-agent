@@ -96,16 +96,16 @@ class KoreaForestServiceChecklistScorer:
             geom_type = geom.get("type", "Polygon")
             raw_coords = geom.get("coordinates", [])
 
-            # 4ha rule: plots > 4.0 hectares must have polygon or multipolygon geometries
-            if p.area_hectares and p.area_hectares > 4.0:
+            # 4ha rule: plots >= 4.0 hectares must have polygon or multipolygon geometries (EUDR Art. 9 & FAQ Q42)
+            if p.area_hectares and p.area_hectares >= 4.0:
                 if geom_type == "Point":
                     p2_score -= 8.0
-                    p2_issues.append(f"Plot '{p.plot_id}' is {p.area_hectares}ha (>4ha) but only declared as Point; closed polygon required.")
+                    p2_issues.append(f"Plot '{p.plot_id}' is {p.area_hectares}ha (>=4ha) but only declared as Point; closed polygon required.")
                 elif geom_type == "Polygon":
                     exterior_ring = raw_coords[0] if raw_coords and len(raw_coords) > 0 else []
                     if len(exterior_ring) < 4:
                         p2_score -= 8.0
-                        p2_issues.append(f"Plot '{p.plot_id}' is {p.area_hectares}ha (>4ha) but polygon has fewer than 4 vertices.")
+                        p2_issues.append(f"Plot '{p.plot_id}' is {p.area_hectares}ha (>=4ha) but polygon has fewer than 4 vertices.")
 
             # Coordinate range check (Latitude -90 to 90, Longitude -180 to 180)
             def _extract_all_points(c, depth=0):

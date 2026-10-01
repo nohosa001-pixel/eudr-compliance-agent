@@ -161,3 +161,26 @@ def test_api_evaluate_customs_certificate_endpoint(sample_compliant_payload):
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
     assert "CUSTOMS DUE DILIGENCE CLEARANCE CERTIFICATE" in response.text
+
+def test_non_compliant_traces_xml_blocked_from_customs(sample_compliant_payload):
+    """Statutory Safeguard: Non-compliant supply chains MUST be blocked from official TRACES-NT XML issuance."""
+    payload_dict = sample_compliant_payload.model_dump(mode="json")
+    # Inject post-2020 deforestation
+    payload_dict["plots"][0]["notes"] = "deforestation_2022"
+    
+    response = client.post("/api/v1/eudr/evaluate/traces-xml", json=payload_dict)
+    assert response.status_code == 422
+    err_data = response.json()
+    assert err_data["detail"]["error"] == "TRACES_NT_XML_GENERATION_BLOCKED"
+    assert err_data["detail"]["deforestation_free"] is False
+
+def test_non_compliant_force_preview_xml_emits_rejected_attestation(sample_compliant_payload):
+    """Inspection Mode: Pre-audit simulation with force_preview=True must mark statement as REJECTED and false attestation."""
+    payload_dict = sample_compliant_payload.model_dump(mode="json")
+    payload_dict["plots"][0]["notes"] = "deforestation_2022"
+    
+    response = client.post("/api/v1/eudr/evaluate/traces-xml?force_preview=true", json=payload_dict)
+    assert response.status_code == 200
+    assert "DDS_REJECTED_NON_COMPLIANT" in response.text
+    assert "<DeforestationFreeArticle3a>false</DeforestationFreeArticle3a>" in response.text
+

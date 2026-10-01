@@ -144,9 +144,11 @@ class AgentSecurityGateAdapter:
 
         return {
             "is_plausible": is_plausible,
+            "is_factual": is_plausible,
             "verdict": verdict,
             "anomaly_score": min(anomaly_score, 100),
             "anomalies": anomalies,
             "computed_yield_kg_per_ha": round(yield_per_ha, 2),
             "fact_check_model": "x402-NLI-Agronomic-Evaluator"
         }
+

@@ -312,8 +312,9 @@ async def serve_landing(request: Request):
             "service": "eudr-compliance-agent",
             "platform": "EUDRAgent",
             "name": "EUDRAgent EUDR Compliance Platform",
-            "version": "1.2.0",
+            "version": "1.4.0",
             "mode": "autonomous-agent-first",
+
             "status": "online",
             "description": "Autonomous EU Deforestation Regulation (Regulation (EU) 2023/1115) EUDR Compliance & TRACES-NT Engine",
             "documentation": "https://eudragent.com/llms.txt",
@@ -745,11 +746,13 @@ async def get_audit_html_report(
 )
 async def evaluate_supply_chain_traces_xml(
     payload: EUDRSupplyChainPayload,
+    force_preview: bool = Query(False, description="Allow generation of pre-audit inspection XML even if non-compliant"),
     db: Session = Depends(get_db)
 ):
     """
     Evaluates supply chain and exports official European Commission TRACES-NT XML document
     according to Regulation (EU) 2023/1115 Annex II and XSD schema v2.4 standards.
+    Non-compliant supply chains are blocked from official customs XML issuance to prevent regulatory fines.
     """
     start_time = datetime.now(timezone.utc)
     if not payload.execution_id:
@@ -779,6 +782,20 @@ async def evaluate_supply_chain_traces_xml(
     except Exception:
         pass
 
+    # Regulatory Gate: Block official TRACES-NT customs XML generation for non-compliant cargo
+    if report.status != ComplianceStatusEnum.COMPLIANT and not force_preview:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "error": "TRACES_NT_XML_GENERATION_BLOCKED",
+                "message": f"Cannot issue official TRACES-NT customs XML for Non-Compliant goods under EUDR Article 4: {report.summary_message}",
+                "compliance_status": report.status.value,
+                "deforestation_free": deforest_free,
+                "legal_compliance": legal_audit_result.overall_compliant,
+                "suggestion": "Resolve flagged deforestation plots or expired legal permits, or set 'force_preview=true' for pre-audit inspection only."
+            }
+        )
+
     dds_ref = report.traces_dds.dds_reference_id if report.traces_dds else f"DDS-EUDR-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
     xml_content = TracesNTSchemaMapper.map_to_traces_xml(
         payload=payload,
@@ -802,7 +819,11 @@ async def evaluate_supply_chain_traces_xml(
     tags=["Commercial Operations"],
     summary="Get official EU TRACES-NT XML (XSD v2.4) for past execution"
 )
-async def get_audit_traces_xml(execution_id: str, db: Session = Depends(get_db)):
+async def get_audit_traces_xml(
+    execution_id: str, 
+    force_preview: bool = Query(False, description="Allow download of rejected XML for pre-audit review"),
+    db: Session = Depends(get_db)
+):
     """Downloads official TRACES-NT XML schema document for an existing evaluation record."""
     record = AuditRepository.get_by_execution_id(db, execution_id)
     if not record or not record.payload_snapshot:
@@ -816,6 +837,18 @@ async def get_audit_traces_xml(execution_id: str, db: Session = Depends(get_db))
         legal_audit_result = LegalAuditor.audit_documents(
             payload.documents, payload.plots, payload.commodity, destination_country=dest_c
         )
+
+        is_compliant = record.compliance_status == "COMPLIANT" or (spatial_valid and deforest_free and legal_audit_result.overall_compliant)
+        if not is_compliant and not force_preview:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "error": "TRACES_NT_XML_GENERATION_BLOCKED",
+                    "message": f"Historical record '{execution_id}' is NON-COMPLIANT under EUDR Article 4. Official TRACES-NT customs XML is blocked.",
+                    "compliance_status": record.compliance_status,
+                    "suggestion": "Set 'force_preview=true' query parameter to inspect the non-compliant XML structure."
+                }
+            )
 
         dds_ref = record.dds_reference_id or f"DDS-EUDR-{execution_id[:8].upper()}"
         xml_content = TracesNTSchemaMapper.map_to_traces_xml(
@@ -1676,6 +1709,16 @@ async def _handle_mcp_request(request: Request):
         if "text/event-stream" in accept_header:
             async def event_generator():
                 yield f"event: endpoint\ndata: {settings.API_V1_PREFIX}/mcp\n\n"
+                ping_counter = 0
+                try:
+                    while not await request.is_disconnected():
+                        await asyncio.sleep(1)
+                        ping_counter += 1
+                        if ping_counter >= 15:
+                            yield ": ping\n\n"
+                            ping_counter = 0
+                except (asyncio.CancelledError, GeneratorExit):
+                    pass
             return StreamingResponse(event_generator(), media_type="text/event-stream", headers=NO_CACHE_HEADERS)
         
         return await serve_mcp_server_card(request)
@@ -1690,6 +1733,8 @@ async def _handle_mcp_request(request: Request):
         )
     
     res = await MCPServer.handle_jsonrpc_request(req_data)
+    if res is None:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res)
 
 
@@ -2446,3 +2491,60 @@ async def run_continuous_satellite_surveillance():
 
 
 
+
+
+# -------------------------------------------------------------------------
+# Security Gate x402 Universal Escrow Settlement Rail (Domain 3: EUDR_FOREST)
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Security Gate x402 Universal Escrow Settlement Rail (Domain 3: EUDR_FOREST)
+# -------------------------------------------------------------------------
+from app.modules.universal_escrow_client import universal_escrow_client
+
+from pydantic import BaseModel
+from typing import List, Dict, Any
+
+class EudrUniversalSettleRequest(BaseModel):
+    job_id: str
+    commodity: str
+    country_code: str
+    polygon_coordinates: List[List[float]]
+    dds_reference_id: str
+    deforestation_detected: bool = False
+    legal_harvest_verified: bool = True
+    recipients: List[Dict[str, Any]]
+    chain_id: int = 137
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/escrow/universal/settle-eudr",
+    tags=["Security Gate x402 Escrow Rail"],
+    summary="Request EUDR Truth Attestation and Disburse Universal Escrow"
+)
+async def settle_eudr_universal_escrow(req: EudrUniversalSettleRequest):
+    """
+    End-to-End Interoperability Bridge:
+    1. Obtains cryptographic EIP-712 EudrTruthAttestation from security-gate-x402.
+    2. Atomically triggers 0.1s Direct Split disbursement to smallholders and cooperatives.
+    """
+    attestation = universal_escrow_client.request_eudr_truth_attestation(
+        job_id=req.job_id,
+        commodity=req.commodity,
+        country_code=req.country_code,
+        polygon_coordinates=req.polygon_coordinates,
+        dds_reference_id=req.dds_reference_id,
+        deforestation_detected=req.deforestation_detected,
+        legal_harvest_verified=req.legal_harvest_verified,
+        chain_id=req.chain_id
+    )
+    settlement = universal_escrow_client.settle_eudr_escrow_direct_split(
+        job_id=req.job_id,
+        recipients=req.recipients,
+        attestation=attestation,
+        chain_id=req.chain_id
+    )
+    return {
+        "status": "SUCCESS",
+        "attestation": attestation,
+        "settlement": settlement
+    }

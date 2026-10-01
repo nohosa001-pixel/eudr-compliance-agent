@@ -16,8 +16,8 @@ from app.schemas import (
 from app.db.repository import ApiKeyRepository
 from app.core.config import settings
 
-# Global USDC Deposit Wallets for Supported Networks (MetaMask Polygon Mainnet Default: 0x255F9991233f86B29dB847c8d5b8CB9915e80dCf)
-_EVM_WALLET = getattr(settings, "POLYGON_METAMASK_WALLET_ADDRESS", "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")
+# Global USDC Deposit Wallets for Supported Networks (MetaMask Polygon Mainnet Default: 0xA185B43fDD19619f99952AAed6eabf1029bF36a1)
+_EVM_WALLET = getattr(settings, "POLYGON_METAMASK_WALLET_ADDRESS", "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")
 DEPOSIT_WALLETS = {
     "Polygon (PoS)": _EVM_WALLET,
     "Base (Low Gas $0.01)": _EVM_WALLET,

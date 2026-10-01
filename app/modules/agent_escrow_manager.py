@@ -54,7 +54,7 @@ class AgentEscrowManager:
 
         escrow_id = f"ESC-EUDR-2026-{uuid.uuid4().hex[:8].upper()}"
         chain_name = payload.chain.value if hasattr(payload.chain, "value") else str(payload.chain)
-        vault_wallet = AGENT_PAYMENT_VAULTS.get(chain_name, DEPOSIT_WALLETS.get(chain_name, "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf"))
+        vault_wallet = AGENT_PAYMENT_VAULTS.get(chain_name, DEPOSIT_WALLETS.get(chain_name, "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"))
         
         now = datetime.now(timezone.utc)
         expires_at = now + timedelta(hours=payload.expiry_hours)
@@ -146,18 +146,44 @@ class AgentEscrowManager:
             if isinstance(p, ProductionPlotInput):
                 parsed_plots.append(p)
                 continue
-            geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
+            if hasattr(p, "dict") and callable(getattr(p, "dict")):
+                p_dict = p.dict()
+            elif hasattr(p, "model_dump") and callable(getattr(p, "model_dump")):
+                p_dict = p.model_dump()
+            elif isinstance(p, dict):
+                p_dict = p
+            elif hasattr(p, "__dict__"):
+                p_dict = vars(p)
+            else:
+                p_dict = {}
+
+            geom = p_dict.get("geometry") or p_dict.get("coordinates") or [101.45, 0.52]
             if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
                 geom = {"type": "Point", "coordinates": geom}
             elif isinstance(geom, list):
-                geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
+                if (
+                    len(geom) > 0
+                    and isinstance(geom[0], list)
+                    and len(geom[0]) > 0
+                    and isinstance(geom[0][0], (int, float))
+                ):
+                    geom = {"type": "Polygon", "coordinates": [geom]}
+                else:
+                    geom = {"type": "Polygon", "coordinates": geom}
+
+            raw_area = p_dict.get("area_hectares")
+            try:
+                area_ha = float(raw_area) if raw_area is not None else 2.0
+            except (ValueError, TypeError):
+                area_ha = 2.0
 
             parsed_plots.append(ProductionPlotInput(
-                plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
-                country_code=p.get("country_code", "XX"),
-                area_hectares=float(p.get("area_hectares", 2.0)),
+                plot_id=p_dict.get("plot_id") or f"PLOT-{i+1:03d}",
+                country_code=p_dict.get("country_code") or "XX",
+                area_hectares=area_ha,
                 geometry=geom,
-                production_date=date.today()
+                production_date=p_dict.get("production_date") or date.today(),
+                notes=p_dict.get("notes")
             ))
         return parsed_plots
 
@@ -260,28 +286,11 @@ class AgentEscrowManager:
             p_clean = {k: v for k, v in p.items() if k in valid_keys}
             payload = EscrowFundRequest(**p_clean)
 
-        escrow = cls._escrows.get(payload.escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[payload.escrow_id] = escrow
-            except Exception:
-                pass
-
+        escrow = cls._resolve_escrow(payload.escrow_id, db_session=db_session)
         if not escrow:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
 
         if escrow["status"] != EscrowStatusEnum.AWAITING_DEPOSIT:
-            if db and not db_session:
-                db.close()
             return cls._dict_to_response(escrow, f"Escrow is already in state '{escrow['status']}'.")
 
         # Verify on-chain funding
@@ -293,23 +302,16 @@ class AgentEscrowManager:
             expected_amount_usdc=escrow["amount_usdc"]
         )
 
+        now_dt = datetime.now(timezone.utc)
         escrow["status"] = EscrowStatusEnum.FUNDED_LOCKED
         escrow["deposit_tx_hash"] = tx_hash
-        escrow["funded_at_utc"] = datetime.now(timezone.utc).isoformat()
+        escrow["funded_at_utc"] = now_dt.isoformat()
 
-        if db:
-            try:
-                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if rec:
-                    rec.status = "FUNDED_LOCKED"
-                    rec.deposit_tx_hash = tx_hash
-                    rec.funded_at = datetime.now(timezone.utc)
-                    db.commit()
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
+        cls._persist_escrow_update(payload.escrow_id, {
+            "status": "FUNDED_LOCKED",
+            "deposit_tx_hash": tx_hash,
+            "funded_at": now_dt
+        }, db_session=db_session)
 
         return cls._dict_to_response(
             escrow,
@@ -318,33 +320,14 @@ class AgentEscrowManager:
 
     @classmethod
     def release_by_compliance(cls, payload: EscrowReleaseByComplianceRequest, db_session=None) -> EscrowAgreementResponse:
-        escrow = cls._escrows.get(payload.escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[payload.escrow_id] = escrow
-            except Exception:
-                pass
-
+        escrow = cls._resolve_escrow(payload.escrow_id, db_session=db_session)
         if not escrow:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
 
         if escrow["status"] == EscrowStatusEnum.RELEASED:
-            if db and not db_session:
-                db.close()
             return cls._dict_to_response(escrow, "Escrow funds have already been released to seller.")
 
         if escrow["status"] != EscrowStatusEnum.FUNDED_LOCKED:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Cannot release escrow in state '{escrow['status']}': funds must be in FUNDED_LOCKED status.")
 
         # Check compliance proof
@@ -354,24 +337,7 @@ class AgentEscrowManager:
 
         if plots_to_check:
             # Satellite radar deforestation check
-            from app.schemas import ProductionPlotInput
-            from datetime import date
-            parsed_plots = []
-            for i, p in enumerate(plots_to_check):
-                geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
-                if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
-                    geom = {"type": "Point", "coordinates": geom}
-                elif isinstance(geom, list):
-                    geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
-
-                parsed_plots.append(ProductionPlotInput(
-                    plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
-                    country_code=p.get("country_code", "XX"),
-                    area_hectares=float(p.get("area_hectares", 2.0)),
-                    geometry=geom,
-                    production_date=date.today()
-                ))
-
+            parsed_plots = cls._parse_plots(plots_to_check)
             from app.modules.traceability_collector import TraceabilityCollector
             spatial_valid, spatial_results, _ = TraceabilityCollector.collect_and_validate(parsed_plots)
             deforest_free, sat_results, _ = DeforestationSimulator.analyze_all_plots(parsed_plots, spatial_results)
@@ -409,23 +375,15 @@ class AgentEscrowManager:
                 f"Escrow released {escrow['amount_usdc']:.2f} USDC to Seller Wallet '{escrow['seller_wallet']}' on {escrow['chain']}."
             )
 
-        if db:
-            try:
-                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if rec:
-                    rec.status = escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"])
-                    rec.release_tx_hash = escrow.get("release_tx_hash")
-                    rec.dds_reference_id = escrow.get("dds_reference_id")
-                    rec.customs_declaration_code = escrow.get("customs_declaration_code")
-                    rec.arbitration_verdict = escrow.get("arbitration_verdict")
-                    rec.hmac_release_signature = escrow.get("hmac_release_signature")
-                    rec.resolved_at = now_utc
-                    db.commit()
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
+        cls._persist_escrow_update(payload.escrow_id, {
+            "status": escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"]),
+            "release_tx_hash": escrow.get("release_tx_hash"),
+            "dds_reference_id": escrow.get("dds_reference_id"),
+            "customs_declaration_code": escrow.get("customs_declaration_code"),
+            "arbitration_verdict": escrow.get("arbitration_verdict"),
+            "hmac_release_signature": escrow.get("hmac_release_signature"),
+            "resolved_at": now_utc
+        }, db_session=db_session)
 
         # Telegram Notification
         try:
@@ -450,23 +408,8 @@ class AgentEscrowManager:
         Algorithmic Autonomous Dispute Arbitrator.
         Uses satellite telemetry & compliance records to resolve escrow without human litigation.
         """
-        escrow = cls._escrows.get(payload.escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[payload.escrow_id] = escrow
-            except Exception:
-                pass
-
+        escrow = cls._resolve_escrow(payload.escrow_id, db_session=db_session)
         if not escrow:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
 
         # Check evidence plots
@@ -475,30 +418,13 @@ class AgentEscrowManager:
         loss_details = []
 
         if plots:
-            from app.schemas import ProductionPlotInput
-            from datetime import date
-            parsed_plots = []
-            for i, p in enumerate(plots):
-                geom = p.get("geometry", p.get("coordinates", [101.45, 0.52]))
-                if isinstance(geom, list) and len(geom) == 2 and isinstance(geom[0], (int, float)):
-                    geom = {"type": "Point", "coordinates": geom}
-                elif isinstance(geom, list):
-                    geom = {"type": "Polygon", "coordinates": [geom] if len(geom) > 0 and isinstance(geom[0][0], (int, float)) else geom}
-
-                parsed_plots.append(ProductionPlotInput(
-                    plot_id=p.get("plot_id", f"PLOT-{i+1:03d}"),
-                    country_code=p.get("country_code", "XX"),
-                    area_hectares=float(p.get("area_hectares", 2.0)),
-                    geometry=geom,
-                    production_date=date.today()
-                ))
-
+            parsed_plots = cls._parse_plots(plots)
             from app.modules.traceability_collector import TraceabilityCollector
             spatial_valid, spatial_results, _ = TraceabilityCollector.collect_and_validate(parsed_plots)
             deforest_free, sat_results, _ = DeforestationSimulator.analyze_all_plots(parsed_plots, spatial_results)
             if not deforest_free:
                 has_deforestation = True
-                loss_details = [f"Plot {r.plot_id}: forest loss detected ({r.forest_loss_year})" for r in sat_results if r.forest_loss_detected]
+                loss_details = [f"Plot {r.plot_id}: forest loss detected ({r.forest_loss_year})" for r in sat_results if r.deforestation_detected]
         else:
             # If dispute mentions deforestation keyword in reason
             reason_lower = payload.reason.lower()
@@ -536,21 +462,13 @@ class AgentEscrowManager:
         ).hexdigest()
         escrow["resolved_at_utc"] = now_utc.isoformat()
 
-        if db:
-            try:
-                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if rec:
-                    rec.status = escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"])
-                    rec.release_tx_hash = escrow["release_tx_hash"]
-                    rec.arbitration_verdict = verdict
-                    rec.hmac_release_signature = escrow["hmac_release_signature"]
-                    rec.resolved_at = now_utc
-                    db.commit()
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
+        cls._persist_escrow_update(payload.escrow_id, {
+            "status": escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"]),
+            "release_tx_hash": escrow["release_tx_hash"],
+            "arbitration_verdict": verdict,
+            "hmac_release_signature": escrow["hmac_release_signature"],
+            "resolved_at": now_utc
+        }, db_session=db_session)
 
         return cls._dict_to_response(escrow, msg)
 
@@ -563,28 +481,11 @@ class AgentEscrowManager:
         Milestone 3: EU Customs Green Lane clearance (releases Milestone 3 USDC, marks escrow RELEASED)
         Also handles First-Mile multi-party split distribution if configured.
         """
-        escrow = cls._escrows.get(payload.escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[payload.escrow_id] = escrow
-            except Exception:
-                pass
-
+        escrow = cls._resolve_escrow(payload.escrow_id, db_session=db_session)
         if not escrow:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
 
         if escrow["status"] not in (EscrowStatusEnum.FUNDED_LOCKED, EscrowStatusEnum.PARTIALLY_RELEASED):
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Cannot release milestone in state '{escrow['status']}': must be in FUNDED_LOCKED or PARTIALLY_RELEASED status.")
 
         milestones = escrow.get("milestones")
@@ -704,19 +605,11 @@ class AgentEscrowManager:
         ).hexdigest()
 
         # Update DB
-        if db:
-            try:
-                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if rec:
-                    rec.status = escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"])
-                    rec.release_tx_hash = rel_tx
-                    rec.resolved_at = now_utc if all_done else None
-                    db.commit()
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
+        cls._persist_escrow_update(payload.escrow_id, {
+            "status": escrow["status"].value if hasattr(escrow["status"], "value") else str(escrow["status"]),
+            "release_tx_hash": rel_tx,
+            "resolved_at": now_utc if all_done else None
+        }, db_session=db_session)
 
         msg = (
             f"Milestone #{m_idx} ({target_m['name']}) unlocked: {rel_amount:.2f} USDC released. "
@@ -744,28 +637,11 @@ class AgentEscrowManager:
         Issues an official EIP-712 BLOCKED attestation ready for AgentEscrow.sol slashJob(),
         confiscates seller stake, and instantly refunds 100% principal back to Buyer wallet.
         """
-        escrow = cls._escrows.get(payload.escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[payload.escrow_id] = escrow
-            except Exception:
-                pass
-
+        escrow = cls._resolve_escrow(payload.escrow_id, db_session=db_session)
         if not escrow:
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Escrow ID '{payload.escrow_id}' not found.")
 
         if escrow["status"] not in (EscrowStatusEnum.DISPUTED, EscrowStatusEnum.FUNDED_LOCKED, EscrowStatusEnum.PARTIALLY_RELEASED):
-            if db and not db_session:
-                db.close()
             raise ValueError(f"Cannot auto-slash escrow in state '{escrow['status']}': must be in DISPUTED, FUNDED_LOCKED, or PARTIALLY_RELEASED status.")
 
         now_utc = datetime.now(timezone.utc)
@@ -803,43 +679,19 @@ class AgentEscrowManager:
             hashlib.sha256
         ).hexdigest()
 
-        if db:
-            try:
-                rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == payload.escrow_id).first()
-                if rec:
-                    rec.status = "REFUNDED"
-                    rec.release_tx_hash = escrow["release_tx_hash"]
-                    rec.arbitration_verdict = verdict
-                    rec.hmac_release_signature = escrow["hmac_release_signature"]
-                    rec.resolved_at = now_utc
-                    db.commit()
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
+        cls._persist_escrow_update(payload.escrow_id, {
+            "status": "REFUNDED",
+            "release_tx_hash": escrow["release_tx_hash"],
+            "arbitration_verdict": verdict,
+            "hmac_release_signature": escrow["hmac_release_signature"],
+            "resolved_at": now_utc
+        }, db_session=db_session)
 
         return cls._dict_to_response(escrow, f"Autonomous slashing executed successfully. {refund_amount:.2f} USDC refunded to Buyer.")
 
     @classmethod
     def get_escrow(cls, escrow_id: str, db_session=None) -> EscrowAgreementResponse:
-        escrow = cls._escrows.get(escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[escrow_id] = escrow
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
-
+        escrow = cls._resolve_escrow(escrow_id, db_session=db_session)
         if not escrow:
             raise ValueError(f"Escrow ID '{escrow_id}' not found.")
 
@@ -859,23 +711,7 @@ class AgentEscrowManager:
         Issue an EIP-712 cryptographic attestation as official EUDR Oracle Signer
         for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.
         """
-        escrow = cls._escrows.get(escrow_id)
-        from app.db.session import SessionLocal
-        from app.db.models import EscrowAgreementRecord
-        db = db_session or (SessionLocal() if SessionLocal else None)
-
-        if not escrow and db:
-            try:
-                db_rec = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
-                if db_rec:
-                    escrow = cls._model_to_dict(db_rec)
-                    cls._escrows[escrow_id] = escrow
-            except Exception:
-                pass
-            finally:
-                if not db_session:
-                    db.close()
-
+        escrow = cls._resolve_escrow(escrow_id, db_session=db_session)
         if not escrow:
             raise ValueError(f"Escrow ID '{escrow_id}' not found.")
 
@@ -925,10 +761,76 @@ class AgentEscrowManager:
         return web3_escrow_adapter.verify_attestation(attestation)
 
     @classmethod
+    def _resolve_escrow(cls, escrow_id: str, db_session=None) -> Optional[Dict[str, Any]]:
+        escrow = cls._escrows.get(escrow_id)
+        if escrow is not None:
+            return escrow
+        from app.db.session import SessionLocal
+        from app.db.models import EscrowAgreementRecord
+        if db_session:
+            db_rec = db_session.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
+            if db_rec:
+                escrow = cls._model_to_dict(db_rec)
+                cls._escrows[escrow_id] = escrow
+                return escrow
+        elif SessionLocal:
+            temp_db = SessionLocal()
+            try:
+                db_rec = temp_db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
+                if db_rec:
+                    escrow = cls._model_to_dict(db_rec)
+                    cls._escrows[escrow_id] = escrow
+                    return escrow
+            finally:
+                temp_db.close()
+        return None
+
+    @classmethod
+    def _persist_escrow_update(cls, escrow_id: str, updates: Dict[str, Any], db_session=None):
+        if escrow_id in cls._escrows:
+            for k, v in updates.items():
+                cls._escrows[escrow_id][k] = v
+        from app.db.session import SessionLocal
+        from app.db.models import EscrowAgreementRecord
+        if db_session:
+            try:
+                rec = db_session.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
+                if rec:
+                    for k, v in updates.items():
+                        setattr(rec, k, v)
+                    db_session.commit()
+            except Exception:
+                pass
+        elif SessionLocal:
+            temp_db = SessionLocal()
+            try:
+                rec = temp_db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.escrow_id == escrow_id).first()
+                if rec:
+                    for k, v in updates.items():
+                        setattr(rec, k, v)
+                    temp_db.commit()
+            except Exception:
+                pass
+            finally:
+                temp_db.close()
+
+    @classmethod
+    def _safe_escrow_status(cls, raw_status: Any) -> EscrowStatusEnum:
+        if isinstance(raw_status, EscrowStatusEnum):
+            return raw_status
+        if hasattr(raw_status, "value"):
+            raw_status = raw_status.value
+        s = str(raw_status or "").strip().upper()
+        try:
+            return EscrowStatusEnum(s)
+        except ValueError:
+            return EscrowStatusEnum.AWAITING_DEPOSIT
+
+    @classmethod
     def _model_to_dict(cls, rec) -> Dict[str, Any]:
         return {
             "escrow_id": rec.escrow_id,
-            "status": EscrowStatusEnum(rec.status) if rec.status in EscrowStatusEnum.__members__ else EscrowStatusEnum.AWAITING_DEPOSIT,
+            "status": cls._safe_escrow_status(rec.status),
             "amount_usdc": rec.amount_usdc,
             "chain": rec.chain,
             "buyer_agent_id": rec.buyer_agent_id,
@@ -938,7 +840,7 @@ class AgentEscrowManager:
             "hs_code": rec.hs_code,
             "commodity_description": rec.commodity_description,
             "declared_net_mass_kg": rec.declared_net_mass_kg,
-            "vault_deposit_address": AGENT_PAYMENT_VAULTS.get(rec.chain, DEPOSIT_WALLETS.get(rec.chain, "0x255F9991233f86B29dB847c8d5b8CB9915e80dCf")),
+            "vault_deposit_address": AGENT_PAYMENT_VAULTS.get(rec.chain, DEPOSIT_WALLETS.get(rec.chain, "0xA185B43fDD19619f99952AAed6eabf1029bF36a1")),
             "deposit_tx_hash": rec.deposit_tx_hash,
             "release_tx_hash": rec.release_tx_hash,
             "dds_reference_id": rec.dds_reference_id,
@@ -957,9 +859,7 @@ class AgentEscrowManager:
 
     @classmethod
     def _dict_to_response(cls, d: Dict[str, Any], msg: str) -> EscrowAgreementResponse:
-        status_enum = d["status"]
-        if isinstance(status_enum, str):
-            status_enum = EscrowStatusEnum(status_enum)
+        status_enum = cls._safe_escrow_status(d.get("status"))
 
         return EscrowAgreementResponse(
             escrow_id=d["escrow_id"],

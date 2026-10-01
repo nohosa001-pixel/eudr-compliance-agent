@@ -34,13 +34,16 @@ class ContinuousSentinelMonitor:
             from app.db.models import EscrowAgreementRecord
             db = SessionLocal() if SessionLocal else None
             if db:
-                db_recs = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.status == "FUNDED_LOCKED").all()
-                for rec in db_recs:
-                    if rec.escrow_id not in AgentEscrowManager._escrows:
-                        AgentEscrowManager._escrows[rec.escrow_id] = AgentEscrowManager._model_to_dict(rec)
-                db.close()
+                try:
+                    db_recs = db.query(EscrowAgreementRecord).filter(EscrowAgreementRecord.status == "FUNDED_LOCKED").all()
+                    for rec in db_recs:
+                        if rec.escrow_id not in AgentEscrowManager._escrows:
+                            AgentEscrowManager._escrows[rec.escrow_id] = AgentEscrowManager._model_to_dict(rec)
+                finally:
+                    db.close()
         except Exception:
             pass
+
 
         # Iterate over registered in-memory escrows
         for escrow_id, escrow in list(AgentEscrowManager._escrows.items()):
@@ -104,6 +107,12 @@ class ContinuousSentinelMonitor:
                     verdict="BLOCKED"
                 )
                 escrow["slashing_attestation"] = slashing_proof
+
+                # Persist dispute status to database if available
+                AgentEscrowManager._persist_escrow_update(escrow_id, {
+                    "status": "DISPUTED",
+                    "arbitration_verdict": loss_detail
+                })
 
                 # Update Prometheus metrics
                 metrics_collector.inc_counter(

@@ -2,6 +2,7 @@ import pytest
 import uuid
 import hmac
 import hashlib
+import json
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -247,3 +248,108 @@ async def test_mcp_agent_escrow_tools():
     release_res = await AgentToolsRegistry.execute_tool("eudr_release_agent_escrow", release_args)
     assert release_res["status"] == "RELEASED"
     assert "EU Single Window" in release_res["message"]
+
+
+def test_escrow_autonomous_arbitration_with_deforested_plots():
+    """Verify autonomous dispute arbitration properly handles deforested plots without AttributeError."""
+    create_res = client.post("/api/v1/payment/escrow/create", json={
+        "buyer_agent_id": "coffee-buyer-bot-99",
+        "buyer_wallet": "0x5555666677778888999900001111222233334444",
+        "seller_agent_id": "coffee-seller-bot-99",
+        "seller_wallet": "0x6666777788889999000011112222333344445555",
+        "amount_usdc": 3500.00,
+        "chain": "Polygon (PoS)",
+        "hs_code": "09011100",
+        "commodity_description": "Green Coffee Beans"
+    })
+    assert create_res.status_code == 201
+    escrow_id = create_res.json()["escrow_id"]
+
+    client.post("/api/v1/payment/escrow/fund", json={
+        "escrow_id": escrow_id,
+        "tx_hash": "0x" + "ff" * 32
+    })
+
+    # Deforested plot post-2020
+    bad_plots = [{
+        "plot_id": "PLOT-FAIL-deforestation_2022",
+        "country_code": "BR",
+        "area_hectares": 2.0,
+        "coordinates": [-45.1234, -12.5678]
+    }]
+
+    arb_res = client.post("/api/v1/payment/escrow/dispute-arbitrate", json={
+        "escrow_id": escrow_id,
+        "initiator_agent_id": "coffee-buyer-bot-99",
+        "reason": "Suspected clearing in 2022",
+        "plots": bad_plots
+    })
+    assert arb_res.status_code == 200
+    adata = arb_res.json()
+    assert adata["status"] == "REFUNDED"
+    assert "refunded to Buyer Wallet" in adata["arbitration_verdict"]
+
+
+def test_escrow_parse_plots_edge_cases():
+    """Verify AgentEscrowManager._parse_plots resilience against nulls, missing attributes, and weird geometries."""
+    from app.modules.agent_escrow_manager import AgentEscrowManager
+    raw_plots = [
+        {"plot_id": None, "country_code": None, "area_hectares": None, "coordinates": None},
+        {"area_hectares": "3.5", "coordinates": [[101.45, 0.52], [101.46, 0.52], [101.46, 0.53], [101.45, 0.52]]},
+        {"coordinates": [[]]},
+    ]
+    parsed = AgentEscrowManager._parse_plots(raw_plots)
+    assert len(parsed) == 3
+    assert parsed[0].area_hectares == 2.0
+    assert parsed[0].country_code == "XX"
+    assert parsed[0].plot_id.startswith("PLOT-")
+    assert parsed[1].area_hectares == 3.5
+    assert parsed[1].geometry["type"] == "Polygon"
+
+
+def test_mcp_batch_and_edge_case_requests():
+    """Verify MCP JSON-RPC 2.0 batch requests, empty batch error, roots/list, and completion/complete."""
+    # 1. Empty batch array
+    res = client.post("/api/v1/mcp", json=[])
+    assert res.status_code == 200
+    err_data = res.json()
+    assert err_data["error"]["code"] == -32600
+
+    # 2. Batch with valid requests
+    batch_req = [
+        {"jsonrpc": "2.0", "id": 101, "method": "ping"},
+        {"jsonrpc": "2.0", "id": 102, "method": "roots/list"},
+        {"jsonrpc": "2.0", "id": 103, "method": "completion/complete", "params": {}},
+        {"jsonrpc": "2.0", "method": "notifications/initialized"}
+    ]
+    batch_res = client.post("/api/v1/mcp", json=batch_req)
+    assert batch_res.status_code == 200
+    bdata = batch_res.json()
+    assert isinstance(bdata, list)
+    assert len(bdata) == 3  # notification does not produce response
+    assert bdata[0]["id"] == 101
+    assert bdata[1]["id"] == 102
+    assert "roots" in bdata[1]["result"]
+    assert bdata[2]["id"] == 103
+    assert "completion" in bdata[2]["result"]
+
+    # 3. Notification returns 204 No Content
+    notif_res = client.post("/api/v1/mcp", json={"jsonrpc": "2.0", "method": "notifications/cancelled"})
+    assert notif_res.status_code == 204
+
+    # 4. tools/call with JSON string argument
+    str_arg_call = {
+        "jsonrpc": "2.0",
+        "id": 104,
+        "method": "tools/call",
+        "params": {
+            "name": "eudr_estimate_compliance_cost",
+            "arguments": json.dumps({"num_plots": 5, "include_traces_submission": False})
+        }
+    }
+    call_res = client.post("/api/v1/mcp", json=str_arg_call)
+    assert call_res.status_code == 200
+    cdata = call_res.json()
+    assert cdata["result"]["isError"] is False
+
+

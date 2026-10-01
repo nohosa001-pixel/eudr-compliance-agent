@@ -75,6 +75,65 @@ class PaymentManager:
         }
 
     @classmethod
+    async def check_multichain_rpc_status(cls) -> Dict[str, Any]:
+        """
+        Probes live RPC endpoints across Polygon (137), Base (8453), Arbitrum One (42161),
+        verifying latency, current block heights, and USDC contract deployments.
+        """
+        import httpx
+        evm_chains = [
+            {"name": "Polygon (PoS)", "chain_id": 137, "rpc": CHAIN_RPC_NODES["Polygon (PoS)"], "usdc": USDC_CONTRACT_ADDRESSES["Polygon (PoS)"], "vault": AGENT_PAYMENT_VAULTS["Polygon (PoS)"]},
+            {"name": "Base (Low Gas $0.01)", "chain_id": 8453, "rpc": CHAIN_RPC_NODES["Base (Low Gas $0.01)"], "usdc": USDC_CONTRACT_ADDRESSES["Base (Low Gas $0.01)"], "vault": AGENT_PAYMENT_VAULTS["Base (Low Gas $0.01)"]},
+            {"name": "Arbitrum One", "chain_id": 42161, "rpc": CHAIN_RPC_NODES["Arbitrum One"], "usdc": USDC_CONTRACT_ADDRESSES["Arbitrum One"], "vault": AGENT_PAYMENT_VAULTS["Arbitrum One"]},
+        ]
+
+        results = {}
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            for c in evm_chains:
+                t0 = datetime.now()
+                batch_body = [
+                    {"jsonrpc": "2.0", "id": 1, "method": "eth_chainId", "params": []},
+                    {"jsonrpc": "2.0", "id": 2, "method": "eth_blockNumber", "params": []},
+                    {"jsonrpc": "2.0", "id": 3, "method": "eth_getCode", "params": [c["usdc"], "latest"]}
+                ]
+                try:
+                    res = await client.post(c["rpc"], json=batch_body)
+                    latency = round((datetime.now() - t0).total_seconds() * 1000.0, 1)
+                    if res.status_code == 200:
+                        data = res.json()
+                        reported_cid = int(data[0].get("result", "0x0"), 16) if isinstance(data, list) and len(data) > 0 else None
+                        block_height = int(data[1].get("result", "0x0"), 16) if isinstance(data, list) and len(data) > 1 else None
+                        has_usdc_code = len(data[2].get("result", "0x")) > 2 if isinstance(data, list) and len(data) > 2 else False
+                        results[c["name"]] = {
+                            "status": "ONLINE",
+                            "chain_id": reported_cid,
+                            "expected_chain_id": c["chain_id"],
+                            "chain_id_verified": reported_cid == c["chain_id"],
+                            "current_block_height": block_height,
+                            "usdc_contract_verified": has_usdc_code,
+                            "usdc_address": c["usdc"],
+                            "vault_address": c["vault"],
+                            "latency_ms": latency
+                        }
+                    else:
+                        results[c["name"]] = {"status": "DEGRADED", "status_code": res.status_code, "latency_ms": latency}
+                except Exception as e:
+                    results[c["name"]] = {
+                        "status": "OFFLINE_FALLBACK",
+                        "error": str(e),
+                        "chain_id": c["chain_id"],
+                        "usdc_address": c["usdc"],
+                        "vault_address": c["vault"]
+                    }
+
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "multichain_operational": all(v.get("status") == "ONLINE" for v in results.values()),
+            "chains": results
+        }
+
+
+    @classmethod
     def verify_onchain_transaction(
         cls,
         chain: str,

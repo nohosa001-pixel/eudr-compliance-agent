@@ -1381,6 +1381,19 @@ async def get_payment_vaults():
     """
     return PaymentManager.get_multichain_vaults()
 
+@app.get(
+    f"{settings.API_V1_PREFIX}/payment/chains/status",
+    tags=["B2B USDC Payments & Subscriptions"],
+    summary="Live Multi-Chain RPC Health & USDC Contract Verification (Polygon, Base, Arbitrum)"
+)
+async def get_multichain_status():
+    """
+    Actively probes official RPC endpoints for Polygon (137), Base (8453), and Arbitrum (42161),
+    returning block height, RPC latency, and on-chain USDC contract verification.
+    """
+    return await PaymentManager.check_multichain_rpc_status()
+
+
 
 # -------------------------------------------------------------------
 # Autonomous Agent M2M Settlement & x402 Protocol Endpoints

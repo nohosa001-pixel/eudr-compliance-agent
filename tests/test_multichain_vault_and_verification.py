@@ -107,3 +107,23 @@ def test_verify_onchain_transaction_direct():
     )
     assert evm_res["verified"] is True
     assert "mode" in evm_res
+
+
+@pytest.mark.asyncio
+async def test_multichain_rpc_status_probes():
+    """Verify live/fallback probe across Polygon, Base, Arbitrum."""
+    res = await PaymentManager.check_multichain_rpc_status()
+    assert "chains" in res
+    assert "Polygon (PoS)" in res["chains"]
+    assert "Base (Low Gas $0.01)" in res["chains"]
+    assert "Arbitrum One" in res["chains"]
+
+
+def test_api_payment_chains_status_endpoint():
+    """Verify GET /api/v1/payment/chains/status endpoint."""
+    response = client.get("/api/v1/payment/chains/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert "chains" in data
+    assert len(data["chains"]) == 3
+

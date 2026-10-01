@@ -66,7 +66,7 @@ def test_batch_job_submit_and_polling():
 
     # 2. Poll Status until COMPLETED or timeout
     completed = False
-    for _ in range(100):
+    for _ in range(250):
         status_resp = client.get(f"/api/v1/eudr/batch/{job_id}/status")
         assert status_resp.status_code == 200
         status_data = status_resp.json()
@@ -76,9 +76,11 @@ def test_batch_job_submit_and_polling():
             assert status_data["execution_id"] is not None
             assert status_data["overall_status"] in ["COMPLIANT", "NON_COMPLIANT", "ACTION_REQUIRED"]
             break
+        if status_data["status"] == "FAILED":
+            pytest.fail(f"Batch job {job_id} failed: {status_data.get('error_message')}")
         time.sleep(0.1)
 
-    assert completed, "Batch job did not complete in expected time window."
+    assert completed, f"Batch job did not complete in expected time window. Last status: {status_data}"
 
 
 

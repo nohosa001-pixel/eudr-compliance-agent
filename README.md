@@ -1,73 +1,118 @@
-# 🌲 EUDRAgent.com | Autonomous EUDR Compliance & TRACES-NT DDS Platform
+# 🌲 EUDRAgent.com | Autonomous EUDR Compliance & Multi-Chain Escrow Platform
 
+[![EUDRAgent CI/CD Pipeline](https://github.com/nohosa001-pixel/eudr-compliance-agent/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent/actions)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-253%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
-[![Multi-Chain](https://img.shields.io/badge/Chains-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
+[![Tests](https://img.shields.io/badge/Tests-294%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Multi-Chain](https://img.shields.io/badge/EVM-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
+[![Solana](https://img.shields.io/badge/Solana-Mainnet--Beta%20SPL--USDC-14F195?style=flat&logo=solana&logoColor=black)](https://solscan.io)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers/nohosa001-pixel/eudr-compliance-agent)
-[![Smithery](https://img.shields.io/badge/Smithery.ai-Verified%20MCP-FF6B6B.svg)](https://smithery.ai/server/@nohosa001-pixel/eudr-compliance-agent)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Live%20Production-4285F4.svg)](https://cloud.google.com/run)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **EUDRAgent** is an enterprise-grade autonomous compliance automation and Due Diligence Statement (DDS) generation engine for the **European Union Deforestation Regulation (Regulation (EU) 2023/1115)**.
 
+Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Optical), 4ha polygon self-healing, EU TRACES-NT XML customs clearance, autonomous Reverse-Auction B2B procurement, sub-5ms cognitive firewall via **`security-gate-x402`**, and multi-chain smart escrows across **Solana Mainnet-Beta (SPL-USDC), Polygon PoS, Base, and Arbitrum One**.
+
 ---
 
-## 📽️ 4-Step Instant Demo (2s Audit)
+## 📽️ 4-Step Instant Demo (2-Second Automated Audit)
 
 ![EUDR Compliance Agent Video Demonstration](eudr_usage_tutorial.gif)
 
-### 💡 Why EUDR Agent? (Instant Problem Solver)
+### 💡 Why EUDRAgent? (The Enterprise Solution)
 
-| ❌ The Problem | ➔ | ✅ The Solution |
+| ❌ The Legacy Problem | ➔ | ✅ The EUDRAgent Solution |
 | :--- | :---: | :--- |
-| **4% Revenue Fines & Blocked Cargo** | ➔ | **0% Fine Guarantee & Verified Clearance** |
-| **Weeks of Manual Satellite GIS Checks** | ➔ | **2-Second Multi-Satellite Radar Scan** |
-| **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Validated Official TRACES-NT XML** |
-| **Trading Counterparty Fraud & Bad Data** | ➔ | **Web3 AgentEscrow & EIP-712 Economic Slashing** |
-| **Prompt Injections & Trade Data Hallucinations** | ➔ | **Security Gate x402 & NLI Yield Fact-Checking** |
-| **Manual B2B Procurement Overhead** | ➔ | **Autonomous Reverse-Auction A2A Clearing** |
+| **4% Global Revenue Fines & Seized Cargo** | ➔ | **0% Fine Guarantee & Verified Customs Clearance** |
+| **Weeks of Manual GIS Parcel Inspection** | ➔ | **2-Second Multi-Satellite Radar & Optical Scan** |
+| **Topological Polygon Defects & Coordinate Reversals** | ➔ | **Autonomous Self-Healing GIS (Bowties, WGS84, 4ha Rule)** |
+| **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Official Validated TRACES-NT XML & JSON-LD** |
+| **Trading Counterparty Fraud & Data Tampering** | ➔ | **Anchor Solana Escrow + EIP-712 Oracle Slashing** |
+| **Smallholder Payment Delays & High Gas Fees** | ➔ | **Sub-Second Direct Split via Solana SPL-USDC & Solana Pay** |
+| **Prompt Injections & Supply Chain Hallucinations** | ➔ | **Sub-5ms Cognitive Firewall via `security-gate-x402`** |
+| **Manual Procurement Inefficiencies** | ➔ | **Autonomous A2A Reverse-Auction Marketplace** |
 
 ---
 
-## 🧭 The 4-Step Flow: `1. UPLOAD ➔ 2. SCAN ➔ 3. VERIFY ➔ 4. EXPORT`
+## 🌐 Autonomous 4-Node Inter-Agent Mesh Ecosystem
 
----
+EUDRAgent is natively integrated into the **@nohosa001-pixel Autonomous Agent Mesh**, operating over the Model Context Protocol (MCP) JSON-RPC 2.0 with cryptographic verification:
 
-## 📌 Live Cloud Portals & Access Points
-
-| Service Portal | URL / Route | Description |
-| :--- | :--- | :--- |
-| 🌟 **SaaS Official Landing Page** | [`/`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/) | Interactive 4-country satellite radar sandbox & transparent pricing |
-| 🖥️ **Enterprise Operator Console** | [`/dashboard`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/dashboard) | 4ha polygon self-healing, multi-satellite analysis, & TRACES-NT DDS generation |
-| 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
-| 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/docs) | Swagger UI for ERP, SAP, and customs system integration |
-| 🩺 **System Health Endpoint** | [`/api/v1/eudr/health`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/eudr/health) | EUDR cut-off baseline date & cluster health status |
-| 📊 **Prometheus APM Telemetry** | [`/metrics`](https://eudragent.com/metrics) | Standard OpenMetrics 0.0.4 text export for 24/7 APM surveillance |
-| 🛡️ **x402 Security Gate Inspector** | [`/api/v1/security/inspect`](https://eudragent.com/api/v1/security/inspect) | Sub-millisecond Prompt Injection & Agronomic Fact-Check |
-| 🤝 **Autonomous A2A Marketplace** | [`/api/v1/marketplace/rfq/create`](https://eudragent.com/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and bid auto-clearing |
-| 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudragent.com/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude, Cursor & AI Agents |
-| 📄 **LLM Discovery Spec** | [`/llms.txt`](https://eudragent.com/llms.txt) | LLM crawler & agent standard summary |
-
----
-
-## 🤖 Model Context Protocol (MCP) Integration (Glama.ai Ready)
-
-EUDRAgent includes a native **Model Context Protocol (MCP v2024-11-05)** server, allowing AI assistants like **Claude Desktop, Cursor, Antigravity, and Zed** to autonomously perform EUDR compliance audits.
-
-### Install via Smithery CLI
-
-To automatically install and configure for Claude Desktop:
-
-```bash
-npx -y @smithery/cli install @nohosa001-pixel/eudr-compliance-agent --client claude
-
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │         EUDR Compliance Agent (Port 8000)              │
+               │   • Copernicus Sentinel-1/2 SAR / Optical Telemetry   │
+               │   • WGS84 Geodesic Polygon Self-Healing (<4ha Rule)   │
+               │   • Official TRACES-NT B2G Customs XML Compiler       │
+               └─────────┬──────────────────────┬───────────────────────┘
+                         │                      │
+       MCP / JSON-RPC    │                      │  MCP / JSON-RPC
+       Cognitive Shield  │                      │  Clean Supplier Web
+                         ▼                      ▼
+┌──────────────────────────────────────┐  ┌─────────────────────────────────────┐
+│    Node 2: security-gate-x402        │  │     Node 3: x402-cleanweb-agent     │
+│ • Sub-5ms Cognitive Firewall         │  │ • Autonomous Web Scraping           │
+│ • EIP-712 Domain 3 Truth Oracle      │  │ • HTML Bloat & Ad Stripping         │
+│ • Universal Direct Split Escrow      │  │ • Smallholder Cooperative Dossiers  │
+│ • Solana Ed25519 Mainnet Attestor    │  │ • Production Web Intelligence       │
+└──────────────────────────────────────┘  └─────────────────────────────────────┘
+                         │
+                         │ Cross-Check ESG
+                         ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                        Node 4: minerals-oracle-x402                           │
+│  • Critical Minerals Valuation (Li, Ni, Cu, Co, Ti)                           │
+│  • EUDR Forest Conflict ESG Cross-Check & Traceability Audits                 │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Quick Setup for Claude Desktop (`claude_desktop_config.json`)
+---
+
+## ⚡ Multi-Chain Escrow & Settlement Rails
+
+EUDRAgent supports dual-layer smart contracts for frictionless B2B trade execution, eliminating commercial default risk while ensuring zero-deforestation compliance:
+
+### 1. Solana Mainnet-Beta SPL-USDC Escrow Rail (High Throughput)
+* **Settlement Token**: Native SPL-USDC (`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`, 6 decimals).
+* **Speed & Cost**: 400ms finality, ~$0.00025 network fee.
+* **Anchor Smart Contract**: [`programs/eudr-escrow/src/lib.rs`](programs/eudr-escrow/src/lib.rs) with `initialize_escrow`, `settle_direct_split`, and `slash_non_compliant`.
+* **Oracle Attestation**: Ed25519 cryptographic truth proof (`EUDR_FOREST_SOLANA` domain).
+* **Solana Pay**: Dynamic QR payloads & deep links (`solana:<recipient>?amount=...&spl-token=...`).
+* **Treasury Account**: `411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp`.
+
+### 2. Multi-Chain EVM Payment Vaults (Polygon, Base, Arbitrum)
+* **Polygon PoS (137)**: `0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861` (Native USDC: `0x3c49...3359`).
+* **Base Mainnet (8453)**: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD` (Native USDC: `0x8335...2913`).
+* **Arbitrum One (42161)**: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD` (Native USDC: `0xaf88...5831`).
+* **Smart Contract**: `AgentEscrow.sol` with EIP-712 off-chain oracle verification (`0x90F8...C9C1`).
+
+---
+
+## 📌 Live Cloud Portals & Diagnostic Endpoints
+
+| Portal / API Route | Target URL | Description |
+| :--- | :--- | :--- |
+| 🌟 **SaaS Official Landing Page** | [`/`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/) | Interactive 4-country satellite radar sandbox & transparent pricing |
+| 🖥️ **Operator Console** | [`/dashboard`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/dashboard) | 4ha polygon self-healing, multi-satellite analysis, & TRACES-NT DDS generation |
+| 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
+| 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/docs) | OpenAPI 3.1 / Swagger UI for ERP, SAP, and customs system integration |
+| 🛡️ **Security Gate Diagnostics** | [`/api/v1/eudr/mesh/security-gate/diagnostics`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/eudr/mesh/security-gate/diagnostics) | **Live 4-tier probe of connected `security-gate-x402` (Seoul Cloud Run)** |
+| ⛓️ **Multi-Chain RPC Status** | [`/api/v1/payment/chains/status`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/payment/chains/status) | **Real-time RPC block heights & USDC contracts for Polygon, Base, Arbitrum** |
+| ☀️ **Solana Escrow Cluster** | [`/api/v1/escrow/solana/cluster-status`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/escrow/solana/cluster-status) | Live slot height, 400ms block time, and SPL-USDC mint status on Solana |
+| 🤝 **A2A Marketplace RFQ** | [`/api/v1/marketplace/rfq/create`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and reverse-auction clearing |
+| 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude Desktop, Cursor, Antigravity |
+| 📄 **LLM Discovery Directory** | [`/llms.txt`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/llms.txt) | LLM crawler & agent standard summary |
+
+---
+
+## 🤖 Model Context Protocol (MCP) Integration
+
+EUDRAgent provides a native **MCP v2024-11-05** server exposing **32+ autonomous agent tools**. Compatible with **Claude Desktop, Cursor, Antigravity, and Zed**.
+
+### Claude Desktop Setup (`claude_desktop_config.json`)
 
 ```json
 {
@@ -75,59 +120,33 @@ npx -y @smithery/cli install @nohosa001-pixel/eudr-compliance-agent --client cla
     "eudr-compliance": {
       "command": "python",
       "args": [
-        "/path/to/eudr-compliance-agent/mcp_server_stdio.py"
+        "C:\\Users\\nohos\\OneDrive\\바탕 화면\\eudr-compliance-agent\\mcp_server_stdio.py"
       ]
-    }
-  }
-}
-```
-
-### Remote MCP Server Setup (HTTP Transport)
-
-```json
-{
-  "mcpServers": {
+    },
     "eudr-compliance-cloud": {
-      "url": "https://eudragent.com/api/v1/mcp"
+      "url": "https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/mcp"
     }
   }
 }
 ```
 
-### 30 Registered Autonomous Agent Tools
+### 32 Registered Autonomous Agent Tools (Selected)
 
-| Category | Tool Name | Purpose |
+| Category | Tool Name | Description |
 | :--- | :--- | :--- |
-| **GIS & Verification** | `eudr_verify_plot` | Validates GIS coordinates, WGS84 bounds, and polygon 4.0ha threshold |
-| **Deforestation Radar** | `eudr_check_deforestation` | Radar & optical satellite canopy loss analysis against 2020-12-31 baseline |
-| **Satellite Mapping** | `eudr_render_satellite_map` | Generates Sentinel-2 NDVI canopy density SVG radar visualization |
-| **Customs & Legality** | `eudr_verify_vies_vat` | Real-time EU Commission VIES VAT cross-border reverse charge check |
-| **Compliance Filing** | `eudr_generate_dds` | Compiles official TRACES-NT XML Due Diligence Statement declaration |
-| **Security & Merkle** | `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
-| **Pricing Estimation** | `eudr_estimate_compliance_cost` | Automated budget estimation based on plot volume and resolution |
-| **USDC Payment** | `eudr_create_payment_order` | On-chain USDC payment order with budget cap safety guardrails |
-| **Tx Confirmation** | `eudr_confirm_payment` | Validates on-chain tx_hash and provisions live Pro API Key |
-| **Micro Settlement** | `eudr_agent_micro_pay` | M2M on-demand plot micro-payment on Base/Polygon/Arbitrum |
-| **Gasless Permit** | `eudr_agent_eip3009_pay` | Gasless USDC authorization without requiring ETH/MATIC gas |
-| **Budget Telemetry** | `eudr_get_agent_budget_status` | Real-time agent budget and monthly plot balance inquiry |
-| **Customs Clearance** | `eudr_generate_customs_certificate` | Generates official EU SWE-C Green Lane Customs Certificate |
-| **TRACES Direct XML** | `eudr_export_traces_xml` | Direct XSD v2.4 compliant EU customs XML export |
-| **Risk Benchmarking** | `eudr_benchmark_country` | Article 29 Country Benchmarking risk tier (Low, Standard, High) |
-| **Supply Chain Chaining**| `eudr_link_downstream_chain` | Article 4(8) downstream pass-through DDS reference chaining |
-| **Statutory Exemption**| `eudr_issue_statutory_exemption`| Evaluates Delegated Act Sept 2026 statutory exemption (Bovine leather) |
-| **Parcel Slicing** | `eudr_slice_parcel` | Sub-divides oversized (>4ha) smallholder parcels into <4ha polygons |
-| **Compact Summary** | `eudr_evaluate_compact` | Ultra-compact (~300 token) token-efficient summary for LLMs |
-| **Instant Alerts** | `eudr_send_telegram_alert` | Instant real-time alerts to maintainer Telegram channel |
-| **Agent Evolution** | `eudr_submit_agent_feedback` | Allows autonomous bots to submit evolution proposals |
-| **Smart Escrow Create**| `eudr_create_agent_escrow` | Creates B2B trade Smart Escrow locking USDC in payment vaults |
-| **Smart Escrow Fund** | `eudr_fund_agent_escrow` | Confirms on-chain USDC transfer and transitions to FUNDED_LOCKED |
-| **Smart Escrow Release**| `eudr_release_agent_escrow`| Releases locked escrow upon verified EU customs clearance code |
-| **Smart Escrow Arbitrate**| `eudr_arbitrate_agent_escrow`| Deterministic satellite arbitration (100% refund or release) |
-| **Web3 Oracle Attest** | `eudr_issue_eip712_attestation`| **Issues EIP-712 Attestation as EUDR Oracle for AgentEscrow.sol** |
-| **Web3 Oracle Verify** | `eudr_verify_eip712_attestation`| **Cryptographically verifies EIP-712 proof for completeJob/slashJob** |
-| **x402 Security Shield**| `eudr_inspect_payload_security`| **Prompt injection defense, AST code barrier & agronomic yield fact-check** |
-| **A2A RFQ Broadcast** | `eudr_publish_compliance_rfq`| **Buyer AI Agent broadcasts EUDR compliance RFQ to supplier network** |
-| **A2A Bid Submit** | `eudr_submit_compliance_bid` | **Supplier AI Agent submits competitive geolocated compliance bid** |
+| **GIS & Self-Healing** | `eudr_verify_plot` | WGS84 geodesic coordinates, polygon closure, and strict 4.0ha rule check |
+| **Deforestation Radar** | `eudr_check_deforestation` | Sentinel-1/2 & GFC canopy loss analysis against 2020-12-31 cutoff baseline |
+| **Satellite Radar Map** | `eudr_render_satellite_map` | Generates Sentinel-2 NDVI canopy density SVG radar visualization |
+| **EU Customs Clearance** | `eudr_verify_vies_vat` | Real-time EU Commission VIES VAT cross-border reverse charge check |
+| **DDS Compilation** | `eudr_generate_dds` | Compiles official TRACES-NT XML & JSON-LD Due Diligence Statement |
+| **Audit Integrity** | `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
+| **Solana Direct Split** | `eudr_solana_settle_escrow` | **Settles SPL-USDC escrow with instant direct payout to farmers** |
+| **Solana Pay Link** | `eudr_solana_generate_pay_link` | **Generates standard Solana Pay URI and QR code payload** |
+| **Web3 Oracle Attest** | `eudr_issue_eip712_attestation`| Issues EIP-712 Attestation as EUDR Oracle for EVM `AgentEscrow.sol` |
+| **Web3 Oracle Verify** | `eudr_verify_eip712_attestation`| Verifies EIP-712 proof for on-chain `completeJob` or `slashJob` |
+| **x402 Security Shield** | `eudr_inspect_payload_security`| Prompt injection barrier, AST sandbox, & agronomic yield fact-check |
+| **A2A RFQ Broadcast** | `eudr_publish_compliance_rfq` | Autonomous Buyer Agent broadcasts procurement RFQ to supplier network |
+| **A2A Bid Submission** | `eudr_submit_compliance_bid` | Supplier AI Agent submits competitive geolocated compliance bid |
 
 ---
 
@@ -148,9 +167,9 @@ EUDR Supply Chain Payload (JSON / CSV / GeoJSON / Shapefile)
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ 2. Multi-Constellation Satellite Radar (DeforestationAnalyzer)          │
 │    - Strict Cut-off Baseline: 31 December 2020                          │
+│    - Copernicus Sentinel-1 (C-Band Synthetic Aperture Radar - SAR)      │
 │    - Copernicus Sentinel-2 (NDVI 10m Multi-Spectral Monitoring)         │
-│    - Hansen Global Forest Change (GFC) Annual Loss Detection            │
-│    - JRC Global Forest Cover & Canopy Density Triangulation             │
+│    - Hansen Global Forest Change (GFC) & JRC Canopy Triangulation       │
 └────────────────────────────────────┬────────────────────────────────────┘
                                      │
                                      ▼
@@ -166,13 +185,14 @@ EUDR Supply Chain Payload (JSON / CSV / GeoJSON / Shapefile)
 │ 4. Cryptographic TRACES-NT DDS Statement Generator (DDSGenerator)       │
 │    - EU Customs Direct B2G Submission Payload Packaging                 │
 │    - HMAC-SHA256 Cryptographic Digital Signature & Merkle Audit Trail   │
+│    - Dual-rail Settlement: Solana Mainnet SPL-USDC & EVM AgentEscrow    │
 │    - Article 31 (5-Year Record Retention) Immutable Evidence Bundle    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Quick Start Guide (Local Development)
+## 🚀 Quick Start Guide
 
 ### 1. Installation
 
@@ -183,10 +203,10 @@ cd eudr-compliance-agent
 
 # Create and activate virtual environment
 python -m venv .venv
-.\.venv\Scripts\activate      # Windows
-source .venv/bin/activate       # Linux / macOS
+.\.venv\Scripts\activate      # Windows (PowerShell)
+source .venv/bin/activate     # Linux / macOS
 
-# Install dependencies
+# Install dependencies (FastAPI, Shapely, PyProj, Eth-Account, Cryptography)
 pip install -r requirements.txt
 ```
 
@@ -196,38 +216,25 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Open your browser at `http://localhost:8000` to view the SaaS Landing Page or `http://localhost:8000/dashboard` for the Operator Console.
+Open your browser at `http://localhost:8000` to access the SaaS Landing Page, or `http://localhost:8000/dashboard` for the Operator Console.
 
-### 3. Run Test Suite
+### 3. Run Automated Test Suite (294 Tests)
 
 ```bash
-pytest -v tests/
+python -m pytest -v tests/
 ```
 
-Runs the full suite of **75 automated tests** (Spatial validation, satellite loss detection, legal auditing, PostGIS integration, and API security).
+Validates the complete suite of **294 automated tests** covering GIS self-healing, Copernicus satellite radar analysis, EIP-712 EVM escrows, Solana SPL-USDC Direct Splits, and Inter-Agent Mesh diagnostics.
 
 ---
 
-## 🔑 Programmatic API & ERP Integration
+## 🔑 Programmatic API Usage Examples
 
-### 1. Generate SaaS API Key
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/auth/api-keys" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "company_name": "Global Timber & Coffee Trading Ltd",
-    "contact_email": "compliance@company.com",
-    "tier": "PRO"
-  }'
-```
-
-### 2. Submit Compliance Due Diligence Evaluation
+### 1. Submit EUDR Due Diligence Evaluation
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/eudr/evaluate" \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: eudr_live_YOUR_KEY_HERE" \
   -d '{
     "operator_id": "VN-EXP-COFFEE-8821",
     "operator_name": "Highland Agri Export Ltd",
@@ -271,35 +278,46 @@ curl -X POST "http://localhost:8000/api/v1/eudr/evaluate" \
   }'
 ```
 
+### 2. Execute Solana SPL-USDC Direct Split Settlement
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/escrow/solana/settle-eudr" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "job_id": "job_timber_sumatra_01",
+    "buyer_wallet": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "recipients": [
+      {"recipient": "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp", "amount": 1000.0, "role": "COOPERATIVE_FARMER"}
+    ],
+    "attestation": {
+      "domain": "EUDR_FOREST_SOLANA",
+      "cluster": "mainnet-beta",
+      "job_id": "job_timber_sumatra_01",
+      "is_valid": true,
+      "deforestation_free": true,
+      "oracle_pubkey": "774hK5wmk5pStvsh5DH46pYPYYD3ro7tMfz1ASxcbiTK",
+      "signature": "41zgMmCsWVKU32Yk8QVNR3fpVrmnWXrguKsHmUTGLmspritarqPJuAXXfREpvAJoNxhWo14U6UQSh6dn9sgukATF"
+    }
+  }'
+```
+
 ---
 
 ## ☁️ Production Cloud Deployment
 
-### 1. Deploy to Google Cloud Run (One-Click)
+### Deploy to Google Cloud Run (Seoul `asia-northeast3`)
 
 ```powershell
 .\deploy_gcp.ps1
 ```
 
-Builds the container and deploys to **Google Cloud Run** in `asia-northeast3` (Seoul) with auto-scaling, HTTPS, and custom domain mapping.
-
-### 2. Deploy via Docker Compose & Nginx SSL
-
-```bash
-# Copy and configure environment variables
-cp .env.production.example .env.production
-nano .env.production
-
-# Execute deployment script
-chmod +x deploy.sh
-./deploy.sh
-```
+Automatically packages the container, injects production environment variables (Copernicus CDSE credentials, Multi-Chain RPCs, Solana Treasury Wallet), and deploys to **Google Cloud Run** with automated TLS and CDN acceleration.
 
 ---
 
-## 📋 Regulated Annex I Commodities
+## 📋 Regulated Annex I Commodities (EUDR)
 
-EUDRAgent provides automatic classification and compliance verification for all 7 Annex I commodity categories:
+EUDRAgent provides automatic classification and compliance verification across all 7 Annex I commodities:
 
 - ☕ **Coffee** (HS Chapter 0901)
 - 🍫 **Cocoa** (HS Chapter 1801–1806)
@@ -313,7 +331,7 @@ EUDRAgent provides automatic classification and compliance verification for all 
 
 ## ⚖️ Legal & Regulatory Disclaimer
 
-This software is designed to assist operators and traders in complying with their obligations under Regulation (EU) 2023/1115. Operators remain legally responsible for the final submission of Due Diligence Statements to EU competent authorities via TRACES-NT.
+This software assists operators and traders in fulfilling statutory compliance obligations under Regulation (EU) 2023/1115. Operators remain legally responsible for the final submission of Due Diligence Statements to EU competent authorities via the TRACES-NT portal.
 
 ---
 

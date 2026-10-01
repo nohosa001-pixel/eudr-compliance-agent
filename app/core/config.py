@@ -82,7 +82,7 @@ class Settings(BaseModel):
     SOLANA_RPC_URL: str = os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
     SOLANA_NETWORK: str = os.getenv("SOLANA_NETWORK", "mainnet-beta")
     SOLANA_USDC_MINT: str = os.getenv("SOLANA_USDC_MINT", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") # Native SPL-USDC
-    SOLANA_TREASURY_WALLET: str = os.getenv("SOLANA_TREASURY_WALLET", "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU")
+    SOLANA_TREASURY_WALLET: str = os.getenv("SOLANA_TREASURY_WALLET", "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp")
     SOLANA_ESCROW_PROGRAM_ID: str = os.getenv("SOLANA_ESCROW_PROGRAM_ID", "EUDRScrw11111111111111111111111111111111111")
     SOLANA_ORACLE_PRIVATE_KEY: str = os.getenv("SOLANA_ORACLE_PRIVATE_KEY", "")
 

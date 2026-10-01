@@ -51,7 +51,7 @@ if (Test-Path ".env") {
 
 if ([string]::IsNullOrEmpty($solanaRpc)) { $solanaRpc = "https://api.mainnet-beta.solana.com" }
 if ([string]::IsNullOrEmpty($solanaMint)) { $solanaMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" }
-if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" }
+if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp" }
 if ([string]::IsNullOrEmpty($solanaProgram)) { $solanaProgram = "EUDRScrw11111111111111111111111111111111111" }
 
 $secGateMcp = "https://agent-security-gate-x402-7qxtp3324q-du.a.run.app/api/v1/mcp"

@@ -21,7 +21,7 @@ _EVM_WALLET = getattr(settings, "POLYGON_METAMASK_WALLET_ADDRESS", "0xA185B43fDD
 DEPOSIT_WALLETS = {
     "Polygon (PoS)": _EVM_WALLET,
     "Base (Low Gas $0.01)": _EVM_WALLET,
-    "Solana (SPL-USDC)": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "Solana (SPL-USDC)": getattr(settings, "SOLANA_TREASURY_WALLET", "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp"),
     "Ethereum (ERC-20)": _EVM_WALLET,
     "Arbitrum One": _EVM_WALLET,
 }

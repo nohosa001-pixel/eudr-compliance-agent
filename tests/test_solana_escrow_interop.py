@@ -256,3 +256,32 @@ def test_api_solana_attest_and_settle_workflow():
     cluster_resp = client.get("/api/v1/escrow/solana/cluster-status")
     assert cluster_resp.status_code == 200
     assert cluster_resp.json()["status"] == "ONLINE"
+
+
+@pytest.mark.asyncio
+async def test_agent_tools_solana_methods():
+    """Validates execution of Solana tools via AgentToolsRegistry."""
+    from app.modules.agent_tools import AgentToolsRegistry
+
+    # 1. Test eudr_solana_generate_pay_link
+    res_link = await AgentToolsRegistry.execute_tool("eudr_solana_generate_pay_link", {
+        "recipient_pubkey": SAMPLE_SOLANA_FARMER_1,
+        "amount_usdc": 350.0,
+        "reference_job_id": "job_agent_sol_44",
+        "memo": "Coop Coffee Settlement"
+    })
+    assert "solana:" in res_link["solana_pay_url"]
+    assert "Solana Pay URI generated" in res_link["agent_summary"]
+
+    # 2. Test eudr_solana_settle_escrow
+    res_settle = await AgentToolsRegistry.execute_tool("eudr_solana_settle_escrow", {
+        "job_id": "job_agent_sol_44",
+        "buyer_wallet": SAMPLE_SOLANA_BUYER,
+        "recipients": [{"recipient": SAMPLE_SOLANA_FARMER_1, "amount": 350.0, "role": "FARMER_UNION"}],
+        "commodity": "coffee",
+        "country_code": "VN"
+    })
+    assert res_settle["status"] == "SETTLED_ON_SOLANA_MAINNET"
+    assert res_settle["total_disbursed_usdc"] == 350.0
+    assert "Direct Split SETTLED_ON_SOLANA_MAINNET" in res_settle["agent_summary"]
+

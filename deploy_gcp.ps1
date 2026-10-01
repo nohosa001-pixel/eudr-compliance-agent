@@ -42,15 +42,24 @@ if (Test-Path ".env") {
         if ($line -match "^COPERNICUS_CLIENT_ID=(.+)$") { $copernicusId = $matches[1].Trim() }
         if ($line -match "^COPERNICUS_CLIENT_SECRET=(.+)$") { $copernicusSecret = $matches[1].Trim() }
         if ($line -match "^USE_LIVE_COPERNICUS_API=(.+)$") { $useLiveCopernicus = $matches[1].Trim() }
+        if ($line -match "^SOLANA_RPC_URL=(.+)$") { $solanaRpc = $matches[1].Trim() }
+        if ($line -match "^SOLANA_USDC_MINT=(.+)$") { $solanaMint = $matches[1].Trim() }
+        if ($line -match "^SOLANA_TREASURY_WALLET=(.+)$") { $solanaTreasury = $matches[1].Trim() }
+        if ($line -match "^SOLANA_ESCROW_PROGRAM_ID=(.+)$") { $solanaProgram = $matches[1].Trim() }
     }
 }
+
+if ([string]::IsNullOrEmpty($solanaRpc)) { $solanaRpc = "https://api.mainnet-beta.solana.com" }
+if ([string]::IsNullOrEmpty($solanaMint)) { $solanaMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" }
+if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" }
+if ([string]::IsNullOrEmpty($solanaProgram)) { $solanaProgram = "EUDRScrw11111111111111111111111111111111111" }
 
 $secGateMcp = "https://agent-security-gate-x402-7qxtp3324q-du.a.run.app/api/v1/mcp"
 $mineralsMcp = "https://minerals-oracle-x402-7qxtp3324q-du.a.run.app/api/v1/mcp"
 $cleanwebMcp = "https://x402-cleanweb-agent-7qxtp3324q-du.a.run.app/api/v1/mcp"
 $agentEscrowContract = "0x28292D76E07E5539F15F3b97935dE8E0432E76DD"
 
-$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId,POLYGON_METAMASK_WALLET_ADDRESS=$polygonWallet,POLYGON_CHAIN_ID=137,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,BASE_CHAIN_ID=8453,BASE_RPC_URL=https://mainnet.base.org,ARBITRUM_CHAIN_ID=42161,ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc,POLYGON_AGENT_PAYMENT_VAULT=0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861,BASE_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,ARBITRUM_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,COPERNICUS_CLIENT_ID=$copernicusId,COPERNICUS_CLIENT_SECRET=$copernicusSecret,USE_LIVE_COPERNICUS_API=$useLiveCopernicus,SECURITY_GATE_MCP_URL=$secGateMcp,MINERALS_ORACLE_MCP_URL=$mineralsMcp,CLEANWEB_MCP_URL=$cleanwebMcp,AGENT_ESCROW_CONTRACT_ADDRESS=$agentEscrowContract"
+$envVars = "PROJECT_NAME=EUDRAgent.com Enterprise Platform,SECRET_KEY_FOR_SIGNING=eudr-traces-nt-secret-key-2026,USE_DISTRIBUTED_QUEUE=false,TELEGRAM_BOT_TOKEN=$tgToken,TELEGRAM_CHAT_ID=$tgChatId,POLYGON_METAMASK_WALLET_ADDRESS=$polygonWallet,POLYGON_CHAIN_ID=137,POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com,BASE_CHAIN_ID=8453,BASE_RPC_URL=https://mainnet.base.org,ARBITRUM_CHAIN_ID=42161,ARBITRUM_RPC_URL=https://arb1.arbitrum.io/rpc,POLYGON_AGENT_PAYMENT_VAULT=0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861,BASE_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,ARBITRUM_AGENT_PAYMENT_VAULT=0x28292D76E07E5539F15F3b97935dE8E0432E76DD,COPERNICUS_CLIENT_ID=$copernicusId,COPERNICUS_CLIENT_SECRET=$copernicusSecret,USE_LIVE_COPERNICUS_API=$useLiveCopernicus,SECURITY_GATE_MCP_URL=$secGateMcp,MINERALS_ORACLE_MCP_URL=$mineralsMcp,CLEANWEB_MCP_URL=$cleanwebMcp,AGENT_ESCROW_CONTRACT_ADDRESS=$agentEscrowContract,SOLANA_RPC_URL=$solanaRpc,SOLANA_NETWORK=mainnet-beta,SOLANA_USDC_MINT=$solanaMint,SOLANA_TREASURY_WALLET=$solanaTreasury,SOLANA_ESCROW_PROGRAM_ID=$solanaProgram"
 
 
 

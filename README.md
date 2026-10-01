@@ -95,16 +95,17 @@ EUDRAgent supports dual-layer smart contracts for frictionless B2B trade executi
 
 | Portal / API Route | Target URL | Description |
 | :--- | :--- | :--- |
-| 🌟 **SaaS Official Landing Page** | [`/`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/) | Interactive 4-country satellite radar sandbox & transparent pricing |
-| 🖥️ **Operator Console** | [`/dashboard`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/dashboard) | 4ha polygon self-healing, multi-satellite analysis, & TRACES-NT DDS generation |
-| 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
-| 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/docs) | OpenAPI 3.1 / Swagger UI for ERP, SAP, and customs system integration |
-| 🛡️ **Security Gate Diagnostics** | [`/api/v1/eudr/mesh/security-gate/diagnostics`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/eudr/mesh/security-gate/diagnostics) | **Live 4-tier probe of connected `security-gate-x402` (Seoul Cloud Run)** |
-| ⛓️ **Multi-Chain RPC Status** | [`/api/v1/payment/chains/status`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/payment/chains/status) | **Real-time RPC block heights & USDC contracts for Polygon, Base, Arbitrum** |
-| ☀️ **Solana Escrow Cluster** | [`/api/v1/escrow/solana/cluster-status`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/escrow/solana/cluster-status) | Live slot height, 400ms block time, and SPL-USDC mint status on Solana |
-| 🤝 **A2A Marketplace RFQ** | [`/api/v1/marketplace/rfq/create`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and reverse-auction clearing |
-| 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude Desktop, Cursor, Antigravity |
-| 📄 **LLM Discovery Directory** | [`/llms.txt`](https://eudr-compliance-agent-7qxtp3324q-du.a.run.app/llms.txt) | LLM crawler & agent standard summary |
+| 🌟 **SaaS Official Landing Page** | [`/`](https://eudragent.com/) | Interactive 4-country satellite radar sandbox & transparent pricing |
+| 🖥️ **Operator Console** | [`/dashboard`](https://eudragent.com/dashboard) | 4ha polygon self-healing, multi-satellite analysis, & TRACES-NT DDS generation |
+| 🌾 **Supplier Pre-Clearance Portal** | [`/supplier-portal`](https://eudragent.com/supplier-portal) | Mobile-friendly self-assessment for overseas smallholders & cooperatives |
+| 📖 **Interactive API Documentation** | [`/docs`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/docs) | OpenAPI 3.1 / Swagger UI for ERP, SAP, and customs system integration |
+| 🛡️ **Security Gate Diagnostics** | [`/api/v1/eudr/mesh/security-gate/diagnostics`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/eudr/mesh/security-gate/diagnostics) | **Live 4-tier probe of connected `security-gate-x402` (Seoul Cloud Run)** |
+| ⛓️ **Multi-Chain RPC Status** | [`/api/v1/payment/chains/status`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/payment/chains/status) | **Real-time RPC block heights & USDC contracts for Polygon, Base, Arbitrum** |
+| ☀️ **Solana Escrow Cluster** | [`/api/v1/escrow/solana/cluster-status`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/escrow/solana/cluster-status) | Live slot height, 400ms block time, and SPL-USDC mint status on Solana |
+| 🤝 **A2A Marketplace RFQ** | [`/api/v1/marketplace/rfq/create`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and reverse-auction clearing |
+| 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude Desktop, Cursor, Antigravity |
+| 📄 **LLM Discovery Directory** | [`/llms.txt`](https://eudragent.com/llms.txt) | LLM crawler & agent standard summary |
+
 
 ---
 

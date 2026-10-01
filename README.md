@@ -5,7 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-294%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-308%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Multi-Chain](https://img.shields.io/badge/EVM-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet--Beta%20SPL--USDC-14F195?style=flat&logo=solana&logoColor=black)](https://solscan.io)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers/nohosa001-pixel/eudr-compliance-agent)
@@ -14,7 +14,7 @@
 
 **EUDRAgent** is an enterprise-grade autonomous compliance automation and Due Diligence Statement (DDS) generation engine for the **European Union Deforestation Regulation (Regulation (EU) 2023/1115)**.
 
-Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Optical), 4ha polygon self-healing, EU TRACES-NT XML customs clearance, autonomous Reverse-Auction B2B procurement, sub-5ms cognitive firewall via **`security-gate-x402`**, and multi-chain smart escrows across **Solana Mainnet-Beta (SPL-USDC), Polygon PoS, Base, and Arbitrum One**.
+Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Optical), 4ha polygon self-healing, EU TRACES-NT XML customs clearance, autonomous Reverse-Auction B2B procurement, sub-5ms cognitive firewall via **`security-gate-x402`**, European Customs (EU SWE-C / TARIC) automated pre-clearance, and multi-chain smart escrows across **Solana Mainnet-Beta (SPL-USDC), Polygon PoS, Base, and Arbitrum One**.
 
 ---
 
@@ -29,7 +29,9 @@ Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Opt
 | **4% Global Revenue Fines & Seized Cargo** | ➔ | **0% Fine Guarantee & Verified Customs Clearance** |
 | **Weeks of Manual GIS Parcel Inspection** | ➔ | **2-Second Multi-Satellite Radar & Optical Scan** |
 | **Topological Polygon Defects & Coordinate Reversals** | ➔ | **Autonomous Self-Healing GIS (Bowties, WGS84, 4ha Rule)** |
-| **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Official Validated TRACES-NT XML & JSON-LD** |
+| **Port Demurrage & Customs Clearance Holds** | ➔ | **Automated EU SWE-C Port Pre-Clearance Simulation** |
+| **Rejected TRACES-NT XML Customs Filings** | ➔ | **1-Click Validated TRACES-NT XML & UCC DE 12 03** |
+| **Ambiguity in Import TARIC Document Codes** | ➔ | **Automated TARIC C081, C082, Y120, Y121, Y122 Formatter** |
 | **Trading Counterparty Fraud & Data Tampering** | ➔ | **Anchor Solana Escrow + EIP-712 Oracle Slashing** |
 | **Smallholder Payment Delays & High Gas Fees** | ➔ | **Sub-Second Direct Split via Solana SPL-USDC & Solana Pay** |
 | **Prompt Injections & Supply Chain Hallucinations** | ➔ | **Sub-5ms Cognitive Firewall via `security-gate-x402`** |
@@ -37,7 +39,39 @@ Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Opt
 
 ---
 
+## 🇪🇺 European Customs & EU SWE-C Gateway (DG TAXUD / UCC Interoperability)
+
+Under **Regulation (EU) 2023/1115 Articles 26, 27, and 28**, customs authorities must verify the existence of a valid Due Diligence Statement (DDS) before releasing goods for free circulation:
+
+### 1. Official EU TARIC Document Codes (Box 44 / DE 12 03 000 000)
+
+| TARIC Code | Regulatory Scope | Statutory Rationale & Action |
+| :---: | :--- | :--- |
+| **`C081`** | **Standard / Simplified EUDR DDS** | Due Diligence Statement reference number + verification code registered via TRACES-NT. Mandatory for release for free circulation. |
+| **`C082`** | **Downstream Operator Pass-Through** | Reference to an existing valid upstream DDS (Article 4(8)). Eliminates redundant coordinate submissions. |
+| **`Y120`** | **Goods Outside EUDR Scope** | Declaration that the consignment does not fall within Regulation (EU) 2023/1115 Annex I scope (Article 1(2)). |
+| **`Y121`** | **100% Recycled Waste Exemption** | Goods produced entirely from post-consumer waste materials (Annex I Footnote 1). |
+| **`Y122`** | **Transport Packaging Exemption** | Wooden pallets, packing cases, and paper wrappers used exclusively to support or protect primary merchandise. |
+
+### 2. Union Customs Code (UCC) Data Element 12 03 000 000 Generator
+Generates ready-to-file electronic customs payloads matching European national customs systems:
+* **ATLAS** (Germany - Zoll)
+* **DMS / AGS** (Netherlands - Douane Nederland)
+* **DELTA-IE** (France - DGDDI)
+* **PLDA / IDMS** (Belgium - Douane & Accijnzen)
+* **VUE** (Spain - Agencia Tributaria)
+
+### 3. Article 16 Inspection Rates & Major Port Clearance Profiles
+EUDRAgent calculates pre-arrival inspection channel probabilities based on Article 29 country benchmarking:
+* **High-Risk Origin (e.g. MM, KP, BY)**: **9% minimum statutory inspection rate** (`ORANGE_DOCUMENTARY_CHECK`).
+* **Standard-Risk Origin (Default)**: **3% statutory inspection rate** (`AUTOMATED_GREEN_LANE`).
+* **Low-Risk Origin (e.g. FI, SE, NO, NZ)**: **1% statutory inspection rate** (`AUTOMATED_GREEN_LANE`).
+* **Supported Hubs**: Port of Rotterdam (`NLRTM`), Antwerp-Bruges (`BEANR`), Hamburg (`DEHAM`), Valencia (`ESVLC`), Le Havre (`FRLEH`), Genoa (`ITGOA`).
+
+---
+
 ## 🌐 Autonomous 4-Node Inter-Agent Mesh Ecosystem
+
 
 EUDRAgent is natively integrated into the **@nohosa001-pixel Autonomous Agent Mesh**, operating over the Model Context Protocol (MCP) JSON-RPC 2.0 with cryptographic verification:
 

@@ -82,7 +82,14 @@ from app.schemas import (
     OnchainAttestationIssueRequest,
     OnchainAttestationVerifyRequest,
     OnchainAttestationResponse,
-    OnchainAttestationVerifyResponse
+    OnchainAttestationVerifyResponse,
+    CustomsTaricEvaluateRequest,
+    CustomsTaricEvaluateResponse,
+    CustomsUCCDeclarationRequest,
+    CustomsUCCDeclarationResponse,
+    CustomsSWECPreClearanceRequest,
+    CustomsSWECPreClearanceResponse,
+    CustomsRiskRatesResponse
 )
 from app.modules.agent_escrow_manager import AgentEscrowManager
 from app.modules.spatial_validator import SpatialValidator, SelfHealingEngine
@@ -90,6 +97,7 @@ from app.modules.parcel_slicing_engine import ParcelSlicingEngine
 from app.modules.country_benchmarking import CountryBenchmarkingService
 from app.modules.downstream_chain_manager import DownstreamChainManager
 from app.modules.statutory_exemption_issuer import StatutoryExemptionIssuer
+from app.modules.eu_customs_adapter import EUCustomsAdapter
 from app.modules.traceability_collector import TraceabilityCollector
 from app.modules.deforestation_simulator import DeforestationAnalyzer, DeforestationSimulator
 from app.modules.legal_document_auditor import LegalAuditor
@@ -924,7 +932,76 @@ async def get_audit_customs_certificate(
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate customs certificate: {str(err)}")
 
+
+# -------------------------------------------------------------------
+# European Customs & EU SWE-C Gateway Endpoints
+# Regulation (EU) 2023/1115 Articles 26, 27, 28 & UCC Data Element 12 03
+# -------------------------------------------------------------------
+
 @app.post(
+    f"{settings.API_V1_PREFIX}/customs/taric-evaluate",
+    response_model=CustomsTaricEvaluateResponse,
+    tags=["European Customs & EU SWE-C Gateway"],
+    summary="Evaluate EUDR TARIC Document Code (C081, C082, Y120, Y121, Y122) for Box 44"
+)
+async def evaluate_customs_taric_code(req: CustomsTaricEvaluateRequest):
+    """
+    Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code:
+    - **C081**: Standard/Simplified EUDR DDS Reference Number and Verification Code.
+    - **C082**: Downstream Operator Reference to Upstream Declaration (Article 4(8)).
+    - **Y120**: Goods outside the substantive scope of EUDR Annex I (Article 1(2)).
+    - **Y121**: 100% Post-Consumer Recycled Waste Exemption (Annex I Footnote 1).
+    - **Y122**: Protective Transport Packaging Exemption.
+    """
+    return EUCustomsAdapter.evaluate_taric_document_code(req)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/customs/ucc-declaration",
+    response_model=CustomsUCCDeclarationResponse,
+    tags=["European Customs & EU SWE-C Gateway"],
+    summary="Generate Union Customs Code (UCC) Data Element 12 03 000 000 Declaration"
+)
+async def generate_ucc_customs_declaration(req: CustomsUCCDeclarationRequest):
+    """
+    Generates standard Union Customs Code (UCC) Data Element 12 03 000 000 payload and XML snippet
+    compatible with European national customs clearance engines (ATLAS, DELTA-IE, DMS, AGS).
+    """
+    return EUCustomsAdapter.generate_ucc_declaration(req)
+
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/customs/swe-c/pre-clearance",
+    response_model=CustomsSWECPreClearanceResponse,
+    tags=["European Customs & EU SWE-C Gateway"],
+    summary="Simulate Pre-Arrival Automated Customs Clearance via EU SWE-C System"
+)
+async def simulate_swe_c_pre_clearance(req: CustomsSWECPreClearanceRequest):
+    """
+    Simulates automated port clearance under Article 26 & 27:
+    - Validates EORI declarant credentials and TRACES-NT DDS reference format.
+    - Applies Article 16 statutory inspection quota (High 9%, Standard 3%, Low 1%).
+    - Returns Green Lane clearance certificate ACK or inspection hold advisory.
+    """
+    return EUCustomsAdapter.simulate_swe_c_pre_clearance(req)
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/customs/risk-rates",
+    response_model=CustomsRiskRatesResponse,
+    tags=["European Customs & EU SWE-C Gateway"],
+    summary="Get Statutory Article 16 Customs Inspection Rates & European Entry Port Profiles"
+)
+async def get_customs_risk_rates_and_ports():
+    """
+    Returns statutory customs inspection percentages under Regulation (EU) 2023/1115 Article 16
+    and electronic port profiles for major entry hubs (Rotterdam, Antwerp, Hamburg, Valencia, etc.).
+    """
+    return EUCustomsAdapter.get_risk_rates_and_ports()
+
+
+@app.post(
+
     f"{settings.API_V1_PREFIX}/eudr/ingest-file",
     response_model=EUDRSupplyChainPayload,
     tags=["Commercial Operations"],

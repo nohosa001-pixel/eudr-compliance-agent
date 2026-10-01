@@ -908,8 +908,43 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             },
             "required": ["recipient_pubkey", "amount_usdc", "reference_job_id"]
         }
+    },
+    {
+        "name": "eudr_evaluate_customs_taric",
+        "description": "Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code (C081, C082, Y120, Y121, Y122) and formats Box 44 / DE 12 03 000 000 customs declaration.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "hs_code": {"type": "string", "description": "Harmonized System tariff code (6-10 digits)."},
+                "dds_reference_id": {"type": "string", "description": "TRACES-NT DDS reference number, if already filed."},
+                "verification_code": {"type": "string", "description": "TRACES-NT security verification code."},
+                "is_recycled": {"type": "boolean", "default": False, "description": "Whether 100% post-consumer recycled waste (Annex I Footnote 1)."},
+                "is_packaging_only": {"type": "boolean", "default": False, "description": "Whether commodity is protective packaging supporting another good."},
+                "is_downstream_operator": {"type": "boolean", "default": False, "description": "Whether downstream operator referencing upstream DDS (Art. 4(8))."},
+                "upstream_dds_reference": {"type": "string", "description": "Upstream DDS reference for pass-through."}
+            },
+            "required": ["hs_code"]
+        }
+    },
+    {
+        "name": "eudr_simulate_swe_c_customs_clearance",
+        "description": "Simulates pre-arrival automated port clearance via the EU Single Window Environment for Customs (EU SWE-C) against TRACES-NT, calculating Article 16 inspection quota and clearance channel.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "dds_reference_id": {"type": "string", "description": "TRACES-NT Due Diligence Statement reference ID."},
+                "verification_code": {"type": "string", "description": "TRACES-NT digital verification code."},
+                "eori_number": {"type": "string", "description": "Declarant/Operator EORI number, e.g. NL123456789."},
+                "hs_code": {"type": "string", "description": "Tariff classification code."},
+                "net_mass_kg": {"type": "number", "description": "Declared consignment net mass in kg."},
+                "country_code": {"type": "string", "description": "ISO 2-letter origin country code, e.g. VN, BR, ID."},
+                "destination_port": {"type": "string", "default": "NLRTM", "description": "Entry port UN/LOCODE: NLRTM (Rotterdam), BEANR (Antwerp), DEHAM (Hamburg), ESVLC (Valencia)."}
+            },
+            "required": ["dds_reference_id", "verification_code", "eori_number", "hs_code", "net_mass_kg", "country_code"]
+        }
     }
 ]
+
 
 
 def _normalize_commodity_input(val: Any) -> str:
@@ -1102,8 +1137,13 @@ class AgentToolsRegistry:
                 res = await cls._exec_solana_settle_escrow(arguments)
             elif name == "eudr_solana_generate_pay_link":
                 res = await cls._exec_solana_generate_pay_link(arguments)
+            elif name == "eudr_evaluate_customs_taric":
+                res = await cls._exec_evaluate_customs_taric(arguments)
+            elif name == "eudr_simulate_swe_c_customs_clearance":
+                res = await cls._exec_simulate_swe_c_customs_clearance(arguments)
             else:
                 raise AgentSelfCorrectionError(f"Handler not implemented for tool '{name}'.")
+
 
             # Pillar 2: Mandatory Top-Level Response Metadata (meta)
             if isinstance(res, dict) and "meta" not in res:
@@ -2462,6 +2502,51 @@ class AgentToolsRegistry:
             f"Amount: {amount_usdc:.2f} SPL-USDC. Protocol: {res.get('protocol')}."
         )
         return res
+
+    @classmethod
+    async def _exec_evaluate_customs_taric(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.eu_customs_adapter import EUCustomsAdapter
+        from app.schemas import CustomsTaricEvaluateRequest
+
+        req = CustomsTaricEvaluateRequest(
+            hs_code=str(args["hs_code"]).strip(),
+            dds_reference_id=args.get("dds_reference_id"),
+            verification_code=args.get("verification_code"),
+            is_recycled=bool(args.get("is_recycled", False)),
+            is_packaging_only=bool(args.get("is_packaging_only", False)),
+            is_downstream_operator=bool(args.get("is_downstream_operator", False)),
+            upstream_dds_reference=args.get("upstream_dds_reference")
+        )
+        resp = EUCustomsAdapter.evaluate_taric_document_code(req)
+        res = resp.model_dump()
+        res["agent_summary"] = (
+            f"TARIC Document Code {resp.taric_document_code} evaluated for HS {resp.hs_code}. "
+            f"Box 44: {resp.box44_reference_code} ({resp.action_required_for_customs})."
+        )
+        return res
+
+    @classmethod
+    async def _exec_simulate_swe_c_customs_clearance(cls, args: Dict[str, Any]) -> Dict[str, Any]:
+        from app.modules.eu_customs_adapter import EUCustomsAdapter
+        from app.schemas import CustomsSWECPreClearanceRequest
+
+        req = CustomsSWECPreClearanceRequest(
+            dds_reference_id=str(args["dds_reference_id"]).strip(),
+            verification_code=str(args["verification_code"]).strip(),
+            eori_number=str(args["eori_number"]).strip(),
+            hs_code=str(args["hs_code"]).strip(),
+            net_mass_kg=float(args["net_mass_kg"]),
+            country_code=str(args["country_code"]).strip(),
+            destination_port=str(args.get("destination_port", "NLRTM")).strip()
+        )
+        resp = EUCustomsAdapter.simulate_swe_c_pre_clearance(req)
+        res = resp.model_dump()
+        res["agent_summary"] = (
+            f"EU SWE-C Customs Pre-Clearance: {resp.clearance_status} at {resp.port_name} ({resp.destination_port}). "
+            f"ACK: {resp.customs_ack_code}. Risk Rate: {resp.article16_inspection_rate_pct}%."
+        )
+        return res
+
 
 
 

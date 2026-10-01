@@ -1177,5 +1177,93 @@ class ContinuousSurveillanceScanResponse(BaseModel):
     meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 
+# -----------------------------------------------------------------------------
+# EU Customs & EU SWE-C (Single Window Environment for Customs) Schemas
+# Regulation (EU) 2023/1115 Art. 26 & 28 / UCC Data Element 12 03 000 000
+# -----------------------------------------------------------------------------
+
+class CustomsTaricEvaluateRequest(BaseModel):
+    hs_code: str = Field(..., description="Harmonized System (HS) code, 6 to 10 digits")
+    dds_reference_id: Optional[str] = Field(None, description="TRACES-NT DDS reference number, if already filed")
+    verification_code: Optional[str] = Field(None, description="TRACES-NT security verification code, e.g. V-99821-X")
+    is_recycled: Optional[bool] = Field(False, description="Whether commodity is 100% produced from recycled waste (Annex I footnote 1)")
+    is_packaging_only: Optional[bool] = Field(False, description="Whether commodity is packaging material used exclusively to protect or support another product")
+    is_downstream_operator: Optional[bool] = Field(False, description="Whether declarant is a downstream operator referencing an upstream DDS (Art. 4(8))")
+    upstream_dds_reference: Optional[str] = Field(None, description="Upstream DDS reference for downstream operator pass-through")
+
+
+class CustomsTaricEvaluateResponse(BaseModel):
+    hs_code: str
+    taric_document_code: str = Field(..., description="Official EU TARIC Document Code: C081, C082, Y120, Y121, Y122")
+    taric_code_description: str
+    box44_formatted_statement: str
+    box44_reference_code: str
+    legal_citation: str
+    is_eudr_mandated: bool
+    action_required_for_customs: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+class CustomsUCCDeclarationRequest(BaseModel):
+    declarant_eori: str = Field(..., description="EORI of the customs declarant / broker, e.g. NL123456789")
+    importer_eori: str = Field(..., description="EORI of the importing operator, e.g. DE987654321")
+    hs_code: str = Field(..., description="Combined Nomenclature (CN) / TARIC 8-10 digit code")
+    country_of_origin: str = Field(..., min_length=2, max_length=2, description="ISO 2-letter origin country code, e.g. VN, BR, ID")
+    net_mass_kg: float = Field(..., gt=0, description="Declared net mass in kilograms")
+    dds_reference_id: str = Field(..., description="Official TRACES-NT DDS reference number")
+    verification_code: str = Field(..., description="TRACES-NT digital verification code")
+    destination_port_code: Optional[str] = Field("NLRTM", description="UN/LOCODE port of entry, e.g. NLRTM (Rotterdam), BEANR (Antwerp), DEHAM (Hamburg)")
+
+
+class CustomsUCCDeclarationResponse(BaseModel):
+    customs_procedure: str = "40 00 (Release for Free Circulation)"
+    data_element_1203_supporting_documents: List[Dict[str, Any]]
+    ucc_xml_snippet: str
+    declarant_eori: str
+    importer_eori: str
+    destination_port: str
+    port_name: str
+    formatted_box44: str
+    declaration_timestamp: str
+    customs_gateway: str = "EU Single Window Environment for Customs (EU SWE-C)"
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+class CustomsSWECPreClearanceRequest(BaseModel):
+    dds_reference_id: str = Field(..., description="TRACES-NT DDS reference ID to simulate clearance for")
+    verification_code: str = Field(..., description="TRACES-NT security verification code")
+    eori_number: str = Field(..., description="Declarant/Operator EORI number")
+    hs_code: str = Field(..., description="Tariff classification code")
+    net_mass_kg: float = Field(..., gt=0, description="Declared consignment net mass in kg")
+    country_code: str = Field(..., min_length=2, max_length=2, description="Country of production/origin")
+    destination_port: Optional[str] = Field("NLRTM", description="Entry port UN/LOCODE: NLRTM, BEANR, DEHAM, ESVLC, FRLEH, ITGOA")
+
+
+class CustomsSWECPreClearanceResponse(BaseModel):
+    clearance_status: str = Field(..., description="GREEN_LANE_CLEARED, ROUTED_FOR_INSPECTION, CUSTOMS_HOLD_REJECTED")
+    green_lane_cleared: bool
+    customs_ack_code: str
+    destination_port: str
+    port_name: str
+    country_risk_tier: str
+    article16_inspection_rate_pct: float
+    risk_assessment_routing: str
+    verification_checklist: Dict[str, bool]
+    qr_verification_url: str
+    cleared_at_utc: str
+    official_customs_advice: str
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+class CustomsRiskRatesResponse(BaseModel):
+    timestamp_utc: str
+    article16_inspection_rates: Dict[str, Any]
+    major_entry_ports: List[Dict[str, Any]]
+    official_taric_codes: Dict[str, str]
+    regulatory_acts: List[str]
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
+
+
+
 
 

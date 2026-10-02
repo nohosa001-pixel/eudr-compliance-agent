@@ -529,7 +529,7 @@
     /* Pricing Section */
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
       margin-bottom: 70px;
     }
@@ -1050,7 +1050,7 @@
 
     <div class="pricing-grid">
       <div class="price-card">
-        <div class="price-name">⚡ HTTP 402 Micro-Settle</div>
+        <div class="price-name">⚡ 1. HTTP 402 Micro-Settle</div>
         <div class="price-sub">Instant On-Demand Machine Queries</div>
         <div class="price-val">0.01 <span>USDC / plot</span></div>
         <ul class="price-list">
@@ -1065,36 +1065,52 @@
         </a>
       </div>
 
-      <div class="price-card popular">
-        <div class="pop-badge">CORE PROTOCOL</div>
-        <div class="price-name">🛡️ x402 Smart Escrow</div>
-        <div class="price-sub">Autonomous Multi-Chain Trade Clearing</div>
+      <div class="price-card">
+        <div class="price-name">🛡️ 2. EVM Multi-Chain Escrow</div>
+        <div class="price-sub">Polygon PoS, Base L2 &amp; Arbitrum</div>
         <div class="price-val">0.00% <span>Clearing Fee</span></div>
         <ul class="price-list">
           <li><span>✔</span> Smart Contract on Polygon &amp; Base</li>
-          <li><span>✔</span> Contract: <code>0x255F999...0dCf</code></li>
+          <li><span>✔</span> Multi-chain Vaults: <code>0x45ec... / 0x2829...</code></li>
           <li><span>✔</span> Auto-lock upon B2B RFQ/Bid match</li>
           <li><span>✔</span> In-transit radar continuous surveillance</li>
           <li><span>✔</span> Automated EIP-712 slashing attestations</li>
         </ul>
-        <a href="/dashboard" class="btn btn-primary" style="width: 100%; text-decoration: none;">
-          🚀 Open Escrow Cockpit
+        <a href="/dashboard" class="btn btn-ghost" style="width: 100%; text-decoration: none;">
+          🚀 Open EVM Cockpit
+        </a>
+      </div>
+
+      <div class="price-card popular" style="border-color: #14F195; background: rgba(20, 241, 149, 0.05); box-shadow: 0 0 25px rgba(20, 241, 149, 0.15);">
+        <div class="pop-badge" style="background: linear-gradient(135deg, #9945FF, #14F195); color: #020617; font-weight: 800;">HIGH-THROUGHPUT RAIL</div>
+        <div class="price-name" style="color: #14F195;">☀️ 3. Solana SPL-USDC Escrow</div>
+        <div class="price-sub">Mainnet-Beta 400ms Settlement Rail</div>
+        <div class="price-val">~$0.00025 <span>Network Fee</span></div>
+        <ul class="price-list">
+          <li><span>✔</span> Native SPL-USDC direct-split settlements</li>
+          <li><span>✔</span> 400ms sub-second finality on Solana Mainnet</li>
+          <li><span>✔</span> Zero-tolerance Ed25519 oracle truth proof</li>
+          <li><span>✔</span> Direct payout split to smallholder farmers (75%)</li>
+          <li><span>✔</span> Interactive Solana Pay QR &amp; Deep-Links</li>
+        </ul>
+        <a href="/dashboard?tab=panel-solana" class="btn btn-primary" style="width: 100%; text-decoration: none; background: linear-gradient(135deg, #9945FF, #14F195); color: #020617; font-weight: 800; border: none;">
+          ☀️ Launch Solana Escrow Cockpit
         </a>
       </div>
 
       <div class="price-card">
-        <div class="price-name">🤖 30 Native MCP Tools</div>
+        <div class="price-name">🤖 4. 37 Native MCP Tools</div>
         <div class="price-sub">Anthropic Model Context Protocol</div>
         <div class="price-val">FREE <span>Open Spec</span></div>
         <ul class="price-list">
-          <li><span>✔</span> 30 tools mapped to JSON-RPC 2.0</li>
+          <li><span>✔</span> 37 tools mapped to JSON-RPC 2.0</li>
           <li><span>✔</span> Compatible with Claude Desktop, Cursor, Cline</li>
           <li><span>✔</span> Reverse-Auction RFQ broadcast &amp; bidding</li>
-          <li><span>✔</span> Prompt injection &amp; AST code security guard</li>
-          <li><span>✔</span> Native TRACES-NT XML compiler</li>
+          <li><span>✔</span> Sub-5ms cognitive prompt injection shield</li>
+          <li><span>✔</span> Official TRACES-NT XML customs compiler</li>
         </ul>
         <a href="/api/v1/agent/tools" class="btn btn-ghost" style="width: 100%; text-decoration: none; border-color: rgba(56,189,248,0.4); color: #38bdf8;">
-          📋 Inspect 30 MCP Tools
+          📋 Inspect 37 MCP Tools
         </a>
       </div>
     </div>

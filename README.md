@@ -9,6 +9,7 @@
 [![Multi-Chain](https://img.shields.io/badge/EVM-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet--Beta%20SPL--USDC-14F195?style=flat&logo=solana&logoColor=black)](https://solscan.io)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers/nohosa001-pixel/eudr-compliance-agent)
+[![PyPI](https://img.shields.io/pypi/v/eudr-compliance-agent.svg?color=blue)](https://pypi.org/project/eudr-compliance-agent/)
 [![Cloud Run](https://img.shields.io/badge/Google%20Cloud%20Run-Live%20Production-4285F4.svg)](https://cloud.google.com/run)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -54,7 +55,9 @@ Under **Regulation (EU) 2023/1115 Articles 26, 27, and 28**, customs authorities
 | **`Y122`** | **Transport Packaging Exemption** | Wooden pallets, packing cases, and paper wrappers used exclusively to support or protect primary merchandise. |
 
 ### 2. Union Customs Code (UCC) Data Element 12 03 000 000 Generator
+
 Generates ready-to-file electronic customs payloads matching European national customs systems:
+
 * **ATLAS** (Germany - Zoll)
 * **DMS / AGS** (Netherlands - Douane Nederland)
 * **DELTA-IE** (France - DGDDI)
@@ -62,16 +65,27 @@ Generates ready-to-file electronic customs payloads matching European national c
 * **VUE** (Spain - Agencia Tributaria)
 
 ### 3. Article 16 Inspection Rates & Major Port Clearance Profiles
+
 EUDRAgent calculates pre-arrival inspection channel probabilities based on Article 29 country benchmarking:
+
 * **High-Risk Origin (e.g. MM, KP, BY)**: **9% minimum statutory inspection rate** (`ORANGE_DOCUMENTARY_CHECK`).
 * **Standard-Risk Origin (Default)**: **3% statutory inspection rate** (`AUTOMATED_GREEN_LANE`).
 * **Low-Risk Origin (e.g. FI, SE, NO, NZ)**: **1% statutory inspection rate** (`AUTOMATED_GREEN_LANE`).
 * **Supported Hubs**: Port of Rotterdam (`NLRTM`), Antwerp-Bruges (`BEANR`), Hamburg (`DEHAM`), Valencia (`ESVLC`), Le Havre (`FRLEH`), Genoa (`ITGOA`).
 
+### 4. EC EUDR Information System User Guide v3.0 Digital Workflow Compliance
+
+EUDRAgent is natively aligned with the European Commission's **Information System User Guide v3.0** (released September 2026 for Dec 30, 2026 enforcement):
+
+* **Dual-Identifier Security (DDS Ref + Verification No.)**: When a statement reaches `AVAILABLE` status, both a unique `DDS Reference Number` and anti-tamper `Verification Number` are paired. Required for EU Customs Box 44 / DE 12 03 000 000 clearance.
+* **5-Tier Role-Based Workflow**: Native protocol support for EUDR Operators, Micro/Small Primary Producers (MSPO), SME Downstream Traders, Non-SME Downstream Operators (mandatory active verification on substantiated concern), and Authorised Representatives.
+* **Smallholder Simplified Declaration (SD) Identifier**: 1-time simplified declaration key for qualified smallholders and cooperatives to prevent global supply chain exclusion.
+* **DDS Grouping & Group Head Liability**: Hierarchical bundling of tens of thousands of parcels under a legally-binding `Group Head` master statement with 1:1 raw material lot mapping.
+* **V3 Enterprise API Readiness**: Full compatibility with the unified SOAP/HTTPS `EUDRDueDiligenceStatementServiceV3` and REST JSON-LD endpoints.
+
 ---
 
 ## 🌐 Autonomous 4-Node Inter-Agent Mesh Ecosystem
-
 
 EUDRAgent is natively integrated into the **@nohosa001-pixel Autonomous Agent Mesh**, operating over the Model Context Protocol (MCP) JSON-RPC 2.0 with cryptographic verification:
 
@@ -110,6 +124,7 @@ EUDRAgent is natively integrated into the **@nohosa001-pixel Autonomous Agent Me
 EUDRAgent supports dual-layer smart contracts for frictionless B2B trade execution, eliminating commercial default risk while ensuring zero-deforestation compliance:
 
 ### 1. Solana Mainnet-Beta SPL-USDC Escrow Rail (High Throughput)
+
 * **Settlement Token**: Native SPL-USDC (`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`, 6 decimals).
 * **Speed & Cost**: 400ms finality, ~$0.00025 network fee.
 * **Anchor Smart Contract**: [`programs/eudr-escrow/src/lib.rs`](programs/eudr-escrow/src/lib.rs) with `initialize_escrow`, `settle_direct_split`, and `slash_non_compliant`.
@@ -118,6 +133,7 @@ EUDRAgent supports dual-layer smart contracts for frictionless B2B trade executi
 * **Treasury Account**: `411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp`.
 
 ### 2. Multi-Chain EVM Payment Vaults (Polygon, Base, Arbitrum)
+
 * **Polygon PoS (137)**: `0x45ecBfAa2F4B0Bc6ccD3eB2dB9B1Ca49CF121861` (Native USDC: `0x3c49...3359`).
 * **Base Mainnet (8453)**: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD` (Native USDC: `0x8335...2913`).
 * **Arbitrum One (42161)**: `0x28292D76E07E5539F15F3b97935dE8E0432E76DD` (Native USDC: `0xaf88...5831`).
@@ -139,7 +155,6 @@ EUDRAgent supports dual-layer smart contracts for frictionless B2B trade executi
 | 🤝 **A2A Marketplace RFQ** | [`/api/v1/marketplace/rfq/create`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/marketplace/rfq/create) | Autonomous commodity procurement and reverse-auction clearing |
 | 🤖 **Model Context Protocol (MCP)** | [`/api/v1/mcp`](https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/mcp) | JSON-RPC 2.0 MCP endpoint for Claude Desktop, Cursor, Antigravity |
 | 📄 **LLM Discovery Directory** | [`/llms.txt`](https://eudragent.com/llms.txt) | LLM crawler & agent standard summary |
-
 
 ---
 
@@ -177,9 +192,9 @@ EUDRAgent provides a native **MCP v2024-11-05** server exposing **32+ autonomous
 | **Audit Integrity** | `eudr_verify_audit_integrity` | SHA-256 tamper-evident cryptographic chain audit verification |
 | **Solana Direct Split** | `eudr_solana_settle_escrow` | **Settles SPL-USDC escrow with instant direct payout to farmers** |
 | **Solana Pay Link** | `eudr_solana_generate_pay_link` | **Generates standard Solana Pay URI and QR code payload** |
-| **Web3 Oracle Attest** | `eudr_issue_eip712_attestation`| Issues EIP-712 Attestation as EUDR Oracle for EVM `AgentEscrow.sol` |
-| **Web3 Oracle Verify** | `eudr_verify_eip712_attestation`| Verifies EIP-712 proof for on-chain `completeJob` or `slashJob` |
-| **x402 Security Shield** | `eudr_inspect_payload_security`| Prompt injection barrier, AST sandbox, & agronomic yield fact-check |
+| **Web3 Oracle Attest** | `eudr_issue_eip712_attestation` | Issues EIP-712 Attestation as EUDR Oracle for EVM `AgentEscrow.sol` |
+| **Web3 Oracle Verify** | `eudr_verify_eip712_attestation` | Verifies EIP-712 proof for on-chain `completeJob` or `slashJob` |
+| **x402 Security Shield** | `eudr_inspect_payload_security` | Prompt injection barrier, AST sandbox, & agronomic yield fact-check |
 | **A2A RFQ Broadcast** | `eudr_publish_compliance_rfq` | Autonomous Buyer Agent broadcasts procurement RFQ to supplier network |
 | **A2A Bid Submission** | `eudr_submit_compliance_bid` | Supplier AI Agent submits competitive geolocated compliance bid |
 
@@ -354,13 +369,13 @@ Automatically packages the container, injects production environment variables (
 
 EUDRAgent provides automatic classification and compliance verification across all 7 Annex I commodities:
 
-- ☕ **Coffee** (HS Chapter 0901)
-- 🍫 **Cocoa** (HS Chapter 1801–1806)
-- 🌴 **Oil Palm** (HS Chapter 1511, 1207, 2306, 2905, 3823)
-- 🪵 **Wood & Timber** (HS Chapter 4401–4421, 4701–4707, 4801–4823, 9401, 9403)
-- 🌱 **Soya** (HS Chapter 1201, 1208, 1507, 2304)
-- 🚲 **Rubber** (HS Chapter 4001, 4005, 4006, 4007, 4008, 4011, 4012)
-- 🥩 **Cattle / Beef & Leather** (HS Chapter 0102, 0201, 0202, 4101, 4104, 4107)
+* ☕ **Coffee** (HS Chapter 0901)
+* 🍫 **Cocoa** (HS Chapter 1801–1806)
+* 🌴 **Oil Palm** (HS Chapter 1511, 1207, 2306, 2905, 3823)
+* 🪵 **Wood & Timber** (HS Chapter 4401–4421, 4701–4707, 4801–4823, 9401, 9403)
+* 🌱 **Soya** (HS Chapter 1201, 1208, 1507, 2304)
+* 🚲 **Rubber** (HS Chapter 4001, 4005, 4006, 4007, 4008, 4011, 4012)
+* 🥩 **Cattle / Beef & Leather** (HS Chapter 0102, 0201, 0202, 4101, 4104, 4107)
 
 ---
 

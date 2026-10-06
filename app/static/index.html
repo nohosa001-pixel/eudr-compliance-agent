@@ -95,6 +95,18 @@
       <span>🛰️ Satellite Radar &amp; DDS Engine</span>
       <span class="tab-badge">5 Core Pillars</span>
     </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-eudr-v3" style="border-bottom-color: #3b82f6;">
+      <span style="color: #60a5fa;">🇪🇺 EUDR v3.0 Dual-Key</span>
+      <span class="tab-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4);">Official Guide</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-minerals" style="border-bottom-color: #f59e0b;">
+      <span style="color: #fbbf24;">🔋 Battery Minerals</span>
+      <span class="tab-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">IRA §30D &amp; CAHRA</span>
+    </button>
+    <button class="cockpit-tab-btn" data-cockpit-tab="panel-cleanweb" style="border-bottom-color: #a855f7;">
+      <span style="color: #c084fc;">🌐 CleanWeb AI Ingest</span>
+      <span class="tab-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4);">95% Cut</span>
+    </button>
     <button class="cockpit-tab-btn" data-cockpit-tab="panel-solana" style="border-bottom-color: #14F195;">
       <span style="color: #14F195;">☀️ Solana SPL-USDC Escrow</span>
       <span class="tab-badge" style="background: rgba(20, 241, 149, 0.2); color: #14F195; border: 1px solid rgba(20, 241, 149, 0.4);">400ms Finality</span>
@@ -846,7 +858,502 @@
     </div>
     <!-- END PANEL 6 -->
 
+    <!-- PANEL 8: EUDR INFORMATION SYSTEM USER GUIDE v3.0 OFFICIAL CONSOLE -->
+    <div id="panel-eudr-v3" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;">
+            🇪🇺 EUROPEAN COMMISSION • USER GUIDE V3.0 OFFICIAL COMPLIANCE CONSOLE
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Dual-Key Clearance, MSPO Micro-Declarations &amp; Group Head Liability</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Full implementation of EC EUDR Information System Guide v3.0: Dual-Key (Public Ref + Secret Verification Number), MSPO 1-Time Simplified Declarations, Statutory Group Head Consolidation, and 6-Decimal WGS84 GeoJSON Precision.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge-v3">● User Guide v3.0 Certified</span>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <!-- Card 1: Issue AVAILABLE Dual-Key -->
+          <div class="card" style="border-color: rgba(59, 130, 246, 0.3);">
+            <div class="card-header">
+              <div class="card-title">🔑 1. Issue AVAILABLE State Dual-Key (Producer / Operator)</div>
+              <span style="font-size: 0.72rem; color: #60a5fa;">POST /api/v1/eudr/v3/dds/issue-dual-key</span>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">
+              Transitions submitted DDS into AVAILABLE state, generating paired public DDS Reference and secret Verification Number for buyer/customs verification.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Declarant EORI</label>
+                <input type="text" id="v3-issue-eori" value="NL823456789" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Operator Role</label>
+                <select id="v3-issue-role" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                  <option value="PRIMARY_OPERATOR" selected>Primary Operator</option>
+                  <option value="MSPO_PRODUCER">MSPO Micro-Producer</option>
+                  <option value="SME_DOWNSTREAM">SME Downstream Trader</option>
+                  <option value="NON_SME_DOWNSTREAM">Non-SME Downstream Operator</option>
+                  <option value="AUTHORISED_REPRESENTATIVE">Authorised Representative</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity Code (HS)</label>
+                <input type="text" id="v3-issue-hs" value="0901.11" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Net Mass (kg)</label>
+                <input type="number" id="v3-issue-mass" value="24000.0" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+            </div>
+            <button id="btn-v3-issue-dual-key" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; margin-bottom: 10px;">
+              ⚡ Issue Official AVAILABLE Dual-Key
+            </button>
+
+            <!-- Dual Key Display Box -->
+            <div id="v3-dual-key-result" class="dual-key-display" style="display: none;">
+              <div class="key-field-row">
+                <div>
+                  <div class="key-field-label">Public DDS Reference Number</div>
+                  <div id="v3-res-ref" class="key-field-val">EU-DDS-2026-VN-8F7B2C</div>
+                </div>
+                <button class="key-copy-btn" id="btn-copy-v3-ref">📋 Copy Ref</button>
+              </div>
+              <div class="key-field-row">
+                <div>
+                  <div class="key-field-label">Secret Verification Number (Confidential)</div>
+                  <div id="v3-res-verif" class="key-field-val secret">VERIF-9A4B-8C2D-1E0F-55AA</div>
+                </div>
+                <button class="key-copy-btn" id="btn-copy-v3-verif">🔑 Copy Key</button>
+              </div>
+              <div style="font-size: 0.72rem; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                <span class="pulse-dot"></span> State: <strong>AVAILABLE</strong> • Validated for EU SWE-C Single Window Customs Release
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: MSPO 1-Time Simplified Declaration -->
+          <div class="card" style="border-color: rgba(16, 185, 129, 0.3);">
+            <div class="card-header">
+              <div class="card-title">🌾 2. MSPO 1-Time Simplified Declaration Generator</div>
+              <span style="font-size: 0.72rem; color: #34d399;">Guide v3.0 Sec 4.2</span>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">
+              Empowers micro smallholders (&lt;4ha single parcel) to obtain a one-time simplified declaration identifier exempt from full polygon clustering.
+            </p>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Smallholder / Cooperative Name</label>
+                <input type="text" id="v3-mspo-name" value="Koperasi Pekebun Sawit Mandiri" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Country</label>
+                <input type="text" id="v3-mspo-country" value="MY" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+            </div>
+            <button id="btn-v3-issue-mspo" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(16, 185, 129, 0.5); color: #34d399; font-weight: 700;">
+              🌾 Issue 1-Time Simplified Identifier (EU-SD-...)
+            </button>
+            <div id="v3-mspo-result" style="display: none; margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 0.78rem;">
+              <div style="color: #34d399; font-weight: 700; margin-bottom: 4px;">Official Simplified Declaration Identifier:</div>
+              <code id="v3-mspo-id-text" style="color: #6ee7b7; font-size: 0.88rem; font-weight: 700;">EU-SD-2026-MY-7C4E1A</code>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <!-- Card 3: Dual-Key Customs / Buyer Verification Simulator -->
+          <div class="card" style="border-color: rgba(99, 102, 241, 0.3);">
+            <div class="card-header">
+              <div class="card-title">🏛️ 3. Dual-Key Verification (Customs &amp; Downstream Buyers)</div>
+              <span style="font-size: 0.72rem; color: #a5b4fc;">POST /api/v1/eudr/v3/dds/verify-dual-key</span>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">
+              European customs authorities and downstream buyers must supply BOTH the public reference AND secret verification number to unlock supply chain clearance.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">DDS Reference Number</label>
+                <input type="text" id="v3-verify-ref" placeholder="e.g. EU-DDS-2026-VN-8F7B2C" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Secret Verification Number</label>
+                <input type="text" id="v3-verify-key" placeholder="e.g. VERIF-9A4B-8C2D-1E0F-55AA" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+            </div>
+            <button id="btn-v3-verify-dual-key" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; border-color: rgba(99, 102, 241, 0.5); color: #c7d2fe;">
+              🔍 Authenticate Dual-Key for Customs Clearance
+            </button>
+            <div id="v3-verify-result-box" style="display: none; margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 0.78rem;">
+              <!-- Filled dynamically -->
+            </div>
+          </div>
+
+          <!-- Card 4: Group Head Statutory Consolidation -->
+          <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
+            <div class="card-header">
+              <div class="card-title">⚖️ 4. Group Head Statutory Liability Consolidation</div>
+              <span style="font-size: 0.72rem; color: #fbbf24;">Guide v3.0 Sec 5.1</span>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: 0.74rem; color: #fde68a;">
+              ⚠️ <strong>EUDR Art. 4 Statutory Liability Notice:</strong> Consolidating smallholders under a Group Head establishes sole legal, civil, and regulatory liability on the Head Operator EORI.
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Group Name</label>
+                <input type="text" id="v3-group-name" value="Sumatra Smallholders Alliance" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Head Operator EORI</label>
+                <input type="text" id="v3-group-head-eori" value="NL890123456" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+            </div>
+            <button id="btn-v3-create-group-head" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; font-weight: 700;">
+              ⚖️ Consolidate &amp; Sign Group Head Declaration
+            </button>
+            <div id="v3-group-result" style="display: none; margin-top: 10px; padding: 10px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; font-size: 0.76rem;"></div>
+          </div>
+
+          <!-- Card 5: GeoJSON 6-Decimal Precision Sanitizer -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📐 5. GeoJSON 6-Decimal Precision Sanitizer (1e-6 WGS84)</div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Auto Ring Closure</span>
+            </div>
+            <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px;">
+              EUDR User Guide v3.0 mandates exactly 6 decimal places (~0.1m precision) and polygon ring closure.
+            </p>
+            <button id="btn-v3-sanitize-geojson" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.78rem;">
+              Sanitize GeoJSON Coordinates to 6 Decimals &amp; Auto-Seal Rings
+            </button>
+            <div id="v3-sanitize-result" style="display: none; margin-top: 8px; font-size: 0.75rem; color: #34d399; font-weight: 600;"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 8 -->
+
+    <!-- PANEL 9: CRITICAL MINERALS & BATTERY PASSPORT ORACLE -->
+    <div id="panel-minerals" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;">
+            🔋 BATTERY MINERALS ORACLE • US IRA §30D &amp; EU BATTERY REGULATION (2023/1542)
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Critical Minerals FEOC Audit &amp; Digital Battery Passport Rail</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Audits Lithium, Cobalt, Nickel, and Graphite against US IRA Section 30D Foreign Entity of Concern (FEOC) 25% ownership caps, OECD CAHRA conflict smelter RMAP traceability, and EU Battery Passport recycled content quotas.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge-minerals">● IRA §30D &amp; RMAP Active</span>
+        </div>
+      </div>
+
+      <!-- 4 Gauge Boxes -->
+      <div class="apm-metrics-row" style="margin-bottom: 1.25rem;">
+        <div class="solana-metric-box" style="border-top-color: #f59e0b;">
+          <div class="apm-metric-label">US IRA §30D Tax Credit</div>
+          <div id="minerals-tax-credit-val" class="apm-metric-val" style="color: #fbbf24;">$7,500 Full</div>
+          <div class="apm-metric-sub">FEOC Non-Violative Extraction</div>
+        </div>
+        <div class="solana-metric-box" style="border-top-color: #10b981;">
+          <div class="apm-metric-label">Total FEOC Equity</div>
+          <div id="minerals-total-feoc-display" class="apm-metric-val" style="color: #34d399;">12.0%</div>
+          <div class="apm-metric-sub">Statutory Cap: &lt; 25.0%</div>
+        </div>
+        <div class="solana-metric-box" style="border-top-color: #06b6d4;">
+          <div class="apm-metric-label">OECD CAHRA Status</div>
+          <div class="apm-metric-val" style="color: #38bdf8;">RMAP Conforming</div>
+          <div class="apm-metric-sub">Conflict-Free Smelter Validated</div>
+        </div>
+        <div class="solana-metric-box" style="border-top-color: #a855f7;">
+          <div class="apm-metric-label">EU Battery Passport DID</div>
+          <div class="apm-metric-val" style="color: #c084fc;">did:battery:eu</div>
+          <div class="apm-metric-sub">Reg (EU) 2023/1542 Class A</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: FEOC Audit & Ownership Sliders -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
+            <div class="card-header">
+              <div class="card-title">⚖️ 1. IRA §30D FEOC Ownership Simulator (25% Statutory Cap)</div>
+              <span style="font-size: 0.72rem; color: #fbbf24;">POST /api/v1/minerals/audit</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Critical Mineral</label>
+                <select id="minerals-select-symbol" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                  <option value="LI" selected>Lithium (Li) - 2836.91</option>
+                  <option value="CO">Cobalt (Co) - 8105.20</option>
+                  <option value="NI">Nickel (Ni) - 7502.10</option>
+                  <option value="GRAPHITE">Natural Graphite - 2504.10</option>
+                  <option value="MN">Manganese (Mn) - 8111.00</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Origin Country</label>
+                <input type="text" id="minerals-country" value="AU" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              </div>
+            </div>
+
+            <!-- FEOC Sliders -->
+            <div class="feoc-slider-card">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #f8fafc; margin-bottom: 4px;">
+                Covered Foreign Entity of Concern (FEOC) Equity Breakdown:
+              </div>
+              
+              <div class="feoc-slider-row">
+                <label>🇨🇳 China (CN) Equity:</label>
+                <input type="range" id="slider-feoc-cn" min="0" max="100" value="12" />
+                <span id="val-feoc-cn" class="feoc-slider-val">12%</span>
+              </div>
+              
+              <div class="feoc-slider-row">
+                <label>🇷🇺 Russia (RU) Equity:</label>
+                <input type="range" id="slider-feoc-ru" min="0" max="100" value="0" />
+                <span id="val-feoc-ru" class="feoc-slider-val">0%</span>
+              </div>
+
+              <div class="feoc-slider-row">
+                <label>🇮🇷 Iran (IR) Equity:</label>
+                <input type="range" id="slider-feoc-ir" min="0" max="100" value="0" />
+                <span id="val-feoc-ir" class="feoc-slider-val">0%</span>
+              </div>
+
+              <div class="feoc-slider-row">
+                <label>🇰🇵 North Korea (KP) Equity:</label>
+                <input type="range" id="slider-feoc-kp" min="0" max="100" value="0" />
+                <span id="val-feoc-kp" class="feoc-slider-val">0%</span>
+              </div>
+            </div>
+
+            <div id="feoc-verdict-banner" style="margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; display: flex; align-items: center; justify-content: space-between;">
+              <span>🟢 FEOC ELIGIBLE: Total 12.0% &lt; 25.0% Cap</span>
+              <span>+$7,500 IRA Credit</span>
+            </div>
+
+            <button id="btn-run-minerals-audit" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; margin-top: 12px;">
+              ⚡ Execute Comprehensive Critical Minerals Regulatory Audit
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right: Digital Battery Passport & CAHRA Smelter -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <!-- Card: EU Battery Passport -->
+          <div class="card" style="border-color: rgba(168, 85, 247, 0.3);">
+            <div class="card-header">
+              <div class="card-title">🪪 2. EU Battery Regulation (2023/1542) Digital Passport</div>
+              <span style="font-size: 0.72rem; color: #c084fc;">Class A Carbon Rating</span>
+            </div>
+
+            <!-- Recycled Content Progress Bars -->
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 0.74rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;">
+                Statutory Mandatory Recycled Content Quotas (2031 Horizon):
+              </div>
+              
+              <div style="margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+                  <span>Cobalt (Co) - Target: 16.0%</span>
+                  <span style="color: #34d399; font-weight: 700;">22.4% (Passed)</span>
+                </div>
+                <div class="recycled-meter">
+                  <div class="recycled-fill" style="width: 85%; background: #10b981;"></div>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+                  <span>Lithium (Li) - Target: 6.0%</span>
+                  <span style="color: #34d399; font-weight: 700;">8.5% (Passed)</span>
+                </div>
+                <div class="recycled-meter">
+                  <div class="recycled-fill" style="width: 72%; background: #3b82f6;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted);">
+                  <span>Nickel (Ni) - Target: 6.0%</span>
+                  <span style="color: #34d399; font-weight: 700;">11.8% (Passed)</span>
+                </div>
+                <div class="recycled-meter">
+                  <div class="recycled-fill" style="width: 80%; background: #a855f7;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Battery Passport QR Box -->
+            <div class="battery-passport-box">
+              <div class="passport-qr-sim">
+                <div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot blank"></div><div class="passport-qr-dot"></div>
+                <div class="passport-qr-dot"></div><div class="passport-qr-dot blank"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot blank"></div>
+                <div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot blank"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div>
+                <div class="passport-qr-dot blank"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot blank"></div><div class="passport-qr-dot"></div>
+                <div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div><div class="passport-qr-dot"></div>
+              </div>
+              <div>
+                <div style="font-size: 0.76rem; font-weight: 700; color: #fff;">EU Digital Battery Passport Profile</div>
+                <code style="font-size: 0.74rem; color: #fbbf24; word-break: break-all;">did:battery:eu:2026:bat-9842f1a</code>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Lifecycle Carbon Intensity: <strong style="color: #34d399;">48.2 kg CO₂e / kWh</strong></div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">RMAP Smelter Conformance: <strong style="color: #60a5fa;">CID-002849 (Audited)</strong></div>
+              </div>
+            </div>
+
+            <!-- Live Result Output -->
+            <div id="minerals-audit-result-json" style="display: none; margin-top: 12px; max-height: 180px; overflow-y: auto; background: #030712; padding: 10px; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 9 -->
+
+    <!-- PANEL 10: CLEANWEB INTELLIGENT WEB & DOCUMENT INGESTION -->
+    <div id="panel-cleanweb" class="cockpit-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc; font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;">
+            🌐 X402-CLEANWEB-AGENT • AUTONOMOUS WEB NOISE STRIPPING &amp; GEO-HARVESTING
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff;">Unstructured Web Scraping &amp; Instant Satellite Radar Transfer</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Strips 95% of HTML bloat, advertising trackers, and style tags to conserve AI tokens, while extracting farm parcel coordinates, HS commodity codes, and RSPO/FSC certifications for 1-click satellite audit.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge-cleanweb">● 95.4% Token Reduction Active</span>
+        </div>
+      </div>
+
+      <!-- Token Savings Indicator Bar -->
+      <div class="token-savings-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 700;">
+          <span style="color: #c084fc;">⚡ CleanWeb Real-Time Token Optimization Metric</span>
+          <span style="color: #34d399;">95.4% HTML Bloat Stripped (24,800 ➔ 1,150 Clean Tokens)</span>
+        </div>
+        <div class="token-bars-wrap">
+          <div class="token-bar-row">
+            <span class="token-bar-label">Raw HTML Bloat:</span>
+            <div class="token-bar-track">
+              <div class="token-bar-fill-raw"></div>
+            </div>
+            <span style="color: #ef4444; font-family: var(--font-mono); width: 65px; text-align: right;">24,800 tok</span>
+          </div>
+          <div class="token-bar-row">
+            <span class="token-bar-label">Clean Markdown:</span>
+            <div class="token-bar-track">
+              <div class="token-bar-fill-clean"></div>
+            </div>
+            <span style="color: #10b981; font-family: var(--font-mono); width: 65px; text-align: right;">1,150 tok</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: URL Ingestion -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div class="card" style="border-color: rgba(168, 85, 247, 0.3);">
+            <div class="card-header">
+              <div class="card-title">🔗 1. Ingest Supplier Web Source or Document URL</div>
+              <span style="font-size: 0.72rem; color: #c084fc;">POST /api/v1/cleanweb/supplier-audit</span>
+            </div>
+
+            <!-- Demo Presets -->
+            <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-cleanweb-preset" data-url="https://pt-agro-lestari.example.co.id/concession-transparency" data-cc="ID" style="font-size: 0.74rem; padding: 4px 8px;">
+                🌴 Indonesia Palm Concession
+              </button>
+              <button class="btn btn-secondary btn-cleanweb-preset" data-url="https://tay-nguyen-coffee-coop.example.vn/traceability" data-cc="VN" style="font-size: 0.74rem; padding: 4px 8px;">
+                ☕ Vietnam Arabica Cooperative
+              </button>
+              <button class="btn btn-secondary btn-cleanweb-preset" data-url="https://amazonia-florestal.example.br/manejo-sustentavel" data-cc="BR" style="font-size: 0.74rem; padding: 4px 8px;">
+                🪵 Brazil Forestry Concession
+              </button>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Target Supplier URL</label>
+              <input type="text" id="cleanweb-target-url" value="https://pt-agro-lestari.example.co.id/concession-transparency" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Country of Production</label>
+              <input type="text" id="cleanweb-country-code" value="ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
+            </div>
+
+            <button id="btn-run-cleanweb-audit" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #a855f7, #3b82f6); border: none;">
+              🌐 Strip Web Noise &amp; Extract Supply Chain Entities
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right: Extracted Entities & Map Transfer -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div class="card" style="border-color: rgba(16, 185, 129, 0.3);">
+            <div class="card-header">
+              <div class="card-title">📍 2. Harvested Supply Chain Entities &amp; Spatial Coordinates</div>
+              <span id="cleanweb-status-pill" style="font-size: 0.72rem; color: #34d399; font-weight: 700;">Ready for Ingest</span>
+            </div>
+
+            <div id="cleanweb-entities-card" style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="key-field-row">
+                <span class="key-field-label">Discovered Supplier:</span>
+                <span id="cw-res-supplier" style="font-weight: 700; color: #fff; font-size: 0.8rem;">PT Agro Lestari Mandiri</span>
+              </div>
+              <div class="key-field-row">
+                <span class="key-field-label">Annex I Commodity:</span>
+                <span id="cw-res-commodity" style="color: #60a5fa; font-weight: 700; font-size: 0.8rem;">Crude Palm Oil (HS 1511.10)</span>
+              </div>
+              <div class="key-field-row">
+                <span class="key-field-label">WGS84 Coordinates:</span>
+                <span id="cw-res-coords" style="color: #34d399; font-family: var(--font-mono); font-size: 0.78rem;">[104.752189, -2.984512]</span>
+              </div>
+              <div class="key-field-row">
+                <span class="key-field-label">Certification Status:</span>
+                <span id="cw-res-cert" style="color: #fbbf24; font-weight: 700; font-size: 0.8rem;">RSPO-ID-2024-88912 (Active)</span>
+              </div>
+              <div class="key-field-row">
+                <span class="key-field-label">WDPA Protected Conflict:</span>
+                <span id="cw-res-wdpa" style="color: #34d399; font-weight: 700; font-size: 0.8rem;">None (Zero Overlap, FPIC Verified)</span>
+              </div>
+            </div>
+
+            <button id="btn-cleanweb-plot-map" class="btn btn-emerald" style="width: 100%; padding: 10px; font-size: 0.84rem; font-weight: 700; margin-top: 14px;">
+              🗺️ Transfer to Leaflet GIS Map &amp; Run Instant Sentinel Radar Audit
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- END PANEL 10 -->
+
   </main>
+
 
   <!-- Machine Audit Proof Modal -->
   <div id="html-report-modal" class="modal-backdrop">
@@ -1018,8 +1525,11 @@ curl -X POST "https://api.eudragent.com/api/v1/eudr/evaluate" \
     EUDR.agent is a specialized autonomous compliance engine assisting operators and traders in fulfilling statutory due diligence obligations under Regulation (EU) 2023/1115. Telemetry analyses are ground-truthed using Copernicus Sentinel-1 SAR and Sentinel-2 multi-spectral imagery against the 31 December 2020 cut-off baseline. Operators remain legally responsible for final electronic submissions via the official European Commission TRACES-NT portal.
   </div>
 
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
   <!-- Leaflet JS & App JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="/static/app.js?v=20261002_v4"></script>
+  <script src="/static/app.js?v=20261002_v5"></script>
 </body>
 </html>

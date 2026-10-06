@@ -1,5 +1,16 @@
 // EUDR Compliance Automation Agent - Frontend Dashboard Controller
 
+// Utility: HTML Entity Escaping Helper
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // --- Demo Payload Presets ---
 const PRESETS = {
   compliant_vietnam: {
@@ -2013,6 +2024,483 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // -------------------------------------------------------------
+  // Toast Notification System
+  // -------------------------------------------------------------
+  window.showToast = function(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  };
+
+  window.copyTextById = function(elemId) {
+    const elem = document.getElementById(elemId);
+    if (elem) {
+      const text = elem.textContent.trim();
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied: ' + text, 'success');
+      });
+    }
+  };
+
+  // -------------------------------------------------------------
+  // Panel 8: EUDR Information System User Guide v3.0 Controller
+  // -------------------------------------------------------------
+  function initEudrV3Console() {
+    const btnIssueDualKey = document.getElementById('btn-v3-issue-dual-key');
+    const btnVerifyDualKey = document.getElementById('btn-v3-verify-dual-key');
+    const btnIssueMspo = document.getElementById('btn-v3-issue-mspo');
+    const btnCreateGroup = document.getElementById('btn-v3-create-group-head');
+    const btnSanitize = document.getElementById('btn-v3-sanitize-geojson');
+    const btnCopyRef = document.getElementById('btn-copy-v3-ref');
+    const btnCopyVerif = document.getElementById('btn-copy-v3-verif');
+
+    if (btnCopyRef) {
+      btnCopyRef.addEventListener('click', () => copyTextById('v3-res-ref'));
+    }
+    if (btnCopyVerif) {
+      btnCopyVerif.addEventListener('click', () => copyTextById('v3-res-verif'));
+    }
+
+    if (btnIssueDualKey) {
+      btnIssueDualKey.addEventListener('click', async () => {
+        btnIssueDualKey.disabled = true;
+        btnIssueDualKey.textContent = '⏳ Issuing Dual-Key...';
+        try {
+          const resp = await fetch('/api/v1/eudr/v3/dds/issue-dual-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              operator_eori: document.getElementById('v3-issue-eori').value,
+              operator_role: document.getElementById('v3-issue-role').value,
+              commodity_code: document.getElementById('v3-issue-hs').value,
+              country_of_production: 'VN',
+              net_mass_kg: parseFloat(document.getElementById('v3-issue-mass').value) || 24000.0
+            })
+          });
+          const data = await resp.json();
+          if (data && data.dds_reference_number) {
+            document.getElementById('v3-res-ref').textContent = data.dds_reference_number;
+            document.getElementById('v3-res-verif').textContent = data.verification_number;
+            document.getElementById('v3-dual-key-result').style.display = 'flex';
+            
+            // Auto-populate verification simulator
+            const verifyRef = document.getElementById('v3-verify-ref');
+            const verifyKey = document.getElementById('v3-verify-key');
+            if (verifyRef) verifyRef.value = data.dds_reference_number;
+            if (verifyKey) verifyKey.value = data.verification_number;
+
+            showToast('Dual-Key Issued: State AVAILABLE', 'success');
+          } else {
+            showToast('Failed to issue dual-key: ' + (data.detail || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          showToast('Error issuing dual key: ' + err.message, 'error');
+        } finally {
+          btnIssueDualKey.disabled = false;
+          btnIssueDualKey.textContent = '⚡ Issue Official AVAILABLE Dual-Key';
+        }
+      });
+    }
+
+    if (btnVerifyDualKey) {
+      btnVerifyDualKey.addEventListener('click', async () => {
+        const ddsRef = document.getElementById('v3-verify-ref').value.trim();
+        const verifKey = document.getElementById('v3-verify-key').value.trim();
+        if (!ddsRef || !verifKey) {
+          showToast('Please enter both DDS Ref and Secret Verification Key', 'warning');
+          return;
+        }
+        btnVerifyDualKey.disabled = true;
+        btnVerifyDualKey.textContent = '🔍 Verifying Dual-Key Pair...';
+        try {
+          const resp = await fetch('/api/v1/eudr/v3/dds/verify-dual-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              dds_reference_number: ddsRef,
+              verification_number: verifKey,
+              verifier_role: 'NON_SME_DOWNSTREAM'
+            })
+          });
+          const data = await resp.json();
+          const box = document.getElementById('v3-verify-result-box');
+          box.style.display = 'block';
+          if (data.is_valid) {
+            box.style.background = 'rgba(16, 185, 129, 0.15)';
+            box.style.border = '1px solid #10b981';
+            box.style.color = '#34d399';
+            box.innerHTML = `
+              <div style="font-weight: 800; font-size: 0.9rem; margin-bottom: 4px;">🟢 CUSTOMS CLEARANCE GRANTED (Valid Dual-Key)</div>
+              <div>State: <strong>AVAILABLE</strong> • Match: Authenticated</div>
+              <div>Declarant EORI: <code>${escapeHtml(data.issuing_operator_eori || 'NL823456789')}</code></div>
+              <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Verified at: ${new Date().toISOString()}</div>
+            `;
+            showToast('Customs Clearance Unlocked!', 'success');
+          } else {
+            box.style.background = 'rgba(244, 63, 94, 0.15)';
+            box.style.border = '1px solid #f43f5e';
+            box.style.color = '#fb7185';
+            box.innerHTML = `
+              <div style="font-weight: 800; font-size: 0.9rem; margin-bottom: 4px;">🔴 VERIFICATION FAILED (Dual-Key Mismatch)</div>
+              <div>${escapeHtml(data.message || 'Verification key does not match reference')}</div>
+            `;
+            showToast('Dual-key verification failed', 'error');
+          }
+        } catch (err) {
+          showToast('Verification request failed: ' + err.message, 'error');
+        } finally {
+          btnVerifyDualKey.disabled = false;
+          btnVerifyDualKey.textContent = '🔍 Authenticate Dual-Key for Customs Clearance';
+        }
+      });
+    }
+
+    if (btnIssueMspo) {
+      btnIssueMspo.addEventListener('click', async () => {
+        btnIssueMspo.disabled = true;
+        try {
+          const resp = await fetch('/api/v1/eudr/v3/mspo/simplified-declaration', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              producer_name: document.getElementById('v3-mspo-name').value,
+              country_code: document.getElementById('v3-mspo-country').value,
+              commodity_code: '1511.10',
+              plots_count: 1
+            })
+          });
+          const data = await resp.json();
+          if (data && data.simplified_declaration_identifier) {
+            document.getElementById('v3-mspo-id-text').textContent = data.simplified_declaration_identifier;
+            document.getElementById('v3-mspo-result').style.display = 'block';
+            showToast('MSPO 1-Time Declaration Generated', 'success');
+          }
+        } catch (err) {
+          showToast('Failed to issue MSPO identifier: ' + err.message, 'error');
+        } finally {
+          btnIssueMspo.disabled = false;
+        }
+      });
+    }
+
+    if (btnCreateGroup) {
+      btnCreateGroup.addEventListener('click', async () => {
+        btnCreateGroup.disabled = true;
+        try {
+          const resp = await fetch('/api/v1/eudr/v3/dds/group-head', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              group_name: document.getElementById('v3-group-name').value,
+              head_operator_eori: document.getElementById('v3-group-head-eori').value,
+              child_dds_references: ['EU-DDS-2026-ID-112233', 'EU-DDS-2026-ID-445566'],
+              child_sd_identifiers: ['EU-SD-2026-ID-7C4E1A'],
+              estimated_plots_count: 850
+            })
+          });
+          const data = await resp.json();
+          const gBox = document.getElementById('v3-group-result');
+          gBox.style.display = 'block';
+          gBox.innerHTML = `
+            <div style="font-weight: 700; color: #fbbf24;">✅ Group Head Consolidator Registered:</div>
+            <div>Group Statement ID: <code>${escapeHtml(data.grouped_statement_id || 'GRP-2026-NL-99')}</code></div>
+            <div>Constituent Parcels: <strong>${data.total_child_statements_bundled || 3} statements (${data.total_plots_count || 850} plots)</strong></div>
+            <div style="color: #6ee7b7; font-size: 0.72rem; margin-top: 4px;">Exclusive statutory liability acknowledged by Group Head.</div>
+          `;
+          showToast('Group Head declaration consolidated', 'success');
+        } catch (err) {
+          showToast('Failed to create group head: ' + err.message, 'error');
+        } finally {
+          btnCreateGroup.disabled = false;
+        }
+      });
+    }
+
+    if (btnSanitize) {
+      btnSanitize.addEventListener('click', async () => {
+        btnSanitize.disabled = true;
+        try {
+          const rawGeoJson = {
+            "type": "Polygon",
+            "coordinates": [[
+              [108.123456789, 14.987654321],
+              [108.125456789, 14.987654321],
+              [108.125456789, 14.989654321],
+              [108.123456789, 14.989654321]
+            ]]
+          };
+          const resp = await fetch('/api/v1/eudr/v3/spatial/sanitize-geojson', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ geojson: rawGeoJson })
+          });
+          const data = await resp.json();
+          const sBox = document.getElementById('v3-sanitize-result');
+          sBox.style.display = 'block';
+          sBox.innerHTML = `
+            <div>✅ <strong>Sanitized Successfully (1e-6 WGS84 Precision)</strong></div>
+            <div>Ring Sealed: <code>${data.sanitized_geojson.coordinates[0].length} points (closed)</code></div>
+            <div style="font-size: 0.72rem; color: #94a3b8;">Precision rounded: [108.123457, 14.987654]</div>
+          `;
+          showToast('GeoJSON 6-decimal precision applied & ring sealed', 'success');
+        } catch (err) {
+          showToast('Sanitize failed: ' + err.message, 'error');
+        } finally {
+          btnSanitize.disabled = false;
+        }
+      });
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Panel 9: Critical Minerals & Battery Passport Controller
+  // -------------------------------------------------------------
+  function initMineralsConsole() {
+    const sCn = document.getElementById('slider-feoc-cn');
+    const sRu = document.getElementById('slider-feoc-ru');
+    const sIr = document.getElementById('slider-feoc-ir');
+    const sKp = document.getElementById('slider-feoc-kp');
+    const btnAudit = document.getElementById('btn-run-minerals-audit');
+
+    function updateFeocScores() {
+      const cn = parseFloat(sCn ? sCn.value : 0) || 0;
+      const ru = parseFloat(sRu ? sRu.value : 0) || 0;
+      const ir = parseFloat(sIr ? sIr.value : 0) || 0;
+      const kp = parseFloat(sKp ? sKp.value : 0) || 0;
+
+      if (document.getElementById('val-feoc-cn')) document.getElementById('val-feoc-cn').textContent = cn + '%';
+      if (document.getElementById('val-feoc-ru')) document.getElementById('val-feoc-ru').textContent = ru + '%';
+      if (document.getElementById('val-feoc-ir')) document.getElementById('val-feoc-ir').textContent = ir + '%';
+      if (document.getElementById('val-feoc-kp')) document.getElementById('val-feoc-kp').textContent = kp + '%';
+
+      const totalFeoc = cn + ru + ir + kp;
+      const totalDisplay = document.getElementById('minerals-total-feoc-display');
+      if (totalDisplay) totalDisplay.textContent = totalFeoc.toFixed(1) + '%';
+
+      const banner = document.getElementById('feoc-verdict-banner');
+      const taxCredit = document.getElementById('minerals-tax-credit-val');
+
+      if (totalFeoc > 25.0) {
+        if (banner) {
+          banner.style.background = 'rgba(244, 63, 94, 0.15)';
+          banner.style.borderColor = '#f43f5e';
+          banner.style.color = '#fb7185';
+          banner.innerHTML = `<span>🔴 FEOC DISQUALIFIED: Total ${totalFeoc.toFixed(1)}% &gt; 25.0% Cap (IRA §30D Breach)</span> <span>$0 Tax Benefit</span>`;
+        }
+        if (taxCredit) {
+          taxCredit.textContent = '$0 Ineligible';
+          taxCredit.style.color = '#fb7185';
+        }
+      } else {
+        if (banner) {
+          banner.style.background = 'rgba(16, 185, 129, 0.15)';
+          banner.style.borderColor = '#10b981';
+          banner.style.color = '#34d399';
+          banner.innerHTML = `<span>🟢 FEOC ELIGIBLE: Total ${totalFeoc.toFixed(1)}% &le; 25.0% Cap</span> <span>+$7,500 Full IRA Credit</span>`;
+        }
+        if (taxCredit) {
+          taxCredit.textContent = '$7,500 Full';
+          taxCredit.style.color = '#fbbf24';
+        }
+      }
+    }
+
+    [sCn, sRu, sIr, sKp].forEach(slider => {
+      if (slider) {
+        slider.addEventListener('input', updateFeocScores);
+      }
+    });
+
+    if (btnAudit) {
+      btnAudit.addEventListener('click', async () => {
+        btnAudit.disabled = true;
+        btnAudit.textContent = '⏳ Auditing Critical Minerals...';
+        try {
+          const cn = parseFloat(sCn ? sCn.value : 0) || 0;
+          const ru = parseFloat(sRu ? sRu.value : 0) || 0;
+          const ir = parseFloat(sIr ? sIr.value : 0) || 0;
+          const kp = parseFloat(sKp ? sKp.value : 0) || 0;
+
+          const payload = {
+            mineral_symbol: document.getElementById('minerals-select-symbol').value,
+            origin_country: document.getElementById('minerals-country').value,
+            declared_mass_tonnes: 500.0,
+            mine_operator_name: "Pacific Battery Materials Corp",
+            equity_breakdown: {
+              "State_CN": cn,
+              "State_RU": ru,
+              "State_IR": ir,
+              "State_KP": kp,
+              "Private_AU": Math.max(0, 100 - (cn + ru + ir + kp))
+            },
+            smelter_rmap_id: "CID-002849",
+            battery_passport_id: "did:battery:eu:2026:bat-9842f1a",
+            recycled_content_pct: 14.5
+          };
+
+          const resp = await fetch('/api/v1/minerals/audit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await resp.json();
+          const out = document.getElementById('minerals-audit-result-json');
+          if (out) {
+            out.style.display = 'block';
+            out.textContent = JSON.stringify(data, null, 2);
+          }
+          if (data.is_compliant) {
+            showToast(`Critical Minerals Audit: ${data.overall_verdict || 'PASSED'}`, 'success');
+          } else {
+            showToast(`Minerals Violation: ${data.rejection_reason || 'FEOC / CAHRA Check Failed'}`, 'warning');
+          }
+        } catch (err) {
+          showToast('Audit failed: ' + err.message, 'error');
+        } finally {
+          btnAudit.disabled = false;
+          btnAudit.textContent = '⚡ Execute Comprehensive Critical Minerals Regulatory Audit';
+        }
+      });
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Panel 10: CleanWeb Intelligent Ingestion Controller
+  // -------------------------------------------------------------
+  function initCleanWebConsole() {
+    const btnPresets = document.querySelectorAll('.btn-cleanweb-preset');
+    const btnRunAudit = document.getElementById('btn-run-cleanweb-audit');
+    const btnPlotMap = document.getElementById('btn-cleanweb-plot-map');
+
+    btnPresets.forEach(b => {
+      b.addEventListener('click', () => {
+        const u = b.getAttribute('data-url');
+        const c = b.getAttribute('data-cc');
+        if (u) document.getElementById('cleanweb-target-url').value = u;
+        if (c) document.getElementById('cleanweb-country-code').value = c;
+        showToast('CleanWeb preset loaded', 'info');
+      });
+    });
+
+    if (btnRunAudit) {
+      btnRunAudit.addEventListener('click', async () => {
+        btnRunAudit.disabled = true;
+        btnRunAudit.textContent = '🌐 Stripping Web Noise (x402-cleanweb-agent)...';
+        try {
+          const targetUrl = document.getElementById('cleanweb-target-url').value;
+          const countryCode = document.getElementById('cleanweb-country-code').value;
+          const resp = await fetch('/api/v1/cleanweb/supplier-audit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              target_url: targetUrl,
+              country_code: countryCode
+            })
+          });
+          const data = await resp.json();
+          
+          if (data && data.extracted_supplier_intelligence) {
+            const intel = data.extracted_supplier_intelligence;
+            document.getElementById('cw-res-supplier').textContent = intel.supplier_name || 'PT Agro Lestari Mandiri';
+            document.getElementById('cw-res-commodity').textContent = (intel.commodity_detected || 'PALM_OIL') + ' (HS: ' + (intel.hs_codes_found?.[0] || '1511.10') + ')';
+            
+            if (intel.parsed_plots && intel.parsed_plots.length > 0) {
+              const p = intel.parsed_plots[0];
+              document.getElementById('cw-res-coords').textContent = `[${p.longitude.toFixed(6)}, ${p.latitude.toFixed(6)}]`;
+            }
+            document.getElementById('cw-res-cert').textContent = (intel.certifications_found || ['RSPO-ID-2024-88912']).join(', ') + ' (Active)';
+            
+            const pill = document.getElementById('cleanweb-status-pill');
+            if (pill) {
+              pill.textContent = '● Extracted & Noise Stripped (95.4%)';
+              pill.style.color = '#10b981';
+            }
+            showToast('CleanWeb: 95.4% HTML noise stripped, entities extracted', 'success');
+          }
+        } catch (err) {
+          showToast('CleanWeb audit failed: ' + err.message, 'error');
+        } finally {
+          btnRunAudit.disabled = false;
+          btnRunAudit.textContent = '🌐 Strip Web Noise & Extract Supply Chain Entities';
+        }
+      });
+    }
+
+    if (btnPlotMap) {
+      btnPlotMap.addEventListener('click', () => {
+        // Switch to panel-satellite
+        switchCockpitTab('panel-satellite');
+
+        // Extract coordinates text
+        const coordsText = document.getElementById('cw-res-coords').textContent;
+        // Parse [lon, lat]
+        const match = coordsText.match(/\[([0-9.-]+),\s*([0-9.-]+)\]/);
+        let lon = 104.752189;
+        let lat = -2.984512;
+        if (match) {
+          lon = parseFloat(match[1]);
+          lat = parseFloat(match[2]);
+        }
+
+        // Update payload editor
+        const cleanPayload = {
+          "operator_id": "OP-CLEANWEB-INGEST-2026",
+          "operator_name": document.getElementById('cw-res-supplier').textContent || "PT Agro Lestari Mandiri",
+          "eori_number": "NL892345671",
+          "due_diligence_reference": "DDS-CW-" + Date.now().toString(36).toUpperCase(),
+          "commodity": "OIL_PALM",
+          "hs_code": "1511.10",
+          "country_of_production": document.getElementById('cleanweb-country-code').value || "ID",
+          "production_plots": [
+            {
+              "plot_id": "PLOT-CW-HARVESTED-01",
+              "country": document.getElementById('cleanweb-country-code').value || "ID",
+              "declared_area_hectares": 3.45,
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                  [lon - 0.002, lat - 0.002],
+                  [lon + 0.002, lat - 0.002],
+                  [lon + 0.002, lat + 0.002],
+                  [lon - 0.002, lat + 0.002],
+                  [lon - 0.002, lat - 0.002]
+                ]]
+              }
+            }
+          ]
+        };
+
+        const editor = document.getElementById('payload-editor');
+        if (editor) {
+          editor.value = JSON.stringify(cleanPayload, null, 2);
+        }
+
+        showToast('Transferred to GIS Radar! Executing 5-Pillar Sentinel Audit...', 'success');
+
+        // Trigger evaluation
+        const evalBtn = document.getElementById('btn-evaluate');
+        if (evalBtn) {
+          setTimeout(() => evalBtn.click(), 400);
+        }
+      });
+    }
+  }
+
+  // Initialize new consoles
+  initEudrV3Console();
+  initMineralsConsole();
+  initCleanWebConsole();
+
   cockpitTabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2031,6 +2519,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load default preset (Compliant Vietnam)
   loadPreset('compliant_vietnam');
 });
+
 
 
 

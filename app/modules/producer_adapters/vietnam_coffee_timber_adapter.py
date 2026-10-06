@@ -37,7 +37,7 @@ class VietnamCoffeeTimberAdapter(BaseProducerAdapter):
         return "MARD VNTLAS (Timber) & National Coffee Cadastre / LURC Registry (Vietnam)"
 
     def verify_registration(self, identifier: str) -> ProducerRegistryVerificationResult:
-        clean_id = identifier.strip().upper()
+        clean_id = str(identifier or "").strip().upper()
         match = self.VN_REGEX.match(clean_id)
 
         if not match:

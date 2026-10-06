@@ -33,8 +33,8 @@ class DownstreamChainManager:
         verified_refs: List[str] = []
         has_revoked = False
 
-        for ref in payload.upstream_dds_references:
-            clean_ref = ref.strip()
+        for ref in (payload.upstream_dds_references or []):
+            clean_ref = str(ref or "").strip()
             if not clean_ref:
                 continue
             if clean_ref in cls._REVOKED_UPSTREAM_REFERENCES:
@@ -103,3 +103,23 @@ class DownstreamChainManager:
             "verified_upstream_refs": chain["verified_refs"],
             "alert_message": "Immediate supplier quarantine recommended" if any_revoked else "All upstream references verified deforestation-free."
         }
+
+    @classmethod
+    def validate_dual_key_upstream_inheritance(
+        cls,
+        dds_reference_number: str,
+        verification_number: str,
+        is_non_sme: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Implements EUDR Information System User Guide v3.0 Downstream Verification:
+        Mandatory dual-key check (DDS Reference No. + Verification No.) for Non-SME Downstream Operators.
+        """
+        from app.modules.eudr_information_system_v3 import eudr_info_system_v3, EUDRRole
+
+        role = EUDRRole.NON_SME_DOWNSTREAM if is_non_sme else EUDRRole.SME_DOWNSTREAM
+        return eudr_info_system_v3.verify_dual_key_pair(
+            dds_reference_number=dds_reference_number,
+            verification_number=verification_number,
+            verifier_role=role
+        )

@@ -24,19 +24,25 @@ class AuditRepository:
         execution_id = payload.execution_id or f"EXEC-{uuid.uuid4().hex[:12].upper()}"
         
         status_val = report.status.value if hasattr(report.status, "value") else str(report.status)
-        review_status_val = report.confidence_assessment.review_status
-        if hasattr(review_status_val, "value"):
-            review_status_val = review_status_val.value
+        review_status_val = "AUTO_APPROVED"
+        if report.confidence_assessment and getattr(report.confidence_assessment, "review_status", None):
+            review_status_val = report.confidence_assessment.review_status
+            if hasattr(review_status_val, "value"):
+                review_status_val = review_status_val.value
+
+        operator_name_val = payload.operator.operator_name if payload.operator else "Unknown Operator"
+        commodity_hs_val = str(payload.commodity.hs_code or "") if payload.commodity else ""
+        commodity_cat_val = str(payload.commodity.description or "") if payload.commodity else ""
 
         record = AuditExecutionRecord(
             execution_id=execution_id,
             timestamp=datetime.datetime.now(datetime.timezone.utc),
             supplier_id=payload.supplier_id,
-            operator_name=payload.operator.operator_name,
-            commodity_hs_code=payload.commodity.hs_code,
-            commodity_category=payload.commodity.description,
-            total_plots=len(payload.plots),
-            total_area_ha=sum(p.area_hectares for p in payload.plots),
+            operator_name=operator_name_val,
+            commodity_hs_code=commodity_hs_val,
+            commodity_category=commodity_cat_val,
+            total_plots=len(payload.plots) if payload.plots else 0,
+            total_area_ha=sum((p.area_hectares or 0.0) for p in payload.plots) if payload.plots else 0.0,
             overall_status=status_val,
             confidence_score=report.confidence_assessment.overall_confidence_score if report.confidence_assessment else 1.0,
             review_status=str(review_status_val),

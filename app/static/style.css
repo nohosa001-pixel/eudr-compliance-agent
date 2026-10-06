@@ -1220,3 +1220,293 @@ pre.code-viewer {
   box-shadow: 0 0 20px rgba(20, 241, 149, 0.4);
   transform: translateY(-1px);
 }
+
+/* -------------------------------------------------------------
+   EUDR Information System v3.0, Minerals & CleanWeb Styling
+   ------------------------------------------------------------- */
+.badge-v3 {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-minerals {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-cleanweb {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dual Key Display Card */
+.dual-key-display {
+  background: #030712;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.key-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.key-field-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.key-field-val {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.key-field-val.secret {
+  color: #34d399;
+}
+
+.key-copy-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.key-copy-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: #60a5fa;
+  color: #fff;
+}
+
+/* FEOC Ownership Sliders */
+.feoc-slider-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feoc-slider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feoc-slider-row label {
+  font-size: 0.76rem;
+  color: var(--text-primary);
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.feoc-slider-row input[type="range"] {
+  flex-grow: 1;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+.feoc-slider-val {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fbbf24;
+  width: 45px;
+  text-align: right;
+}
+
+/* Recycled Quota Progress */
+.recycled-meter {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 4px;
+}
+
+.recycled-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* Battery Passport QR Card */
+.battery-passport-box {
+  background: linear-gradient(145deg, #0f172a, #030712);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.passport-qr-sim {
+  width: 90px;
+  height: 90px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 2px;
+  flex-shrink: 0;
+}
+
+.passport-qr-dot {
+  background: #020617;
+  border-radius: 1px;
+}
+
+.passport-qr-dot.blank {
+  background: transparent;
+}
+
+/* CleanWeb Token Savings Comparison Meter */
+.token-savings-container {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.token-bars-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.token-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+}
+
+.token-bar-label {
+  width: 110px;
+  color: var(--text-secondary);
+}
+
+.token-bar-track {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.08);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.token-bar-fill-raw {
+  width: 100%;
+  height: 100%;
+  background: #ef4444;
+  border-radius: 6px;
+}
+
+.token-bar-fill-clean {
+  width: 4.6%;
+  height: 100%;
+  background: #10b981;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+/* Toast Feedback Container */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  animation: toastFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast.success {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.toast.warning {
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.toast.error {
+  border-color: rgba(244, 63, 94, 0.5);
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

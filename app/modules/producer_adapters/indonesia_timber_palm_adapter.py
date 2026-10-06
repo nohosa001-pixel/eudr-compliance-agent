@@ -32,7 +32,7 @@ class IndonesiaTimberPalmAdapter(BaseProducerAdapter):
         return "KLHK SIPUHH (Timber) / ISPO-MSPO (Palm Oil) Registry (Southeast Asia)"
 
     def verify_registration(self, identifier: str) -> ProducerRegistryVerificationResult:
-        clean_id = identifier.strip().upper()
+        clean_id = str(identifier or "").strip().upper()
         country_code = "MY" if clean_id.startswith("MY") else "ID"
 
         match = self.SIPUHH_OR_PALM_REGEX.match(clean_id)

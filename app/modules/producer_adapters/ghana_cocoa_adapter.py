@@ -29,7 +29,7 @@ class GhanaCocoaAdapter(BaseProducerAdapter):
         return "COCOBOD CMS / CCC National Cocoa Traceability System (West Africa)"
 
     def verify_registration(self, identifier: str) -> ProducerRegistryVerificationResult:
-        clean_id = identifier.strip().upper()
+        clean_id = str(identifier or "").strip().upper()
         country_code = "CI" if clean_id.startswith("CI") else "GH"
 
         match = self.COCOA_REGEX.match(clean_id)

@@ -82,7 +82,7 @@ class LegalAuditor:
     @classmethod
     def check_exemption(cls, hs_code: str) -> Tuple[bool, Optional[str]]:
         """Checks if an HS code has been formally exempted from EUDR scope under the 2026 revision."""
-        clean_hs = hs_code.replace(".", "").strip()
+        clean_hs = str(hs_code or "").replace(".", "").strip()
         for prefix, reason in cls.EXEMPTED_HS_CODES.items():
             if clean_hs.startswith(prefix):
                 return True, reason
@@ -95,7 +95,7 @@ class LegalAuditor:
         if is_exempt:
             return EUDRCommodityCategory.EXEMPTED
 
-        clean_hs = hs_code.replace(".", "").strip()
+        clean_hs = str(hs_code or "").replace(".", "").strip()
         if clean_hs.startswith(("0102", "0201", "0202")):
             return EUDRCommodityCategory.CATTLE
         elif clean_hs.startswith(("1801", "1802", "1803", "1804", "1805", "1806")):
@@ -104,7 +104,7 @@ class LegalAuditor:
             return EUDRCommodityCategory.COFFEE
         elif clean_hs.startswith(("1511", "120710", "151321", "151329", "230660", "382311")):
             return EUDRCommodityCategory.OIL_PALM
-        elif clean_hs.startswith(("4001", "4005", "4006", "4007", "4008", "4013", "4015", "4017")):
+        elif clean_hs.startswith(("4001", "4005", "4006", "4007", "4008", "4011", "4013", "4015", "4017")):
             return EUDRCommodityCategory.RUBBER
         elif clean_hs.startswith(("1201", "120810", "1507", "2304")):
             return EUDRCommodityCategory.SOYA

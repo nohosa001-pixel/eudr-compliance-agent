@@ -23,6 +23,7 @@ COMMODITY_BENCHMARK_USD_PER_KG = {
     "0201": 6.80,   # Bovine meat (fresh/chilled)
     "0202": 6.20,   # Bovine meat (frozen)
     "4001": 2.25,   # Natural rubber
+    "4011": 4.50,   # Pneumatic tyres (passenger/truck)
     "1201": 0.58,   # Soya beans
 }
 
@@ -86,7 +87,7 @@ class TradeCreditUnderwriter:
             return 50000.0
 
         net_mass = payload.commodity.net_mass_kg or 10000.0
-        hs_clean = payload.commodity.hs_code.replace(".", "").strip()[:4]
+        hs_clean = str(payload.commodity.hs_code or "").replace(".", "").strip()[:4]
         price_per_kg = COMMODITY_BENCHMARK_USD_PER_KG.get(hs_clean, 2.50)
         return round(net_mass * price_per_kg, 2)
 
@@ -107,7 +108,7 @@ class TradeCreditUnderwriter:
         # Step 1: security-gate-x402 Front-Line Zero-Trust Shielding
         # ----------------------------------------------------------------------
         commodity_desc = payload.commodity.description if payload.commodity else ""
-        hs_code_val = payload.commodity.hs_code if payload.commodity else "0901"
+        hs_code_val = str(payload.commodity.hs_code or "0901") if payload.commodity else "0901"
         net_mass_val = payload.commodity.net_mass_kg if payload.commodity else 1000.0
         plots_count = len(payload.plots) if payload.plots else 1
         total_area = sum((p.area_hectares or 1.0) for p in payload.plots) if payload.plots else 2.0
@@ -147,11 +148,11 @@ class TradeCreditUnderwriter:
         # Step 3: Producer Country Public Registry Cross-Check
         # ----------------------------------------------------------------------
         reg_id = producer_registry_id
-        if not reg_id:
+        if not reg_id and payload.documents:
             for d in payload.documents:
-                doc_clean = d.doc_id.upper()
+                doc_clean = str(d.doc_id or "").upper()
                 if any(k in doc_clean for k in ["CAR", "CMS", "CCC", "SIPUHH", "ISPO", "MSPO", "BR-", "GH-", "CI-", "ID-", "MY-", "VN-", "VNTLAS", "LURC", "COFFEE"]):
-                    reg_id = d.doc_id
+                    reg_id = str(d.doc_id or "")
                     break
 
         reg_result = None
@@ -179,7 +180,10 @@ class TradeCreditUnderwriter:
             land_score = 0.0
         else:
             # No registered ID supplied but has base tenure documents
-            doc_types = {d.doc_type.value for d in payload.documents}
+            doc_types = {
+                d.doc_type.value if hasattr(d.doc_type, "value") else str(d.doc_type) 
+                for d in (payload.documents or [])
+            }
             land_score = 150.0 if "LAND_USE_TITLE" in doc_types else 80.0
 
         # 3. Operator Governance (0 - 200 pts)
@@ -285,10 +289,10 @@ class TradeCreditUnderwriter:
         return TradeCreditAssessmentResult(
             assessment_id=assessment_id,
             timestamp_utc=now_iso,
-            operator_name=payload.operator.operator_name if payload.operator else "Unknown",
-            operator_eori=payload.operator.eori_number if payload.operator else "UNKNOWN",
-            commodity_code=payload.commodity.hs_code if payload.commodity else "UNKNOWN",
-            commodity_description=payload.commodity.description if payload.commodity else "EUDR Commodity",
+            operator_name=str(getattr(payload.operator, "operator_name", "Unknown")) if payload.operator else "Unknown",
+            operator_eori=str(getattr(payload.operator, "eori_number", "UNKNOWN")) if payload.operator else "UNKNOWN",
+            commodity_code=str(getattr(payload.commodity, "hs_code", "UNKNOWN")) if payload.commodity else "UNKNOWN",
+            commodity_description=str(getattr(payload.commodity, "description", "EUDR Commodity")) if payload.commodity else "EUDR Commodity",
             security_gate_clearance=sec_details,
             credit_score=breakdown,
             loan_offer=loan_offer,

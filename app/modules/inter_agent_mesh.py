@@ -370,12 +370,18 @@ class InterAgentMeshCoordinator:
         cls,
         mineral_code: str,
         origin_country: str,
-        mine_coordinates: Optional[List[float]] = None
+        mine_coordinates: Optional[List[float]] = None,
+        equity_breakdown: Optional[Dict[str, float]] = None,
+        smelter_rmap_id: Optional[str] = None,
+        battery_passport_id: Optional[str] = None,
+        declared_mass_tonnes: float = 100.0
     ) -> Dict[str, Any]:
         """
-        Calls minerals-oracle-x402 for critical minerals benchmark pricing (Lithium, Nickel, Copper)
-        and cross-validates ESG deforestation impact using eudr-compliance-agent.
+        Calls minerals-oracle-x402 for critical minerals benchmark pricing (Lithium, Nickel, Copper, Cobalt)
+        and executes comprehensive ESG, FEOC (US IRA 30D), and Battery Passport due diligence.
         """
+        from app.modules.minerals_compliance_oracle import minerals_compliance_oracle, MineralAuditRequest
+
         logger.info(f"[AGENT MESH -> minerals-oracle-x402] Query {mineral_code} in {origin_country}")
 
         payload = {
@@ -393,6 +399,20 @@ class InterAgentMeshCoordinator:
             }
         }
 
+        # Run local high-precision regulatory audit
+        coords_list = [mine_coordinates] if mine_coordinates else None
+        audit_req = MineralAuditRequest(
+            mineral_symbol=mineral_code.upper(),
+            origin_country=origin_country.upper(),
+            concession_coordinates=coords_list,
+            declared_mass_tonnes=declared_mass_tonnes,
+            mine_operator_name="Mesh-Certified-Mining-Concession",
+            equity_breakdown=equity_breakdown or {},
+            smelter_rmap_id=smelter_rmap_id,
+            battery_passport_id=battery_passport_id
+        )
+        audit_result = minerals_compliance_oracle.execute_comprehensive_mineral_audit(audit_req)
+
         is_test_env = bool(os.environ.get("PYTEST_CURRENT_TEST"))
         if not is_test_env:
             try:
@@ -401,19 +421,17 @@ class InterAgentMeshCoordinator:
                     if res.status_code == 200:
                         raw_result = res.json().get("result", {})
                         if isinstance(raw_result, dict) and "mineral" in raw_result:
+                            raw_result["minerals_compliance_audit"] = audit_result
                             return raw_result
             except Exception as e:
                 logger.warning(f"[AGENT MESH] minerals-oracle-x402 remote call fallback: {e}")
 
-        # High-precision market pricing fallback
-        market_prices = {
-            "LI": {"name": "Lithium Carbonate (Battery Grade)", "price_usd_per_tonne": 13800.0, "purity": "99.5%"},
-            "NI": {"name": "Class 1 Nickel Briquettes", "price_usd_per_tonne": 16450.0, "purity": "99.8%"},
-            "CU": {"name": "Grade A Copper Cathodes", "price_usd_per_tonne": 9180.0, "purity": "99.99%"},
-            "CO": {"name": "Cobalt Metal", "price_usd_per_tonne": 28500.0, "purity": "99.8%"},
-            "TI": {"name": "Titanium Sponge", "price_usd_per_tonne": 8900.0, "purity": "99.7%"}
+        # High-precision market pricing & regulatory report
+        val = {
+            "name": audit_result["commodity_name"],
+            "price_usd_per_tonne": audit_result["benchmark_price_usd_tonne"],
+            "purity": "Battery Grade 99.5%+"
         }
-        val = market_prices.get(mineral_code.upper(), {"name": f"Critical Commodity {mineral_code}", "price_usd_per_tonne": 5000.0, "purity": "Standard"})
 
         return {
             "mineral": mineral_code.upper(),
@@ -430,6 +448,9 @@ class InterAgentMeshCoordinator:
                 "polygon_bound_audit": "CLEARED_BY_EUDR_AGENT",
                 "origin_country": origin_country
             },
+            "minerals_compliance_audit": audit_result,
+            "feoc_status": audit_result["feoc_pillar"]["ruling"],
+            "oecd_cahra_cleared": audit_result["oecd_cahra_pillar"]["cleared"],
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
 

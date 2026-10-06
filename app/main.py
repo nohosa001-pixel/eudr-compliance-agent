@@ -2743,3 +2743,333 @@ async def get_solana_cluster_status():
     """
     return solana_escrow_adapter.get_solana_cluster_status()
 
+
+# -------------------------------------------------------------------
+# Critical Minerals & Battery Passport Endpoints (minerals-oracle-x402)
+# -------------------------------------------------------------------
+from app.modules.minerals_compliance_oracle import (
+    minerals_compliance_oracle,
+    MineralAuditRequest
+)
+
+class MineralsUniversalSettleRequest(BaseModel):
+    job_id: str
+    mineral_symbol: str
+    origin_country: str
+    declared_mass_tonnes: float
+    equity_breakdown: Optional[Dict[str, float]] = None
+    smelter_rmap_id: Optional[str] = None
+    battery_passport_id: Optional[str] = None
+    recipients: List[Dict[str, Any]]
+    concession_coordinates: Optional[List[List[float]]] = None
+    chain_id: int = 137
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/minerals/compliance/audit",
+    tags=["Critical Minerals & Battery Passport"],
+    summary="Run comprehensive US IRA FEOC & OECD CAHRA compliance audit on critical minerals"
+)
+async def audit_minerals_compliance(req: MineralAuditRequest):
+    """
+    Audits EV battery critical minerals (Li, Ni, Co, Graphite, Mn, Cu) under:
+    1. US IRA Section 30D FEOC (Foreign Entity of Concern 25% ownership limit)
+    2. OECD Due Diligence Guidance for CAHRAs (Conflict-Affected and High-Risk Areas)
+    3. EU Battery Regulation (2023/1542) Digital Battery Passport
+    """
+    return minerals_compliance_oracle.execute_comprehensive_mineral_audit(req)
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/escrow/universal/settle-minerals",
+    tags=["Security Gate x402 Escrow Rail"],
+    summary="Request Minerals Truth Attestation and Disburse Universal Escrow"
+)
+async def settle_minerals_universal_escrow(req: MineralsUniversalSettleRequest):
+    """
+    Triggers Domain 4: MINERALS_FEOC on-chain escrow disbursement via UniversalEscrowCore.
+    """
+    attestation = universal_escrow_client.request_minerals_truth_attestation(
+        job_id=req.job_id,
+        mineral_symbol=req.mineral_symbol,
+        origin_country=req.origin_country,
+        declared_mass_tonnes=req.declared_mass_tonnes,
+        equity_breakdown=req.equity_breakdown,
+        smelter_rmap_id=req.smelter_rmap_id,
+        battery_passport_id=req.battery_passport_id,
+        concession_coordinates=req.concession_coordinates,
+        chain_id=req.chain_id
+    )
+    settlement = universal_escrow_client.settle_minerals_escrow_direct_split(
+        job_id=req.job_id,
+        recipients=req.recipients,
+        attestation=attestation,
+        chain_id=req.chain_id
+    )
+    return {
+        "status": "SUCCESS",
+        "attestation": attestation,
+        "settlement": settlement
+    }
+
+
+# -------------------------------------------------------------------
+# Security Gate x402 Ephemeral Sub-Accounts & AI Act Watermarking
+# -------------------------------------------------------------------
+from app.modules.agent_security_gate_adapter import (
+    EphemeralSubAccountManager
+)
+
+class CreateEphemeralSubAccountRequest(BaseModel):
+    parent_agent_id: str
+    budget_cap_usdc: float = 2.5
+    ttl_seconds: int = 3600
+
+class ChargeEphemeralSubAccountRequest(BaseModel):
+    session_id: str
+    amount_usdc: float
+    purpose: str
+
+class AIActWatermarkVerifyRequest(BaseModel):
+    metadata: Dict[str, Any]
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/security/ephemeral-session/create",
+    tags=["Security Gate x402 Cognitive Firewall"],
+    summary="Issue disposable ephemeral sub-account with micro-budget cap ($1-$5)"
+)
+async def create_ephemeral_sub_account(req: CreateEphemeralSubAccountRequest):
+    """
+    Enforces Phase 4 of Trilogy System Upgrade: Zero key exposure during A2A mesh negotiations.
+    """
+    return EphemeralSubAccountManager.create_ephemeral_sub_account(
+        parent_agent_id=req.parent_agent_id,
+        budget_cap_usdc=req.budget_cap_usdc,
+        ttl_seconds=req.ttl_seconds
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/security/ephemeral-session/charge",
+    tags=["Security Gate x402 Cognitive Firewall"],
+    summary="Charge active ephemeral sub-account"
+)
+async def charge_ephemeral_sub_account(req: ChargeEphemeralSubAccountRequest):
+    """
+    Debits micro-budget from an ephemeral sub-account, blocking if cap is exceeded.
+    """
+    return EphemeralSubAccountManager.charge_sub_account(
+        session_id=req.session_id,
+        amount_usdc=req.amount_usdc,
+        purpose=req.purpose
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/security/ai-act/verify",
+    tags=["Security Gate x402 Cognitive Firewall"],
+    summary="Verify EU AI Act Article 50 machine-readable watermark & provenance"
+)
+async def verify_ai_act_watermark(req: AIActWatermarkVerifyRequest):
+    """
+    Validates machine-readable provenance metadata under EU AI Act Article 50(2) & 50(4).
+    """
+    return AgentSecurityGateAdapter.verify_ai_act_article_50_watermark(req.metadata)
+
+
+# -------------------------------------------------------------------
+# EUDR Article 3(b) Protected Area & Indigenous Land Overlap Check
+# -------------------------------------------------------------------
+from app.modules.spatial_validator import SpatialValidator
+from app.schemas import ProductionPlotInput
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/spatial/protected-area-check",
+    tags=["EUDR Advanced Spatial GIS"],
+    summary="Cross-check plot against WDPA Protected Areas & Indigenous Lands"
+)
+async def check_protected_area_overlap(plot: ProductionPlotInput):
+    """
+    Checks plot coordinates against World Database on Protected Areas (WDPA)
+    and Indigenous Community Territories to verify Article 3(b) legality and FPIC.
+    """
+    conflict_res = SpatialValidator.check_protected_area_and_indigenous_conflict(plot)
+    buffer_res = SpatialValidator.calculate_forest_canopy_safety_buffer(plot)
+    return {
+        "conflict_analysis": conflict_res,
+        "canopy_safety_buffer": buffer_res
+    }
+
+
+# -------------------------------------------------------------------
+# EUDR Information System User Guide v3.0 Official Workflow Endpoints
+# -------------------------------------------------------------------
+from app.modules.eudr_information_system_v3 import (
+    eudr_info_system_v3,
+    EUDRRole
+)
+
+class IssueDualKeyRequest(BaseModel):
+    operator_eori: str
+    operator_role: EUDRRole = EUDRRole.PRIMARY_OPERATOR
+    commodity_code: str
+    country_of_production: str
+    net_mass_kg: float
+    existing_dds_ref: Optional[str] = None
+
+class VerifyDualKeyRequest(BaseModel):
+    dds_reference_number: str
+    verification_number: str
+    verifier_role: EUDRRole = EUDRRole.NON_SME_DOWNSTREAM
+
+class IssueSimplifiedDeclarationRequest(BaseModel):
+    producer_name: str
+    country_code: str
+    commodity_code: str
+    plots_count: int = 1
+
+class CreateGroupHeadRequest(BaseModel):
+    group_name: str
+    head_operator_eori: str
+    child_dds_references: List[str]
+    child_sd_identifiers: Optional[List[str]] = None
+    estimated_plots_count: int = 500
+
+class SanitizeGeoJsonRequest(BaseModel):
+    geojson: Dict[str, Any]
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/v3/dds/issue-dual-key",
+    tags=["EUDR Information System v3.0"],
+    summary="Issue AVAILABLE state DDS Reference Number and Verification Number dual key"
+)
+async def issue_v3_dual_key(req: IssueDualKeyRequest):
+    """
+    User Guide v3.0: Transitions approved DDS into AVAILABLE state,
+    issuing the public DDS Reference Number and the secret Verification Number simultaneously.
+    """
+    return eudr_info_system_v3.issue_available_dds(
+        operator_eori=req.operator_eori,
+        operator_role=req.operator_role,
+        commodity_code=req.commodity_code,
+        country_of_production=req.country_of_production,
+        net_mass_kg=req.net_mass_kg,
+        existing_dds_ref=req.existing_dds_ref
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/v3/dds/verify-dual-key",
+    tags=["EUDR Information System v3.0"],
+    summary="Verify paired DDS Reference Number + Verification Number for Customs/Buyers"
+)
+async def verify_v3_dual_key(req: VerifyDualKeyRequest):
+    """
+    User Guide v3.0: Enforces mandatory dual-key verification for customs and downstream buyers.
+    """
+    return eudr_info_system_v3.verify_dual_key_pair(
+        dds_reference_number=req.dds_reference_number,
+        verification_number=req.verification_number,
+        verifier_role=req.verifier_role
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/v3/mspo/simplified-declaration",
+    tags=["EUDR Information System v3.0"],
+    summary="Issue 1-time Simplified Declaration (SD) Identifier for Micro Smallholder (MSPO)"
+)
+async def issue_mspo_simplified_declaration(req: IssueSimplifiedDeclarationRequest):
+    """
+    User Guide v3.0: Issues 1-time Declaration Identifier for qualifying micro-producers.
+    """
+    return eudr_info_system_v3.issue_simplified_declaration(
+        producer_name=req.producer_name,
+        country_code=req.country_code,
+        commodity_code=req.commodity_code,
+        plots_count=req.plots_count
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/v3/dds/group-head",
+    tags=["EUDR Information System v3.0"],
+    summary="Create legally binding Group Head for large-scale multi-plot DDS consolidation"
+)
+async def create_v3_group_head(req: CreateGroupHeadRequest):
+    """
+    User Guide v3.0: Bundles child DDS and SD statements into a legally binding Group Head.
+    """
+    return eudr_info_system_v3.create_grouped_statement(
+        group_name=req.group_name,
+        head_operator_eori=req.head_operator_eori,
+        child_dds_references=req.child_dds_references,
+        child_sd_identifiers=req.child_sd_identifiers,
+        estimated_plots_count=req.estimated_plots_count
+    )
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/v3/spatial/sanitize-geojson",
+    tags=["EUDR Information System v3.0"],
+    summary="Sanitize GeoJSON to 6 decimal places (1e-6 WGS84) and verify polygon ring closure"
+)
+async def sanitize_v3_geojson(req: SanitizeGeoJsonRequest):
+    """
+    User Guide v3.0: Enforces technical ingestion criteria (6-decimal WGS84 and ring closure).
+    """
+    cleaned, is_valid, warnings = eudr_info_system_v3.sanitize_geojson_precision(req.geojson)
+    return {
+        "is_valid": is_valid,
+        "warnings": warnings,
+        "sanitized_geojson": cleaned
+    }
+
+
+# -------------------------------------------------------------------
+# x402-cleanweb-agent Integration (Web Noise Stripping & Supplier Intel)
+# -------------------------------------------------------------------
+from app.modules.cleanweb_intelligence_adapter import cleanweb_intelligence_adapter
+
+class CleanWebSupplierAuditRequest(BaseModel):
+    target_url: str
+    country_code: str = "ID"
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/cleanweb/supplier-audit",
+    tags=["x402-cleanweb-agent Integration"],
+    summary="Strip web noise, extract supply chain entities, and run instant spatial audit"
+)
+async def audit_supplier_web_source(req: CleanWebSupplierAuditRequest):
+    """
+    Autonomous Ingestion Pipeline:
+    1. Calls x402-cleanweb-agent to remove HTML bloat and ads (95% token savings).
+    2. Parses supplier name, WGS84 plot coordinates, HS codes, and certifications.
+    3. Runs instant EUDR protected area and canopy buffer check on extracted plots.
+    """
+    return await cleanweb_intelligence_adapter.audit_supplier_url_end_to_end(
+        target_url=req.target_url,
+        country_code=req.country_code
+    )
+
+
+# -------------------------------------------------------------------
+# Critical Minerals & Battery Passport Oracle (x402-minerals-oracle)
+# -------------------------------------------------------------------
+from app.modules.minerals_compliance_oracle import (
+    CriticalMineralsComplianceOracle,
+    MineralAuditRequest
+)
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/minerals/audit",
+    tags=["Critical Minerals & Battery Passport"],
+    summary="Audit EV Battery Critical Minerals for US IRA FEOC & EU 2023/1542 Compliance"
+)
+async def audit_critical_minerals(req: MineralAuditRequest):
+    """
+    Evaluates:
+    - US IRA Section 30D FEOC (25% foreign ownership threshold)
+    - OECD CAHRA Conflict-Free Smelter RMAP verification
+    - EU Battery Regulation (2023/1542) Digital Battery Passport & recycled content targets
+    """
+    return CriticalMineralsComplianceOracle.audit_mineral_shipment(req)
+
+
+
+
+
+
+

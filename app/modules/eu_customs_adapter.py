@@ -146,7 +146,7 @@ class EUCustomsAdapter:
         Determines the correct TARIC document code (C081, C082, Y120, Y121, Y122)
         and formats the Box 44 / Data Element 12 03 000 000 customs declaration.
         """
-        clean_hs = req.hs_code.replace(".", "").strip()
+        clean_hs = str(req.hs_code or "").replace(".", "").strip()
         commodity_cat = LegalAuditor.classify_hs_code(clean_hs)
         is_regulated = commodity_cat != EUDRCommodityCategory.OTHER
 
@@ -208,15 +208,23 @@ class EUCustomsAdapter:
         supporting document structure and XML snippet for electronic import declarations.
         """
         now_iso = datetime.now(timezone.utc).isoformat()
-        port_info = MAJOR_EU_PORTS.get(req.destination_port_code.upper(), {
-            "name": f"EU Port {req.destination_port_code}",
+        dest_port = (req.destination_port_code or "NLRTM").upper().strip()
+        port_info = MAJOR_EU_PORTS.get(dest_port, {
+            "name": f"EU Port {dest_port}",
             "country": "European Union",
             "electronic_system": "EU SWE-C Interoperability Gateway"
         })
 
         taric_code = "C081"
-        formatted_ref = f"{req.dds_reference_id.strip()}/{req.verification_code.strip()}"
-        box44_text = f"C081 | Ref: {req.dds_reference_id} | VerCode: {req.verification_code} | Mass: {req.net_mass_kg:,.1f}kg"
+        clean_dds = str(req.dds_reference_id or "").strip()
+        clean_ver = str(req.verification_code or "").strip()
+        clean_hs = str(req.hs_code or "").replace(".", "").strip()
+        decl_eori = str(req.declarant_eori or "").upper().strip()
+        imp_eori = str(req.importer_eori or "").upper().strip()
+        origin_country = str(req.country_of_origin or "").upper().strip()
+
+        formatted_ref = f"{clean_dds}/{clean_ver}"
+        box44_text = f"C081 | Ref: {clean_dds} | VerCode: {clean_ver} | Mass: {req.net_mass_kg:,.1f}kg"
 
         # UCC Data Element 12 03 structure (WCO / UCC Data Model v3)
         de_1203 = [
@@ -226,11 +234,11 @@ class EUCustomsAdapter:
                 "issuingAuthority": "European Commission / TRACES-NT",
                 "issuanceDate": now_iso[:10],
                 "validityStatus": "VALID_ACTIVE",
-                "declarantEori": req.declarant_eori.upper().strip(),
-                "importerEori": req.importer_eori.upper().strip(),
-                "itemCommodityCode": req.hs_code.replace(".", "").strip(),
+                "declarantEori": decl_eori,
+                "importerEori": imp_eori,
+                "itemCommodityCode": clean_hs,
                 "quantityDeclaredKg": req.net_mass_kg,
-                "countryOfOrigin": req.country_of_origin.upper().strip()
+                "countryOfOrigin": origin_country
             }
         ]
 
@@ -238,10 +246,10 @@ class EUCustomsAdapter:
         xml_snippet = (
             f"<DeclarationItem>\n"
             f"  <GoodsItemNumber>1</GoodsItemNumber>\n"
-            f"  <CommodityCode>{req.hs_code.replace('.', '').strip()}</CommodityCode>\n"
+            f"  <CommodityCode>{clean_hs}</CommodityCode>\n"
             f"  <GrossMass>{req.net_mass_kg * 1.05:.2f}</GrossMass>\n"
             f"  <NetMass>{req.net_mass_kg:.2f}</NetMass>\n"
-            f"  <CountryOfOrigin>{req.country_of_origin.upper().strip()}</CountryOfOrigin>\n"
+            f"  <CountryOfOrigin>{origin_country}</CountryOfOrigin>\n"
             f"  <SupportingDocument>\n"
             f"    <TypeCode>{taric_code}</TypeCode>\n"
             f"    <Identifier>{formatted_ref}</Identifier>\n"
@@ -254,9 +262,9 @@ class EUCustomsAdapter:
             customs_procedure="40 00 (Release for Free Circulation)",
             data_element_1203_supporting_documents=de_1203,
             ucc_xml_snippet=xml_snippet,
-            declarant_eori=req.declarant_eori.upper().strip(),
-            importer_eori=req.importer_eori.upper().strip(),
-            destination_port=req.destination_port_code.upper().strip(),
+            declarant_eori=decl_eori,
+            importer_eori=imp_eori,
+            destination_port=dest_port,
             port_name=port_info["name"],
             formatted_box44=box44_text,
             declaration_timestamp=now_iso,
@@ -272,18 +280,24 @@ class EUCustomsAdapter:
         """
         now_utc = datetime.now(timezone.utc)
         now_iso = now_utc.isoformat()
-        port_code = req.destination_port.upper().strip()
+        port_code = str(req.destination_port or "NLRTM").upper().strip()
         port_info = MAJOR_EU_PORTS.get(port_code, {
             "name": f"Customs Port {port_code}",
             "country": "European Union",
             "electronic_system": "EU SWE-C"
         })
 
+        clean_eori = str(req.eori_number or "").strip()
+        clean_dds = str(req.dds_reference_id or "").strip()
+        clean_ver = str(req.verification_code or "").strip()
+        clean_hs = str(req.hs_code or "").replace(".", "").strip()
+        origin = str(req.country_code or "").upper().strip()
+
         # 1. Verification Checklist
-        eori_valid = bool(re.match(r"^[A-Z]{2}[A-Za-z0-9]{6,15}$", req.eori_number.strip()))
-        dds_format_valid = len(req.dds_reference_id.strip()) >= 8
-        ver_code_valid = len(req.verification_code.strip()) >= 3
-        hs_valid = len(req.hs_code.replace(".", "").strip()) >= 4
+        eori_valid = bool(re.match(r"^[A-Z]{2}[A-Za-z0-9]{6,15}$", clean_eori))
+        dds_format_valid = len(clean_dds) >= 8
+        ver_code_valid = len(clean_ver) >= 3
+        hs_valid = len(clean_hs) >= 4
         mass_valid = req.net_mass_kg > 0
 
         checklist = {
@@ -299,7 +313,6 @@ class EUCustomsAdapter:
         # 2. Risk Benchmarking (Article 29) & Inspection Rates (Article 16)
         high_risk_countries = {"MM", "KP", "BY", "SY"}
         low_risk_countries = {"FI", "SE", "NO", "NZ", "IS"}
-        origin = req.country_code.upper().strip()
 
         if origin in high_risk_countries:
             tier = "HIGH"
@@ -338,7 +351,7 @@ class EUCustomsAdapter:
                 f"Commodity released for free circulation at {port_info['name']} under procedure 40 00."
             )
 
-        qr_url = f"https://ec.europa.eu/tracesnt/customs-verify?ack={ack_code}&eori={req.eori_number.strip()}&port={port_code}"
+        qr_url = f"https://ec.europa.eu/tracesnt/customs-verify?ack={ack_code}&eori={clean_eori}&port={port_code}"
 
         return CustomsSWECPreClearanceResponse(
             clearance_status=status,

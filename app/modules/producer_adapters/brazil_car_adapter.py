@@ -32,7 +32,7 @@ class BrazilCarAdapter(BaseProducerAdapter):
         return "SICAR - Cadastro Ambiental Rural (Ministério do Meio Ambiente, Brasil)"
 
     def verify_registration(self, identifier: str) -> ProducerRegistryVerificationResult:
-        clean_id = identifier.strip().upper()
+        clean_id = str(identifier or "").strip().upper()
         match = self.CAR_REGEX.match(clean_id)
 
         if not match:

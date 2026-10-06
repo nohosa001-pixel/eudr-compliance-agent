@@ -23,7 +23,7 @@ class MCPServer:
 
     SERVER_INFO = {
         "name": "eudr-compliance-mcp-server",
-        "version": "1.4.0"
+        "version": "1.6.0"
     }
 
 

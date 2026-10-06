@@ -345,29 +345,35 @@ async def serve_landing(request: Request):
         return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>EUDR.agent Platform is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
-@app.get("/dashboard", include_in_schema=False)
-@app.get("/app", include_in_schema=False)
-async def serve_dashboard():
+@app.api_route("/dashboard", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/app", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_dashboard(request: Request):
     """Serves the interactive EUDR Compliance Console & Operator Workbench."""
+    if request.method == "HEAD":
+        return Response(status_code=200, headers={"Content-Type": "text/html"})
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>EUDR Compliance Console is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
-@app.get("/supplier-portal", include_in_schema=False)
-@app.get("/supplier", include_in_schema=False)
-async def serve_supplier_portal():
+@app.api_route("/supplier-portal", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/supplier", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_supplier_portal(request: Request):
     """Serves the Supplier EUDR Pre-Clearance & Onboarding Portal."""
+    if request.method == "HEAD":
+        return Response(status_code=200, headers={"Content-Type": "text/html"})
     portal_file = STATIC_DIR / "supplier_portal.html"
     if portal_file.exists():
         return FileResponse(str(portal_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>Supplier Portal is running.</h2>", headers=NO_CACHE_HEADERS)
 
-@app.get("/about", include_in_schema=False)
-@app.get("/team", include_in_schema=False)
-@app.get("/company", include_in_schema=False)
-async def serve_about():
+@app.api_route("/about", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/team", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/company", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_about(request: Request):
     """Serves the Institutional About & Architecture Page."""
+    if request.method == "HEAD":
+        return Response(status_code=200, headers={"Content-Type": "text/html"})
     about_file = STATIC_DIR / "about.html"
     if about_file.exists():
         return FileResponse(str(about_file), headers=NO_CACHE_HEADERS)

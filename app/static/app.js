@@ -1224,29 +1224,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================================================
 
   // 1. Cockpit Tabs Switching
-  const cockpitTabBtns = document.querySelectorAll('.cockpit-tab-btn');
-  const cockpitTabPanels = document.querySelectorAll('.cockpit-tab-panel');
+  window.switchCockpitTab = function(targetPanelId) {
+    if (!targetPanelId) return;
+    const allBtns = document.querySelectorAll('.cockpit-tab-btn');
+    const allPanels = document.querySelectorAll('.cockpit-tab-panel');
+    allBtns.forEach(b => {
+      if (b.getAttribute('data-cockpit-tab') === targetPanelId) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+    allPanels.forEach(p => {
+      if (p.id === targetPanelId) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
 
-  cockpitTabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
+    // Auto-trigger tab-specific loads
+    if (targetPanelId === 'panel-solana') {
+      if (typeof pollSolanaClusterStatus === 'function') pollSolanaClusterStatus();
+    } else if (targetPanelId === 'panel-mcp') {
+      if (typeof loadMcpToolsCatalog === 'function') loadMcpToolsCatalog();
+    } else if (targetPanelId === 'panel-telemetry') {
+      if (typeof pollPrometheusMetrics === 'function') pollPrometheusMetrics();
+    } else if (targetPanelId === 'panel-marketplace') {
+      if (typeof fetchMarketplaceRfqs === 'function') fetchMarketplaceRfqs();
+    }
+  };
+
+  document.querySelectorAll('.cockpit-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
       const targetPanelId = btn.getAttribute('data-cockpit-tab');
-      cockpitTabBtns.forEach(b => b.classList.remove('active'));
-      cockpitTabPanels.forEach(p => p.classList.remove('active'));
-
-      btn.classList.add('active');
-      const targetPanel = document.getElementById(targetPanelId);
-      if (targetPanel) {
-        targetPanel.classList.add('active');
-      }
-
-      // Auto-trigger tab-specific loads
-      if (targetPanelId === 'panel-mcp') {
-        loadMcpToolsCatalog();
-      } else if (targetPanelId === 'panel-telemetry') {
-        pollPrometheusMetrics();
-      } else if (targetPanelId === 'panel-marketplace') {
-        fetchMarketplaceRfqs();
-      }
+      window.switchCockpitTab(targetPanelId);
     });
   });
 
@@ -1992,38 +2005,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Universal Cockpit Tab Switching Engine (Panels 1 - 7)
-  const cockpitTabBtns = document.querySelectorAll('.cockpit-tab-btn');
-  const cockpitTabPanels = document.querySelectorAll('.cockpit-tab-panel');
-
-  function switchCockpitTab(targetPanelId) {
-    if (!targetPanelId) return;
-
-    cockpitTabBtns.forEach(b => {
-      if (b.getAttribute('data-cockpit-tab') === targetPanelId) {
-        b.classList.add('active');
-      } else {
-        b.classList.remove('active');
-      }
-    });
-
-    cockpitTabPanels.forEach(p => {
-      if (p.id === targetPanelId) {
-        p.classList.add('active');
-      } else {
-        p.classList.remove('active');
-      }
-    });
-
-    if (targetPanelId === 'panel-solana') {
-      pollSolanaClusterStatus();
-    } else if (targetPanelId === 'panel-mcp') {
-      loadMcpToolsCatalog();
-    } else if (targetPanelId === 'panel-telemetry') {
-      pollPrometheusMetrics();
-    }
-  }
-
   // -------------------------------------------------------------
   // Toast Notification System
   // -------------------------------------------------------------
@@ -2501,19 +2482,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initMineralsConsole();
   initCleanWebConsole();
 
-  cockpitTabBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetPanelId = btn.getAttribute('data-cockpit-tab');
-      switchCockpitTab(targetPanelId);
-    });
-  });
-
   // Check URL query parameters for direct tab linking (e.g. /dashboard?tab=panel-solana)
   const urlParams = new URLSearchParams(window.location.search);
   const requestedTab = urlParams.get('tab');
   if (requestedTab) {
-    switchCockpitTab(requestedTab);
+    window.switchCockpitTab(requestedTab);
   }
 
   // Load default preset (Compliant Vietnam)

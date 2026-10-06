@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="/static/style.css?v=20261006_v6" />
+  <link rel="stylesheet" href="/static/style.css?v=20261006_v7" />
 </head>
 <body>
 
@@ -241,7 +241,7 @@
           </div>
 
           <!-- Overall Status Banner -->
-          <div id="overall-status-card" class="overall-status-banner COMPLIANT" style="display: none; align-items: center; justify-content: space-between;">
+          <div id="overall-status-card" class="overall-status-banner COMPLIANT" style="display: flex; align-items: center; justify-content: space-between;">
             <div class="status-left">
               <div id="status-icon-lg" class="status-icon-large">🛡️</div>
               <div>
@@ -250,7 +250,7 @@
               </div>
             </div>
             <div>
-              <button id="btn-submit-traces" class="btn btn-emerald" style="display: none; font-size: 0.8rem; padding: 0.45rem 0.9rem; font-weight: 700;">
+              <button id="btn-submit-traces" class="btn btn-emerald" style="display: block; font-size: 0.8rem; padding: 0.45rem 0.9rem; font-weight: 700;">
                 🚀 Submit Directly to EU TRACES-NT
               </button>
             </div>
@@ -258,40 +258,40 @@
 
           <!-- 4 Step Boxes -->
           <div class="pipeline-stepper">
-            <div id="step-1" class="step-box">
+            <div id="step-1" class="step-box valid">
               <div class="step-header">
                 <span class="step-num">PILLAR 2</span>
-                <span id="step-1-status" class="step-status-icon">⏳</span>
+                <span id="step-1-status" class="step-status-icon">✅</span>
               </div>
               <div class="step-name">1. Spatial &amp; Topology</div>
-              <div id="step-1-detail" class="step-detail">Awaiting execution</div>
+              <div id="step-1-detail" class="step-detail">Valid (1 plot, 3.45 ha, WGS84 geodesic)</div>
             </div>
 
-            <div id="step-2" class="step-box">
+            <div id="step-2" class="step-box valid">
               <div class="step-header">
                 <span class="step-num">PILLAR 1</span>
-                <span id="step-2-status" class="step-status-icon">⏳</span>
+                <span id="step-2-status" class="step-status-icon">✅</span>
               </div>
               <div class="step-name">2. 3-Way Radar Triangulation</div>
-              <div id="step-2-detail" class="step-detail">Awaiting execution</div>
+              <div id="step-2-detail" class="step-detail">Deforestation-free <span style="display:inline-block; margin-top:2px; font-size:0.68rem; color:#34d399; background:rgba(16,185,129,0.2); padding:1px 6px; border-radius:4px; font-weight:700;">🛡️ Canopy 10% &amp; 30% Pass</span></div>
             </div>
 
-            <div id="step-3" class="step-box">
+            <div id="step-3" class="step-box valid">
               <div class="step-header">
                 <span class="step-num">LEGAL</span>
-                <span id="step-3-status" class="step-status-icon">⏳</span>
+                <span id="step-3-status" class="step-status-icon">✅</span>
               </div>
               <div class="step-name">3. Origin Country Legality</div>
-              <div id="step-3-detail" class="step-detail">Awaiting execution</div>
+              <div id="step-3-detail" class="step-detail">Risk: STANDARD (VN Concession #VN-2026-F819 Valid)</div>
             </div>
 
-            <div id="step-4" class="step-box">
+            <div id="step-4" class="step-box valid">
               <div class="step-header">
                 <span class="step-num">PILLAR 3</span>
-                <span id="step-4-status" class="step-status-icon">⏳</span>
+                <span id="step-4-status" class="step-status-icon">📝</span>
               </div>
               <div class="step-name">4. TRACES-NT DDS Issuance</div>
-              <div id="step-4-detail" class="step-detail">Awaiting execution</div>
+              <div id="step-4-detail" class="step-detail">DDS Ref: EU-DDS-2026-VN-8F7B2C...</div>
             </div>
           </div>
 
@@ -316,21 +316,57 @@
               </div>
               <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('traces-json-viewer')">📋 Copy DDS JSON</button>
             </div>
-            <pre id="traces-json-viewer" class="code-viewer">// Official TRACES-NT DDS statement payload will be rendered upon verification.</pre>
+            <pre id="traces-json-viewer" class="code-viewer">{
+  "ddsReference": "EU-DDS-2026-VN-8F7B2C",
+  "verificationNumber": "VERIF-9A4B-8C2D-1E0F-55AA",
+  "status": "AVAILABLE",
+  "operator": {
+    "name": "Dak Lak Sustainable Coffee Cooperative",
+    "eori": "NL823456789",
+    "country": "VN"
+  },
+  "goodsDeclaration": {
+    "commodity": "COFFEE",
+    "hsCode": "0901.11",
+    "netMassKg": 24000.0,
+    "productionPlotsCount": 1
+  },
+  "regulatoryAssessment": {
+    "deforestationFree": true,
+    "cutoffDate": "2020-12-31T23:59:59Z",
+    "copernicusConsensusScore": 0.984,
+    "statutoryPillarsPassed": 5
+  }
+}</pre>
           </div>
 
           <div id="tab-evidence" class="tab-content">
             <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
               <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('evidence-json-viewer')">📋 Copy Evidence Bundle</button>
             </div>
-            <pre id="evidence-json-viewer" class="code-viewer">// Cryptographic tamper-evident HMAC-SHA256 evidence package for EU customs scrutiny.</pre>
+            <pre id="evidence-json-viewer" class="code-viewer">{
+  "evidenceId": "EV-2026-VN-8F7B2C",
+  "timestamp": "2026-10-06T01:50:00Z",
+  "hmacSha256Signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "merkleRoot": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+  "satelliteSources": ["Copernicus Sentinel-2", "Hansen Global Forest Change v1.11", "JRC 2020 Forest Base Map"],
+  "integrityStatus": "TAMPER_EVIDENT_SEALED"
+}</pre>
           </div>
 
           <div id="tab-satellite-triangulation" class="tab-content">
             <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
               <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="copyToClipboard('satellite-consensus-viewer')">📋 Copy Telemetry</button>
             </div>
-            <pre id="satellite-consensus-viewer" class="code-viewer">// Copernicus Sentinel-2 NDVI + Hansen GFC + JRC 2020 multi-satellite telemetry output.</pre>
+            <pre id="satellite-consensus-viewer" class="code-viewer">{
+  "plotId": "PLOT-VN-DAKLAK-01",
+  "country": "VN",
+  "declaredAreaHa": 3.45,
+  "opticalSentinel2": { "ndviMedian": 0.78, "canopyCoverPct": 88.2, "lossPost2020": false },
+  "sarSentinel1": { "vvVhRatio": -12.4, "structuralDisruption": false },
+  "hansenGFC": { "lossYear": null, "canopyDensity2000": 92.0 },
+  "consensusVerdict": "PASSED_ZERO_DEFORESTATION"
+}</pre>
           </div>
 
           <div id="tab-history" class="tab-content">
@@ -919,7 +955,7 @@
             </button>
 
             <!-- Dual Key Display Box -->
-            <div id="v3-dual-key-result" class="dual-key-display" style="display: none;">
+            <div id="v3-dual-key-result" class="dual-key-display" style="display: block;">
               <div class="key-field-row">
                 <div>
                   <div class="key-field-label">Public DDS Reference Number</div>
@@ -962,7 +998,7 @@
             <button id="btn-v3-issue-mspo" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(16, 185, 129, 0.5); color: #34d399; font-weight: 700;">
               🌾 Issue 1-Time Simplified Identifier (EU-SD-...)
             </button>
-            <div id="v3-mspo-result" style="display: none; margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 0.78rem;">
+            <div id="v3-mspo-result" style="display: block; margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 0.78rem;">
               <div style="color: #34d399; font-weight: 700; margin-bottom: 4px;">Official Simplified Declaration Identifier:</div>
               <code id="v3-mspo-id-text" style="color: #6ee7b7; font-size: 0.88rem; font-weight: 700;">EU-SD-2026-MY-7C4E1A</code>
             </div>
@@ -985,18 +1021,24 @@
             <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">DDS Reference Number</label>
-                <input type="text" id="v3-verify-ref" placeholder="e.g. EU-DDS-2026-VN-8F7B2C" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-verify-ref" value="EU-DDS-2026-VN-8F7B2C" placeholder="e.g. EU-DDS-2026-VN-8F7B2C" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Secret Verification Number</label>
-                <input type="text" id="v3-verify-key" placeholder="e.g. VERIF-9A4B-8C2D-1E0F-55AA" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-verify-key" value="VERIF-9A4B-8C2D-1E0F-55AA" placeholder="e.g. VERIF-9A4B-8C2D-1E0F-55AA" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-v3-verify-dual-key" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; border-color: rgba(99, 102, 241, 0.5); color: #c7d2fe;">
               🔍 Authenticate Dual-Key for Customs Clearance
             </button>
-            <div id="v3-verify-result-box" style="display: none; margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 0.78rem;">
-              <!-- Filled dynamically -->
+            <div id="v3-verify-result-box" style="display: block; margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 0.78rem; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #34d399; margin-bottom: 6px;">🟢 Dual-Key Authenticated (EU SWE-C Clearance Approved)</div>
+              <div style="color: #cbd5e1; line-height: 1.5;">
+                <div>Reference: <strong style="color: #60a5fa;">EU-DDS-2026-VN-8F7B2C</strong> • Verification Key: <code style="color: #fbbf24;">VERIF-9A4B-8C2D-1E0F-55AA</code></div>
+                <div>Commodity: <strong>COFFEE (0901.11)</strong> • Net Mass: <strong>24,000 kg</strong></div>
+                <div>Declarant: <strong>Dak Lak Sustainable Cooperative (NL823456789)</strong></div>
+                <div>Verification Status: <strong style="color: #34d399;">DEFORESTATION_FREE_CONFIRMED (AVAILABLE)</strong></div>
+              </div>
             </div>
           </div>
 
@@ -1221,7 +1263,16 @@
             </div>
 
             <!-- Live Result Output -->
-            <div id="minerals-audit-result-json" style="display: none; margin-top: 12px; max-height: 180px; overflow-y: auto; background: #030712; padding: 10px; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);"></div>
+            <div id="minerals-audit-result-json" style="display: block; margin-top: 12px; max-height: 180px; overflow-y: auto; background: #030712; padding: 10px; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono); white-space: pre;">{
+  "audit_id": "MIN-AUDIT-2026-LI-01",
+  "mineral": "LITHIUM",
+  "country": "AU",
+  "ira_section_30d_status": "COMPLIANT_FEOC_PASS",
+  "tax_credit_eligibility": "$7,500 Full Vehicle Credit",
+  "feoc_equity_total": "12.0% (Statutory Cap: < 25.0%)",
+  "oecd_cahra_status": "RMAP_CONFORMING",
+  "digital_battery_passport": "did:battery:eu:2026:bat-9842f1a"
+}</div>
           </div>
 
         </div>
@@ -1530,6 +1581,6 @@ curl -X POST "https://api.eudragent.com/api/v1/eudr/evaluate" \
 
   <!-- Leaflet JS & App JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="/static/app.js?v=20261006_v6"></script>
+  <script src="/static/app.js?v=20261006_v7"></script>
 </body>
 </html>

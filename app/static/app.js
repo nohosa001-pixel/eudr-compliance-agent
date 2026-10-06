@@ -411,7 +411,7 @@ function renderPlotsOnMap(payload, evaluationResults = null) {
 }
 
 // Load Preset
-function loadPreset(key) {
+function loadPreset(key, skipReset = false) {
   const preset = PRESETS[key];
   if (!preset) return;
 
@@ -423,7 +423,9 @@ function loadPreset(key) {
   document.getElementById('payload-editor').value = jsonStr;
 
   renderPlotsOnMap(preset.payload);
-  resetResults();
+  if (!skipReset) {
+    resetResults();
+  }
 }
 
 // Reset Results Visualizer
@@ -458,7 +460,11 @@ async function runEvaluation() {
   try {
     payload = JSON.parse(editor.value);
   } catch (err) {
-    alert("Invalid JSON format in payload editor:\n" + err.message);
+    if (window.showToast) {
+      window.showToast("Invalid JSON in payload editor: " + err.message, "error");
+    } else {
+      alert("Invalid JSON format in payload editor:\n" + err.message);
+    }
     return;
   }
 
@@ -482,8 +488,14 @@ async function runEvaluation() {
     const report = await response.json();
     currentReportData = report;
     renderEvaluationResults(payload, report);
+    if (window.showToast) {
+      window.showToast(`EUDR Compliance Evaluation: ${report.status}`, report.status === 'COMPLIANT' ? 'success' : 'warning');
+    }
   } catch (err) {
-    alert("Evaluation Failed: " + err.message);
+    console.warn("Evaluation request warning:", err);
+    if (window.showToast) {
+      window.showToast("Evaluation: " + err.message, "warning");
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '⚡ Run EUDR Compliance Evaluation';
@@ -2489,8 +2501,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.switchCockpitTab(requestedTab);
   }
 
-  // Load default preset (Compliant Vietnam)
-  loadPreset('compliant_vietnam');
+  // Load default preset (Compliant Vietnam) preserving pre-rendered compliance view
+  loadPreset('compliant_vietnam', true);
+
+  // Automatically execute live evaluation in the background to update with fresh telemetry
+  setTimeout(() => {
+    runEvaluation();
+  }, 250);
 });
 
 

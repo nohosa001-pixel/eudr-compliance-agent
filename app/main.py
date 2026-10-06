@@ -311,8 +311,10 @@ async def serve_landing(request: Request):
         request.headers.get("X-Agent", "").lower() in ("true", "1") or
         request.query_params.get("format") == "json" or
         "application/json" in accept or
-        "text/html" not in accept or
-        any(bot in ua for bot in ("agent", "bot", "python", "curl", "httpx", "aiohttp", "langchain", "postman"))
+        (
+            "text/html" not in accept and
+            any(bot in ua for bot in ("agent", "bot", "python", "curl", "httpx", "aiohttp", "langchain", "postman"))
+        )
     )
     if is_agent:
         tools = AgentToolsRegistry.list_tools()

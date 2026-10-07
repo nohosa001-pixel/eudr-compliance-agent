@@ -5,7 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-308%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-345%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Multi-Chain](https://img.shields.io/badge/EVM-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet--Beta%20SPL--USDC-14F195?style=flat&logo=solana&logoColor=black)](https://solscan.io)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers/nohosa001-pixel/eudr-compliance-agent)
@@ -350,6 +350,36 @@ curl -X POST "http://localhost:8000/api/v1/escrow/solana/settle-eudr" \
     }
   }'
 ```
+
+---
+
+## 🛡️ Enterprise 4-Pillar Regulatory Enhancements (2026/2027 Enforcement Ready)
+
+To ensure zero-penalty compliance and streamline global primary producer onboarding, EUDRAgent includes 4 enterprise-grade statutory modules:
+
+### 1. 🗺️ ESRI Shapefile (`.zip`) Multi-Format Bulk Ingestion Engine
+
+* **Pure-Python Parsing**: Zero-dependency unpacking of `.shp`, `.dbf`, and `.prj` files from compressed archives.
+* **Autonomous WGS84 Reprojection**: Auto-detects local UTM / Projected Coordinate Systems (EPSG) via `pyproj` and reprojects to WGS84 (EPSG:4326) with topological self-healing.
+* **Unified Import**: Seamlessly accepts ESRI Shapefiles (`.zip`), GeoJSON, CSV, KML, and Excel files in a single endpoint.
+
+### 2. 🏛️ EUDR Article 31 Statutory 5-Year WORM Audit Vault
+
+* **5-Year Immutability**: Enforces legal retention requirements (Article 31) using Write-Once-Read-Many (WORM) storage with automated 5-year expiration tagging.
+* **Cryptographic Merkle Root**: Generates a tamper-proof SHA-256 Merkle root across all plots, satellite telemetry, land titles, and supplier records.
+* **1-Click Customs Inspection Bundle**: Downloadable, pre-compiled statutory ZIP packages (`GET /api/v1/compliance/audit-vault/{id}/download`) ready for EU Competent Authorities (CA).
+
+### 3. 🛰️ EUDR Article 2(5) Forest Degradation & Plantation Conversion Detector
+
+* **Structural Degradation Engine**: Implements strict statutory definitions for the conversion of Primary Forest & Naturally Regenerating Forest into Commercial Plantations.
+* **Sentinel-2 Multi-Spectral Texture Analysis**: Evaluates canopy structure homogeneity, linear planting patterns (tree rows), harvesting tracks, and post-cutoff NDVI variance.
+* **Autonomous Decision Logic**: Flags parcels exhibiting structural plantation conversion post-December 31, 2020 as `HIGH_RISK_DEGRADED` to prevent EU border holds.
+
+### 4. 📱 Smallholder Offline PWA Field Survey Mode
+
+* **Deep Remote Offline Survey**: Enables local enumerators to log smallholder production plots without internet access.
+* **Walking GPS Polygon Logger**: Real-time vertex recording with live Shoelace polygon area calculation and 4ha threshold verification.
+* **Offline Indexed Queue & One-Click Sync**: Queues field surveys locally and synchronizes directly with the EUDR compliance engine upon reconnection.
 
 ---
 

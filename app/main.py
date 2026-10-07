@@ -3076,6 +3076,131 @@ async def audit_critical_minerals(req: MineralAuditRequest):
     return CriticalMineralsComplianceOracle.audit_mineral_shipment(req)
 
 
+# -------------------------------------------------------------------
+# Producer Country Official Registry Verification (Brazil CAR, Ghana CMS, Indonesia)
+# -------------------------------------------------------------------
+from pydantic import BaseModel, Field
+from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
+
+class ProducerRegistryVerifyRequest(BaseModel):
+    identifier: str = Field(..., description="Official registry code (e.g. Brazil CAR, Ghana CMS)")
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/producer-registry/verify",
+    tags=["Producer Country Registry Hub"],
+    summary="Verify official farm registration via Brazil CAR, Ghana CMS, or Indonesia SIPUHH"
+)
+async def verify_producer_registry(req: ProducerRegistryVerifyRequest):
+    hub = ProducerCountryRegistryHub()
+    res = hub.verify(req.identifier)
+    return {
+        "country_code": res.country_code,
+        "is_valid": res.is_valid,
+        "status": res.status,
+        "deforestation_infraction_flag": res.deforestation_infraction_flag,
+        "details": res.details
+    }
+
+
+# -------------------------------------------------------------------
+# EUDR Article 31 5-Year Immutable WORM Audit Vault
+# -------------------------------------------------------------------
+from app.modules.audit_vault_manager import AuditVaultManager, VaultRecordMeta
+
+class SealVaultRequest(BaseModel):
+    dds_reference_id: str
+    verification_code: str
+    operator_eori: str
+    commodity_code: str
+    net_mass_kg: float
+    evaluation_payload: Dict[str, Any]
+    traces_xml_str: Optional[str] = None
+    customs_cert_html: Optional[str] = None
+    customs_box44_code: Optional[str] = None
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/audit-vault/seal",
+    tags=["EUDR Article 31 Audit Vault"],
+    summary="Seal compliance statement & evidence into immutable 5-year WORM vault with Merkle root"
+)
+async def seal_audit_vault(req: SealVaultRequest):
+    record = AuditVaultManager.seal_audit_evidence(
+        dds_reference_id=req.dds_reference_id,
+        verification_code=req.verification_code,
+        operator_eori=req.operator_eori,
+        commodity_code=req.commodity_code,
+        net_mass_kg=req.net_mass_kg,
+        evaluation_payload=req.evaluation_payload,
+        traces_xml_str=req.traces_xml_str,
+        customs_cert_html=req.customs_cert_html,
+        customs_box44_code=req.customs_box44_code
+    )
+    return record
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/compliance/audit-vault/{{dds_reference_id}}",
+    tags=["EUDR Article 31 Audit Vault"],
+    summary="Query sealed audit vault record and verify cryptographic Merkle integrity"
+)
+async def get_audit_vault_record(dds_reference_id: str):
+    record = AuditVaultManager.get_vault_record(dds_reference_id)
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No sealed audit vault record found for reference '{dds_reference_id}'"
+        )
+    integrity = AuditVaultManager.verify_vault_integrity(dds_reference_id)
+    return {
+        "record": record,
+        "integrity_verification": integrity
+    }
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/compliance/audit-vault/{{dds_reference_id}}/download",
+    tags=["EUDR Article 31 Audit Vault"],
+    summary="Download full tamper-evident statutory audit evidence zip bundle for customs authorities"
+)
+async def download_audit_vault_archive(dds_reference_id: str):
+    archive_bytes = AuditVaultManager.retrieve_archive_bytes(dds_reference_id)
+    if not archive_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Archive file for reference '{dds_reference_id}' not found in vault."
+        )
+    safe_id = dds_reference_id.replace("/", "_").replace(":", "_")
+    return Response(
+        content=archive_bytes,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f"attachment; filename=EUDR_ART31_VAULT_{safe_id}.zip"
+        }
+    )
+
+
+# -------------------------------------------------------------------
+# EUDR Article 2(5) & 2(7)(b) Forest Degradation Detection Engine
+# -------------------------------------------------------------------
+from app.modules.forest_degradation_detector import (
+    ForestDegradationDetector,
+    DegradationAssessmentResult
+)
+
+class DegradationAssessRequest(BaseModel):
+    plots: List[ProductionPlotInput]
+    commodity: str = Field("WOOD", description="Regulated commodity (especially timber/wood)")
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/compliance/forest-degradation/assess",
+    tags=["Forest Degradation Engine (EUDR Art. 2(5))"],
+    summary="Detect post-2020 structural conversion of primary forests into commercial plantations"
+)
+async def assess_forest_degradation(req: DegradationAssessRequest):
+    return ForestDegradationDetector.evaluate_batch_degradation(
+        plots=req.plots,
+        commodity=req.commodity
+    )
+
+
 
 
 

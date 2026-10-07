@@ -41,8 +41,10 @@ class BulkFileParser:
             plots, documents = cls.parse_csv(content_bytes)
         elif filename_lower.endswith(".xlsx"):
             plots, documents = cls.parse_excel(content_bytes)
+        elif filename_lower.endswith(".zip") or filename_lower.endswith(".shp"):
+            plots, documents = cls.parse_shapefile_zip(content_bytes)
         else:
-            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .xlsx, .geojson, .json, .kml")
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .xlsx, .geojson, .json, .kml, .zip (Shapefile)")
 
         if not plots:
             raise ValueError(f"No valid production plot coordinates could be extracted from {filename}")
@@ -297,6 +299,191 @@ class BulkFileParser:
                 doc_id="KML-DOC-LICENSE",
                 doc_type="BUSINESS_LICENSE",
                 issuing_authority="Registrar General",
+                issue_date="2019-01-01"
+            )
+        ]
+
+        return plots, documents
+
+    @classmethod
+    def parse_shapefile_zip(cls, content_bytes: bytes) -> Tuple[List[ProductionPlotInput], List[LegalDocumentInput]]:
+        """
+        Parses an ESRI Shapefile bundle packaged inside a .zip file (.shp, .dbf, .prj).
+        Auto-detects source CRS from .prj and reprojects coordinates to WGS84 (EPSG:4326).
+        Extracts plot geometry (Points or Polygons) and attributes from DBF.
+        """
+        import zipfile
+        import struct
+
+        zf = zipfile.ZipFile(io.BytesIO(content_bytes))
+        
+        # 1. Locate components in the zip
+        shp_name = next((n for n in zf.namelist() if n.lower().endswith(".shp")), None)
+        dbf_name = next((n for n in zf.namelist() if n.lower().endswith(".dbf")), None)
+        prj_name = next((n for n in zf.namelist() if n.lower().endswith(".prj")), None)
+
+        if not shp_name:
+            raise ValueError("Shapefile archive missing .shp geometry file.")
+
+        shp_bytes = zf.read(shp_name)
+        dbf_bytes = zf.read(dbf_name) if dbf_name else b""
+        prj_text = zf.read(prj_name).decode("utf-8", errors="ignore") if prj_name else ""
+
+        # 2. Setup pyproj coordinate transformer if not WGS84
+        transformer = None
+        if prj_text:
+            try:
+                import pyproj
+                src_crs = pyproj.CRS.from_wkt(prj_text)
+                target_crs = pyproj.CRS.from_epsg(4326)
+                if src_crs != target_crs:
+                    transformer = pyproj.Transformer.from_crs(src_crs, target_crs, always_xy=True)
+            except Exception:
+                transformer = None
+
+        def transform_pt(x: float, y: float) -> Tuple[float, float]:
+            if transformer:
+                try:
+                    lon, lat = transformer.transform(x, y)
+                    return round(lon, 7), round(lat, 7)
+                except Exception:
+                    pass
+            return round(x, 7), round(y, 7)
+
+        # 3. Parse DBF attributes if available
+        dbf_records: List[Dict[str, str]] = []
+        if dbf_bytes and len(dbf_bytes) >= 32:
+            num_recs, header_len, rec_len = struct.unpack_from("<IHH", dbf_bytes, 4)
+            # Field descriptors start at offset 32, each 32 bytes
+            fields = []
+            f_offset = 32
+            while f_offset < header_len - 1 and dbf_bytes[f_offset] != 0x0D:
+                f_name = dbf_bytes[f_offset:f_offset+11].split(b'\x00')[0].decode("ascii", errors="ignore").strip().lower()
+                f_type = chr(dbf_bytes[f_offset+11])
+                f_len = dbf_bytes[f_offset+16]
+                fields.append((f_name, f_type, f_len))
+                f_offset += 32
+
+            r_offset = header_len
+            for _ in range(num_recs):
+                if r_offset + rec_len > len(dbf_bytes):
+                    break
+                row = {}
+                col_offset = r_offset + 1  # 1st byte is deletion flag
+                for f_name, _, f_len in fields:
+                    val_bytes = dbf_bytes[col_offset:col_offset+f_len]
+                    val_str = val_bytes.decode("utf-8", errors="replace").strip()
+                    row[f_name] = val_str
+                    col_offset += f_len
+                dbf_records.append(row)
+                r_offset += rec_len
+
+        # 4. Parse SHP geometry
+        if len(shp_bytes) < 100:
+            raise ValueError("Corrupted .shp file: header less than 100 bytes.")
+
+        offset = 100
+        shp_len = len(shp_bytes)
+        record_idx = 0
+        plots: List[ProductionPlotInput] = []
+
+        while offset + 8 <= shp_len:
+            rec_num, content_len_words = struct.unpack_from(">II", shp_bytes, offset)
+            content_len_bytes = content_len_words * 2
+            offset += 8
+
+            if offset + content_len_bytes > shp_len:
+                break
+
+            shape_type = struct.unpack_from("<I", shp_bytes, offset)[0]
+            geom = None
+
+            if shape_type == 1:  # Point
+                x, y = struct.unpack_from("<dd", shp_bytes, offset + 4)
+                lon, lat = transform_pt(x, y)
+                geom = {"type": "Point", "coordinates": [lon, lat]}
+            elif shape_type == 5:  # Polygon
+                # bbox (32 bytes), num_parts (4), num_points (4)
+                num_parts, num_points = struct.unpack_from("<II", shp_bytes, offset + 36)
+                parts_offset = offset + 44
+                parts = list(struct.unpack_from(f"<{num_parts}I", shp_bytes, parts_offset))
+                points_offset = parts_offset + (num_parts * 4)
+
+                all_pts = []
+                for pt_idx in range(num_points):
+                    px, py = struct.unpack_from("<dd", shp_bytes, points_offset + (pt_idx * 16))
+                    all_pts.append(transform_pt(px, py))
+
+                rings = []
+                parts.append(num_points)
+                for p_i in range(num_parts):
+                    start_i = parts[p_i]
+                    end_i = parts[p_i + 1]
+                    ring = all_pts[start_i:end_i]
+                    # Ensure ring is closed
+                    if ring and ring[0] != ring[-1]:
+                        ring.append(ring[0])
+                    if len(ring) >= 4:
+                        rings.append(ring)
+
+                if rings:
+                    geom = {"type": "Polygon", "coordinates": rings}
+
+            if geom:
+                # Correlate with DBF row if available
+                attrs = dbf_records[record_idx] if record_idx < len(dbf_records) else {}
+                plot_id = (
+                    attrs.get("plot_id") or 
+                    attrs.get("id") or 
+                    attrs.get("name") or 
+                    attrs.get("code") or 
+                    f"PLOT-SHP-{record_idx + 1:03d}"
+                )
+                country_code = (
+                    attrs.get("country_code") or 
+                    attrs.get("country") or 
+                    attrs.get("iso") or 
+                    "VN"
+                ).upper()[:2]
+                try:
+                    area_ha = float(attrs.get("area_ha") or attrs.get("area_hectares") or attrs.get("area") or attrs.get("hectares") or 5.0)
+                except Exception:
+                    area_ha = 5.0
+
+                prod_date = attrs.get("production_date") or attrs.get("date") or attrs.get("harvest_dt") or "2024-03-01"
+                producer_name = attrs.get("producer") or attrs.get("farmer") or attrs.get("coop") or f"Producer #{record_idx+1}"
+
+                plots.append(ProductionPlotInput(
+                    plot_id=plot_id,
+                    country_code=country_code,
+                    area_hectares=area_ha,
+                    geometry=geom,
+                    production_date=prod_date,
+                    producer_name=producer_name,
+                    notes=attrs.get("notes") or "Imported via ESRI Shapefile"
+                ))
+
+            offset += content_len_bytes
+            record_idx += 1
+
+        documents = [
+            LegalDocumentInput(
+                doc_id="SHP-DOC-TITLE-01",
+                doc_type="LAND_USE_TITLE",
+                issuing_authority="National Cadastre & Land Registry",
+                issue_date="2020-01-01"
+            ),
+            LegalDocumentInput(
+                doc_id="SHP-DOC-PERMIT-01",
+                doc_type="HARVEST_PERMIT",
+                issuing_authority="Forestry & Natural Resources Administration",
+                issue_date="2023-01-01",
+                expiry_date="2028-01-01"
+            ),
+            LegalDocumentInput(
+                doc_id="SHP-DOC-LICENSE-01",
+                doc_type="BUSINESS_LICENSE",
+                issuing_authority="Ministry of Trade & Commerce",
                 issue_date="2019-01-01"
             )
         ]

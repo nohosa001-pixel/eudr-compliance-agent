@@ -140,6 +140,7 @@
 ## 4. 고도화 모듈 상세 아키텍처 (Advanced EUDR Elevation)
 
 ### 4.1 제29조 국가 벤치마킹 & 제13조 간이 실사 (Country Benchmarking & Simplified Due Diligence)
+
 - **모듈**: `app/modules/country_benchmarking.py`
 - **엔드포인트**: `GET /api/v1/benchmarking/country-tier?country_code=XX`, `POST /api/v1/benchmarking/evaluate`
 - **주요 기능**:
@@ -148,6 +149,7 @@
   - 우회/혼입/부패 정황 인입 시 즉시 간이 실사 철회 및 9% 고위험 감사 모드로 자동 강등.
 
 ### 4.2 제4조(8) 하류 공급망 DDS 참조 체이닝 & 연쇄 리스크 모니터 (Downstream Reference Chaining)
+
 - **모듈**: `app/modules/downstream_chain_manager.py`
 - **엔드포인트**: `POST /api/v1/dds/chain/link`, `GET /api/v1/dds/chain/{dds_number}/status`
 - **주요 기능**:
@@ -156,6 +158,7 @@
   - 상류 DDS가 회원국 세관에서 회수(Revoked)되거나 벌채 의심 필지로 오염(Tainted)될 경우, 하류 체인의 모든 완제품 DDS에 대해 즉각적인 경보 및 리콜 방어 지침 전파.
 
 ### 4.3 2026년 9월 위임규정 법정 면제 증명서 발급기 (Statutory Exemption Certificate Engine)
+
 - **모듈**: `app/modules/statutory_exemption_issuer.py`
 - **엔드포인트**: `POST /api/v1/exemptions/statutory-certificate`
 - **주요 기능**:
@@ -163,6 +166,7 @@
   - EU 단일 관세창구(EU SWE-C) 세관 감사관 대응용 공식 Green Lane HTML 면제 증명서(고유 Certificate ID, QR/체크섬 검증 코드 내장) 렌더링.
 
 ### 4.4 제9조 소규모 농가 필지 자동 분할 슬라이싱 엔진 (Smallholder Parcel Auto-Slicing Engine)
+
 - **모듈**: `app/modules/parcel_slicing_engine.py`
 - **엔드포인트**: `POST /api/v1/geo/slice-parcel`
 - **주요 기능**:
@@ -170,6 +174,7 @@
   - WGS84 소수점 6자리 좌표 정밀도 보존 및 폐쇄 링(Closed ring) 검증 보장.
 
 ### 4.5 생산국 공식 지적·환경 레지스트리 실시간 검증 (Producer Country Public Land Registries Integration)
+
 - **모듈**: `app/modules/producer_adapters/` (`registry_hub.py`, `brazil_car_adapter.py`, `indonesia_timber_palm_adapter.py`, `vietnam_coffee_timber_adapter.py`, `ghana_cocoa_adapter.py`)
 - **엔드포인트**: `POST /api/v1/compliance/producer-registry/verify`, `POST /api/v1/compliance/export-bundle/generate`
 - **주요 기능**:
@@ -179,6 +184,7 @@
   - **서아프리카 (GH/CI)**: 가나 **COCOBOD CMS**, 코트디부아르 **Conseil du Café-Cacao (CCC)** 공식 카카오 농가 GPS 등록부 연계.
 
 ### 4.6 자율 무역 금융 및 온체인 신용 대출 오라클 (Autonomous Trade Credit & Lending Oracle)
+
 - **모듈**: `app/modules/trade_credit_oracle.py`
 - **협력 에이전트**: `security-gate-x402` (The Sheriff of Agent Finance), `AgentEscrow.sol` (Polygon/Base)
 - **엔드포인트**: `POST /api/v1/finance/trade-credit/underwrite`

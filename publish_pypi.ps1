@@ -1,3 +1,7 @@
+param(
+    [switch]$Force
+)
+
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "  PyPI Release Packager - EUDRAgent      " -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
@@ -29,17 +33,29 @@ if ($LASTEXITCODE -ne 0) {
 
 # 4. Upload to PyPI
 Write-Host "[2/2] Ready to upload to PyPI." -ForegroundColor Green
-$confirm = Read-Host "Proceed with uploading to PyPI? (y/n)"
+$confirm = if ($Force) { "y" } else { Read-Host "Proceed with uploading to PyPI? (y/n)" }
 if ($confirm -eq "y" -or $confirm -eq "Y") {
     if (-not $env:TWINE_PASSWORD) {
-        # Check sibling security-gate-x402/.env for token
-        $siblingEnv = "..\security-gate-x402\.env"
-        if (Test-Path $siblingEnv) {
-            $lines = Get-Content $siblingEnv
+        # Check local .env first
+        if (Test-Path ".env") {
+            $lines = Get-Content ".env"
             foreach ($line in $lines) {
-                if ($line.StartsWith("TWINE_PASSWORD=")) {
-                    $env:TWINE_PASSWORD = $line.Substring(15).Trim('"').Trim("'")
+                if ($line.StartsWith("TWINE_PASSWORD=") -or $line.StartsWith("UV_PUBLISH_TOKEN=")) {
+                    $env:TWINE_PASSWORD = $line.Split("=", 2)[1].Trim('"').Trim("'")
                     break
+                }
+            }
+        }
+        # Check sibling security-gate-x402/.env for token
+        if (-not $env:TWINE_PASSWORD) {
+            $siblingEnv = "..\security-gate-x402\.env"
+            if (Test-Path $siblingEnv) {
+                $lines = Get-Content $siblingEnv
+                foreach ($line in $lines) {
+                    if ($line.StartsWith("TWINE_PASSWORD=") -or $line.StartsWith("UV_PUBLISH_TOKEN=")) {
+                        $env:TWINE_PASSWORD = $line.Split("=", 2)[1].Trim('"').Trim("'")
+                        break
+                    }
                 }
             }
         }

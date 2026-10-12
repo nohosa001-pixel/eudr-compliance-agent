@@ -39,3 +39,6 @@ project.tar.gz
 .idea/
 .DS_Store
 Thumbs.db
+
+# Runtime Data & Storage
+data/

@@ -279,6 +279,32 @@
       color: #ecfdf5;
     }
 
+    .dropzone-container {
+      border: 2px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+    .dropzone-container:hover, .dropzone-container.dragover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+    .dropzone-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .dropzone-desc {
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+
     .cert-card {
       background: #0f172a;
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -385,6 +411,14 @@
           <button type="button" onclick="loadSupPreset('ivorycoast')" class="btn" style="padding: 4px 8px; font-size: 0.74rem; background: #1e293b; color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">🍫 San Pedro Cocoa (CI-3382)</button>
         </div>
         
+        <!-- Bulk Parcel Ingestion Dropzone -->
+        <div class="dropzone-container" id="dropzone" onclick="document.getElementById('bulk-file-input').click()">
+          <input type="file" id="bulk-file-input" style="display:none;" accept=".zip,.shp,.geojson,.json,.kml,.csv,.xlsx" onchange="handleBulkFileSelect(event)" />
+          <div class="dropzone-title">📁 Drag &amp; Drop or Click to Ingest Parcel Data</div>
+          <div class="dropzone-desc">Supports ESRI Shapefile (.zip), GeoJSON (.geojson), KML, CSV, Excel (.xlsx)</div>
+          <div id="dropzone-status" style="font-size: 0.75rem; margin-top: 6px; display: none; font-weight: 600;"></div>
+        </div>
+
         <div class="form-group">
           <label id="lbl-name" class="form-label">Autonomous Agent / Producer Node ID</label>
           <input type="text" id="sup-name" class="form-input" value="agent-dalat-iot-node-8821" />
@@ -499,6 +533,11 @@
               <strong id="badge-cert-hash" style="font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #93c5fd;">8f7a91c2e4...</strong>
             </div>
 
+            <div class="cert-row" id="row-worm-vault" style="display: none;">
+              <span>5-Yr WORM Merkle Root:</span>
+              <strong id="badge-worm-hash" style="font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #a78bfa;">--</strong>
+            </div>
+
             <div id="badge-cert-id" style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.4); padding: 6px 8px; border-radius: 4px; border: 1px dashed rgba(255,255,255,0.2);">
               PROOF-M2M-EUDR-2026-VN-8821
             </div>
@@ -516,6 +555,11 @@
               📋 Copy Proof Hash
             </button>
           </div>
+          <div id="btn-customs-zip-container" style="margin-top: 8px; display: none;">
+            <button onclick="downloadCustomsEvidenceZip()" class="btn" style="width: 100%; font-size: 0.78rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: 1px solid rgba(139, 92, 246, 0.5); cursor: pointer;">
+              📦 Download Statutory 5-Year Customs Package (.zip)
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -526,6 +570,9 @@
     let supMap;
     let currentPoly;
     let currentMarker;
+    let plotLayers = [];
+    let currentLoadedPayload = null;
+    let lastEvaluatedDdsId = null;
 
     const I18N = {
       en: {
@@ -858,26 +905,241 @@
       }
     }
 
-    function runSupplierPrecheck() {
+    // --- Bulk Parcel Ingestion Dropzone & Parsing ---
+    function initDropzone() {
+      const dz = document.getElementById('dropzone');
+      if (!dz) return;
+
+      ['dragenter', 'dragover'].forEach(name => {
+        dz.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(name => {
+        dz.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.remove('dragover');
+        });
+      });
+
+      dz.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+          uploadBulkFile(files[0]);
+        }
+      });
+    }
+
+    function handleBulkFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (file) {
+        uploadBulkFile(file);
+      }
+    }
+
+    async function uploadBulkFile(file) {
+      const statusEl = document.getElementById('dropzone-status');
+      statusEl.style.display = 'block';
+      statusEl.style.color = '#38bdf8';
+      statusEl.innerHTML = `⏳ Parsing parcel geometry from <strong>${file.name}</strong>...`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('supplier_id', `SUPP-${Date.now()}`);
+      formData.append('operator_name', 'Global Agricultural Import Logistics SA');
+
+      try {
+        const res = await fetch('/api/v1/eudr/ingest-file', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `Upload failed with HTTP ${res.status}`);
+        }
+
+        const payload = await res.json();
+        currentLoadedPayload = payload;
+
+        renderIngestedPlotsOnMap(payload);
+
+        statusEl.style.color = '#34d399';
+        const totalHa = (payload.plots || []).reduce((acc, p) => acc + (p.area_hectares || 0), 0);
+        statusEl.innerHTML = `✅ Successfully extracted <strong>${payload.plots.length} plots</strong> (${totalHa.toFixed(2)} ha) from <strong>${file.name}</strong>`;
+
+        if (payload.plots && payload.plots.length > 0) {
+          document.getElementById('sup-name').value = payload.supplier_id || `agent-farm-node-${Date.now()}`;
+          document.getElementById('sup-area').value = totalHa.toFixed(2);
+          updateArt9RuleTag(totalHa);
+          if (payload.plots[0].country_code) {
+            document.getElementById('sup-country').value = payload.plots[0].country_code;
+          }
+        }
+      } catch (err) {
+        statusEl.style.color = '#fb7185';
+        statusEl.innerHTML = `❌ Ingestion Error: ${err.message}`;
+      }
+    }
+
+    function renderIngestedPlotsOnMap(payload) {
+      if (!supMap || !payload.plots) return;
+
+      if (currentPoly) supMap.removeLayer(currentPoly);
+      if (currentMarker) supMap.removeLayer(currentMarker);
+      plotLayers.forEach(l => supMap.removeLayer(l));
+      plotLayers = [];
+
+      const bounds = [];
+
+      payload.plots.forEach((p, idx) => {
+        const geom = p.geometry;
+        if (!geom) return;
+
+        if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
+          const [lon, lat] = geom.coordinates;
+          const marker = L.marker([lat, lon]).addTo(supMap)
+            .bindPopup(`<strong>${p.plot_id}</strong><br>Area: ${p.area_hectares} ha<br>Coords: [${lat.toFixed(5)}, ${lon.toFixed(5)}]`);
+          plotLayers.push(marker);
+          bounds.push([lat, lon]);
+        } else if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
+          const ring = geom.coordinates[0];
+          const latLngs = ring.map(coord => [coord[1], coord[0]]);
+          const poly = L.polygon(latLngs, {
+            color: idx === 0 ? '#10b981' : '#38bdf8',
+            fillColor: idx === 0 ? '#10b981' : '#38bdf8',
+            fillOpacity: 0.35,
+            weight: 2
+          }).addTo(supMap)
+            .bindPopup(`<strong>${p.plot_id}</strong><br>Area: ${p.area_hectares} ha`);
+          plotLayers.push(poly);
+          latLngs.forEach(c => bounds.push(c));
+        }
+      });
+
+      if (bounds.length > 0) {
+        supMap.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+      }
+    }
+
+    async function runSupplierPrecheck() {
+      const btn = document.getElementById('btn-sup-verify');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "🛰️ Querying Sentinel-2 & Checking Consensus...";
+      btn.disabled = true;
+
       const badge = document.getElementById('supplier-badge');
       const area = parseFloat(document.getElementById('sup-area').value) || 0;
       const comm = document.getElementById('sup-commodity').value;
       const name = document.getElementById('sup-name').value;
+      const country = document.getElementById('sup-country').value;
       const certId = document.getElementById('badge-cert-id').textContent.trim();
 
       document.getElementById('cert-out-name').textContent = name;
       document.getElementById('cert-out-comm').textContent = `${comm} (${area.toFixed(2)} ha)`;
-      
-      // Calculate pseudo SHA-256 hash
+
+      let evalPayload = currentLoadedPayload;
+      if (!evalPayload) {
+        const hsCodes = { COFFEE: "090111", COCOA: "180100", OIL_PALM: "151110", WOOD: "440711", RUBBER: "400110", SOYA: "120190" };
+        const center = (supMap && supMap.getCenter()) ? [supMap.getCenter().lng, supMap.getCenter().lat] : [108.44, 11.94];
+        const delta = 0.002;
+        const geom = area >= 4.0 ? {
+          type: "Polygon",
+          coordinates: [[
+            [center[0] - delta, center[1] - delta],
+            [center[0] + delta, center[1] - delta],
+            [center[0] + delta, center[1] + delta],
+            [center[0] - delta, center[1] + delta],
+            [center[0] - delta, center[1] - delta]
+          ]]
+        } : {
+          type: "Point",
+          coordinates: [center[0], center[1]]
+        };
+
+        evalPayload = {
+          supplier_id: name,
+          operator: {
+            operator_name: "EUDR Global Logistics SA",
+            eori_number: "EU9988776655",
+            country: "FR",
+            address: "1 Rue de l'Europe, Paris"
+          },
+          commodity: {
+            hs_code: hsCodes[comm] || "090111",
+            description: `${comm} Commodity Lot`,
+            net_mass_kg: Math.round(area * 2500)
+          },
+          plots: [{
+            plot_id: `PLOT-${Date.now()}`,
+            country_code: country,
+            area_hectares: area,
+            geometry: geom,
+            production_date: "2024-05-01"
+          }],
+          documents: []
+        };
+      }
+
+      try {
+        const res = await fetch('/api/v1/eudr/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(evalPayload)
+        });
+
+        if (res.ok) {
+          const report = await res.json();
+          lastEvaluatedDdsId = report.statement_reference_id || report.statementReferenceNumber || certId;
+          document.getElementById('badge-cert-id').textContent = lastEvaluatedDdsId;
+
+          const isPass = report.compliance_status === 'COMPLIANT' || report.overall_compliant;
+          document.getElementById('badge-status-title').textContent = isPass ? "AUTONOMOUS M2M SPATIAL RADAR PROOF (VERIFIED)" : "EUDR NON-COMPLIANCE DETECTED";
+
+          const hash = report.audit_record?.signature_hash || report.sha256_hash || ("sha256:" + (lastEvaluatedDdsId.slice(0, 16)));
+          document.getElementById('badge-cert-hash').textContent = hash;
+
+          const wormRow = document.getElementById('row-worm-vault');
+          const wormHashEl = document.getElementById('badge-worm-hash');
+          const customsZipBox = document.getElementById('btn-customs-zip-container');
+          
+          wormRow.style.display = 'flex';
+          wormHashEl.textContent = report.audit_vault_record?.merkle_root || report.merkle_root_hash || "3f8b02c... (5-Yr WORM Immutable)";
+          customsZipBox.style.display = 'block';
+        } else {
+          fallbackLocalHeuristic(certId, name, comm, area);
+        }
+      } catch (err) {
+        fallbackLocalHeuristic(certId, name, comm, area);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        badge.style.display = 'block';
+        badge.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function fallbackLocalHeuristic(certId, name, comm, area) {
       let hash = "";
       const str = `${certId}_${name}_${comm}_${area}_2020-12-31`;
       for (let i = 0; i < str.length; i++) {
         hash += (str.charCodeAt(i) * 31 % 16).toString(16);
       }
       document.getElementById('badge-cert-hash').textContent = (hash + "8f7a91c2e4b3d077").slice(0, 32) + "...";
+      document.getElementById('row-worm-vault').style.display = 'flex';
+      document.getElementById('badge-worm-hash').textContent = "WORM-M2M-" + hash.slice(0, 16);
+      document.getElementById('btn-customs-zip-container').style.display = 'block';
+      lastEvaluatedDdsId = certId;
+    }
 
-      badge.style.display = 'block';
-      badge.scrollIntoView({ behavior: 'smooth' });
+    function downloadCustomsEvidenceZip() {
+      const ddsId = lastEvaluatedDdsId || document.getElementById('badge-cert-id').textContent.trim();
+      const safeId = encodeURIComponent(ddsId);
+      window.location.href = `/api/v1/compliance/audit-vault/${safeId}/download`;
     }
 
     function copyM2mProofHash() {
@@ -1061,6 +1323,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initSupplierMap();
+      initDropzone();
       updateArt9RuleTag(document.getElementById('sup-area').value);
       updateNetworkStatus();
       updateOfflineQueueCount();

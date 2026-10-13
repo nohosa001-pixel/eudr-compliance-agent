@@ -139,11 +139,24 @@ def test_vietnam_coffee_timber_adapter():
     assert res_coffee.status == "ACTIVE_AND_COMPLIANT_LURC"
     assert "Coffee" in res_coffee.details["commodity"]
 
+    # Direct VN province format
+    res_direct = adapter.verify_registration("VN-DLK-109283-A")
+    assert res_direct.is_valid is True
+    assert res_direct.status == "ACTIVE_AND_COMPLIANT_LURC"
+    assert res_direct.details["smallholder_cooperative_direct_payout_eligible"] is True
+
+    # Timber VNTLAS in Binh Duong
+    res_timber = adapter.verify_registration("VNTLAS-BDG-892101")
+    assert res_timber.is_valid is True
+    assert "Timber" in res_timber.details["commodity"]
+    assert res_timber.details["cites_timber_check"] == "PASSED_NON_CITES"
+
     # Special-Use Forest Encroachment
     res_enc = adapter.verify_registration("VN-COFFEE-LDG-PARK999999")
     assert res_enc.is_valid is False
     assert res_enc.status == "REJECTED_SPECIAL_USE_FOREST_ENCROACHMENT"
     assert res_enc.deforestation_infraction_flag is True
+    assert res_enc.details["biodiversity_corridor_encroachment"] is True
 
 
 def test_registry_hub_auto_routing():

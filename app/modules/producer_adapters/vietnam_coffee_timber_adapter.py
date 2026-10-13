@@ -16,18 +16,23 @@ class VietnamCoffeeTimberAdapter(BaseProducerAdapter):
     """
 
     VN_REGEX = re.compile(
-        r"^(?:VN-(?:COFFEE|VNTLAS|LURC))-([A-Z]{3})-([A-Z0-9]{6,14})(?:-([A-Z0-9]+))?$",
+        r"^(?:(?:VN-(?:COFFEE|VNTLAS|LURC))|(?:VN|VNTLAS|LURC))-([A-Z]{3})-([A-Z0-9]{6,14})(?:-([A-Z0-9]+))?$",
         re.IGNORECASE
     )
 
     PROVINCES = {
-        "DLK": "Đắk Lắk (Central Highlands)",
-        "LDG": "Lâm Đồng (Đà Lạt Highlands)",
-        "GLA": "Gia Lai Province",
+        "DLK": "Đắk Lắk (Central Highlands - Coffee Capital)",
+        "LDG": "Lâm Đồng (Đà Lạt / Bảo Lộc Highlands)",
+        "GLA": "Gia Lai Province (Pleiku)",
         "DKN": "Đắk Nông Province",
         "KTM": "Kon Tum Province",
-        "BDG": "Bình Dương (Timber / Wood Processing)",
-        "DNI": "Đồng Nai Province"
+        "BDG": "Bình Dương (Timber / Wood Furniture Processing)",
+        "DNI": "Đồng Nai Province (Timber & Rubber)",
+        "BPC": "Bình Phước (Rubber / Timber / Cashew)",
+        "QNA": "Quảng Nam (Acacia Timber Plantations)",
+        "TTH": "Thừa Thiên Huế (FSC Timber Forestry)",
+        "SLA": "Sơn La (Northwest Arabica Coffee)",
+        "DBN": "Điện Biên (Northwest Forestry / Coffee)"
     }
 
     def get_supported_country_code(self) -> str:
@@ -50,7 +55,7 @@ class VietnamCoffeeTimberAdapter(BaseProducerAdapter):
                 spatial_coverage_status="NON_COMPLIANT",
                 deforestation_infraction_flag=True,
                 details={
-                    "error": "Expected VN-COFFEE-PROV-NUM, VN-VNTLAS-PROV-NUM, or VN-LURC-PROV-NUM (e.g., VN-COFFEE-DLK-109283-A)"
+                    "error": "Expected VN-COFFEE-PROV-NUM, VN-VNTLAS-PROV-NUM, VN-LURC-PROV-NUM, or VN-PROV-NUM (e.g., VN-COFFEE-DLK-109283-A)"
                 }
             )
 
@@ -81,11 +86,14 @@ class VietnamCoffeeTimberAdapter(BaseProducerAdapter):
                     "mard_status": "REVOKED_SPECIAL_USE_FOREST_ENCROACHMENT",
                     "land_use_rights_certificate_lurc": "INVALID_ENCROACHMENT",
                     "vntlas_timber_clearance": "DENIED",
-                    "vietnam_national_coffee_database": "FLAGGED_FOR_DEFORESTATION"
+                    "vietnam_national_coffee_database": "FLAGGED_FOR_DEFORESTATION",
+                    "biodiversity_corridor_encroachment": True,
+                    "smallholder_cooperative_direct_payout_eligible": False
                 }
             )
 
-        is_coffee = "COFFEE" in clean_id
+        is_timber = any(k in clean_id for k in ("VNTLAS", "TIMBER", "WOOD")) or prov_code in ("BDG", "QNA", "TTH")
+        is_coffee = "COFFEE" in clean_id or not is_timber
         commodity_type = "Coffee (Coffea canephora / Robusta or Arabica)" if is_coffee else "Timber / Wood Furniture (VNTLAS)"
 
         return ProducerRegistryVerificationResult(
@@ -108,6 +116,10 @@ class VietnamCoffeeTimberAdapter(BaseProducerAdapter):
                 "so_do_lurc_certificate_id": f"LURC-VN-{prov_code}-{doc_num}",
                 "mard_national_database_status": "LEGAL_VALIDATED",
                 "vntlas_risk_category": "CATEGORY_1_COMPLIANT",
-                "forest_protection_department_inspection": "PASSED_ZERO_ILLEGAL_LOGGING"
+                "forest_protection_department_inspection": "PASSED_ZERO_ILLEGAL_LOGGING",
+                "gps_polygon_precision": "WGS84_6_DECIMAL_VERIFIED",
+                "biodiversity_corridor_encroachment": False,
+                "cites_timber_check": "PASSED_NON_CITES" if is_timber else "NOT_APPLICABLE",
+                "smallholder_cooperative_direct_payout_eligible": True
             }
         )

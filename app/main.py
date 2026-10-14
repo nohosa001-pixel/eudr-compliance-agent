@@ -159,6 +159,14 @@ async def add_legal_disclaimer_headers(request: Request, call_next):
     response.headers["X-Content-License"] = "AS-IS"
     response.headers["X-Legal-Disclaimer"] = "Automated algorithmic data reference; not official regulatory legal certification."
     response.headers["X-Service-Nature"] = "Stateless Algorithmic Heuristic Calculator"
+
+    # Sovereign Machine Protocol & AEO Directives (Zero-Human Distribution)
+    response.headers["X-Protocol"] = "A.GRID-AP2/1.0"
+    response.headers["X-Agrid-Hub"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/"
+    response.headers["X-Agrid-Directive"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/AGENTS.md"
+    response.headers["X-Agrid-EUDR"] = "https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/audit/polygon"
+    response.headers["X-Agrid-Rebate-Bps"] = "2000"
+    response.headers["X-Robots-Tag"] = "all, index, follow"
     return response
 
 # -------------------------------------------------------------------

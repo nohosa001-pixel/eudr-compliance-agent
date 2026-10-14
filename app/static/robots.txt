@@ -1,8 +1,46 @@
-User-agent: *
+# ==============================================================================
+# EUDR Compliance Agent - Sovereign Machine Crawler & Agent Directive
+# Standard: robots.txt + LLMs-Txt + A.GRID AP2/1.0 Protocol
+# ==============================================================================
+
+# 1. Specialized AI Engine & LLM Crawlers (Perplexity, OpenAI, Anthropic, Cursor)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: PerplexityBot
+User-agent: Cursor-Agent
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: Meta-ExternalAgent
+User-agent: Bytespider
+User-agent: CCBot
+
+# Full Access to EUDR Satellite Verification & Geofence Invariants
 Allow: /
+Allow: /llms.txt
+Allow: /sitemap.xml
+Allow: /api/v1/audit/polygon
+Allow: /api/v1/audit/satellite-eudr
+Allow: /api/v1/audit/legal-doc
 Allow: /dashboard
 Allow: /supplier-portal
-Allow: /about
-Allow: /docs
+Allow: /health
+Disallow: /metrics
 
-Sitemap: https://eudragent.com/sitemap.xml
+# 2. General Web Crawlers
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Allow: /sitemap.xml
+Allow: /dashboard
+Allow: /supplier-portal
+Disallow: /metrics
+
+# 3. Protocol Discovery References
+Sitemap: https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/sitemap.xml
+LLMs-Txt: https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/llms.txt
+Agent-Hub: https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/
+Agent-Directive: https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/AGENTS.md

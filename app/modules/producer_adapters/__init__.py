@@ -4,8 +4,10 @@ from app.modules.producer_adapters.base_adapter import (
 )
 from app.modules.producer_adapters.brazil_car_adapter import BrazilCarAdapter
 from app.modules.producer_adapters.ghana_cocoa_adapter import GhanaCocoaAdapter
+from app.modules.producer_adapters.cote_divoire_cocoa_adapter import CoteDIvoireCocoaAdapter
 from app.modules.producer_adapters.indonesia_timber_palm_adapter import IndonesiaTimberPalmAdapter
 from app.modules.producer_adapters.vietnam_coffee_timber_adapter import VietnamCoffeeTimberAdapter
+from app.modules.producer_adapters.colombia_coffee_cocoa_adapter import ColombiaCoffeeCocoaAdapter
 from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
 
 __all__ = [
@@ -13,7 +15,9 @@ __all__ = [
     "ProducerRegistryVerificationResult",
     "BrazilCarAdapter",
     "GhanaCocoaAdapter",
+    "CoteDIvoireCocoaAdapter",
     "IndonesiaTimberPalmAdapter",
     "VietnamCoffeeTimberAdapter",
+    "ColombiaCoffeeCocoaAdapter",
     "ProducerCountryRegistryHub",
 ]

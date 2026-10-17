@@ -175,13 +175,14 @@
 
 ### 4.5 생산국 공식 지적·환경 레지스트리 실시간 검증 (Producer Country Public Land Registries Integration)
 
-- **모듈**: `app/modules/producer_adapters/` (`registry_hub.py`, `brazil_car_adapter.py`, `indonesia_timber_palm_adapter.py`, `vietnam_coffee_timber_adapter.py`, `ghana_cocoa_adapter.py`)
+- **모듈**: `app/modules/producer_adapters/` (`registry_hub.py`, `brazil_car_adapter.py`, `indonesia_timber_palm_adapter.py`, `vietnam_coffee_timber_adapter.py`, `ghana_cocoa_adapter.py`, `cote_divoire_cocoa_adapter.py`, `colombia_coffee_cocoa_adapter.py`)
 - **엔드포인트**: `POST /api/v1/compliance/producer-registry/verify`, `POST /api/v1/compliance/export-bundle/generate`
 - **주요 기능**:
   - **브라질 (BR)**: 연방 환경부 **SICAR(Cadastro Ambiental Rural)** 등록 번호 정규화 검증, **INPE PRODES** 위성 벌채 알림 대조, **IBAMA 불법벌채 엠바고(Embargo)** 압류 토지 실시간 차단.
   - **인도네시아 (ID) & 말레이시아 (MY)**: 환경산림부(KLHK) **SIPUHH**(목재 합법성), **ISPO/MSPO**(지속가능 팜유 인증) 지적 대조, **PIPPIB 일차 이탄지(Peatland) 모라토리엄** 구역 침범 자동 기각.
   - **베트남 (VN)**: 농업농촌개발부(MARD) **전국 커피 지적 데이터베이스**, **Sổ Đỏ(토지사용권증명서 - LURC)** 대조, **VNTLAS**(목재 합법성 보장 체계) 적합성 검증, 국립공원/특수용도림(Rừng đặc dụng) 무단 침범 자동 차단.
-  - **서아프리카 (GH/CI)**: 가나 **COCOBOD CMS**, 코트디부아르 **Conseil du Café-Cacao (CCC)** 공식 카카오 농가 GPS 등록부 연계.
+  - **콜롬비아 (CO)**: 콜롬비아커피생산자연합회(**FNC**) **SICA(Sistema de Información Cafetera)** 54만 농가 지적 연계, **FEDECACAO** 카카오 등록부, **ANT/IGAC 다목적 지적(Catastro Multipropósito)** 연동, **PNN(Parques Nacionales Naturales)** 및 **Páramo(고산습지 보호구역)** 침범 자동 배제.
+  - **서아프리카 (GH/CI)**: 가나 **COCOBOD CMS**, 코트디부아르 **Conseil du Café-Cacao (CCC)** 공식 카카오 스마트 농가 카드(**Carte du Producteur**), **SODEFOR Forêts Classées** 및 **OIPR Parcs Nationaux(Taï 등)** 무단 산림 전용 실시간 차단 및 생활소득차액제(LID) 적격성 판정.
 
 ### 4.6 자율 무역 금융 및 온체인 신용 대출 오라클 (Autonomous Trade Credit & Lending Oracle)
 

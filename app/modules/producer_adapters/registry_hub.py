@@ -5,24 +5,27 @@ from app.modules.producer_adapters.base_adapter import (
 )
 from app.modules.producer_adapters.brazil_car_adapter import BrazilCarAdapter
 from app.modules.producer_adapters.ghana_cocoa_adapter import GhanaCocoaAdapter
+from app.modules.producer_adapters.cote_divoire_cocoa_adapter import CoteDIvoireCocoaAdapter
 from app.modules.producer_adapters.indonesia_timber_palm_adapter import IndonesiaTimberPalmAdapter
 from app.modules.producer_adapters.vietnam_coffee_timber_adapter import VietnamCoffeeTimberAdapter
+from app.modules.producer_adapters.colombia_coffee_cocoa_adapter import ColombiaCoffeeCocoaAdapter
 
 class ProducerCountryRegistryHub:
     """
     Central router for producer country official registries.
-    Auto-detects or routes queries to Brazil CAR, Ghana Cocoa CMS,
-    Indonesia SIPUHH/ISPO, Malaysia MSPO, and Vietnam MARD/VNTLAS.
+    Auto-detects or routes queries to Brazil CAR, Ghana Cocoa CMS, Côte d'Ivoire CCC,
+    Indonesia SIPUHH/ISPO, Malaysia MSPO, Vietnam MARD/VNTLAS, and Colombia FNC SICA/FEDECACAO.
     """
 
     def __init__(self):
         self._adapters: Dict[str, BaseProducerAdapter] = {
             "BR": BrazilCarAdapter(),
             "GH": GhanaCocoaAdapter(),
-            "CI": GhanaCocoaAdapter(),
+            "CI": CoteDIvoireCocoaAdapter(),
             "ID": IndonesiaTimberPalmAdapter(),
             "MY": IndonesiaTimberPalmAdapter(),
             "VN": VietnamCoffeeTimberAdapter(),
+            "CO": ColombiaCoffeeCocoaAdapter(),
         }
 
     def detect_country_code(self, identifier: str) -> Optional[str]:
@@ -31,7 +34,7 @@ class ProducerCountryRegistryHub:
             return "BR"
         if clean.startswith("GH-") or "CMS" in clean:
             return "GH"
-        if clean.startswith("CI-") or "CCC" in clean:
+        if clean.startswith("CI-") or "CCC" in clean or "SODEFOR" in clean:
             return "CI"
         if clean.startswith("ID-") or "SIPUHH" in clean or "ISPO" in clean:
             return "ID"
@@ -39,6 +42,8 @@ class ProducerCountryRegistryHub:
             return "MY"
         if clean.startswith("VN-") or "VNTLAS" in clean or "LURC" in clean or "COFFEE" in clean:
             return "VN"
+        if clean.startswith("CO-") or "SICA" in clean or "FEDECACAO" in clean:
+            return "CO"
         return None
 
     def verify(self, identifier: str, country_code: Optional[str] = None) -> ProducerRegistryVerificationResult:

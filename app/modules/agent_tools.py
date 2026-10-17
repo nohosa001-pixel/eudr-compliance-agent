@@ -825,12 +825,12 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
     },
     {
         "name": "eudr_verify_producer_registry",
-        "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Ghana Cocoa CMS, Malaysia MSPO).",
+        "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Colombia FNC SICA/FEDECACAO, Ghana Cocoa CMS, Côte d'Ivoire CCC, Malaysia MSPO).",
         "parameters": {
             "type": "object",
             "properties": {
-                "identifier": {"type": "string", "description": "Official registry identifier or cadastral parcel code (e.g. 'BR-MT-5107909-...', 'VN-COFFEE-LDG-...', 'SIPUHH-ID-...')."},
-                "country_code": {"type": "string", "description": "Optional 2-letter ISO country code (BR, ID, VN, GH, CI, MY). If omitted, automatically detected from format."}
+                "identifier": {"type": "string", "description": "Official registry identifier or cadastral parcel code (e.g. 'BR-MT-5107909-...', 'VN-COFFEE-LDG-...', 'CO-SICA-HUI-...', 'CI-CCC-BAS-...')."},
+                "country_code": {"type": "string", "description": "Optional 2-letter ISO country code (BR, ID, VN, CO, GH, CI, MY). If omitted, automatically detected from format."}
             },
             "required": ["identifier"]
         }

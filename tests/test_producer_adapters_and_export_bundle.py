@@ -172,15 +172,88 @@ def test_registry_hub_auto_routing():
     assert res_gh.country_code == "GH"
     assert res_gh.is_valid is True
 
+    # Auto-detect Côte d'Ivoire
+    res_ci = hub.verify("CI-CCC-BAS-502918-01")
+    assert res_ci.country_code == "CI"
+    assert res_ci.is_valid is True
+    assert res_ci.status == "ACTIVE_AND_COMPLIANT_CCC"
+
     # Auto-detect Vietnam
     res_vn = hub.verify("VN-COFFEE-DLK-109283-A")
     assert res_vn.country_code == "VN"
     assert res_vn.is_valid is True
 
+    # Auto-detect Colombia
+    res_co = hub.verify("CO-SICA-HUI-001294-01")
+    assert res_co.country_code == "CO"
+    assert res_co.is_valid is True
+    assert res_co.status == "ACTIVE_AND_COMPLIANT_SICA"
+
     # Unsupported country
     res_un = hub.verify("XX-999999")
     assert res_un.is_valid is False
     assert res_un.status == "UNSUPPORTED_PRODUCER_REGISTRY"
+
+
+from app.modules.producer_adapters.colombia_coffee_cocoa_adapter import ColombiaCoffeeCocoaAdapter
+from app.modules.producer_adapters.cote_divoire_cocoa_adapter import CoteDIvoireCocoaAdapter
+
+def test_colombia_coffee_cocoa_adapter():
+    adapter = ColombiaCoffeeCocoaAdapter()
+
+    # Valid FNC SICA Coffee in Huila
+    res_coffee = adapter.verify_registration("CO-SICA-HUI-001294-01")
+    assert res_coffee.is_valid is True
+    assert res_coffee.country_code == "CO"
+    assert res_coffee.status == "ACTIVE_AND_COMPLIANT_SICA"
+    assert "Coffee" in res_coffee.details["commodity"]
+    assert res_coffee.details["fnc_sica_polygon_verified"] is True
+    assert res_coffee.details["ideam_baseline_2020_deforestation_free"] is True
+    assert res_coffee.details["smallholder_direct_trade_eligible"] is True
+
+    # Valid FEDECACAO Cocoa in Santander
+    res_cocoa = adapter.verify_registration("CO-FEDECACAO-SAN-892102-A")
+    assert res_cocoa.is_valid is True
+    assert res_cocoa.status == "ACTIVE_AND_COMPLIANT_FEDECACAO"
+    assert "Cocoa" in res_cocoa.details["commodity"]
+
+    # Encroachment on Parques Nacionales Naturales (PNN) / Páramo
+    res_enc = adapter.verify_registration("CO-SICA-CAL-PNN999000-01")
+    assert res_enc.is_valid is False
+    assert res_enc.status == "REJECTED_PROTECTED_AREA_ENCROACHMENT"
+    assert res_enc.deforestation_infraction_flag is True
+    assert res_enc.details["national_parks_system_overlap"] is True
+
+    # Invalid format
+    res_inv = adapter.verify_registration("CO-INVALID-123")
+    assert res_inv.is_valid is False
+    assert res_inv.status == "INVALID_CO_REGISTRY_FORMAT"
+
+
+def test_cote_divoire_cocoa_adapter():
+    adapter = CoteDIvoireCocoaAdapter()
+
+    # Valid CCC Carte du Producteur in Bas-Sassandra
+    res_cocoa = adapter.verify_registration("CI-CCC-BAS-502918-01")
+    assert res_cocoa.is_valid is True
+    assert res_cocoa.country_code == "CI"
+    assert res_cocoa.status == "ACTIVE_AND_COMPLIANT_CCC"
+    assert res_cocoa.details["living_income_differential_eligible"] is True
+    assert res_cocoa.details["sig_ccc_qr_status"] == "VERIFIED_ACTIVE"
+    assert res_cocoa.details["baseline_2020_forest_overlap"] is False
+
+    # Encroachment on SODEFOR Forêt Classée / OIPR Parc National
+    res_enc = adapter.verify_registration("CI-SODEFOR-CAV-SCIO999999-01")
+    assert res_enc.is_valid is False
+    assert res_enc.status == "REJECTED_FOREST_RESERVE_ENCROACHMENT"
+    assert res_enc.deforestation_infraction_flag is True
+    assert res_enc.details["living_income_differential_status"] == "INELIGIBLE"
+
+    # Invalid format
+    res_inv = adapter.verify_registration("CI-INVALID-99")
+    assert res_inv.is_valid is False
+    assert res_inv.status == "INVALID_CI_REGISTRY_FORMAT"
+
 
 
 def test_api_producer_registry_verify():

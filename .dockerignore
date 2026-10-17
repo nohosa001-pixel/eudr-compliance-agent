@@ -1,6 +1,7 @@
 .git
 .gitignore
 .venv
+.venv312
 venv
 env
 __pycache__
@@ -22,3 +23,11 @@ build
 .idea
 *.log
 scratch/
+tests/
+contracts/
+programs/
+*.gif
+*.webp
+*.ps1
+*.bat
+

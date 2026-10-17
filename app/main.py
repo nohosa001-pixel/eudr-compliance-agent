@@ -141,6 +141,26 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+from app.api.routers.discovery import router as discovery_router, serve_mcp_server_card
+
+from app.api.routers.health import router as health_router
+from app.api.routers.customs import router as customs_router
+from app.api.routers.escrow import router as escrow_router
+from app.api.routers.webhooks import router as webhooks_router
+from app.api.routers.audit_vault import router as audit_vault_router
+
+app.include_router(discovery_router)
+app.include_router(health_router)
+app.include_router(customs_router)
+app.include_router(escrow_router)
+app.include_router(webhooks_router)
+app.include_router(audit_vault_router)
+
+
+
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -389,139 +409,10 @@ async def serve_about(request: Request):
         return FileResponse(str(about_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>About EUDRAgent Platform</h2>", headers=NO_CACHE_HEADERS)
 
-@app.get("/favicon.ico", include_in_schema=False)
-async def serve_favicon():
-    """Serves favicon."""
-    svg_fav = STATIC_DIR / "favicon.svg"
-    if svg_fav.exists():
-        return FileResponse(str(svg_fav), media_type="image/svg+xml")
-    return Response(status_code=204)
-
-@app.get("/robots.txt", include_in_schema=False)
-async def serve_robots():
-    """Serves robots.txt for search engine crawlers."""
-    robots_file = STATIC_DIR / "robots.txt"
-    if robots_file.exists():
-        return FileResponse(str(robots_file), media_type="text/plain")
-    return Response(content="User-agent: *\nAllow: /\nSitemap: https://eudragent.com/sitemap.xml\n", media_type="text/plain")
-
-@app.get("/sitemap.xml", include_in_schema=False)
-async def serve_sitemap():
-    """Serves sitemap.xml for search engines."""
-    sitemap_file = STATIC_DIR / "sitemap.xml"
-    if sitemap_file.exists():
-        return FileResponse(str(sitemap_file), media_type="application/xml")
-    return Response(content="""<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://eudragent.com/</loc></url></urlset>""", media_type="application/xml")
-
 # -------------------------------------------------------------------
-# LLMs & Autonomous AI Agents Discovery Standards (llms.txt & Manifests)
+# Core EUDR Regulatory & Spatial Validation Endpoints
 # -------------------------------------------------------------------
 
-@app.get("/llms.txt", include_in_schema=False)
-async def serve_llms_txt():
-    """Serves the standard llms.txt summary file for AI agents and LLM crawlers."""
-    llms_file = STATIC_DIR / "llms.txt"
-    if llms_file.exists():
-        return FileResponse(str(llms_file), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
-    return PlainTextResponse("EUDR.agent: Visit https://eudragent.com/docs for API details.", headers=NO_CACHE_HEADERS)
-
-@app.get("/llms-full.txt", include_in_schema=False)
-async def serve_llms_full_txt():
-    """Serves the comprehensive llms-full.txt reference for AI agents."""
-    llms_full = STATIC_DIR / "llms-full.txt"
-    if llms_full.exists():
-        return FileResponse(str(llms_full), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
-    return PlainTextResponse("EUDR.agent Full Reference: Visit https://eudragent.com/openapi.json", headers=NO_CACHE_HEADERS)
-
-@app.get("/agent.json", include_in_schema=False)
-@app.get("/.well-known/agent.json", include_in_schema=False)
-@app.get("/.well-known/ai-plugin.json", include_in_schema=False)
-async def serve_agent_manifest():
-    """Serves the .well-known/agent.json plugin manifest for autonomous agents."""
-    agent_file = STATIC_DIR / "agent.json"
-    if agent_file.exists():
-        return FileResponse(str(agent_file), media_type="application/json", headers=NO_CACHE_HEADERS)
-    return JSONResponse({"name": "eudr_compliance_agent", "status": "active"}, headers=NO_CACHE_HEADERS)
-
-@app.api_route("/.well-known/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
-@app.api_route("/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
-@app.api_route("/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
-async def serve_mcp_server_card(request: Request):
-    """Serves the standard MCP server-card.json metadata for Smithery.ai, Glama.ai, and MCP registries."""
-    if request is not None and request.method in ("HEAD", "OPTIONS"):
-        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
-    
-    # Dynamically build server card containing all registered agent tools with inputSchema
-    tools = []
-    for t in AgentToolsRegistry.list_tools():
-        tools.append({
-            "name": t["name"],
-            "description": t["description"],
-            "inputSchema": t["parameters"]
-        })
-    
-    return JSONResponse({
-        "serverInfo": {
-            "name": "eudr-compliance-agent",
-            "version": "1.4.0",
-            "description": "Autonomous AI Agent compliance engine for European Union Deforestation Regulation (EU 2023/1115)."
-        },
-        "authentication": {"required": False},
-        "tools": tools,
-        "prompts": [
-            {
-                "name": "eudr_compliance_audit_prompt",
-                "description": "Guides an autonomous agent through an end-to-end EUDR Art. 9 audit workflow: GIS plot check, deforestation check, VAT validation, and TRACES-NT DDS compilation."
-            }
-        ]
-    }, headers=NO_CACHE_HEADERS)
-
-@app.api_route("/glama.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
-@app.api_route("/.well-known/glama.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
-async def serve_glama_json(request: Request):
-    """Serves the official glama.json metadata file for Glama.ai MCP indexer."""
-    if request.method in ("HEAD", "OPTIONS"):
-        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
-    glama_static = STATIC_DIR / "glama.json"
-    glama_root = Path(__file__).parent.parent / "glama.json"
-    target_file = glama_static if glama_static.exists() else glama_root
-    if target_file.exists():
-        return FileResponse(str(target_file), media_type="application/json", headers=NO_CACHE_HEADERS)
-    return JSONResponse({"name": "eudr-compliance-agent", "status": "active"}, headers=NO_CACHE_HEADERS)
-
-
-@app.get("/health", tags=["Health"])
-@app.get(f"{settings.API_V1_PREFIX}/health", tags=["Health"])
-@app.get(f"{settings.API_V1_PREFIX}/eudr/health", tags=["Health"])
-async def health_check():
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": settings.PROJECT_NAME,
-        "eudr_cutoff_date": str(settings.EUDR_CUTOFF_DATE),
-        "timestamp": datetime.now(timezone.utc).isoformat()
-    }
-
-@app.get(f"{settings.API_V1_PREFIX}/eudr/mesh/status", tags=["Inter-Agent Mesh"])
-async def get_inter_agent_mesh_status():
-    """
-    Returns live network discovery and status of the 4 autonomous agent services
-    connected via Model Context Protocol (MCP) on MetaMask Polygon Mainnet.
-    """
-    from app.modules.inter_agent_mesh import InterAgentMeshCoordinator
-    return InterAgentMeshCoordinator.get_mesh_status()
-
-@app.get(f"{settings.API_V1_PREFIX}/eudr/mesh/security-gate/diagnostics", tags=["Inter-Agent Mesh"])
-async def check_security_gate_integration():
-    """
-    Performs live end-to-end diagnostic probes against agent-security-gate-x402:
-    - Subsystem health heartbeat
-    - Sub-5ms cognitive firewall (MCP verify_agent_output)
-    - EVM EIP-712 EUDR truth oracle (Domain 3)
-    - Solana Ed25519 oracle attestation
-    """
-    from app.modules.inter_agent_mesh import InterAgentMeshCoordinator
-    return await InterAgentMeshCoordinator.check_security_gate_diagnostics()
 
 
 @app.get(
@@ -949,71 +840,7 @@ async def get_audit_customs_certificate(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate customs certificate: {str(err)}")
 
 
-# -------------------------------------------------------------------
-# European Customs & EU SWE-C Gateway Endpoints
-# Regulation (EU) 2023/1115 Articles 26, 27, 28 & UCC Data Element 12 03
-# -------------------------------------------------------------------
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/customs/taric-evaluate",
-    response_model=CustomsTaricEvaluateResponse,
-    tags=["European Customs & EU SWE-C Gateway"],
-    summary="Evaluate EUDR TARIC Document Code (C081, C082, Y120, Y121, Y122) for Box 44"
-)
-async def evaluate_customs_taric_code(req: CustomsTaricEvaluateRequest):
-    """
-    Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code:
-    - **C081**: Standard/Simplified EUDR DDS Reference Number and Verification Code.
-    - **C082**: Downstream Operator Reference to Upstream Declaration (Article 4(8)).
-    - **Y120**: Goods outside the substantive scope of EUDR Annex I (Article 1(2)).
-    - **Y121**: 100% Post-Consumer Recycled Waste Exemption (Annex I Footnote 1).
-    - **Y122**: Protective Transport Packaging Exemption.
-    """
-    return EUCustomsAdapter.evaluate_taric_document_code(req)
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/customs/ucc-declaration",
-    response_model=CustomsUCCDeclarationResponse,
-    tags=["European Customs & EU SWE-C Gateway"],
-    summary="Generate Union Customs Code (UCC) Data Element 12 03 000 000 Declaration"
-)
-async def generate_ucc_customs_declaration(req: CustomsUCCDeclarationRequest):
-    """
-    Generates standard Union Customs Code (UCC) Data Element 12 03 000 000 payload and XML snippet
-    compatible with European national customs clearance engines (ATLAS, DELTA-IE, DMS, AGS).
-    """
-    return EUCustomsAdapter.generate_ucc_declaration(req)
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/customs/swe-c/pre-clearance",
-    response_model=CustomsSWECPreClearanceResponse,
-    tags=["European Customs & EU SWE-C Gateway"],
-    summary="Simulate Pre-Arrival Automated Customs Clearance via EU SWE-C System"
-)
-async def simulate_swe_c_pre_clearance(req: CustomsSWECPreClearanceRequest):
-    """
-    Simulates automated port clearance under Article 26 & 27:
-    - Validates EORI declarant credentials and TRACES-NT DDS reference format.
-    - Applies Article 16 statutory inspection quota (High 9%, Standard 3%, Low 1%).
-    - Returns Green Lane clearance certificate ACK or inspection hold advisory.
-    """
-    return EUCustomsAdapter.simulate_swe_c_pre_clearance(req)
-
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/customs/risk-rates",
-    response_model=CustomsRiskRatesResponse,
-    tags=["European Customs & EU SWE-C Gateway"],
-    summary="Get Statutory Article 16 Customs Inspection Rates & European Entry Port Profiles"
-)
-async def get_customs_risk_rates_and_ports():
-    """
-    Returns statutory customs inspection percentages under Regulation (EU) 2023/1115 Article 16
-    and electronic port profiles for major entry hubs (Rotterdam, Antwerp, Hamburg, Valencia, etc.).
-    """
-    return EUCustomsAdapter.get_risk_rates_and_ports()
 
 
 @app.post(
@@ -1689,63 +1516,8 @@ async def list_lead_inquiries(
 # Outbound Webhooks for Client ERP / SAP Integration
 # -------------------------------------------------------------------
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/webhooks/subscribe",
-    response_model=WebhookSubscribeResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Outbound Webhooks (SAP / ERP Integration)"],
-    summary="Subscribe client ERP system to EUDR.agent outbound events"
-)
-async def subscribe_webhook(
-    req: WebhookSubscribeRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Registers an external HTTPS endpoint (e.g. SAP, Oracle SCM, customs ERP) to receive signed events.
-    Events include batch.completed, dds.generated, compliance.alert.
-    """
-    sub = WebhookDispatcher.create_subscription(
-        target_url=req.target_url,
-        company_name=req.company_name,
-        events=req.events,
-        secret_token=req.secret_token,
-        db_session=db
-    )
-    return WebhookSubscribeResponse(**sub)
+# -------------------------------------------------------------------
 
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/webhooks",
-    tags=["Outbound Webhooks (SAP / ERP Integration)"],
-    summary="List active outbound webhook subscriptions"
-)
-async def list_webhooks(
-    company_name: Optional[str] = None,
-    db: Session = Depends(get_db)
-):
-    """
-    Lists active client webhook subscriptions.
-    """
-    return WebhookDispatcher.list_subscriptions(company_name=company_name, db_session=db)
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/webhooks/test",
-    response_model=WebhookTestResponse,
-    tags=["Outbound Webhooks (SAP / ERP Integration)"],
-    summary="Send diagnostic test ping to subscriber target URL"
-)
-async def test_webhook(req: WebhookTestRequest):
-    """
-    Sends an immediate diagnostic test event (system.ping) signed with HMAC-SHA256.
-    """
-    res = await WebhookDispatcher.send_test_ping(target_url=req.target_url, secret_token=req.secret_token)
-    return WebhookTestResponse(
-        success=res.get("success", False),
-        status_code=res.get("status_code"),
-        message="Test webhook delivered successfully" if res.get("success") else f"Delivery failed: {res.get('response_body')}",
-        delivered_payload=res
-    )
 
 
 # -------------------------------------------------------------------
@@ -2157,265 +1929,12 @@ async def underwrite_trade_credit(
 
 
 # -------------------------------------------------------------------------
-# Autonomous Agent-to-Agent Smart Escrow Endpoints (Multi-Chain USDC Vaults)
 # -------------------------------------------------------------------------
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/create",
-    response_model=EscrowAgreementResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Create a new B2B trade Smart Escrow agreement locking USDC in payment vaults"
-)
-async def create_agent_escrow(
-    payload: EscrowCreateRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Creates an immutable Smart Escrow agreement between autonomous trading agents.
-    Locks USDC in multi-chain payment vaults until EUDR compliance is proven.
-    """
-    try:
-        return AgentEscrowManager.create_escrow(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/fund",
-    response_model=EscrowAgreementResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Confirm on-chain blockchain funding for a Smart Escrow agreement"
-)
-async def fund_agent_escrow(
-    payload: EscrowFundRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Confirms on-chain USDC transfer to the payment vault and locks the escrow.
-    """
-    try:
-        return AgentEscrowManager.fund_escrow(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/release",
-    response_model=EscrowAgreementResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Conditionally release locked escrow funds to seller upon verified EU customs clearance"
-)
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/release-by-compliance",
-    response_model=EscrowAgreementResponse,
-    include_in_schema=False
-)
-async def release_agent_escrow(
-    payload: EscrowReleaseByComplianceRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Releases escrow funds to seller agent upon EU Single Window customs clearance
-    (EU-SWEC-CLEARED-*) and satellite deforestation verification.
-    """
-    try:
-        return AgentEscrowManager.release_by_compliance(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/arbitrate",
-    response_model=EscrowAgreementResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Execute deterministic autonomous dispute arbitration using Copernicus satellite telemetry"
-)
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/dispute-arbitrate",
-    response_model=EscrowAgreementResponse,
-    include_in_schema=False
-)
-async def arbitrate_agent_escrow(
-    payload: EscrowDisputeArbitrateRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Deterministically arbitrates commercial disputes using Copernicus Sentinel-1/2 radar:
-    - Deforestation confirmed -> 100% refund to Buyer Agent.
-    - Deforestation-free -> 100% release to Seller Agent.
-    """
-    try:
-        return AgentEscrowManager.arbitrate_dispute(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/payment/escrow/{{escrow_id}}",
-    response_model=EscrowAgreementResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Query status, vault address, and cryptographic proof of an existing escrow agreement"
-)
-async def get_agent_escrow(
-    escrow_id: str,
-    db: Session = Depends(get_db)
-):
-    """
-    Retrieves full details of a Smart Escrow agreement by ID.
-    """
-    try:
-        return AgentEscrowManager.get_escrow(escrow_id, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/milestone/create",
-    response_model=EscrowAgreementResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Create a 3-Stage Milestone Conditional Escrow with First-Mile split payouts"
-)
-async def create_milestone_agent_escrow(
-    payload: MilestoneEscrowCreateRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Creates a 3-stage milestone conditional escrow agreement:
-    - Milestone 1: Pre-shipment Polygon & Satellite Verification (Default 30%)
-    - Milestone 2: EU TRACES-NT DDS Issuance (Default 40%)
-    - Milestone 3: EU Customs Green Lane Clearance (Default 30%)
-    Supports First-Mile multi-party split payouts to smallholder cooperatives and mills.
-    """
-    try:
-        return AgentEscrowManager.create_milestone_escrow(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/milestone/release",
-    response_model=EscrowMilestoneReleaseResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Release a specific milestone in a 3-stage conditional escrow"
-)
-async def release_milestone_agent_escrow(
-    payload: EscrowMilestoneReleaseRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Releases a specific milestone (1, 2, or 3) upon compliance verification:
-    - Milestone 1: Satellite zero-deforestation check
-    - Milestone 2: Compliant DDS Reference check
-    - Milestone 3: EU Customs Green Lane code check
-    Issues EIP-712 cryptographic attestation and executes First-Mile split transfers.
-    """
-    try:
-        return AgentEscrowManager.release_milestone(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/auto-slash",
-    response_model=EscrowAgreementResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Execute autonomous on-chain slashing & buyer refund for failed/disputed escrows"
-)
-async def auto_slash_disputed_escrow(
-    payload: EscrowAutoSlashRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Executes autonomous on-chain slashing for escrows with verified deforestation violations:
-    Issues EIP-712 BLOCKED attestation (compatible with AgentEscrow.sol slashJob),
-    confiscates seller stake, and instantly refunds 100% of remaining locked capital to Buyer.
-    """
-    try:
-        return AgentEscrowManager.auto_slash_disputed_escrow(payload, db_session=db)
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
 # -------------------------------------------------------------------------
-# AgentEscrow.sol Web3 On-chain EIP-712 Oracle Attestation Endpoints
-# -------------------------------------------------------------------------
 
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/onchain/attestation",
-    response_model=OnchainAttestationResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Issue official EIP-712 cryptographic Oracle Attestation for submission to AgentEscrow.sol"
-)
-async def issue_onchain_attestation(
-    payload: OnchainAttestationIssueRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Issues an EIP-712 signed Attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s)
-    from the EUDR Compliance Agent as the designated on-chain Oracle Signer.
-    Can be directly submitted to AgentEscrow.sol (completeJob or slashJob).
-    """
-    try:
-        proof = AgentEscrowManager.issue_onchain_attestation(
-            escrow_id=payload.escrow_id,
-            job_id=payload.job_id,
-            deliverable_hash=payload.deliverable_hash,
-            risk_score=payload.risk_score,
-            validity_days=payload.validity_days or 7,
-            db_session=db
-        )
-        return OnchainAttestationResponse(
-            **proof,
-            message="EIP-712 Oracle Attestation successfully signed by EUDR Compliance Oracle."
-        )
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/payment/escrow/onchain/verify",
-    response_model=OnchainAttestationVerifyResponse,
-    tags=["Agent Escrow & Web3 Settlement"],
-    summary="Verify an on-chain EIP-712 attestation proof against official EUDR Oracle key"
-)
-async def verify_onchain_attestation(
-    payload: OnchainAttestationVerifyRequest
-):
-    """
-    Cryptographically verifies an EIP-712 attestation against the EUDR Oracle public address
-    and assesses riskScore and expiration status.
-    """
-    try:
-        res = AgentEscrowManager.verify_onchain_attestation(payload.attestation)
-        return OnchainAttestationVerifyResponse(
-            **res,
-            message=f"Oracle verification complete. Recommended action: {res['action_recommendation']}"
-        )
-    except Exception as err:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-
-
-# -------------------------------------------------------------------------
-# Prometheus APM Telemetry & Metrics Exporter (OpenMetrics standard)
-# -------------------------------------------------------------------------
-from app.modules.prometheus_metrics import metrics_collector
-
-@app.get(
-    "/metrics",
-    tags=["Prometheus APM Telemetry"],
-    summary="Prometheus APM Telemetry & Metrics (OpenMetrics text/plain)"
-)
-async def get_prometheus_metrics():
-    """
-    Exposes real-time agent metrics, escrow TVL, slashing history,
-    threat blocks, and satellite inspection counters in standard Prometheus format.
-    """
-    return Response(
-        content=metrics_collector.render_prometheus_text(),
-        media_type="text/plain; version=0.0.4"
-    )
 
 
 # -------------------------------------------------------------------------
@@ -3088,125 +2607,10 @@ async def audit_critical_minerals(req: MineralAuditRequest):
 # Producer Country Official Registry Verification (Brazil CAR, Ghana CMS, Indonesia)
 # -------------------------------------------------------------------
 from pydantic import BaseModel, Field
-from app.modules.producer_adapters.registry_hub import ProducerCountryRegistryHub
-
-class ProducerRegistryVerifyRequest(BaseModel):
-    identifier: str = Field(..., description="Official registry code (e.g. Brazil CAR, Ghana CMS)")
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/compliance/producer-registry/verify",
-    tags=["Producer Country Registry Hub"],
-    summary="Verify official farm registration via Brazil CAR, Ghana CMS, or Indonesia SIPUHH"
-)
-async def verify_producer_registry(req: ProducerRegistryVerifyRequest):
-    hub = ProducerCountryRegistryHub()
-    res = hub.verify(req.identifier)
-    return {
-        "country_code": res.country_code,
-        "is_valid": res.is_valid,
-        "status": res.status,
-        "deforestation_infraction_flag": res.deforestation_infraction_flag,
-        "details": res.details
-    }
 
 
-# -------------------------------------------------------------------
-# EUDR Article 31 5-Year Immutable WORM Audit Vault
-# -------------------------------------------------------------------
-from app.modules.audit_vault_manager import AuditVaultManager, VaultRecordMeta
-
-class SealVaultRequest(BaseModel):
-    dds_reference_id: str
-    verification_code: str
-    operator_eori: str
-    commodity_code: str
-    net_mass_kg: float
-    evaluation_payload: Dict[str, Any]
-    traces_xml_str: Optional[str] = None
-    customs_cert_html: Optional[str] = None
-    customs_box44_code: Optional[str] = None
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/compliance/audit-vault/seal",
-    tags=["EUDR Article 31 Audit Vault"],
-    summary="Seal compliance statement & evidence into immutable 5-year WORM vault with Merkle root"
-)
-async def seal_audit_vault(req: SealVaultRequest):
-    record = AuditVaultManager.seal_audit_evidence(
-        dds_reference_id=req.dds_reference_id,
-        verification_code=req.verification_code,
-        operator_eori=req.operator_eori,
-        commodity_code=req.commodity_code,
-        net_mass_kg=req.net_mass_kg,
-        evaluation_payload=req.evaluation_payload,
-        traces_xml_str=req.traces_xml_str,
-        customs_cert_html=req.customs_cert_html,
-        customs_box44_code=req.customs_box44_code
-    )
-    return record
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/compliance/audit-vault/{{dds_reference_id}}",
-    tags=["EUDR Article 31 Audit Vault"],
-    summary="Query sealed audit vault record and verify cryptographic Merkle integrity"
-)
-async def get_audit_vault_record(dds_reference_id: str):
-    record = AuditVaultManager.get_vault_record(dds_reference_id)
-    if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No sealed audit vault record found for reference '{dds_reference_id}'"
-        )
-    integrity = AuditVaultManager.verify_vault_integrity(dds_reference_id)
-    return {
-        "record": record,
-        "integrity_verification": integrity
-    }
-
-@app.get(
-    f"{settings.API_V1_PREFIX}/compliance/audit-vault/{{dds_reference_id}}/download",
-    tags=["EUDR Article 31 Audit Vault"],
-    summary="Download full tamper-evident statutory audit evidence zip bundle for customs authorities"
-)
-async def download_audit_vault_archive(dds_reference_id: str):
-    archive_bytes = AuditVaultManager.retrieve_archive_bytes(dds_reference_id)
-    if not archive_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Archive file for reference '{dds_reference_id}' not found in vault."
-        )
-    safe_id = dds_reference_id.replace("/", "_").replace(":", "_")
-    return Response(
-        content=archive_bytes,
-        media_type="application/zip",
-        headers={
-            "Content-Disposition": f"attachment; filename=EUDR_ART31_VAULT_{safe_id}.zip"
-        }
-    )
 
 
-# -------------------------------------------------------------------
-# EUDR Article 2(5) & 2(7)(b) Forest Degradation Detection Engine
-# -------------------------------------------------------------------
-from app.modules.forest_degradation_detector import (
-    ForestDegradationDetector,
-    DegradationAssessmentResult
-)
-
-class DegradationAssessRequest(BaseModel):
-    plots: List[ProductionPlotInput]
-    commodity: str = Field("WOOD", description="Regulated commodity (especially timber/wood)")
-
-@app.post(
-    f"{settings.API_V1_PREFIX}/compliance/forest-degradation/assess",
-    tags=["Forest Degradation Engine (EUDR Art. 2(5))"],
-    summary="Detect post-2020 structural conversion of primary forests into commercial plantations"
-)
-async def assess_forest_degradation(req: DegradationAssessRequest):
-    return ForestDegradationDetector.evaluate_batch_degradation(
-        plots=req.plots,
-        commodity=req.commodity
-    )
 
 
 

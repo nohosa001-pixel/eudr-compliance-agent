@@ -1,0 +1,921 @@
+"""
+Standardized Agent Tools JSON Schema Manifest.
+Lightweight, pure data structure with zero external heavy module dependencies.
+"""
+from typing import List, Dict, Any
+
+AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
+    {
+        "name": "eudr_verify_plot",
+        "description": "Validates GIS coordinates and polygon boundaries against EUDR (EU 2023/1115) Art. 9 standards. Auto-heals inverted coordinates and self-intersecting polygons. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plot_id": {
+                    "type": "string",
+                    "description": "Unique identifier for the production plot or farm."
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code of plot origin (e.g. 'ID', 'BR', 'CI', 'GH', 'VN')."
+                },
+                "commodity": {
+                    "type": "string",
+                    "enum": ["cocoa", "coffee", "oil_palm", "rubber", "soya", "cattle", "wood"],
+                    "description": "EUDR regulated commodity produced on this plot."
+                },
+                "coordinates": {
+                    "type": "array",
+                    "description": "Coordinates in WGS84 format. Either [longitude, latitude] for point, or [[lng, lat], [lng, lat], ...] for polygon boundary.",
+                    "items": {
+                        "type": "array",
+                        "items": {"type": "number"}
+                    }
+                },
+                "area_hectares": {
+                    "type": "number",
+                    "description": "Plot surface area in hectares. Plots >= 4.0 hectares strictly require polygon boundaries."
+                }
+            },
+            "required": ["plot_id", "country_code", "commodity", "coordinates"]
+        }
+    },
+    {
+        "name": "eudr_check_deforestation",
+        "description": "Performs satellite radar triangulation and canopy loss detection against the EUDR cut-off date of 31 December 2020. DO NOT use as an official regulatory legal filing without independent manual verification. Computed as an algorithmic heuristic data reference.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plot_id": {
+                    "type": "string",
+                    "description": "Identifier of the plot being audited."
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code."
+                },
+                "coordinates": {
+                    "type": "array",
+                    "description": "WGS84 coordinates of the plot or centroid."
+                },
+                "cutoff_date": {
+                    "type": "string",
+                    "default": "2020-12-31",
+                    "description": "Regulatory baseline cut-off date (EUDR mandatory: 2020-12-31)."
+                }
+            },
+            "required": ["plot_id", "country_code", "coordinates"]
+        }
+    },
+    {
+        "name": "eudr_verify_vies_vat",
+        "description": "Validates European Union B2B cross-border VAT numbers in real-time via the official EU Commission VIES engine.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "country_code": {
+                    "type": "string",
+                    "description": "EU Member State 2-letter code (e.g. 'FR', 'DE', 'IT', 'NL', 'BE', 'ES')."
+                },
+                "vat_number": {
+                    "type": "string",
+                    "description": "National VAT registration number without the country prefix."
+                }
+            },
+            "required": ["country_code", "vat_number"]
+        }
+    },
+    {
+        "name": "eudr_generate_dds",
+        "description": "Generates an EU TRACES-NT compliant Due Diligence Statement (DDS) XML package with official EUDR reference ID.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_name": {
+                    "type": "string",
+                    "description": "Legal name of the EU importing operator."
+                },
+                "operator_vat": {
+                    "type": "string",
+                    "description": "Operator EU VAT / EORI number."
+                },
+                "commodity": {
+                    "type": "string",
+                    "enum": ["cocoa", "coffee", "oil_palm", "rubber", "soya", "cattle", "wood"],
+                    "description": "Regulated commodity."
+                },
+                "total_net_mass_kg": {
+                    "type": "number",
+                    "description": "Total shipment net mass in kilograms."
+                },
+                "plot_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of certified plot IDs included in this due diligence batch."
+                }
+            },
+            "required": ["operator_name", "operator_vat", "commodity", "total_net_mass_kg", "plot_ids"]
+        }
+    },
+    {
+        "name": "eudr_verify_audit_integrity",
+        "description": "Verifies SHA-256 cryptographic chain of custody and tamper-evidence for an EUDR compliance audit bundle.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "audit_payload": {
+                    "type": "object",
+                    "description": "Audit record dictionary containing reference_id, plots, timestamp, and signature."
+                },
+                "expected_hash": {
+                    "type": "string",
+                    "description": "Cryptographic SHA-256 hash to verify against."
+                }
+            },
+            "required": ["audit_payload", "expected_hash"]
+        }
+    },
+    {
+        "name": "eudr_estimate_compliance_cost",
+        "description": "Calculates estimated tier pricing and clearing fees in EUR for EUDR plot verification and TRACES-NT filing.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "num_plots": {
+                    "type": "integer",
+                    "description": "Number of production plots/farms to process."
+                },
+                "satellite_resolution": {
+                    "type": "string",
+                    "enum": ["sentinel_10m", "high_res_optical_3m"],
+                    "default": "sentinel_10m",
+                    "description": "Satellite imagery resolution tier."
+                },
+                "include_traces_submission": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "Whether automated TRACES-NT B2G XML dispatch is requested."
+                }
+            },
+            "required": ["num_plots"]
+        }
+    },
+    {
+        "name": "eudr_create_payment_order",
+        "description": "Creates an on-chain USDC payment order for SaaS plan subscription with budget guardrails. Returns deposit wallet address, amount, invoice number, and QR payload.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plan_tier": {
+                    "type": "string",
+                    "enum": ["PRO", "ENTERPRISE", "STARTER"],
+                    "description": "Subscription tier to purchase."
+                },
+                "company_name": {
+                    "type": "string",
+                    "description": "Legal company name."
+                },
+                "contact_email": {
+                    "type": "string",
+                    "description": "Contact email for invoice delivery."
+                },
+                "chain": {
+                    "type": "string",
+                    "enum": ["Base (Low Gas $0.01)", "Polygon (PoS)", "Arbitrum One", "Ethereum (ERC-20)", "Solana (SPL-USDC)"],
+                    "default": "Base (Low Gas $0.01)",
+                    "description": "Blockchain network for USDC payment."
+                },
+                "max_budget_usdc": {
+                    "type": "number",
+                    "description": "Optional AI Agent safety budget cap. Raises error if order amount exceeds this ceiling."
+                },
+                "billing_country": {
+                    "type": "string",
+                    "description": "Country of tax registration."
+                },
+                "vat_number": {
+                    "type": "string",
+                    "description": "Optional EU VAT number."
+                }
+            },
+            "required": ["plan_tier", "company_name", "contact_email"]
+        }
+    },
+    {
+        "name": "eudr_confirm_payment",
+        "description": "Validates on-chain transaction hash for a payment order and issues the activated Pro API Key.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "string",
+                    "description": "Payment order ID (e.g. 'ORD-XXXXXXXXXX')."
+                },
+                "tx_hash": {
+                    "type": "string",
+                    "description": "On-chain transaction hash confirming the USDC transfer."
+                }
+            },
+            "required": ["order_id", "tx_hash"]
+        }
+    },
+    {
+        "name": "eudr_agent_micro_pay",
+        "description": "Executes autonomous real-time on-chain USDC micro-settlement per plot or batch. Human checkout is excluded.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Unique autonomous agent identifier or wallet address."
+                },
+                "num_plots": {
+                    "type": "integer",
+                    "description": "Number of plots to verify ($0.10 USDC / plot)."
+                },
+                "chain": {
+                    "type": "string",
+                    "enum": ["Base (Low Gas $0.01)", "Polygon (PoS)", "Arbitrum One", "Solana (SPL-USDC)"],
+                    "default": "Base (Low Gas $0.01)",
+                    "description": "Blockchain network for USDC micro-payment."
+                },
+                "tx_hash": {
+                    "type": "string",
+                    "description": "On-chain transaction hash proving USDC transfer to deposit wallet."
+                },
+                "sender_wallet": {
+                    "type": "string",
+                    "description": "Agent smart wallet or EOA address."
+                }
+            },
+            "required": ["agent_id", "num_plots", "tx_hash", "sender_wallet"]
+        }
+    },
+    {
+        "name": "eudr_agent_eip3009_pay",
+        "description": "Executes gasless, 1-turn autonomous USDC settlement via EIP-3009 (transferWithAuthorization). Zero native gas required by the calling agent.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "from_address": {
+                    "type": "string",
+                    "description": "Agent EVM sender wallet address (0x...)."
+                },
+                "value_usdc": {
+                    "type": "number",
+                    "description": "Authorized USDC amount in decimal (e.g. 1.50 for 15 plots)."
+                },
+                "valid_before": {
+                    "type": "integer",
+                    "description": "Unix timestamp expiration deadline for authorization."
+                },
+                "nonce": {
+                    "type": "string",
+                    "description": "Unique 32-byte hex nonce for replay attack protection."
+                },
+                "signature": {
+                    "type": "string",
+                    "description": "Compact 65-byte EIP-712 signature (0x + 130 hex characters)."
+                },
+                "chain": {
+                    "type": "string",
+                    "enum": ["Base (Low Gas $0.01)", "Polygon (PoS)", "Arbitrum One"],
+                    "default": "Base (Low Gas $0.01)",
+                    "description": "Blockchain network for USDC transferWithAuthorization."
+                },
+                "agent_id": {
+                    "type": "string",
+                    "description": "Unique calling agent identifier."
+                },
+                "to_address": {
+                    "type": "string",
+                    "description": "Optional recipient address (defaults to AgentPaymentVault)."
+                }
+            },
+            "required": ["from_address", "value_usdc", "valid_before", "nonce", "signature"]
+        }
+    },
+    {
+        "name": "eudr_get_agent_budget_status",
+        "description": "Queries live plot quota, spent USDC, and autonomous safety budget status for the calling agent.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Unique autonomous agent ID or public wallet address."
+                }
+            },
+            "required": ["agent_id"]
+        }
+    },
+    {
+        "name": "eudr_render_satellite_map",
+        "description": "Generates visual multi-spectral satellite imagery metadata and NDVI canopy density radar visualization for an EUDR plot.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plot_id": {
+                    "type": "string",
+                    "description": "Target plot identifier."
+                },
+                "coordinates": {
+                    "type": "array",
+                    "description": "WGS84 coordinates of the plot."
+                },
+                "year": {
+                    "type": "integer",
+                    "enum": [2020, 2026],
+                    "default": 2020,
+                    "description": "Year of observation (2020 regulatory cut-off baseline vs 2026 present)."
+                },
+                "layer": {
+                    "type": "string",
+                    "enum": ["true_color_optical", "ndvi_vegetation", "sar_radar_change"],
+                    "default": "ndvi_vegetation",
+                    "description": "Visualization layer type."
+                }
+            },
+            "required": ["plot_id", "coordinates"]
+        }
+    },
+    {
+        "name": "eudr_export_traces_xml",
+        "description": "Generates European Commission TRACES-NT XML (XSD v2.4 compliant) document with cryptographic digital signature for official EU customs filing under Regulation (EU) 2023/1115.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_name": {"type": "string", "description": "Name of EU importing operator."},
+                "operator_eori": {"type": "string", "description": "Operator EORI number (e.g. 'NL123456789000')."},
+                "commodity": {"type": "string", "description": "Commodity description (e.g. Cocoa, Coffee, Timber)."},
+                "hs_code": {"type": "string", "description": "Harmonized System 6-digit tariff code."},
+                "net_mass_kg": {"type": "number", "description": "Consignment net weight in kilograms."},
+                "plots": {
+                    "type": "array",
+                    "description": "List of certified production plots with plot_id, country_code, area_hectares, and geometry.",
+                    "items": {"type": "object"}
+                }
+            },
+            "required": ["operator_name", "operator_eori", "hs_code", "net_mass_kg", "plots"]
+        }
+    },
+    {
+        "name": "eudr_generate_customs_certificate",
+        "description": "Generates official EU Single Window Environment for Customs (EU SWE-C) Green Lane Clearance Certificate HTML with verification QR code and official seals.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_name": {"type": "string", "description": "Name of authorized operator."},
+                "operator_eori": {"type": "string", "description": "Operator EORI number."},
+                "hs_code": {"type": "string", "description": "Customs tariff HS code."},
+                "commodity_desc": {"type": "string", "description": "Commercial commodity description."},
+                "net_mass_kg": {"type": "number", "description": "Declared net mass in kilograms."},
+                "plots_count": {"type": "integer", "description": "Total number of verified plots."},
+                "total_area_ha": {"type": "number", "description": "Total surface area in hectares."},
+                "origin_country": {"type": "string", "default": "XX", "description": "ISO 3166-1 alpha-2 origin country code."}
+            },
+            "required": ["operator_name", "operator_eori", "hs_code", "net_mass_kg"]
+        }
+    },
+    {
+        "name": "eudr_send_telegram_alert",
+        "description": "Dispatches instant real-time compliance alert, post-2020 deforestation warning, or TRACES-NT clearance notice to Telegram bot.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "alert_type": {
+                    "type": "string",
+                    "enum": ["deforestation", "dds_approved", "supplier_submission"],
+                    "description": "Category of real-time alert."
+                },
+                "plot_id": {"type": "string", "description": "Target plot ID if applicable."},
+                "supplier_id": {"type": "string", "description": "Supplier identifier."},
+                "country_code": {"type": "string", "default": "XX", "description": "2-letter origin country code."},
+                "message": {"type": "string", "description": "Custom message text or alert detail."}
+            },
+            "required": ["alert_type"]
+        }
+    },
+    {
+        "name": "eudr_submit_agent_feedback",
+        "description": "Allows an autonomous AI agent to submit an evolution proposal, feature request, edge-case report, or dataset addition to continuously evolve the EUDR.agent engine.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string",
+                    "description": "Calling agent identifier or handle (e.g. 'procure-bot-44', 'claude-supply-auditor')."
+                },
+                "feedback_type": {
+                    "type": "string",
+                    "enum": ["FEATURE_REQUEST", "PROTOCOL_PROPOSAL", "EDGE_CASE", "DATASET_SUGGESTION"],
+                    "default": "FEATURE_REQUEST",
+                    "description": "Category of the evolution proposal."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Concise summary of the improvement proposal or requested capability."
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Detailed explanation, expected parameters, or architectural reasoning."
+                },
+                "caller_model": {
+                    "type": "string",
+                    "default": "autonomous-agent",
+                    "description": "Model architecture (e.g. 'claude-3-5-sonnet', 'gpt-4o', 'gemini-1.5-pro')."
+                },
+                "contact_channel": {
+                    "type": "string",
+                    "description": "Optional agent webhook URL or contact handle for status updates."
+                }
+            },
+            "required": ["agent_id", "title", "content"]
+        }
+    },
+    {
+        "name": "eudr_evaluate_compact",
+        "description": "Executes end-to-end 5-pillar EUDR compliance evaluation (Traceability, Satellite Radar, Legal Audit, Cryptographic Signing, OMR & Customs) and returns an ultra-compact summary (~300 tokens) saving >95% LLM context tokens. Full audit evidence is securely persisted and accessible via persistent download URLs.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_name": {
+                    "type": "string",
+                    "description": "Legal name of the EU importing operator."
+                },
+                "operator_eori": {
+                    "type": "string",
+                    "description": "Operator EU EORI / VAT number."
+                },
+                "commodity": {
+                    "type": "string",
+                    "description": "Regulated commodity name or category."
+                },
+                "hs_code": {
+                    "type": "string",
+                    "description": "Harmonized System Code (e.g. '151110', '440711')."
+                },
+                "net_mass_kg": {
+                    "type": "number",
+                    "default": 1000.0,
+                    "description": "Consignment net mass in kilograms."
+                },
+                "plots": {
+                    "type": "array",
+                    "description": "List of production plots with plot_id, country_code, area_hectares, and geometry/coordinates."
+                },
+                "destination_country": {
+                    "type": "string",
+                    "description": "Optional ISO 3166-1 alpha-2 destination country code (e.g. 'FR', 'DE', 'GF')."
+                },
+                "documents": {
+                    "type": "array",
+                    "description": "Optional list of legal origin documents (permits, land titles, certificates)."
+                }
+            },
+            "required": ["operator_name", "operator_eori", "hs_code", "plots"]
+        }
+    },
+    {
+        "name": "eudr_benchmark_country",
+        "description": "Evaluates EUDR Article 29 country benchmarking risk tier (Low, Standard, High) and determines Article 13 simplified due diligence eligibility with official EU customs audit rates (1%, 3%, 9%).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code of production origin (e.g. 'DE', 'ID', 'BR', 'MM', 'KP')."
+                },
+                "suspected_circumvention": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Whether transshipment laundering or regulatory circumvention is suspected."
+                },
+                "suspected_mixing": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Whether bulk mixing with unknown or high-risk origin plots is suspected."
+                },
+                "corruption_index_override": {
+                    "type": "number",
+                    "description": "Optional CPI score override (0-100)."
+                }
+            },
+            "required": ["country_code"]
+        }
+    },
+    {
+        "name": "eudr_link_downstream_chain",
+        "description": "Implements EUDR Article 4(8) downstream Due Diligence Statement (DDS) reference chaining. Inherits upstream supplier DDS reference, eliminates redundant assessment costs, and monitors cascading revocation/taint.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "operator_id": {
+                    "type": "string",
+                    "description": "Internal identifier for downstream operator."
+                },
+                "operator_name": {
+                    "type": "string",
+                    "description": "Legal company name of the downstream operator or trader."
+                },
+                "operator_eori": {
+                    "type": "string",
+                    "description": "Downstream operator EU EORI or VAT number."
+                },
+                "upstream_dds_reference": {
+                    "type": "string",
+                    "description": "Official EU TRACES-NT DDS reference number of upstream importer (e.g. 'EU-DDS-2026-ABC123XYZ')."
+                },
+                "consignment_mass_kg": {
+                    "type": "number",
+                    "description": "Net mass of the downstream batch in kilograms."
+                },
+                "product_hs_code": {
+                    "type": "string",
+                    "description": "Optional Harmonized System code of the finished product."
+                },
+                "product_description": {
+                    "type": "string",
+                    "description": "Optional commercial description of the downstream finished goods."
+                }
+            },
+            "required": ["operator_id", "operator_name", "operator_eori", "upstream_dds_reference", "consignment_mass_kg"]
+        }
+    },
+    {
+        "name": "eudr_issue_statutory_exemption",
+        "description": "Evaluates statutory exemption under the EUDR Delegated Act (effective Sept 2026) for excluded commodities such as bovine leather (HS 4101, 4104, 4107) and generates an official EU SWE-C Green Lane Customs Exemption Certificate.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "hs_code": {
+                    "type": "string",
+                    "description": "Harmonized System 4-6 digit commodity code (e.g. '4101', '4104', '4107')."
+                },
+                "product_description": {
+                    "type": "string",
+                    "description": "Commercial description of the consignment goods (e.g. 'Tanned bovine leather', 'Leather car seats')."
+                },
+                "consignment_id": {
+                    "type": "string",
+                    "description": "Shipment B/L or consignment tracking identifier."
+                },
+                "operator_name": {
+                    "type": "string",
+                    "description": "Name of the importing EU operator or customs broker."
+                },
+                "destination_member_state": {
+                    "type": "string",
+                    "default": "DE",
+                    "description": "EU destination member state 2-letter code (e.g. 'DE', 'FR', 'NL', 'IT')."
+                }
+            },
+            "required": ["hs_code", "product_description", "consignment_id", "operator_name"]
+        }
+    },
+    {
+        "name": "eudr_slice_parcel",
+        "description": "Auto-subdivides oversized (>4.0 ha) smallholder agricultural parcels into compliant WGS84 sub-polygons (<4.0 ha) with 6-decimal precision and closed rings, satisfying EUDR Article 9 smallholder rules.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "plot_id": {
+                    "type": "string",
+                    "description": "Original plot or cooperative identifier."
+                },
+                "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. 'ID', 'CI', 'BR', 'GH')."
+                },
+                "commodity": {
+                    "type": "string",
+                    "description": "Target commodity (e.g. 'coffee', 'cocoa', 'oil_palm', 'rubber')."
+                },
+                "coordinates": {
+                    "type": "array",
+                    "description": "List of [longitude, latitude] coordinate pairs forming the polygon perimeter."
+                },
+                "area_hectares": {
+                    "type": "number",
+                    "description": "Known or estimated area in hectares."
+                },
+                "target_max_ha": {
+                    "type": "number",
+                    "default": 3.9,
+                    "description": "Target maximum sub-parcel size in hectares (default: 3.9 ha)."
+                }
+            },
+            "required": ["plot_id", "country_code", "commodity", "coordinates"]
+        }
+    },
+    {
+        "name": "eudr_create_agent_escrow",
+        "description": "Creates an immutable B2B trade Smart Escrow agreement locking USDC funds in multi-chain payment vaults until verifiable EUDR customs compliance is proven. Eliminates commercial default risk.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+                "buyer_wallet": {"type": "string", "description": "Buyer EVM / Solana wallet address for refunds."},
+                "seller_agent_id": {"type": "string", "description": "Target seller agent ID / supplier identifier."},
+                "seller_wallet": {"type": "string", "description": "Seller EVM / Solana wallet address for payout."},
+                "amount_usdc": {"type": "number", "description": "Escrow lock amount in USDC."},
+                "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Blockchain network for settlement."},
+                "hs_code": {"type": "string", "description": "Regulated commodity HS code (e.g. '18010000', '44071100')."},
+                "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+                "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+                "expiry_hours": {"type": "number", "default": 72, "description": "Auto-refund window in hours."}
+            },
+            "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+        }
+    },
+    {
+        "name": "eudr_fund_agent_escrow",
+        "description": "Confirms on-chain blockchain funding transaction for a Smart Escrow agreement and transitions status to FUNDED_LOCKED.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID (e.g. 'ESC-EUDR-2026-XXXXXXXX')."},
+                "tx_hash": {"type": "string", "description": "On-chain deposit transaction hash."}
+            },
+            "required": ["escrow_id", "tx_hash"]
+        }
+    },
+    {
+        "name": "eudr_release_agent_escrow",
+        "description": "Conditionally releases locked Escrow funds to seller agent upon receipt of EU Single Window customs clearance code (EU-SWEC-CLEARED-*) or verifiable compliant DDS reference.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID to release."},
+                "customs_declaration_code": {"type": "string", "description": "EU SWE-C customs declaration clearance code."},
+                "dds_reference_id": {"type": "string", "description": "Compliant DDS reference ID."},
+                "plots": {"type": "array", "description": "Optional plot coordinates for on-demand radar check."}
+            },
+            "required": ["escrow_id"]
+        }
+    },
+    {
+        "name": "eudr_arbitrate_agent_escrow",
+        "description": "Executes deterministic autonomous dispute arbitration using Copernicus satellite telemetry. If deforestation is detected post-2020: 100% refund to Buyer Agent; if deforestation-free: released to Seller Agent.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID under dispute."},
+                "initiator_agent_id": {"type": "string", "description": "Agent initiating dispute."},
+                "reason": {"type": "string", "description": "Dispute claim / cause."},
+                "plots": {"type": "array", "description": "Production plots for satellite radar arbitration."}
+            },
+            "required": ["escrow_id", "initiator_agent_id", "reason"]
+        }
+    },
+    {
+        "name": "eudr_issue_eip712_attestation",
+        "description": "Issues an official EIP-712 cryptographic attestation (jobId, deliverableHash, riskScore, verdict, expiresAt, v, r, s) as the EUDR Oracle for submission into AgentEscrow.sol on Base/Polygon/Arbitrum.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID in EUDR system."},
+                "job_id": {"type": "integer", "description": "On-chain jobId in AgentEscrow.sol smart contract."},
+                "deliverable_hash": {"type": "string", "description": "Hex-encoded 32-byte hash of DDS report or deliverable."},
+                "risk_score": {"type": "integer", "description": "Optional override risk score (0-100), default derived from compliance state."},
+                "validity_days": {"type": "integer", "description": "Attestation validity duration in days (default: 7)."}
+            },
+            "required": ["escrow_id", "job_id"]
+        }
+    },
+    {
+        "name": "eudr_verify_eip712_attestation",
+        "description": "Cryptographically verifies an EIP-712 EscrowAttestation proof against the EUDR Oracle public key, checking signature validity, expiration, and recommended on-chain action (COMPLETE_JOB or SLASH_JOB).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "attestation": {"type": "object", "description": "EIP-712 EscrowAttestation dictionary with v, r, s signatures."}
+            },
+            "required": ["attestation"]
+        }
+    },
+    {
+        "name": "eudr_create_milestone_escrow",
+        "description": "Creates a 3-Stage Milestone Conditional Escrow agreement with optional First-Mile split payouts to smallholder cooperatives and mills (Stage 1: Satellite 30%, Stage 2: DDS 40%, Stage 3: Customs Green Lane 30%).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Calling buyer agent ID / system name."},
+                "buyer_wallet": {"type": "string", "description": "Buyer EVM / Solana wallet address for refunds."},
+                "seller_agent_id": {"type": "string", "description": "Target seller agent ID / supplier identifier."},
+                "seller_wallet": {"type": "string", "description": "Seller EVM / Solana wallet address for payout."},
+                "amount_usdc": {"type": "number", "description": "Escrow lock amount in USDC."},
+                "chain": {"type": "string", "default": "Base (Low Gas $0.01)", "description": "Blockchain network for settlement."},
+                "hs_code": {"type": "string", "description": "Regulated commodity HS code (e.g. '18010000', '44071100')."},
+                "commodity_description": {"type": "string", "description": "Description of the trade shipment batch."},
+                "declared_net_mass_kg": {"type": "number", "default": 1000.0, "description": "Declared shipment net weight in kg."},
+                "milestone_weights": {"type": "array", "description": "Weight percentages for milestones 1, 2, 3 (default: [30, 40, 30])."},
+                "split_recipients": {"type": "array", "description": "First-mile multi-party split distribution (e.g. Smallholder Co-op 75%, Mill 25%)."}
+            },
+            "required": ["buyer_agent_id", "buyer_wallet", "seller_agent_id", "seller_wallet", "amount_usdc", "hs_code", "commodity_description"]
+        }
+    },
+    {
+        "name": "eudr_release_escrow_milestone",
+        "description": "Releases a specific milestone (1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane) in a 3-stage conditional escrow, issuing EIP-712 attestation and executing First-Mile split transfers.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID to release milestone for."},
+                "milestone_index": {"type": "integer", "description": "1: Pre-shipment Satellite, 2: DDS Registration, 3: Customs Green Lane."},
+                "plots": {"type": "array", "description": "Required for Milestone 1: Production plot coordinates for satellite radar audit."},
+                "dds_reference_id": {"type": "string", "description": "Required for Milestone 2: Compliant DDS Reference ID."},
+                "customs_declaration_code": {"type": "string", "description": "Required for Milestone 3: Customs Green Lane clearance code."}
+            },
+            "required": ["escrow_id", "milestone_index"]
+        }
+    },
+    {
+        "name": "eudr_auto_slash_disputed_escrow",
+        "description": "Executes autonomous on-chain slashing for escrows with verified deforestation violations, issuing EIP-712 BLOCKED attestation and refunding 100% of capital to Buyer.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "escrow_id": {"type": "string", "description": "Unique Escrow ID in DISPUTED status to automatically slash."},
+                "reason": {"type": "string", "description": "Cause for slashing (e.g. 'Post-2020 deforestation confirmed by Sentinel radar')."},
+                "slashing_penalty_pct": {"type": "number", "default": 100.0, "description": "Percentage of locked escrow to refund to buyer."}
+            },
+            "required": ["escrow_id"]
+        }
+    },
+    {
+        "name": "eudr_inspect_payload_security",
+        "description": "Zero-trust inspection shield derived from security-gate-x402 (The Sheriff of Agent Finance): detects prompt injections, malicious AST code executions (eval/exec/subprocess), and NLI agronomic crop yield fabrications.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "text": {"type": "string", "description": "Inbound text or system instructions to scan for jailbreak / prompt injection attacks."},
+                "commodity": {"type": "string", "description": "Target commodity name (e.g. 'coffee', 'cocoa', 'wood', 'oil_palm')."},
+                "hs_code": {"type": "string", "description": "6-digit Harmonized System tariff code."},
+                "declared_net_mass_kg": {"type": "number", "description": "Declared total harvest/trade net mass in kilograms."},
+                "total_area_ha": {"type": "number", "description": "Total cultivation area in hectares across production plots."}
+            }
+        }
+    },
+    {
+        "name": "eudr_publish_compliance_rfq",
+        "description": "Buyer AI Agent broadcasts an EUDR-compliant commodity procurement Request For Quotation (RFQ) to the autonomous supplier agent network.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "buyer_agent_id": {"type": "string", "description": "Unique identifier of the autonomous purchasing agent."},
+                "buyer_agent_wallet": {"type": "string", "description": "Buyer EVM/Solana wallet address for funding escrow."},
+                "commodity": {"type": "string", "description": "Target commodity type (e.g. coffee, cocoa, wood, oil_palm)."},
+                "hs_code": {"type": "string", "description": "6-digit Harmonized System tariff code."},
+                "volume_kg": {"type": "number", "description": "Requested commodity volume in kilograms."},
+                "max_price_usdc_per_kg": {"type": "number", "description": "Ceiling purchase price in USDC per kilogram."},
+                "max_acceptable_risk_score": {"type": "integer", "description": "Maximum acceptable EUDR risk score (0-100, default 20)."},
+                "destination_port": {"type": "string", "description": "EU port of destination (e.g. 'Rotterdam', 'Hamburg')."},
+                "notes": {"type": "string", "description": "Specific procurement terms or delivery guidelines."}
+            },
+            "required": ["buyer_agent_id", "buyer_agent_wallet", "commodity", "hs_code", "volume_kg", "max_price_usdc_per_kg"]
+        }
+    },
+    {
+        "name": "eudr_submit_compliance_bid",
+        "description": "Supplier AI Agent submits a competitive, geolocated compliance bid for an active marketplace RFQ, including farm plots and offered USDC price.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "rfq_id": {"type": "string", "description": "Target RFQ identifier to bid on."},
+                "seller_agent_id": {"type": "string", "description": "Unique supplier agent identifier."},
+                "seller_agent_wallet": {"type": "string", "description": "Supplier EVM wallet address to receive escrow settlement."},
+                "price_usdc_per_kg": {"type": "number", "description": "Offered unit price in USDC per kilogram."},
+                "declared_plots": {
+                    "type": "array",
+                    "description": "List of geolocated production plot parcels with WGS84 coordinates.",
+                    "items": {"type": "object"}
+                },
+                "estimated_risk_score": {"type": "integer", "description": "Supplier self-attested EUDR risk score (default 5)."},
+                "compliance_diligence_reference": {"type": "string", "description": "Existing Due Diligence Statement or certification reference."}
+            },
+            "required": ["rfq_id", "seller_agent_id", "seller_agent_wallet", "price_usdc_per_kg", "declared_plots"]
+        }
+    },
+    {
+        "name": "eudr_verify_producer_registry",
+        "description": "Verifies legal land title and forest registry codes in major producer countries (Brazil CAR, Indonesia SIPUHH/ISPO, Vietnam MARD/VNTLAS, Colombia FNC SICA/FEDECACAO, Ghana Cocoa CMS, Côte d'Ivoire CCC, Malaysia MSPO).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string", "description": "Official registry identifier or cadastral parcel code (e.g. 'BR-MT-5107909-...', 'VN-COFFEE-LDG-...', 'CO-SICA-HUI-...', 'CI-CCC-BAS-...')."},
+                "country_code": {"type": "string", "description": "Optional 2-letter ISO country code (BR, ID, VN, CO, GH, CI, MY). If omitted, automatically detected from format."}
+            },
+            "required": ["identifier"]
+        }
+    },
+    {
+        "name": "eudr_score_kfs_checklist",
+        "description": "Evaluates an EUDR supply chain payload against the official Korea Forest Service (산림청 EUDR 대응지원단) 4-domain compliance checklist (100-point scale).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary with operator, commodity, plots, and legal documents."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer land registry code for cross-validation."}
+            },
+            "required": ["payload"]
+        }
+    },
+    {
+        "name": "eudr_generate_export_bundle",
+        "description": "Generates a unified, lawyer-proof EUDR One-Click Export Bundle combining non-repudiation HMAC evidence seal, KFS readiness score, producer registry verification, and export dossier.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary including plots, commodity, and legal documents."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer land registry code (e.g. BR CAR or Vietnam MARD)."},
+                "producer_country_code": {"type": "string", "description": "Optional 2-letter ISO producer country code."}
+            },
+            "required": ["payload"]
+        }
+    },
+    {
+        "name": "eudr_underwrite_trade_credit",
+        "description": "Underwrites an autonomous trade loan for EUDR-cleared commodities, combining satellite forest analysis, legal land registry validation, and security-gate-x402 zero-trust credit scoring.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "payload": {"type": "object", "description": "EUDRSupplyChainPayload dictionary specifying commodity, volume, and production plots."},
+                "producer_registry_id": {"type": "string", "description": "Optional producer registry ID (e.g. CAR, SIPUHH, or MARD code)."},
+                "staked_escrow_usdc": {"type": "number", "description": "Optional USDC amount staked on AgentEscrow.sol as credit collateral enhancement."},
+                "applicant_agent_id": {"type": "string", "description": "Optional applicant agent or operator ID requesting trade credit."}
+            },
+            "required": ["payload"]
+        }
+    },
+    {
+        "name": "eudr_solana_settle_escrow",
+        "description": "Executes sub-second Direct Split escrow payout to smallholders and cooperatives on Solana Mainnet (SPL-USDC) conditioned on Ed25519 EUDR physical truth attestation.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "job_id": {"type": "string", "description": "Unique compliance evaluation or order job ID."},
+                "buyer_wallet": {"type": "string", "description": "Buyer Solana Base58 public key funding the escrow."},
+                "recipients": {
+                    "type": "array",
+                    "description": "List of recipient objects with 'recipient' (Solana Base58 pubkey), 'amount' (USDC), and optional 'role'.",
+                    "items": {"type": "object"}
+                },
+                "commodity": {"type": "string", "description": "Commodity being settled (e.g. coffee, cocoa, rubber)."},
+                "country_code": {"type": "string", "description": "ISO alpha-2 country code of harvest origin."},
+                "polygon_coordinates": {"type": "array", "description": "WGS84 plot coordinates list."},
+                "dds_reference_id": {"type": "string", "description": "Due diligence statement reference identifier."}
+            },
+            "required": ["job_id", "buyer_wallet", "recipients"]
+        }
+    },
+    {
+        "name": "eudr_solana_generate_pay_link",
+        "description": "Constructs standard Solana Pay URI and QR payload for M2M machine agent micro-settlement.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "recipient_pubkey": {"type": "string", "description": "Recipient Solana Base58 public key."},
+                "amount_usdc": {"type": "number", "description": "Requested payment amount in USDC."},
+                "reference_job_id": {"type": "string", "description": "Reference job or parcel identifier."},
+                "memo": {"type": "string", "description": "Optional transaction memo or purpose."}
+            },
+            "required": ["recipient_pubkey", "amount_usdc", "reference_job_id"]
+        }
+    },
+    {
+        "name": "eudr_evaluate_customs_taric",
+        "description": "Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code (C081, C082, Y120, Y121, Y122) and formats Box 44 / DE 12 03 000 000 customs declaration.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "hs_code": {"type": "string", "description": "Harmonized System tariff code (6-10 digits)."},
+                "dds_reference_id": {"type": "string", "description": "TRACES-NT DDS reference number, if already filed."},
+                "verification_code": {"type": "string", "description": "TRACES-NT security verification code."},
+                "is_recycled": {"type": "boolean", "default": False, "description": "Whether 100% post-consumer recycled waste (Annex I Footnote 1)."},
+                "is_packaging_only": {"type": "boolean", "default": False, "description": "Whether commodity is protective packaging supporting another good."},
+                "is_downstream_operator": {"type": "boolean", "default": False, "description": "Whether downstream operator referencing upstream DDS (Art. 4(8))."},
+                "upstream_dds_reference": {"type": "string", "description": "Upstream DDS reference for pass-through."}
+            },
+            "required": ["hs_code"]
+        }
+    },
+    {
+        "name": "eudr_simulate_swe_c_customs_clearance",
+        "description": "Simulates pre-arrival automated port clearance via the EU Single Window Environment for Customs (EU SWE-C) against TRACES-NT, calculating Article 16 inspection quota and clearance channel.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "dds_reference_id": {"type": "string", "description": "TRACES-NT Due Diligence Statement reference ID."},
+                "verification_code": {"type": "string", "description": "TRACES-NT digital verification code."},
+                "eori_number": {"type": "string", "description": "Declarant/Operator EORI number, e.g. NL123456789."},
+                "hs_code": {"type": "string", "description": "Tariff classification code."},
+                "net_mass_kg": {"type": "number", "description": "Declared consignment net mass in kg."},
+                "country_code": {"type": "string", "description": "ISO 2-letter origin country code, e.g. VN, BR, ID."},
+                "destination_port": {"type": "string", "default": "NLRTM", "description": "Entry port UN/LOCODE: NLRTM (Rotterdam), BEANR (Antwerp), DEHAM (Hamburg), ESVLC (Valencia)."}
+            },
+            "required": ["dds_reference_id", "verification_code", "eori_number", "hs_code", "net_mass_kg", "country_code"]
+        }
+    }
+]
+

@@ -104,7 +104,7 @@ if ($confirm -eq "y" -or $confirm -eq "Y") {
     uv.exe publish --token $token dist/*
 
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "[SUCCESS] Published v1.8.0 successfully to PyPI!" -ForegroundColor Green
+        Write-Host "[SUCCESS] Published v1.9.0 successfully to PyPI!" -ForegroundColor Green
     } else {
         Write-Host "[WARN] uv publish exited with code $LASTEXITCODE. Trying twine fallback..." -ForegroundColor Yellow
         if (Test-Path ".\.venv312\Scripts\twine.exe") {

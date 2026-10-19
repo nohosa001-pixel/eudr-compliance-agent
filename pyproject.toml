@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eudr-compliance-agent"
-version = "1.9.0"
+version = "1.9.1"
 
 description = "Autonomous AI Agent compliance engine for EU Deforestation Regulation (EU 2023/1115)"
 readme = "README.md"
@@ -31,7 +31,8 @@ dependencies = [
     "python-dateutil>=2.8.2",
     "python-multipart>=0.0.9",
     "sqlalchemy>=2.0.0,<2.1.0",
-    "openpyxl>=3.1.0"
+    "openpyxl>=3.1.0",
+    "agent-security-gate-x402>=1.9.0"
 ]
 
 [project.optional-dependencies]

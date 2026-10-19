@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from app.security_gate_middleware import SecurityGateMiddleware
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 import uuid
@@ -168,6 +169,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 1-Line Zero-Friction Security Gate Defense (<2ms Prompt Injection / Jailbreak Filter)
+app.add_middleware(SecurityGateMiddleware)
 
 @app.middleware("http")
 async def add_legal_disclaimer_headers(request: Request, call_next):

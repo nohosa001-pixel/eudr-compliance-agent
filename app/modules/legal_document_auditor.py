@@ -74,9 +74,12 @@ class LegalAuditor:
         "4101": "Raw hides and skins of bovine (cattle) formally excluded (EUDR Delegated Act finalized Sept 2026)",
         "4104": "Tanned or crust hides and skins of bovine formally excluded (EUDR Delegated Act finalized Sept 2026)",
         "4107": "Leather further prepared after tanning formally excluded (EUDR Delegated Act finalized Sept 2026)",
+        "4010": "Conveyor or transmission belts of vulcanised rubber exempted (EUDR Delegated Act finalized Sept 2026)",
         "4012": "Retreaded pneumatic tyres of rubber exempted under EUDR revision (finalized Sept 2026)",
-        "120110": "Soya beans for sowing/seed exempted under EUDR revision (finalized Sept 2026)",
         "4016": "Other articles of vulcanised rubber exempted under EUDR revision (finalized Sept 2026)",
+        "120110": "Soya beans for sowing/seed exempted under EUDR revision (finalized Sept 2026)",
+        "940190": "Seats of a kind used for motor vehicles or aircraft exempted (EUDR Delegated Act finalized Sept 2026)",
+        "9401": "Seats of a kind used for motor vehicles or aircraft exempted (EUDR Delegated Act finalized Sept 2026)",
     }
 
     @classmethod
@@ -87,6 +90,50 @@ class LegalAuditor:
             if clean_hs.startswith(prefix):
                 return True, reason
         return False, None
+
+    @classmethod
+    def get_enforcement_deadline(cls, hs_code: str, is_sme: bool = False) -> Dict[str, Any]:
+        """
+        Determines the legal EUDR enforcement start date pursuant to:
+        - Council Regulation (EU) 2025/2650 (General 1-year postponement to 30 Dec 2026)
+        - Delegated Act on Annex I Product Scope (Soluble coffee grace period to 30 Dec 2027)
+        - Micro/Small enterprise transition relief (30 June 2027)
+        """
+        clean_hs = str(hs_code or "").replace(".", "").strip()
+        is_exempt, reason = cls.check_exemption(clean_hs)
+        if is_exempt:
+            return {
+                "status": "EXEMPT_FROM_EUDR",
+                "enforcement_date": None,
+                "reason": reason,
+                "is_mandatory": False
+            }
+
+        if clean_hs.startswith("2101"):
+            return {
+                "status": "TRANSITIONAL_GRACE_PERIOD",
+                "enforcement_date": "2027-12-30",
+                "category": "Soluble / Instant Coffee (Newly Incorporated)",
+                "reason": "Grace period for newly included commodities under Commission Delegated Act",
+                "is_mandatory": True
+            }
+
+        if is_sme:
+            return {
+                "status": "MANDATORY_ENFORCEMENT_SME",
+                "enforcement_date": "2027-06-30",
+                "category": "Micro and Small Enterprises",
+                "reason": "6-month SME grace period pursuant to Council Regulation (EU) 2025/2650",
+                "is_mandatory": True
+            }
+
+        return {
+            "status": "MANDATORY_ENFORCEMENT_GENERAL",
+            "enforcement_date": "2026-12-30",
+            "category": "Large and Medium Enterprises",
+            "reason": "Standard enforcement date pursuant to Council Regulation (EU) 2025/2650 (No further delay)",
+            "is_mandatory": True
+        }
 
     @classmethod
     def classify_hs_code(cls, hs_code: str) -> EUDRCommodityCategory:
@@ -100,7 +147,7 @@ class LegalAuditor:
             return EUDRCommodityCategory.CATTLE
         elif clean_hs.startswith(("1801", "1802", "1803", "1804", "1805", "1806")):
             return EUDRCommodityCategory.COCOA
-        elif clean_hs.startswith("0901"):
+        elif clean_hs.startswith(("0901", "2101")):
             return EUDRCommodityCategory.COFFEE
         elif clean_hs.startswith(("1511", "120710", "151321", "151329", "230660", "382311")):
             return EUDRCommodityCategory.OIL_PALM

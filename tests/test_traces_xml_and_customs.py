@@ -184,3 +184,22 @@ def test_non_compliant_force_preview_xml_emits_rejected_attestation(sample_compl
     assert "DDS_REJECTED_NON_COMPLIANT" in response.text
     assert "<DeforestationFreeArticle3a>false</DeforestationFreeArticle3a>" in response.text
 
+
+def test_validate_eu_login_signatory():
+    """Verify European Commission TRACES NT requirement for named individual EU Login accounts."""
+    from app.modules.traces_nt_schema_mapper import TracesNTSchemaMapper
+
+    # 1. Generic mailbox must be flagged
+    gen_check = TracesNTSchemaMapper.validate_eu_login_signatory("info@tyre-logistics.de")
+    assert gen_check["is_valid_named_identity"] is False
+    assert "EU Login rejection hazard" in gen_check["warning"]
+
+    compliance_check = TracesNTSchemaMapper.validate_eu_login_signatory("compliance@corp.eu")
+    assert compliance_check["is_valid_named_identity"] is False
+
+    # 2. Named individual corporate email must be accepted
+    named_check = TracesNTSchemaMapper.validate_eu_login_signatory("klaus.schmidt@tyre-logistics.de")
+    assert named_check["is_valid_named_identity"] is True
+    assert named_check["warning"] is None
+
+

@@ -89,6 +89,7 @@ class SecurityGateMiddleware(BaseHTTPMiddleware):
         "/favicon.ico",
         "/metrics",
         "/status",
+        "/api/v1/security/inspect",
     }
 
     def __init__(

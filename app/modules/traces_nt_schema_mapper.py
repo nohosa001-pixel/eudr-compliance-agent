@@ -321,3 +321,41 @@ class TracesNTSchemaMapper:
         reparsed = minidom.parseString(rough_string)
         return reparsed.toprettyxml(indent="  ", encoding="utf-8").decode("utf-8")
 
+    @classmethod
+    def validate_eu_login_signatory(cls, signatory_email: str) -> Dict[str, Any]:
+        """
+        Enforces European Commission TRACES NT requirement:
+        Submissions must originate from an individual named EU Login account (corporate email of actual personnel),
+        NOT a generic or shared departmental mailbox.
+        """
+        GENERIC_PREFIXES = (
+            "info@", "admin@", "compliance@", "contact@", "support@", 
+            "sales@", "team@", "legal@", "office@", "operations@"
+        )
+        clean_email = str(signatory_email or "").strip().lower()
+        is_generic = any(clean_email.startswith(p) for p in GENERIC_PREFIXES)
+        has_at = "@" in clean_email and "." in clean_email.split("@")[-1]
+
+        if not has_at:
+            return {
+                "signatory_email": clean_email,
+                "is_valid_named_identity": False,
+                "warning": "Invalid email format for EU Login signatory credentials."
+            }
+
+        if is_generic:
+            return {
+                "signatory_email": clean_email,
+                "is_valid_named_identity": False,
+                "warning": (
+                    "EU Login rejection hazard: Submission from shared/generic email detected. "
+                    "The European Commission TRACES NT mandates individual named personnel credentials for legally binding declarations."
+                )
+            }
+
+        return {
+            "signatory_email": clean_email,
+            "is_valid_named_identity": True,
+            "warning": None
+        }
+

@@ -116,3 +116,30 @@ def test_fully_compliant_documents():
     assert result.overall_compliant is True
     assert len(result.missing_required_documents) == 0
     assert len(result.expired_documents) == 0
+
+
+def test_enforcement_deadlines_and_scope_exemptions():
+    """Verify Council Regulation (EU) 2025/2650 deadlines and Delegated Act scope exemptions."""
+    # 1. Exempt items (4010 conveyor belts, 9401 seats, 4012 retreaded tires)
+    d_belt = LegalAuditor.get_enforcement_deadline("4010.11")
+    assert d_belt["status"] == "EXEMPT_FROM_EUDR"
+    assert d_belt["is_mandatory"] is False
+
+    d_seat = LegalAuditor.get_enforcement_deadline("9401.90")
+    assert d_seat["status"] == "EXEMPT_FROM_EUDR"
+
+    # 2. Soluble Coffee grace period to Dec 30, 2027
+    d_coffee = LegalAuditor.get_enforcement_deadline("2101.11")
+    assert d_coffee["status"] == "TRANSITIONAL_GRACE_PERIOD"
+    assert d_coffee["enforcement_date"] == "2027-12-30"
+
+    # 3. SME grace period to June 30, 2027
+    d_sme = LegalAuditor.get_enforcement_deadline("0901.11", is_sme=True)
+    assert d_sme["status"] == "MANDATORY_ENFORCEMENT_SME"
+    assert d_sme["enforcement_date"] == "2027-06-30"
+
+    # 4. Standard Large/Medium deadline Dec 30, 2026
+    d_general = LegalAuditor.get_enforcement_deadline("0901.11", is_sme=False)
+    assert d_general["status"] == "MANDATORY_ENFORCEMENT_GENERAL"
+    assert d_general["enforcement_date"] == "2026-12-30"
+

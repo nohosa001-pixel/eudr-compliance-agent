@@ -17,7 +17,7 @@ class AgentSecurityGateAdapter:
     INJECTION_PATTERNS = [
         r"(?i)(ignore|disregard|forget)\s+(all\s+)?(prior|previous|past|above|system)?\s*instructions",
         r"(?i)system\s+prompt\s*(override|bypass)",
-        r"(?i)(override|bypass)\s+(all\s+)?(checks|security|rules|filters|safeguards)",
+        r"(?i)(override|bypass|force)\s+(all\s+)?(checks|security|rules|filters|safeguards|compliance(\s+checks)?)",
         r"(?i)you\s+are\s+now\s+in\s+(dan|developer)\s+mode",
         r"(?i)grant\s+(me\s+)?admin(istrator)?\s+privileges",
         r"(?i)drop\s+table\s+",
@@ -46,7 +46,8 @@ class AgentSecurityGateAdapter:
         r"(?i)override\s+(beneficiary|recipient|vendor|seller|payee)\s*(wallet|address)",
         r"(?i)(falsify|spoof|forge|alter)\s+(hs\s*code|tariff|commodity\s*code)",
         r"(?i)declare\s+hs\s*code\s+0000",
-        r"(?i)drain\s+(vault|escrow|sub[-_]?account|balance)"
+        r"(?i)drain\s+(vault|escrow|sub[-_]?account|balance)",
+        r"(?i)(refund|liquidate|transfer|withdraw).*?(treasury|vault|reserve).*?(to\s+0x[a-fA-F0-9]{40})"
     ]
 
     @classmethod

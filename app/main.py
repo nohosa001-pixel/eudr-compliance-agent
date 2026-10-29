@@ -149,6 +149,7 @@ from app.api.routers.customs import router as customs_router
 from app.api.routers.escrow import router as escrow_router
 from app.api.routers.webhooks import router as webhooks_router
 from app.api.routers.audit_vault import router as audit_vault_router
+from app.api.routers.brain import router as brain_router
 
 app.include_router(discovery_router)
 app.include_router(health_router)
@@ -156,6 +157,7 @@ app.include_router(customs_router)
 app.include_router(escrow_router)
 app.include_router(webhooks_router)
 app.include_router(audit_vault_router)
+app.include_router(brain_router)
 
 
 

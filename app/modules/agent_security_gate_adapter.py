@@ -42,7 +42,7 @@ class AgentSecurityGateAdapter:
     FINANCIAL_EXPLOIT_PATTERNS = [
         r"(?i)(set|increase|force|manipulate)\s+slippage\s*(to|=)?\s*([1-9][0-9]|100)\s*%",
         r"(?i)bypass\s+(slippage|price\s*impact)\s*(check|guard|limit|protection)",
-        r"(?i)(redirect|divert|send|route)\s+(funds|usdc|payout|settlement|payment|escrow)\s+to\s+(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})",
+        r"(?i)(redirect|divert|send|route)\s+(all\s+)?(funds|usdc|payout|settlement|payment|escrow)(\s+(funds|usdc|payout|settlement|payment|escrow))*\s+to\s+(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})",
         r"(?i)override\s+(beneficiary|recipient|vendor|seller|payee)\s*(wallet|address)",
         r"(?i)(falsify|spoof|forge|alter)\s+(hs\s*code|tariff|commodity\s*code)",
         r"(?i)declare\s+hs\s*code\s+0000",

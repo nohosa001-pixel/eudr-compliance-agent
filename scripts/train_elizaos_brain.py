@@ -135,8 +135,13 @@ def export_brain_checkpoint(bridge: ElizaOSBrainSecurityBridge, output_path: Pat
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="ElizaOS Brain Training Pipeline")
+    parser.add_argument("--cycles", type=int, default=1, help="Number of training cycles to execute")
+    args = parser.parse_args()
+
     print("======================================================================")
-    print(" EUDR Agent - ElizaOS Brain & Security Gate Automated Training Pipeline")
+    print(f" EUDR Agent - ElizaOS Brain Automated Training Pipeline ({args.cycles} Cycles)")
     print("======================================================================")
     start_time = time.time()
     bridge = ElizaOSBrainSecurityBridge
@@ -145,10 +150,12 @@ def main():
     initial_state = bridge.get_brain_security_state()
     print(f"[*] Initial Agent Readiness: {initial_state['readiness_score_pct']}%")
 
-    # Run phases
-    p1 = run_phase_1_domain_sft(bridge)
-    p2 = run_phase_2_episodic_clearance(bridge)
-    p3 = run_phase_3_adversarial_red_teaming(bridge)
+    for cycle in range(1, args.cycles + 1):
+        if args.cycles > 1:
+            print(f"\n>>> Running Training Cycle {cycle}/{args.cycles} <<<")
+        run_phase_1_domain_sft(bridge)
+        run_phase_2_episodic_clearance(bridge)
+        run_phase_3_adversarial_red_teaming(bridge)
 
     # Final state
     final_state = bridge.get_brain_security_state()
@@ -162,7 +169,7 @@ def main():
     print(f"  - Working Memory Active    : {final_state['working_memory_active_items']} entries")
     print(f"  - Episodic Memory Records  : {final_state['episodic_trade_records']} trades")
     print(f"  - Neutralized Threats      : {final_state['immune_threats_neutralized']} attack signatures")
-    print(f"  - Training Elapsed Time    : {elapsed:.2f} seconds")
+    print(f"  - Total Elapsed Time       : {elapsed:.2f} seconds")
     print("=" * 70)
 
     # Checkpoint export

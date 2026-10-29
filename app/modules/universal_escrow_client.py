@@ -280,5 +280,123 @@ class UniversalEscrowClient:
             "slashing_triggered": not attestation.get("is_feoc_compliant", True)
         }
 
+    # =========================================================================
+    # Phase 4: Ephemeral Sub-Accounts ($1~$5 micro-budget cap)
+    # =========================================================================
+
+    def delegate_ephemeral_sub_account(
+        self,
+        parent_agent_id: str,
+        budget_cap_usdc: float = 2.50,
+        ttl_seconds: int = 3600
+    ) -> Dict[str, Any]:
+        """Creates an ephemeral sub-account via local manager or security-gate remote."""
+        from app.modules.agent_security_gate_adapter import EphemeralSubAccountManager
+        return EphemeralSubAccountManager.create_ephemeral_sub_account(
+            parent_agent_id=parent_agent_id,
+            budget_cap_usdc=budget_cap_usdc,
+            ttl_seconds=ttl_seconds
+        )
+
+    def charge_ephemeral_sub_account(
+        self,
+        session_id: str,
+        amount_usdc: float,
+        purpose: str
+    ) -> Dict[str, Any]:
+        """Charges an active ephemeral sub-account."""
+        from app.modules.agent_security_gate_adapter import EphemeralSubAccountManager
+        return EphemeralSubAccountManager.charge_sub_account(
+            session_id=session_id,
+            amount_usdc=amount_usdc,
+            purpose=purpose
+        )
+
+    # =========================================================================
+    # Phase 5: Sovereign RWA Treasury Yield Vault & HTTP 402 Merkle Streaming
+    # =========================================================================
+
+    def deposit_sovereign_yield_vault(
+        self,
+        job_id: str,
+        principal_amount_usdc: float,
+        rwa_asset: str = "USDY",
+        lock_days_estimated: int = 30,
+        owner_wallet: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Deposits transit/customs-locked escrow USDC into tokenized US Treasury RWA."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.deposit_escrow_to_rwa(
+            job_id=job_id,
+            principal_amount_usdc=principal_amount_usdc,
+            rwa_asset=rwa_asset,
+            lock_days_estimated=lock_days_estimated,
+            owner_wallet=owner_wallet
+        )
+
+    def calculate_sovereign_yield(
+        self,
+        job_id: str,
+        elapsed_days: Optional[float] = None
+    ) -> Dict[str, Any]:
+        """Calculates accrued yield for a vault position."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.calculate_accrued_yield(
+            job_id=job_id,
+            elapsed_days=elapsed_days
+        )
+
+    def redeem_sovereign_yield(
+        self,
+        job_id: str,
+        recipient_wallet: str,
+        elapsed_days: Optional[float] = None
+    ) -> Dict[str, Any]:
+        """Redeems RWA principal and claims accumulated sovereign yield upon customs clearance."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.redeem_and_claim_yield(
+            job_id=job_id,
+            recipient_wallet=recipient_wallet,
+            elapsed_days=elapsed_days
+        )
+
+    def open_merkle_stream(
+        self,
+        sender_agent_id: str,
+        receiver_agent_id: str,
+        total_deposit_usdc: float,
+        channel_ttl_seconds: int = 86400
+    ) -> Dict[str, Any]:
+        """Opens a gasless Merkle micro-streaming channel (ERC-7683)."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.open_streaming_channel(
+            sender_agent_id=sender_agent_id,
+            receiver_agent_id=receiver_agent_id,
+            total_deposit_usdc=total_deposit_usdc,
+            channel_ttl_seconds=channel_ttl_seconds
+        )
+
+    def tick_merkle_stream(
+        self,
+        channel_id: str,
+        units_consumed: int = 1,
+        unit_price_usdc: float = 0.005,
+        payload_label: str = "Satellite tile query"
+    ) -> Dict[str, Any]:
+        """Ticks a micro-payment against the open streaming channel."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.record_stream_tick(
+            channel_id=channel_id,
+            units_consumed=units_consumed,
+            unit_price_usdc=unit_price_usdc,
+            payload_label=payload_label
+        )
+
+    def close_merkle_stream(self, channel_id: str) -> Dict[str, Any]:
+        """Closes the streaming channel and issues settlement receipt."""
+        from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+        return SovereignYieldVaultManager.close_streaming_channel(channel_id=channel_id)
+
 
 universal_escrow_client = UniversalEscrowClient()
+

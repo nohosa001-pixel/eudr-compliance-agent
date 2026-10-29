@@ -257,3 +257,150 @@ async def verify_onchain_attestation(
         )
     except Exception as err:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+# =============================================================================
+# Phase 5: Sovereign RWA Treasury Yield Vault & HTTP 402 Merkle Streaming
+# =============================================================================
+
+@router.post(
+    "/rwa-vault/deposit",
+    summary="Deposit transit-locked escrow capital into tokenized US Treasury RWA (USDY/BUIDL)"
+)
+async def deposit_escrow_to_rwa_vault(payload: dict):
+    """
+    Deposits locked escrow capital into a yield-bearing US Treasury RWA vault
+    during maritime shipping & customs clearance (14~45 days).
+    """
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    job_id = payload.get("job_id")
+    if not job_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="job_id is required")
+    principal = float(payload.get("principal_amount_usdc", 1000.0))
+    rwa_asset = payload.get("rwa_asset", "USDY")
+    lock_days = int(payload.get("lock_days_estimated", 30))
+    owner = payload.get("owner_wallet")
+
+    res = SovereignYieldVaultManager.deposit_escrow_to_rwa(
+        job_id=job_id,
+        principal_amount_usdc=principal,
+        rwa_asset=rwa_asset,
+        lock_days_estimated=lock_days,
+        owner_wallet=owner
+    )
+    return res
+
+
+@router.post(
+    "/rwa-vault/accrue",
+    summary="Calculate accrued RWA sovereign yield on active escrow position"
+)
+async def calculate_rwa_vault_accrual(payload: dict):
+    """
+    Computes real-time accrued interest on a yield-bearing escrow deposit.
+    """
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    job_id = payload.get("job_id")
+    if not job_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="job_id is required")
+    elapsed_days = payload.get("elapsed_days")
+    res = SovereignYieldVaultManager.calculate_accrued_yield(
+        job_id=job_id,
+        elapsed_days=float(elapsed_days) if elapsed_days is not None else None
+    )
+    if not res.get("success"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res.get("message"))
+    return res
+
+
+@router.post(
+    "/rwa-vault/redeem",
+    summary="Redeem RWA principal and claim accumulated sovereign yield upon customs clearance"
+)
+async def redeem_rwa_vault_position(payload: dict):
+    """
+    Redeems RWA principal and transfers accumulated sovereign treasury yield upon EU customs green lane clearance.
+    """
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    job_id = payload.get("job_id")
+    recipient = payload.get("recipient_wallet")
+    if not job_id or not recipient:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="job_id and recipient_wallet are required")
+    elapsed_days = payload.get("elapsed_days")
+
+    res = SovereignYieldVaultManager.redeem_and_claim_yield(
+        job_id=job_id,
+        recipient_wallet=recipient,
+        elapsed_days=float(elapsed_days) if elapsed_days is not None else None
+    )
+    if not res.get("success"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=res.get("message"))
+    return res
+
+
+@router.get(
+    "/rwa-vault/{job_id}",
+    summary="Get active RWA yield vault position for a specific escrow job"
+)
+async def get_rwa_vault_position(job_id: str):
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    pos = SovereignYieldVaultManager.get_vault_position(job_id)
+    if not pos:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No RWA vault position found for {job_id}")
+    return pos
+
+
+@router.post(
+    "/streaming/open",
+    summary="Open gasless HTTP 402 & ERC-7683 Merkle micro-streaming channel"
+)
+async def open_micro_streaming_channel(payload: dict):
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    sender = payload.get("sender_agent_id", "agent_sender")
+    receiver = payload.get("receiver_agent_id", "agent_receiver")
+    deposit = float(payload.get("total_deposit_usdc", 10.0))
+    ttl = int(payload.get("channel_ttl_seconds", 86400))
+    return SovereignYieldVaultManager.open_streaming_channel(
+        sender_agent_id=sender,
+        receiver_agent_id=receiver,
+        total_deposit_usdc=deposit,
+        channel_ttl_seconds=ttl
+    )
+
+
+@router.post(
+    "/streaming/tick",
+    summary="Record high-frequency micro-payment tick against active streaming channel"
+)
+async def record_streaming_tick(payload: dict):
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    channel_id = payload.get("channel_id")
+    if not channel_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="channel_id is required")
+    units = int(payload.get("units_consumed", 1))
+    price = float(payload.get("unit_price_usdc", 0.005))
+    label = payload.get("payload_label", "Satellite tile query")
+    res = SovereignYieldVaultManager.record_stream_tick(
+        channel_id=channel_id,
+        units_consumed=units,
+        unit_price_usdc=price,
+        payload_label=label
+    )
+    if not res.get("success"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=res.get("error"))
+    return res
+
+
+@router.post(
+    "/streaming/close",
+    summary="Close streaming channel and generate cryptographic settlement summary"
+)
+async def close_streaming_channel(payload: dict):
+    from app.modules.rwa_yield_vault_manager import SovereignYieldVaultManager
+    channel_id = payload.get("channel_id")
+    if not channel_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="channel_id is required")
+    res = SovereignYieldVaultManager.close_streaming_channel(channel_id=channel_id)
+    if not res.get("success"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res.get("error"))
+    return res

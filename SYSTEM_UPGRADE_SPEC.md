@@ -96,17 +96,19 @@ graph TD
 
 ## 🗺️ 5단계 통합 구현 로드맵 (Unified Implementation Roadmap)
 
-| 단계 | 고도화 항목 | 대상 레포지토리 및 모듈 | 기대 효과 |
+| 단계 | 고도화 항목 | 대상 레포지토리 및 모듈 | 상태 / 기대 효과 |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | **x402 인지 방화벽 강화 & 시맨틱 가드** | • `security-gate-x402/app`<br/>• `eudr-compliance-agent/app/modules/agent_security_gate_adapter.py`<br/>• `minerals-oracle-x402/app` | 농림/광물 거래 에이전트 대상 프롬프트 인젝션 및 시맨틱 공격 5ms 차단 |
-| **Phase 2** | **듀얼 진실 어댑터 EIP-712 표준화** | • `eudr-compliance-agent/app/modules/web3_escrow_adapter.py`<br/>• `minerals-oracle-x402/app/modules/web3_adapter.py` | `ITruthAdapter` 기반 위성 벌채 + 광물 FEOC 단일 온체인 증명 체계 구축 |
-| **Phase 3** | **UniversalEscrowCore & 직불 분할(Direct Split)** | • `security-gate-x402/contracts/UniversalEscrowCore.sol`<br/>• 3개 프로젝트 전반 | 검증 완료 즉시 말단 소농 및 채굴 현장으로 대금 1초 자동 분할 정산 |
-| **Phase 4** | **일회용 세션 서브 금고 (Ephemeral Vault)** | • `security-gate-x402/specs/AGENT_NATIVE_VAULT_BLUEPRINT.md`<br/>• 3개 프로젝트 에이전트 매니저 | 에이전트 개인키 탈취 위험 제거 ($1~$5 마이크로 예산 캡 격리) |
-| **Phase 5** | **RWA 국채 수율 환류 & x402 스트리밍** | • `security-gate-x402/contracts`<br/>• 3개 프로젝트 결제 모듈 | 해운·통관 대기 자본(USDC) 국채 RWA 무위험 수율 자동 환류 |
+| **Phase 1** | **x402 인지 방화벽 강화 & 시맨틱 가드** | • `security-gate-x402/app`<br/>• `eudr-compliance-agent/app/modules/agent_security_gate_adapter.py`<br/>• `minerals-oracle-x402/app` | **[완료]** 농림/광물 거래 에이전트 대상 프롬프트 인젝션 및 시맨틱 공격 5ms 차단 |
+| **Phase 2** | **듀얼 진실 어댑터 EIP-712 표준화** | • `eudr-compliance-agent/app/modules/web3_escrow_adapter.py`<br/>• `minerals-oracle-x402/app/modules/web3_adapter.py` | **[완료]** `ITruthAdapter` 기반 위성 벌채 + 광물 FEOC 단일 온체인 증명 체계 구축 |
+| **Phase 3** | **UniversalEscrowCore & 직불 분할(Direct Split)** | • `security-gate-x402/contracts/UniversalEscrowCore.sol`<br/>• 3개 프로젝트 전반 | **[완료]** 검증 완료 즉시 말단 소농 및 채굴 현장으로 대금 1초 자동 분할 정산 |
+| **Phase 4** | **일회용 세션 서브 금고 (Ephemeral Vault)** | • `app/modules/agent_security_gate_adapter.py`<br/>• `app/modules/universal_escrow_client.py`<br/>• REST API `/api/v1/security/ephemeral-session/*` | **[완료]** 에이전트 개인키 탈취 위험 제거 ($1~$5 마이크로 예산 캡 격리) |
+| **Phase 5** | **RWA 국채 수율 환류 & x402 스트리밍** | • `app/modules/rwa_yield_vault_manager.py`<br/>• `app/api/routers/escrow.py`<br/>• `tests/test_rwa_yield_vault_and_streaming.py` | **[완료]** 해운·통관 대기 자본(USDC) 국채 RWA 무위험 수율 자동 환류 & ERC-7683 머클 스트리밍 |
 
 ---
 
 ## 📝 관리 및 개정 이력 (Changelog)
 
+* **2026-10-29 (v1.2)**: Phase 4(일회용 세션 서브 금고) 및 Phase 5(Sovereign Yield Vault RWA 미국 국채 수율 환류 & ERC-7683/x402 머클 마이크로 스트리밍) 엔진 구현 및 REST API/테스트 검증 완료.
 * **2026-09-29 (v1.1)**: `minerals-oracle-x402`를 통합 편입하여, **농림(EUDR) + 핵심광물(Minerals) + 인지방화벽/자본OS(Security Gate)** 3각 편대 통합 사양서로 전면 개정.
 * **2026-09-29 (v1.0)**: 시스템 고도화 사양서 초안 등록.
+

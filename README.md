@@ -5,7 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4%20Spatial-336791.svg)](https://postgis.net/)
 [![Regulation](https://img.shields.io/badge/Regulation-EU%202023%2F1115-10b981.svg)](https://eur-lex.europa.eu/eli/reg/2023/1115/oj)
-[![Tests](https://img.shields.io/badge/Tests-345%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
+[![Tests](https://img.shields.io/badge/Tests-354%20Passed%20(100%25)-brightgreen.svg)](https://github.com/nohosa001-pixel/eudr-compliance-agent)
 [![Multi-Chain](https://img.shields.io/badge/EVM-Polygon%20%7C%20Base%20%7C%20Arbitrum-8247e5?style=flat&logo=ethereum&logoColor=white)](https://polygonscan.com)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet--Beta%20SPL--USDC-14F195?style=flat&logo=solana&logoColor=black)](https://solscan.io)
 [![Glama MCP](https://img.shields.io/badge/Glama-MCP%20Server-7C3AED.svg)](https://glama.ai/mcp/servers/nohosa001-pixel/eudr-compliance-agent)
@@ -15,7 +15,7 @@
 
 **EUDRAgent** is an enterprise-grade autonomous compliance automation and Due Diligence Statement (DDS) generation engine for the **European Union Deforestation Regulation (Regulation (EU) 2023/1115)**.
 
-Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Optical), 4ha polygon self-healing, EU TRACES-NT XML customs clearance, autonomous Reverse-Auction B2B procurement, sub-5ms cognitive firewall via **`security-gate-x402`**, European Customs (EU SWE-C / TARIC) automated pre-clearance, and multi-chain smart escrows across **Solana Mainnet-Beta (SPL-USDC), Polygon PoS, Base, and Arbitrum One**.
+Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Optical), 4ha polygon self-healing, EU TRACES-NT XML customs clearance, autonomous Reverse-Auction B2B procurement, sub-5ms cognitive firewall via **`security-gate-x402`**, European Customs (EU SWE-C / TARIC) automated pre-clearance, multi-chain smart escrows across **Solana Mainnet-Beta (SPL-USDC), Polygon PoS, Base, and Arbitrum One**, Sovereign RWA US Treasury Yield Vaults (USDY/BUIDL ~5.2% APY on maritime transit escrow), and gasless ERC-7683 Merkle micro-streaming channels.
 
 ---
 

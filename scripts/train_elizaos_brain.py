@@ -61,16 +61,19 @@ def run_phase_1_domain_sft(bridge: ElizaOSBrainSecurityBridge) -> Dict[str, Any]
 
 
 def run_phase_2_episodic_clearance(bridge: ElizaOSBrainSecurityBridge) -> Dict[str, Any]:
-    """Phase 2: Train episodic memory on EU port clearance preferences and agronomic boundaries."""
+    """Phase 2: Train episodic memory on EU port clearance preferences and agronomic boundaries across all 7 EUDR commodities."""
     print("\n" + "=" * 70)
-    print(" [PHASE 2] Port-Specific Customs Clearance & Agronomic Alignment")
+    print(" [PHASE 2] Port-Specific Customs Clearance & Agronomic Alignment (7 Commodities)")
     print("=" * 70)
 
     trade_cases = [
         {"job": "JOB-RTM-001", "commodity": "coffee", "hs": "090111", "mass": 3200.0, "area": 2.0, "origin": "VN", "port": "NLRTM", "wallet": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "val": 12500.0},
         {"job": "JOB-ANR-002", "commodity": "cocoa", "hs": "180100", "mass": 2100.0, "area": 2.5, "origin": "CI", "port": "BEANR", "wallet": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", "val": 9800.0},
         {"job": "JOB-HAM-003", "commodity": "wood", "hs": "440311", "mass": 15000.0, "area": 4.0, "origin": "BR", "port": "DEHAM", "wallet": "0x90F79bf6EB2c4f870365E785982E1f101E93b906", "val": 22000.0},
-        {"job": "JOB-VLC-004", "commodity": "rubber", "hs": "400110", "mass": 4500.0, "area": 3.0, "origin": "TH", "port": "ESVLC", "wallet": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65", "val": 8400.0}
+        {"job": "JOB-VLC-004", "commodity": "rubber", "hs": "400110", "mass": 4500.0, "area": 3.0, "origin": "TH", "port": "ESVLC", "wallet": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65", "val": 8400.0},
+        {"job": "JOB-RTM-005", "commodity": "oil palm", "hs": "151110", "mass": 8000.0, "area": 2.5, "origin": "ID", "port": "NLRTM", "wallet": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f", "val": 14200.0},
+        {"job": "JOB-ANR-006", "commodity": "soya", "hs": "120190", "mass": 10500.0, "area": 3.5, "origin": "BR", "port": "BEANR", "wallet": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720", "val": 16800.0},
+        {"job": "JOB-HAM-007", "commodity": "cattle", "hs": "020110", "mass": 4200.0, "area": 5.0, "origin": "AR", "port": "DEHAM", "wallet": "0xBcd4042DE499D14e55001CcbB24a551F3b954096", "val": 19500.0}
     ]
 
     cleared_count = 0
@@ -91,7 +94,7 @@ def run_phase_2_episodic_clearance(bridge: ElizaOSBrainSecurityBridge) -> Dict[s
         res = bridge.evaluate_and_execute_action(exec_req)
         if res["is_executable"]:
             cleared_count += 1
-            print(f"  [+] Cleared & Episodic Memory Updated: {case['job']} -> {case['port']} (Yield: {res['computed_yield_kg_per_ha']:.1f} kg/ha)")
+            print(f"  [+] Cleared & Episodic Memory Updated: {case['job']} ({case['commodity']}) -> {case['port']} (Yield: {res['computed_yield_kg_per_ha']:.1f} kg/ha)")
 
     print(f"[*] Phase 2 Complete: {cleared_count}/{len(trade_cases)} trade decisions committed to Episodic Memory.")
     return {"status": "SUCCESS", "cleared": cleared_count}

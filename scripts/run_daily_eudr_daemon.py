@@ -58,12 +58,34 @@ def execute_eudr_cycle():
         report_path, content = generate_eudr_briefing(today)
         print(f"[EUDR Maintenance] Briefing successfully archived at: {report_path.name}")
 
+        # Run ElizaOS Brain Continuous Learning Cycle
+        brain_summary = ""
+        try:
+            from scripts.train_elizaos_brain import (
+                ElizaOSBrainSecurityBridge,
+                run_phase_1_domain_sft,
+                run_phase_2_episodic_clearance,
+                run_phase_3_adversarial_red_teaming,
+                export_brain_checkpoint
+            )
+            bridge = ElizaOSBrainSecurityBridge
+            run_phase_1_domain_sft(bridge)
+            run_phase_2_episodic_clearance(bridge)
+            run_phase_3_adversarial_red_teaming(bridge)
+            brain_state = bridge.get_brain_security_state()
+            export_brain_checkpoint(bridge, PROJECT_ROOT / "data" / "brain_checkpoints" / "elizaos_brain_state.json")
+            brain_summary = f"• ElizaOS Brain 연속 학습 완료 (Readiness: {brain_state['readiness_score_pct']}%)\n"
+            print(f"[EUDR Brain] Continuous learning cycle complete. Current Readiness: {brain_state['readiness_score_pct']}%")
+        except Exception as brain_err:
+            print(f"[EUDR Brain] Continuous learning step skipped: {brain_err}")
+
         # Send Telegram Summary
         today_str = today.strftime("%Y-%m-%d")
         telegram_msg = (
-            f"🌲 *[EUDR Daily Intelligence Briefing] {today_str}*\n\n"
-            f"✅ EUDR 규제·통관 및 공급망 실사 일일 브리핑이 자동 생성되었습니다.\n"
+            f"🌲 *[EUDR Daily Intelligence & Brain Learning] {today_str}*\n\n"
+            f"✅ EUDR 규제·통관 및 브레인 자가 진화 사이클이 완료되었습니다.\n"
             f"• 보관 경로: `{report_path.name}` ({len(content)}자)\n"
+            f"{brain_summary}"
             f"• CSW-CERTEX & TRACES NT 세관 교차검증 상태 최신화\n"
             f"• 위험군별 의무 감사 비율 및 위임규정 (EU) 2026/2102 대응 룰셋 점검 완료"
         )

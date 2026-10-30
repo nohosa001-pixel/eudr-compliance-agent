@@ -55,3 +55,34 @@ async def get_brain_security_state():
     Returns the real-time health, readiness score, episodic records, and neutralized threat counts.
     """
     return ElizaOSBrainSecurityBridge.get_brain_security_state()
+
+
+@router.post(
+    "/swarm-simulate",
+    summary="Run Phase 4 Swarm Sandbox multi-agent simulation"
+)
+async def run_swarm_simulation(num_simulations: int = 10, include_news_disruptions: bool = True):
+    """
+    Executes a multi-agent simulation across 5 agent roles (Producer, Trader, Operator, Customs, Bank)
+    with RWA yield locks and real-time news shocks.
+    """
+    return ElizaOSBrainSecurityBridge.run_swarm_simulation_batch(
+        num_simulations=num_simulations,
+        include_news_disruptions=include_news_disruptions
+    )
+
+
+@router.post(
+    "/rfi",
+    summary="Handle Customs Request for Information (RFI) autonomously"
+)
+async def handle_customs_rfi(job_id: str, port_code: str = "NLRTM", rfi_type: str = "GEOLOCATION_DISCREPANCY"):
+    """
+    Autonomously resolves European port customs inquiries and calibrates port heuristics.
+    """
+    return ElizaOSBrainSecurityBridge.handle_customs_rfi(
+        job_id=job_id,
+        port_code=port_code,
+        rfi_type=rfi_type
+    )
+

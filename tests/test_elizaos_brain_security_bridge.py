@@ -164,3 +164,21 @@ def test_api_brain_endpoints():
     resp_state = client.get("/api/v1/brain/status")
     assert resp_state.status_code == 200
     assert resp_state.json()["security_gate_integration"] == "ACTIVE_SUB_MILLISEC_SHIELD"
+
+    # 4. Customs RFI endpoint
+    resp_rfi = client.post(
+        "/api/v1/brain/rfi",
+        params={"job_id": "JOB-API-BRAIN-005", "port_code": "BEANR", "rfi_type": "GEOLOCATION_DISCREPANCY"}
+    )
+    assert resp_rfi.status_code == 200
+    assert resp_rfi.json()["status"] == "AUTONOMOUSLY_RESOLVED"
+
+    # 5. Swarm simulate endpoint
+    resp_swarm = client.post(
+        "/api/v1/brain/swarm-simulate",
+        params={"num_simulations": 3, "include_news_disruptions": True}
+    )
+    assert resp_swarm.status_code == 200
+    assert resp_swarm.json()["status"] == "SWARM_SIMULATION_SUCCESS"
+    assert resp_swarm.json()["successful_trades"] == 3
+

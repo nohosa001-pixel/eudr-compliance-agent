@@ -72,41 +72,74 @@ def run_phase_1_domain_sft(bridge: ElizaOSBrainSecurityBridge) -> Dict[str, Any]
 
 
 def run_phase_spatial_satellite_grounding(bridge: ElizaOSBrainSecurityBridge) -> Dict[str, Any]:
-    """Phase 1.5: Query live Copernicus Sentinel-2 CDSE API or high-precision telemetry to ground spatial reasoning."""
+    """Phase 1.5: Query live Copernicus Sentinel-2 CDSE API or high-precision telemetry to ground spatial reasoning across 6 global production hubs."""
     print("\n" + "=" * 70)
-    print(" [SPATIAL GROUNDING] Live Copernicus Sentinel-2 L2A Time-Series Integration")
+    print(" [SPATIAL GROUNDING] Live Copernicus Sentinel-2 L2A Time-Series Deep Learning")
     print("=" * 70)
 
     parcels = [
         {
-            "id": "PRC-BR-MT-001", "commodity": "soya", "name": "Mato Grosso Soya Parcel",
-            "geom": {"type": "Polygon", "coordinates": [[[-55.51, -12.45], [-55.50, -12.45], [-55.50, -12.44], [-55.51, -12.44], [-55.51, -12.45]]]}
-        },
-        {
-            "id": "PRC-ID-RIAU-002", "commodity": "oil palm", "name": "Riau Oil Palm Concession",
+            "id": "PRC-ID-RIAU-001", "commodity": "oil palm", "name": "Riau Province Palm Concession (Indonesia)",
             "geom": {"type": "Polygon", "coordinates": [[[101.44, 0.53], [101.45, 0.53], [101.45, 0.54], [101.44, 0.54], [101.44, 0.53]]]}
         },
         {
-            "id": "PRC-CI-SP-003", "commodity": "cocoa", "name": "San-Pedro Cocoa Smallholder",
+            "id": "PRC-BR-MT-002", "commodity": "soya", "name": "Mato Grosso Deforested Soya Frontier (Brazil)",
+            "geom": {"type": "Polygon", "coordinates": [[[-55.51, -12.45], [-55.50, -12.45], [-55.50, -12.44], [-55.51, -12.44], [-55.51, -12.45]]]}
+        },
+        {
+            "id": "PRC-CI-SP-003", "commodity": "cocoa", "name": "San-Pedro Cocoa Buffer Zone (Cote d'Ivoire)",
             "geom": {"type": "Polygon", "coordinates": [[[-6.64, 4.75], [-6.63, 4.75], [-6.63, 4.76], [-6.64, 4.76], [-6.64, 4.75]]]}
+        },
+        {
+            "id": "PRC-VN-DL-004", "commodity": "coffee", "name": "Dak Lak Robusta Highlands (Vietnam)",
+            "geom": {"type": "Polygon", "coordinates": [[[108.05, 12.67], [108.06, 12.67], [108.06, 12.68], [108.05, 12.68], [108.05, 12.67]]]}
+        },
+        {
+            "id": "PRC-TH-SR-005", "commodity": "rubber", "name": "Surat Thani Rubber Plantation (Thailand)",
+            "geom": {"type": "Polygon", "coordinates": [[[99.33, 9.14], [99.34, 9.14], [99.34, 9.15], [99.33, 9.15], [99.33, 9.14]]]}
+        },
+        {
+            "id": "PRC-PY-CH-006", "commodity": "wood", "name": "Gran Chaco Forest Concession (Paraguay)",
+            "geom": {"type": "Polygon", "coordinates": [[[-60.25, -22.15], [-60.24, -22.15], [-60.24, -22.14], [-60.25, -22.14], [-60.25, -22.15]]]}
         }
     ]
 
-    verified_count = 0
+    compliant_count = 0
+    violation_count = 0
+    degradation_count = 0
+
     for parcel in parcels:
         res = bridge.verify_and_learn_satellite_trajectory(
             parcel_id=parcel["id"],
             geometry=parcel["geom"],
             commodity=parcel["commodity"]
         )
-        if res["is_compliant"]:
-            verified_count += 1
-            stability = res["canopy_stability"]
-            ndvi_2020 = res["telemetry"].get("ndvi_time_series", {}).get("2020", 0.80)
-            print(f"  [+] Satellite Attested: {parcel['id']} ({parcel['name']}) -> {stability} (2020 NDVI: {ndvi_2020})")
+        decision = res["decision"]
+        stability = res["canopy_stability"]
+        baseline_2020 = res["baseline_2020_ndvi"]
+        provider = res["provider"]
+        is_live = res.get("is_live_data", False)
+        live_tag = "[LIVE CDSE]" if is_live else "[RADAR FALLBACK]"
 
-    print(f"[*] Spatial Grounding Complete: {verified_count}/{len(parcels)} parcels verified via Copernicus Sentinel-2.")
-    return {"status": "SUCCESS", "parcels_verified": verified_count}
+        if decision == "COMPLIANT_ZERO_DEFORESTATION":
+            compliant_count += 1
+            print(f"  [+] {live_tag} COMPLIANT: {parcel['id']} ({parcel['name']}) -> {stability} (2020 NDVI: {baseline_2020})")
+        elif decision == "VIOLATION_DEFORESTATION_BLOCKED":
+            violation_count += 1
+            print(f"  [X] {live_tag} BLOCKED (DEFORESTATION): {parcel['id']} ({parcel['name']}) -> Canopy Loss Detected! (2020 NDVI: {baseline_2020})")
+        else:
+            degradation_count += 1
+            print(f"  [!] {live_tag} WARNING (DEGRADATION): {parcel['id']} ({parcel['name']}) -> Enhanced Audit Triggered (2020 NDVI: {baseline_2020})")
+
+    total_learned = compliant_count + violation_count + degradation_count
+    print(f"[*] Spatial Satellite Grounding Complete: {total_learned} parcels evaluated ({compliant_count} Compliant, {violation_count} Violations Blocked, {degradation_count} Degradation Monitored).")
+    return {
+        "status": "SUCCESS",
+        "total_evaluated": total_learned,
+        "compliant_count": compliant_count,
+        "violation_blocked_count": violation_count,
+        "degradation_count": degradation_count
+    }
 
 
 

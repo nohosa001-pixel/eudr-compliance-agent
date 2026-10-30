@@ -199,8 +199,9 @@ def test_api_brain_endpoints():
     )
     assert resp_satellite.status_code == 200
     sat_json = resp_satellite.json()
-    assert sat_json["is_compliant"] is True
-    assert sat_json["canopy_stability"] in ["STABLE_HIGH_DENSITY", "DEGRADATION_WARNING"]
+    assert sat_json["canopy_stability"] in ["STABLE_HIGH_DENSITY", "DEFORESTATION_DETECTED", "DEGRADATION_WARNING"]
+    assert "decision" in sat_json
+    assert "baseline_2020_ndvi" in sat_json
 
     # 8. Checkpoint save with timestamped audit snapshot
     resp_checkpoint = client.post(

@@ -337,6 +337,7 @@ class ElizaOSBrainSecurityBridge:
         Connects live Copernicus Sentinel-2 CDSE API or high-fidelity telemetry
         to ground real-world satellite time-series (NDVI / NDMI) into Brain Spatial Reasoning memory.
         Validates post-2020 zero-deforestation baseline under EUDR Art. 3.
+        Both compliant conservation and accurate deforestation detection are rewarded.
         """
         try:
             from app.modules.satellite_providers.copernicus_sentinel_client import CopernicusSentinelClient
@@ -346,32 +347,80 @@ class ElizaOSBrainSecurityBridge:
                 "ndvi_time_series": {"2019": 0.82, "2020": 0.81, "2021": 0.81, "2022": 0.80, "2023": 0.80, "2024": 0.79},
                 "ndmi_moisture_index": 0.52,
                 "canopy_stability": "STABLE_HIGH_DENSITY",
-                "fallback_reason": str(exc)
+                "fallback_reason": str(exc),
+                "is_live_data": False
             }
 
         stability = telemetry.get("canopy_stability", "STABLE_HIGH_DENSITY")
-        is_compliant = (stability != "DEFORESTATION_DETECTED")
+        provider = telemetry.get("provider", "Copernicus Sentinel-2")
+        ndvi_series = telemetry.get("ndvi_time_series", {})
+        baseline_2020 = ndvi_series.get("2020", 0.80)
+        is_live = telemetry.get("is_live_data", False)
 
-        # Encode into working memory
-        cls._working_memory.append({
-            "source": "COPERNICUS_SENTINEL_2",
-            "parcel_id": parcel_id,
-            "commodity": commodity,
-            "stability": stability,
-            "is_compliant": is_compliant,
-            "ndvi_2020_baseline": telemetry.get("ndvi_time_series", {}).get("2020", 0.80),
-            "verified_at": int(time.time())
-        })
+        timestamp = int(time.time())
 
-        if is_compliant:
+        if stability == "STABLE_HIGH_DENSITY":
+            decision = "COMPLIANT_ZERO_DEFORESTATION"
+            cls._working_memory.append({
+                "source": "COPERNICUS_SENTINEL_2",
+                "parcel_id": parcel_id,
+                "commodity": commodity,
+                "stability": stability,
+                "decision": decision,
+                "baseline_2020_ndvi": baseline_2020,
+                "is_live_data": is_live,
+                "verified_at": timestamp
+            })
             cls._satellite_verified_parcels += 1
-            cls._readiness_score = min(99.9, cls._readiness_score + 0.10)
+            cls._readiness_score = min(99.9, cls._readiness_score + 0.12)
+
+        elif stability == "DEFORESTATION_DETECTED":
+            decision = "VIOLATION_DEFORESTATION_BLOCKED"
+            # Encode deforestation threat fingerprint into immune & episodic memory
+            threat_key = hashlib.sha256(f"{parcel_id}:{stability}:{baseline_2020}".encode()).hexdigest()[:16]
+            cls._immune_memory[threat_key] = {
+                "detected_at": timestamp,
+                "caller_agent_id": "COPERNICUS_SENTINEL_2_RADAR",
+                "threats": [f"EUDR Art. 3 violation: Canopy drop detected after 2020-12-31 baseline (NDVI: {baseline_2020})"],
+                "threat_score": 95,
+                "status": "DEFORESTATION_BLOCKED"
+            }
+            cls._episodic_memory.append({
+                "event_type": "DEFORESTATION_INTERCEPTION",
+                "parcel_id": parcel_id,
+                "commodity": commodity,
+                "threat_key": threat_key,
+                "decision": decision,
+                "timestamp": timestamp
+            })
+            cls._satellite_verified_parcels += 1
+            # Brain earns readiness points for successfully identifying & neutralizing deforestation!
+            cls._readiness_score = min(99.9, cls._readiness_score + 0.15)
+
+        else:  # DEGRADATION_WARNING
+            decision = "DEGRADATION_ENHANCED_DILIGENCE_REQUIRED"
+            cls._working_memory.append({
+                "source": "COPERNICUS_SENTINEL_2",
+                "parcel_id": parcel_id,
+                "commodity": commodity,
+                "stability": stability,
+                "decision": decision,
+                "baseline_2020_ndvi": baseline_2020,
+                "is_live_data": is_live,
+                "verified_at": timestamp
+            })
+            cls._satellite_verified_parcels += 1
+            cls._readiness_score = min(99.9, cls._readiness_score + 0.08)
 
         return {
             "parcel_id": parcel_id,
             "commodity": commodity,
             "canopy_stability": stability,
-            "is_compliant": is_compliant,
+            "decision": decision,
+            "is_compliant": (stability == "STABLE_HIGH_DENSITY"),
+            "provider": provider,
+            "is_live_data": is_live,
+            "baseline_2020_ndvi": baseline_2020,
             "telemetry": telemetry,
             "readiness_score_pct": cls._readiness_score
         }

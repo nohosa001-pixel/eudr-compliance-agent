@@ -1,8 +1,9 @@
 """
 ElizaOS Brain & Security Gate x402 Hardened Cognitive Endpoints.
 """
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
 from app.core.config import settings
+from typing import Dict, Any, Optional
 from app.modules.elizaos_brain_security_bridge import (
     ElizaOSBrainSecurityBridge,
     BrainPerceptionRequest,
@@ -85,4 +86,61 @@ async def handle_customs_rfi(job_id: str, port_code: str = "NLRTM", rfi_type: st
         port_code=port_code,
         rfi_type=rfi_type
     )
+
+
+@router.get(
+    "/metrics",
+    summary="Prometheus / OpenTelemetry Metrics Endpoint for Grafana Monitoring",
+    response_class=Response
+)
+async def get_prometheus_metrics():
+    """
+    Exposes real-time ElizaOS Brain metrics in standard Prometheus exposition text (v0.0.4)
+    including readiness score, memory counts, neutralized attacks, and port inspection frequencies.
+    """
+    content = ElizaOSBrainSecurityBridge.export_prometheus_metrics()
+    return Response(content=content, media_type="text/plain; version=0.0.4; charset=utf-8")
+
+
+@router.post(
+    "/satellite-verify",
+    summary="Ground farm parcel with Live Copernicus Sentinel-2 CDSE satellite telemetry"
+)
+async def verify_satellite_parcel(
+    parcel_id: str = "PRC-BR-MT-001",
+    commodity: str = "soya",
+    geojson_polygon: Optional[Dict[str, Any]] = None
+):
+    """
+    Queries Copernicus Sentinel-2 L2A time-series trajectory (NDVI/NDMI) and grounds findings
+    into ElizaOS Brain spatial reasoning working memory.
+    """
+    default_geom = {
+        "type": "Polygon",
+        "coordinates": [[
+            [-55.5123, -12.4567],
+            [-55.5023, -12.4567],
+            [-55.5023, -12.4467],
+            [-55.5123, -12.4467],
+            [-55.5123, -12.4567]
+        ]]
+    }
+    geom = geojson_polygon or default_geom
+    return ElizaOSBrainSecurityBridge.verify_and_learn_satellite_trajectory(
+        parcel_id=parcel_id,
+        geometry=geom,
+        commodity=commodity
+    )
+
+
+@router.post(
+    "/checkpoint/save",
+    summary="Persist brain checkpoint with timestamped audit snapshot"
+)
+async def save_brain_checkpoint_with_snapshot(archive_snapshot: bool = True):
+    """
+    Persists cognitive checkpoint and archives a timestamped regulatory audit trail snapshot.
+    """
+    return ElizaOSBrainSecurityBridge.save_checkpoint(archive_snapshot=archive_snapshot)
+
 

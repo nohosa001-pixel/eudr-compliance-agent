@@ -164,6 +164,7 @@ app.include_router(brain_router)
 
 
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

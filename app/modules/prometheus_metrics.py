@@ -82,6 +82,15 @@ class PrometheusMetricsCollector:
                     label_str = "{" + ",".join(pairs) + "}"
                 lines.append(f"{name}{label_str} {val}")
 
+        # 4. Integrate ElizaOS Brain cognitive and security metrics
+        try:
+            from app.modules.elizaos_brain_security_bridge import ElizaOSBrainSecurityBridge
+            brain_text = ElizaOSBrainSecurityBridge.export_prometheus_metrics()
+            if brain_text:
+                lines.append(brain_text)
+        except Exception:
+            pass
+
         return "\n".join(lines) + "\n"
 
 

@@ -58,12 +58,13 @@ def execute_eudr_cycle():
         report_path, content = generate_eudr_briefing(today)
         print(f"[EUDR Maintenance] Briefing successfully archived at: {report_path.name}")
 
-        # Run ElizaOS Brain Continuous Learning Cycle (Complete 4-Phase Loop)
+        # Run ElizaOS Brain Continuous Learning Cycle (Complete 4-Phase Loop + Satellite Grounding)
         brain_summary = ""
         try:
             from scripts.train_elizaos_brain import (
                 ElizaOSBrainSecurityBridge,
                 run_phase_1_domain_sft,
+                run_phase_spatial_satellite_grounding,
                 run_phase_2_episodic_clearance,
                 run_phase_3_adversarial_red_teaming,
                 run_phase_4_swarm_simulation,
@@ -76,6 +77,7 @@ def execute_eudr_cycle():
                 print(f"[EUDR Brain] Loaded existing checkpoint from: {checkpoint_file.name}")
 
             run_phase_1_domain_sft(bridge)
+            run_phase_spatial_satellite_grounding(bridge)
             run_phase_2_episodic_clearance(bridge)
             run_phase_3_adversarial_red_teaming(bridge)
             run_phase_4_swarm_simulation(bridge, runs=10)
@@ -83,9 +85,10 @@ def execute_eudr_cycle():
             brain_state = bridge.get_brain_security_state()
             export_brain_checkpoint(bridge, checkpoint_file)
             brain_summary = (
-                f"• ElizaOS Brain 4단계 완전 연속 학습 완료\n"
+                f"• ElizaOS Brain 자가 진화 및 공간 위성 학습 완료\n"
                 f"  - 인지 준비도(Readiness): {brain_state['readiness_score_pct']}%\n"
-                f"  - 에피소딕 통관·RFI 거래: {brain_state['episodic_trade_records']}건\n"
+                f"  - Copernicus Sentinel-2 검증 필지: {brain_state.get('satellite_verified_parcels', 0)}개소\n"
+                f"  - 에피소딕 통관·RFI 거래: {brain_state['episodic_trade_records']}건 (7대 항만)\n"
                 f"  - 차단 면역 위협 시그니처: {brain_state['immune_threats_neutralized']}건\n"
             )
             print(f"[EUDR Brain] Continuous learning cycle complete. Current Readiness: {brain_state['readiness_score_pct']}%")

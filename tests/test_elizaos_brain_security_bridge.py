@@ -182,3 +182,43 @@ def test_api_brain_endpoints():
     assert resp_swarm.json()["status"] == "SWARM_SIMULATION_SUCCESS"
     assert resp_swarm.json()["successful_trades"] == 3
 
+    # 6. Prometheus / OpenTelemetry metrics endpoint
+    resp_metrics = client.get("/api/v1/brain/metrics")
+    assert resp_metrics.status_code == 200
+    assert "eudr_brain_readiness_pct" in resp_metrics.text
+    assert "eudr_customs_port_inspection_rate_pct" in resp_metrics.text
+
+    resp_metrics_root = client.get("/metrics")
+    assert resp_metrics_root.status_code == 200
+    assert "eudr_brain_readiness_pct" in resp_metrics_root.text
+
+    # 7. Copernicus Satellite live telemetry grounding endpoint
+    resp_satellite = client.post(
+        "/api/v1/brain/satellite-verify",
+        params={"parcel_id": "PRC-TEST-001", "commodity": "soya"}
+    )
+    assert resp_satellite.status_code == 200
+    sat_json = resp_satellite.json()
+    assert sat_json["is_compliant"] is True
+    assert sat_json["canopy_stability"] in ["STABLE_HIGH_DENSITY", "DEGRADATION_WARNING"]
+
+    # 8. Checkpoint save with timestamped audit snapshot
+    resp_checkpoint = client.post(
+        "/api/v1/brain/checkpoint/save",
+        params={"archive_snapshot": True}
+    )
+    assert resp_checkpoint.status_code == 200
+    chk_json = resp_checkpoint.json()
+    assert "primary_checkpoint" in chk_json
+    assert "snapshot_checkpoint" in chk_json
+
+    # 9. Extended Mediterranean and Southern EU Port RFIs
+    for port in ["ITGOA", "FRLEH", "GRPIR"]:
+        resp_port_rfi = client.post(
+            "/api/v1/brain/rfi",
+            params={"job_id": f"JOB-EXT-{port}", "port_code": port, "rfi_type": "GEOLOCATION_DISCREPANCY"}
+        )
+        assert resp_port_rfi.status_code == 200
+        assert resp_port_rfi.json()["status"] == "AUTONOMOUSLY_RESOLVED"
+
+

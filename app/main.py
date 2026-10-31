@@ -136,7 +136,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Automated EUDR (EU Deforestation Regulation) Supply Chain Compliance & TRACES-NT DDS Generator API",
-    version="1.4.0",
+    version="1.9.2",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan

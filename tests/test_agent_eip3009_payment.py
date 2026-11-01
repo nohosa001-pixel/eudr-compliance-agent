@@ -130,6 +130,6 @@ async def test_mcp_agent_eip3009_tool():
     assert result["authorization_type"] == "EIP-3009_TRANSFER_WITH_AUTHORIZATION"
     assert result["gasless_for_agent"] is True
     assert result["amount_usdc"] == 5.00
-    assert result["num_plots_credited"] == 50
+    assert result["num_plots_credited"] == 100
     assert result["auth_token"].startswith("eudr_eip3009_")
     assert "Gasless EIP-3009 authorization confirmed" in result["agent_summary"]

@@ -97,7 +97,7 @@ async def test_mcp_agent_payment_tools():
     }
     micro_result = await AgentToolsRegistry.execute_tool("eudr_agent_micro_pay", micro_args)
     assert micro_result["status"] == "SETTLED"
-    assert micro_result["amount_paid_usdc"] == 3.00
+    assert micro_result["amount_paid_usdc"] == 1.50  # 30 * $0.05
 
     # Test eudr_get_agent_budget_status
     budget_args = {"agent_id": "mcp-agent-007"}

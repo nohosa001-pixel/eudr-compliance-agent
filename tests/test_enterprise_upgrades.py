@@ -18,7 +18,7 @@ def test_x402_challenge_agent_endpoint():
     data = response.json()
     assert data["error"] == "PAYMENT_REQUIRED"
     assert data["agent_protocol"] == "x402-v1"
-    assert data["amount_usdc"] == 5.00
+    assert data["amount_usdc"] == 2.50  # 50 plots * $0.05
     assert "WWW-Authenticate" in response.headers
     assert "X402" in response.headers["WWW-Authenticate"]
     assert "0x" in data["deposit_wallet"]
@@ -37,7 +37,7 @@ def test_agent_micro_settlement_and_budget_status():
     data = response.json()
     assert data["status"] == "SETTLED"
     assert data["num_plots_credited"] == 20
-    assert data["amount_paid_usdc"] == 2.00
+    assert data["amount_paid_usdc"] == 1.00  # 20 plots * $0.05
     assert data["temporary_auth_token"].startswith("eudr_agent_micro_")
 
     # Check budget status endpoint

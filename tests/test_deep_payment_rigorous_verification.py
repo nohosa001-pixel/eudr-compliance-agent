@@ -111,7 +111,7 @@ def test_agent_micro_payment_token_usability():
     data = res.json()
     assert data["status"] == "SETTLED"
     assert data["num_plots_credited"] == 25
-    assert data["amount_paid_usdc"] == 2.50
+    assert data["amount_paid_usdc"] == 1.25  # 25 plots * $0.05
     token = data["temporary_auth_token"]
     assert token.startswith("eudr_agent_micro_")
 
@@ -130,7 +130,7 @@ def test_agent_micro_payment_token_usability():
     assert bdata["agent_id"] == agent_id
     assert bdata["is_active"] is True
     assert bdata["remaining_quota_plots"] == 25
-    assert bdata["total_usdc_spent"] == 2.50
+    assert bdata["total_usdc_spent"] == 1.25  # 25 plots * $0.05
 
 
 # ---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ def test_eip3009_token_usability_and_budget_tracking():
     assert bdata["agent_id"] == agent_id
     assert bdata["is_active"] is True
     assert bdata["remaining_quota_plots"] == 40
-    assert bdata["total_usdc_spent"] == 4.00
+    assert bdata["total_usdc_spent"] == 2.00  # 40 plots * $0.05
 
 
 # ---------------------------------------------------------------------------

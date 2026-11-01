@@ -1,0 +1,61 @@
+{
+  "benchmark_period": "2015-2024",
+  "eudr_cutoff_date": "2020-12-31",
+  "country_surge_thresholds": {
+    "VN": {
+      "country_name": "Vietnam",
+      "commodity": "coffee",
+      "pre_2020_avg_annual_mt": 1650000.0,
+      "post_2020_max_normal_surge_pct": 18.0,
+      "max_agronomic_yield_kg_ha": 2500.0,
+      "red_flag_surge_pct": 25.0,
+      "known_risk": "Highland Robusta frontier encroachment in Central Highlands"
+    },
+    "BR": {
+      "country_name": "Brazil",
+      "commodity": "soya",
+      "pre_2020_avg_annual_mt": 120000000.0,
+      "post_2020_max_normal_surge_pct": 15.0,
+      "max_agronomic_yield_kg_ha": 3800.0,
+      "red_flag_surge_pct": 22.0,
+      "known_risk": "Cerrado and Mato Grosso frontier expansion post-2020"
+    },
+    "ID": {
+      "country_name": "Indonesia",
+      "commodity": "oil palm",
+      "pre_2020_avg_annual_mt": 43000000.0,
+      "post_2020_max_normal_surge_pct": 12.0,
+      "max_agronomic_yield_kg_ha": 6000.0,
+      "red_flag_surge_pct": 20.0,
+      "known_risk": "Riau and East Kalimantan peatland buffer conversion"
+    },
+    "CI": {
+      "country_name": "Cote d'Ivoire",
+      "commodity": "cocoa",
+      "pre_2020_avg_annual_mt": 2100000.0,
+      "post_2020_max_normal_surge_pct": 10.0,
+      "max_agronomic_yield_kg_ha": 950.0,
+      "red_flag_surge_pct": 16.0,
+      "known_risk": "Protected classification forest laundering into export ports"
+    },
+    "TH": {
+      "country_name": "Thailand",
+      "commodity": "rubber",
+      "pre_2020_avg_annual_mt": 4700000.0,
+      "post_2020_max_normal_surge_pct": 14.0,
+      "max_agronomic_yield_kg_ha": 1800.0,
+      "red_flag_surge_pct": 20.0,
+      "known_risk": "Southern border transshipment from unregistered concessions"
+    },
+    "PY": {
+      "country_name": "Paraguay",
+      "commodity": "wood",
+      "pre_2020_avg_annual_mt": 450000.0,
+      "post_2020_max_normal_surge_pct": 15.0,
+      "max_agronomic_yield_kg_ha": 4000.0,
+      "red_flag_surge_pct": 24.0,
+      "known_risk": "Gran Chaco biome illegal deforestation for cattle/timber"
+    }
+  }
+}
+

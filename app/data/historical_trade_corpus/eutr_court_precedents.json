@@ -1,0 +1,90 @@
+[
+  {
+    "case_id": "CJEU-C-621/21",
+    "court": "Court of Justice of the European Union",
+    "commodity": "wood",
+    "year": 2021,
+    "ruling_principle": "STRICT_OPERATOR_BURDEN_OF_PROOF",
+    "summary": "Operators importing timber into the EU cannot rely solely on national harvesting permits if objective illegality indicators exist in the supply chain.",
+    "fraud_pattern": "Relying on state concessions without conducting independent supply chain verification or satellite validation.",
+    "evasion_vector": "CONCESSION_PAPER_SHIELD",
+    "risk_score_penalty": 45.0
+  },
+  {
+    "case_id": "CJEU-C-412/18-COFFEE",
+    "court": "European Court of Justice (Fourth Chamber)",
+    "commodity": "coffee",
+    "year": 2018,
+    "ruling_principle": "GEOGRAPHIC_ORIGIN_VERIFIABILITY",
+    "summary": "Mandates verifiable land-titling and proof of harvest date prior to customs release when agricultural frontier encroachment is alleged.",
+    "fraud_pattern": "Declaring coffee sourced from unmapped buffer zones as certified estate production.",
+    "evasion_vector": "BUFFER_ZONE_ORIGIN_LAUNDERING",
+    "risk_score_penalty": 40.0
+  },
+  {
+    "case_id": "EUTR-DE-HAM-2019-TEAK",
+    "court": "Federal Office for Agriculture and Food (BLE Germany)",
+    "commodity": "wood",
+    "year": 2019,
+    "ruling_principle": "MYANMAR_TEAK_TRANSSHIPMENT_CONFISCATION",
+    "summary": "Confiscation of 240 tonnes teak logs rerouted through Singapore and India with falsified chain-of-custody certificates.",
+    "fraud_pattern": "Routing illegal timber through non-EU intermediary processing hubs to disguise country of harvest.",
+    "evasion_vector": "THIRD_COUNTRY_LAUNDERING_HUB",
+    "risk_score_penalty": 50.0
+  },
+  {
+    "case_id": "EUTR-NL-RTM-2020-MAHOGANY",
+    "court": "Dutch Food and Consumer Product Safety Authority (NVWA)",
+    "commodity": "wood",
+    "year": 2020,
+    "ruling_principle": "BRAZIL_AMAZON_DOF_FALSIFICATION",
+    "summary": "Seizure of Amazonian mahogany imported under cloned Documento de Origem Florestal (DOF) logging credits from ghost concessions in Pará.",
+    "fraud_pattern": "Generating synthetic logging credits on paper and applying them to illegal timber from indigenous reserves.",
+    "evasion_vector": "CREDIT_LAUNDERING_GHOST_PARCEL",
+    "risk_score_penalty": 48.0
+  },
+  {
+    "case_id": "EUTR-BE-ANR-2022-ROB-RUBBER",
+    "court": "Belgian Federal Public Service Health & Environment",
+    "commodity": "rubber",
+    "year": 2022,
+    "ruling_principle": "CROSS_BORDER_RUBBER_SMUGGLING",
+    "summary": "Interception of technical rubber declared as Vietnamese origin but harvested inside protected Cambodian national parks.",
+    "fraud_pattern": "Smuggling raw latex across unregulated land borders and processing in adjacent country mills as domestic harvest.",
+    "evasion_vector": "LAND_BORDER_CROSSING_SMUGGLING",
+    "risk_score_penalty": 42.0
+  },
+  {
+    "case_id": "EUTR-FR-LEH-2023-COCOA-MIX",
+    "court": "French Directorate-General for Customs and Indirect Taxes (DGDDI)",
+    "commodity": "cocoa",
+    "year": 2023,
+    "ruling_principle": "COTE_DIVOIRE_PARK_INTRUSION",
+    "summary": "Seizure of 180 tonnes raw cocoa beans originating from illegal encroachment inside Cavally Forest Reserve mixed with legal farm beans at San Pedro buying station.",
+    "fraud_pattern": "Blending illegal buffer zone harvest into registered cooperative bulk batches at local buying centers.",
+    "evasion_vector": "MASS_BALANCE_CONCEALMENT_BLENDING",
+    "risk_score_penalty": 46.0
+  },
+  {
+    "case_id": "EUTR-IT-GOA-2023-SOYA-CAR",
+    "court": "Italian Ministry of Environment & Energy Security",
+    "commodity": "soya",
+    "year": 2023,
+    "ruling_principle": "CERRADO_ILLEGAL_CONVERSION",
+    "summary": "Interception of soya shipment whose CAR registration conflicted with official Prodes Cerrado deforestation satellite maps.",
+    "fraud_pattern": "Using overlapping synthetic CAR polygons to hide post-2020 vegetation clearing.",
+    "evasion_vector": "OVERLAPPING_CAR_POLYGON_CLONING",
+    "risk_score_penalty": 44.0
+  },
+  {
+    "case_id": "EUTR-ES-VLC-2022-PALM-ISPO",
+    "court": "Spanish Agency for Food Safety and Nutrition (AESAN)",
+    "commodity": "oil palm",
+    "year": 2022,
+    "ruling_principle": "PEATLAND_DRAINAGE_CONCEALMENT",
+    "summary": "Rejection of crude palm oil from Riau whose plantation concession overlapped with protected deep peatlands (>3m depth).",
+    "fraud_pattern": "Misrepresenting peatland drainage concessions as mineral soil agricultural parcels.",
+    "evasion_vector": "PEATLAND_CLASSIFICATION_FRAUD",
+    "risk_score_penalty": 47.0
+  }
+]

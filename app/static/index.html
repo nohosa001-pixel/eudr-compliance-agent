@@ -71,9 +71,9 @@
         <a href="/supplier-portal" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(52, 211, 153, 0.4); color: #34d399; font-weight: 600;">
           🌾 Supplier Gateway
         </a>
-        <button id="btn-open-video-guide" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(59,130,246,0.5); color: #60a5fa; font-weight: 600; background: rgba(59,130,246,0.1);">
-          ⚡ 4-Step Flow
-        </button>
+        <a href="/" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 600; background: rgba(56, 189, 248, 0.1);">
+          ⚡ M2M Mission Control
+        </a>
         <button id="btn-open-api-keys" class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.75rem; border-color: rgba(99,102,241,0.4); color: #a5b4fc; font-weight: 600;">
           🔑 Vault &amp; API Keys
         </button>
@@ -149,6 +149,7 @@
           <button class="btn-preset" data-preset="spatial_violation_brazil">🟡 3. Brazil Soya (Missing 4ha Polygon / Point Error)</button>
           <button class="btn-preset" data-preset="legal_violation_ghana">🟠 4. Ghana Cocoa (Expired Harvest Concession)</button>
           <button class="btn-preset" data-preset="suzano_timber_hybrid">🪵 5. Brazil Timber &amp; Pulp (FSC Certified / Hybrid)</button>
+          <button class="btn-preset" data-preset="eu_importer_pilot" style="border-color: rgba(16, 185, 129, 0.6); color: #34d399; font-weight: 700;">🇪🇺 6. EU Importer Pilot (Rotterdam Multi-Plot Clearance)</button>
         </div>
       </div>
 
@@ -500,7 +501,7 @@
             <div id="solana-pay-result-box" style="display: none; margin-top: 10px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(153, 69, 255, 0.4); border-radius: 6px; padding: 10px; font-size: 0.74rem;">
               <div style="font-weight: 700; color: #14F195; margin-bottom: 4px;">Standard Solana Pay URI:</div>
               <code id="solana-pay-uri-text" style="color: #38bdf8; word-break: break-all; display: block; margin-bottom: 6px;"></code>
-              <a id="solana-pay-open-link" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; color: #fff;">Open Deep Link ↗</a>
+              <a id="solana-pay-open-link" href="#" target="_blank" onclick="if(this.getAttribute('href')==='#'||!this.href){alert('Please generate a Solana Pay URI first by clicking the button above.');return false;}" class="btn btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; color: #fff;">Open Deep Link ↗</a>
             </div>
           </div>
 
@@ -1511,7 +1512,6 @@
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 0.78rem; color: #94a3b8;">Plan Tier:</span>
               <select id="apikey-tier-select" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 0.8rem;">
-                <option value="STARTER">Starter (5,000 plots / month)</option>
                 <option value="PRO" selected>Pro (50,000 plots / month)</option>
                 <option value="ENTERPRISE">Enterprise (1,000,000 plots / month)</option>
               </select>

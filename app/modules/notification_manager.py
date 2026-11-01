@@ -80,10 +80,10 @@ class NotificationManager:
                 data=data,
                 headers={"Content-Type": "application/json"}
             )
-            with urllib.request.urlopen(req, timeout=5) as response:
+            with urllib.request.urlopen(req, timeout=1.0) as response:
                 return response.status == 200
         except Exception as e:
-            logger.error(f"Failed to dispatch Telegram message: {e}")
+            logger.info(f"Telegram dispatch deferred or unreachable (non-blocking): {e}")
             return False
 
     @classmethod

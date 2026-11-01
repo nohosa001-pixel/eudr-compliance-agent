@@ -136,7 +136,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Automated EUDR (EU Deforestation Regulation) Supply Chain Compliance & TRACES-NT DDS Generator API",
-    version="1.9.2",
+    version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -357,7 +357,7 @@ async def serve_landing(request: Request):
             "service": "eudr-compliance-agent",
             "platform": "EUDRAgent",
             "name": "EUDRAgent EUDR Compliance Platform",
-            "version": "1.4.0",
+            "version": "2.0.0",
             "mode": "autonomous-agent-first",
 
             "status": "online",
@@ -1254,7 +1254,7 @@ from app.schemas import (
 )
 async def create_payment_order(req: PaymentOrderCreateRequest):
     """
-    Creates an immutable B2B subscription order for Pro ($299/mo) or Enterprise tiers.
+    Creates an immutable B2B subscription order for Pro ($700/mo) or Enterprise ($2,500/mo) tiers.
     Returns deposit wallet addresses on Base, Polygon, Solana, or Ethereum with QR payload.
     """
     return PaymentManager.create_order(req)

@@ -13,7 +13,7 @@ def test_x402_payment_required_challenge():
     data = response.json()
     assert data["error"] == "PAYMENT_REQUIRED"
     assert data["agent_protocol"] == "x402-v1"
-    assert data["amount_usdc"] == 10.00  # 100 * $0.10
+    assert data["amount_usdc"] == 5.00  # 100 * $0.05
     assert "WWW-Authenticate" in response.headers
     assert "X402" in response.headers["WWW-Authenticate"]
     assert "Base (Low Gas $0.01)" in data["supported_chains"]
@@ -32,7 +32,7 @@ def test_agent_create_and_confirm_payment_order():
     assert create_res.status_code == 200
     order_data = create_res.json()
     assert order_data["status"] == "PENDING"
-    assert order_data["amount_usdc"] == 299.00
+    assert order_data["amount_usdc"] == 700.00
     order_id = order_data["order_id"]
 
     # 2. Agent confirms on-chain tx
@@ -60,7 +60,7 @@ def test_agent_micro_payment_settlement():
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "SETTLED"
-    assert data["amount_paid_usdc"] == 1.50
+    assert data["amount_paid_usdc"] == 0.75  # 15 * $0.05
     assert data["temporary_auth_token"].startswith("eudr_agent_micro_")
 
 @pytest.mark.asyncio
@@ -72,11 +72,11 @@ async def test_mcp_agent_payment_tools():
         "company_name": "MCP Swarm Alpha",
         "contact_email": "swarm@mcp-eudr.io",
         "chain": "Polygon (PoS)",
-        "max_budget_usdc": 500.00
+        "max_budget_usdc": 800.00
     }
     order_result = await AgentToolsRegistry.execute_tool("eudr_create_payment_order", order_args)
     assert "order_id" in order_result
-    assert order_result["amount_usdc"] == 299.00
+    assert order_result["amount_usdc"] == 700.00
 
     # Test eudr_confirm_payment
     conf_args = {

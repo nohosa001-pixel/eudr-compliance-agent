@@ -24,7 +24,8 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 # Ensure app is on python path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 
 from app.modules.elizaos_brain_security_bridge import (
@@ -234,6 +235,62 @@ def run_phase_3_adversarial_red_teaming(bridge: ElizaOSBrainSecurityBridge) -> D
     return {"status": "SUCCESS", "blocked": blocked_count}
 
 
+def run_phase_historical_trade_learning(bridge: ElizaOSBrainSecurityBridge) -> Dict[str, Any]:
+    """Phase 1.8: Cognitive Historical Trade Dual-Mining (Fraud Risk Precedents + Proven Golden Success Archetypes)."""
+    print("\n" + "=" * 70)
+    print(" [HISTORICAL TRADE LEARNING] Dual Mining: EUTR Violations + Golden Success Archetypes")
+    print("=" * 70)
+
+    import json
+    data_dir = PROJECT_ROOT / "data" / "historical_trade_corpus"
+    
+    # 1. Ingest Violation Precedents & Anomaly Surges
+    violations_file = data_dir / "eutr_court_precedents.json"
+    violations = json.loads(violations_file.read_text(encoding="utf-8")) if violations_file.exists() else []
+    
+    # 2. Ingest Golden Success Archetypes & Fast-Tracks
+    success_file = data_dir / "trade_success_benchmarks.json"
+    success_benchmarks = json.loads(success_file.read_text(encoding="utf-8")) if success_file.exists() else []
+    
+    fast_track_file = data_dir / "green_customs_fast_track_precedents.json"
+    fast_tracks = json.loads(fast_track_file.read_text(encoding="utf-8")) if fast_track_file.exists() else []
+
+    direct_sourcing_file = data_dir / "fair_trade_direct_sourcing_models.json"
+    direct_sourcing = json.loads(direct_sourcing_file.read_text(encoding="utf-8")) if direct_sourcing_file.exists() else []
+
+    learned_items = 0
+
+    # Ingest Violation Precedents
+    for v in violations:
+        stimulus = f"EUTR Risk Signature [{v['case_id']}]: {v['ruling_principle']}. Summary: {v['summary']}"
+        req = BrainPerceptionRequest(caller_agent_id="CJEU_LEGAL_ARCHIVE", stimulus_text=stimulus, origin_country="EU")
+        res = bridge.perceive_and_filter(req)
+        if res["is_safe"]:
+            learned_items += 1
+            print(f"  [!] Learned Risk Precedent: {v['case_id']} ({v['commodity']})")
+
+    # Ingest Golden Success Benchmarks
+    for s in success_benchmarks:
+        stimulus = f"Golden Success Archetype [{s['benchmark_id']}]: {s['model_name']} ({s['commodity']}/{s['origin_country']}). Factors: {'; '.join(s['success_factors'][:2])}. Advantage: {s['eu_customs_advantage']}"
+        req = BrainPerceptionRequest(caller_agent_id="GOLDEN_TRADE_CORPUS", stimulus_text=stimulus, origin_country=s['origin_country'])
+        res = bridge.perceive_and_filter(req)
+        if res["is_safe"]:
+            learned_items += 1
+            print(f"  [★] Learned Success Benchmark: {s['benchmark_id']} ({s['model_name']})")
+
+    # Ingest Fast-Track Green Customs Blueprints
+    for ft in fast_tracks:
+        stimulus = f"Green Customs Fast-Track [{ft['precedent_id']}]: {ft['bilateral_framework']}. Mechanism: {ft['statutory_mechanism']}. Outcome: {ft['historical_outcome']}"
+        req = BrainPerceptionRequest(caller_agent_id="GREEN_CUSTOMS_ARCHIVE", stimulus_text=stimulus, origin_country=ft['origin_country'])
+        res = bridge.perceive_and_filter(req)
+        if res["is_safe"]:
+            learned_items += 1
+            print(f"  [★] Learned Customs Fast-Track: {ft['precedent_id']}")
+
+    print(f"[*] Historical Trade Dual-Mining Complete: {learned_items} risk & success archetypes encoded.")
+    return {"status": "SUCCESS", "learned_items": learned_items}
+
+
 def run_phase_4_swarm_simulation(bridge: ElizaOSBrainSecurityBridge, runs: int = 15) -> Dict[str, Any]:
     """Phase 4: Swarm Sandbox Multi-Agent Simulation (Producer -> Trader -> Operator -> Customs -> Bank)."""
     print("\n" + "=" * 70)
@@ -284,6 +341,7 @@ def main():
         print(f"\n>>>>>>> RUNNING TRAINING CYCLE {cycle}/{args.cycles} <<<<<<<")
         run_phase_1_domain_sft(bridge)
         run_phase_spatial_satellite_grounding(bridge)
+        run_phase_historical_trade_learning(bridge)
         run_phase_2_episodic_clearance(bridge)
         run_phase_3_adversarial_red_teaming(bridge)
         run_phase_4_swarm_simulation(bridge, runs=args.swarm_runs)

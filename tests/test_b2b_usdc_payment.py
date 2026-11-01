@@ -17,7 +17,7 @@ def test_create_usdc_payment_order_pro():
     assert response.status_code == 200
     data = response.json()
     assert "ORD-" in data["order_id"]
-    assert data["amount_usdc"] == 299.00
+    assert data["amount_usdc"] == 700.00
     assert "0x" in data["deposit_wallet_address"]
     assert data["status"] == "PENDING"
     assert "INV-EUDR-2026-" in data["invoice_number"]
@@ -52,7 +52,7 @@ def test_confirm_usdc_payment_and_provision_key():
     assert invoice_res.status_code == 200
     invoice_data = invoice_res.json()
     assert invoice_data["company_name"] == "Hamburg Timber AG"
-    assert invoice_data["amount_usdc"] == 299.00
+    assert invoice_data["amount_usdc"] == 700.00
     assert len(invoice_data["hmac_audit_signature"]) == 64
     assert "Reverse Charge" in invoice_data["vat_tax_statement"]
 

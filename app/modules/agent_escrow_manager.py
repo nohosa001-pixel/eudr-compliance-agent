@@ -35,6 +35,7 @@ class AgentEscrowManager:
     - 3-Stage Milestone Escrow: Pre-shipment Satellite (30%) -> DDS Issuance (40%) -> Customs Green Lane (30%).
     - Multi-party First-Mile Split: Direct payouts to smallholder cooperatives and mills.
     """
+    CLEARING_FEE_RATE: float = 0.0015  # 0.15% Clearing Fee for M2M trade settlement
     _escrows: Dict[str, Dict[str, Any]] = {}
 
     @classmethod

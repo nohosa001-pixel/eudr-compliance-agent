@@ -25,7 +25,7 @@ try:
     from app.modules.payment_manager import PaymentManager, PLAN_PRICING_USDC
 except Exception:
     PaymentManager = None
-    PLAN_PRICING_USDC = {"STARTER": 99.0, "PRO": 299.0, "ENTERPRISE": 999.0}
+    PLAN_PRICING_USDC = {"PRO": 700.0, "ENTERPRISE": 2500.0}
 
 from app.schemas import get_default_meta_dict
 
@@ -454,7 +454,7 @@ class AgentToolsRegistry:
         traces_fee_eur = 10.00 if include_traces else 0.0
 
         total_eur = round(base_fee_eur + (num_plots * per_plot_eur) + traces_fee_eur, 2)
-        recommended_plan = "Standard Starter" if num_plots <= 50 else ("Professional B2B" if num_plots <= 500 else "Enterprise Custom")
+        recommended_plan = "Professional B2B" if num_plots <= 500 else "Enterprise Custom"
 
         return {
             "num_plots": num_plots,
@@ -475,11 +475,10 @@ class AgentToolsRegistry:
         raw_plan = str(args.get("plan_tier", "PRO")).upper().strip()
         if "ENTERPRISE" in raw_plan:
             plan_tier = "ENTERPRISE"
-        elif "STARTER" in raw_plan:
-            plan_tier = "STARTER"
+
         else:
             plan_tier = "PRO"
-        amount_usdc = PLAN_PRICING_USDC.get(plan_tier, 299.00)
+        amount_usdc = PLAN_PRICING_USDC.get(plan_tier, 700.00)
         max_budget = args.get("max_budget_usdc")
 
         if max_budget is not None and amount_usdc > float(max_budget):
@@ -487,8 +486,8 @@ class AgentToolsRegistry:
                 message=f"Order amount (${amount_usdc:.2f} USDC) exceeds agent budget cap (${float(max_budget):.2f} USDC).",
                 code="BUDGET_CAP_EXCEEDED",
                 recoverable=False,
-                suggested_fix=f"Request approval for higher budget or downgrade to STARTER plan.",
-                agent_action_hint="Elevate budget cap or select plan_tier='STARTER'."
+                suggested_fix=f"Request approval for higher budget or select PRO plan.",
+                agent_action_hint="Elevate budget cap or select plan_tier='PRO'."
             )
 
         req = PaymentOrderCreateRequest(

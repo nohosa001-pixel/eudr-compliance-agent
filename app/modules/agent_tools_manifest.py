@@ -168,7 +168,7 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
             "properties": {
                 "plan_tier": {
                     "type": "string",
-                    "enum": ["PRO", "ENTERPRISE", "STARTER"],
+                    "enum": ["PRO", "ENTERPRISE"],
                     "description": "Subscription tier to purchase."
                 },
                 "company_name": {
@@ -231,7 +231,7 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
                 },
                 "num_plots": {
                     "type": "integer",
-                    "description": "Number of plots to verify ($0.10 USDC / plot)."
+                    "description": "Number of plots to verify ($0.05 USDC / plot)."
                 },
                 "chain": {
                     "type": "string",

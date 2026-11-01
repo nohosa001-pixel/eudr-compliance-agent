@@ -20,7 +20,7 @@ client = TestClient(app)
 @pytest.mark.asyncio
 async def test_budget_cap_guardrail_rejection():
     """Verify autonomous agent cannot exceed programmed max_budget_usdc."""
-    # Attempting to order PRO ($299.00) with a max budget cap of $100.00
+    # Attempting to order PRO ($700.00) with a max budget cap of $100.00
     args = {
         "plan_tier": "PRO",
         "company_name": "Autonomous Supply Corp",
@@ -44,11 +44,11 @@ async def test_budget_cap_guardrail_allowance():
         "company_name": "Autonomous Supply Corp",
         "contact_email": "agent@autosupply.io",
         "chain": "Base (Low Gas $0.01)",
-        "max_budget_usdc": 350.00
+        "max_budget_usdc": 800.00
     }
     result = await AgentToolsRegistry.execute_tool("eudr_create_payment_order", args)
     assert "order_id" in result
-    assert result["amount_usdc"] == 299.00
+    assert result["amount_usdc"] == 700.00
     assert result["status"] == "PENDING"
 
 

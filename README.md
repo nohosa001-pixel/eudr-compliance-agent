@@ -19,6 +19,18 @@ Equipped with high-resolution satellite radar (Copernicus Sentinel-1/2 SAR & Opt
 
 ---
 
+## 🚀 What's New in v2.0.0 (Major Release)
+
+EUDRAgent **v2.0.0** introduces high-throughput autonomous compliance infrastructure and deep trade intelligence:
+
+* 🏛️ **Historical Trade Anomaly Engine (17 Dual-Risk & Success Archetypes)**: Trained on 10 years of EU Timber Regulation (EUTR) court cases, customs seizure precedents, UN Comtrade anomaly surges, transshipment laundering hubs, and golden fair-trade direct sourcing benchmarks.
+* ⚡ **37 Native Deterministic MCP Tools**: Comprehensive Model Context Protocol tools covering polygon self-healing, multi-component downstream chain synthesis, satellite deforestation analysis, Article 31 audit vaults, and TRACES-NT XML compilation.
+* 🔒 **Zero-Knowledge Supplier Privacy Portal (`/supplier-portal`)**: Solves overseas smallholder geodata refusal by allowing encrypted boundary uploads and issuing verifiable compliance certificates without exposing proprietary farm maps.
+* 💳 **M2M Pay-As-You-Go ($0.05 / Plot)**: Micro-settlements via RFC 9110 HTTP 402 and on-chain USDC on Base, Polygon, and Arbitrum, replacing €15,000–€150,000 annual enterprise software lock-ins.
+* 🇪🇺 **EU Importer Pilot Desk & Multi-Component Chain Linker**: Native support for composite wooden furniture (HS 9401/9403), wood panels (HS 4408/4411/4412), and inbound port clearances at Rotterdam, Hamburg, and Antwerp.
+
+---
+
 ## 📽️ 4-Step Instant Demo (2-Second Automated Audit)
 
 ![EUDR Compliance Agent Video Demonstration](eudr_usage_tutorial.gif)

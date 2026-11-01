@@ -127,7 +127,7 @@ class ApiKeyRecord(Base):
     
     company_name = Column(String(128), nullable=False)
     contact_email = Column(String(128), index=True, nullable=False)
-    tier = Column(String(32), default="STARTER")  # STARTER, PRO, ENTERPRISE
+    tier = Column(String(32), default="PRO")  # PRO, ENTERPRISE
     
     is_active = Column(Boolean, default=True)
     rate_limit_per_min = Column(Integer, default=60)
@@ -174,7 +174,7 @@ class PaymentOrderRecord(Base):
     company_name = Column(String(128), nullable=False)
     contact_email = Column(String(128), index=True, nullable=False)
     plan_tier = Column(String(32), default="PRO")
-    amount_usdc = Column(Float, default=299.00)
+    amount_usdc = Column(Float, default=700.00)
     chain = Column(String(64), default="Base (Low Gas $0.01)")
     deposit_wallet_address = Column(String(128), nullable=False)
     status = Column(String(32), default="PENDING")  # PENDING, CONFIRMED, EXPIRED

@@ -1,0 +1,104 @@
+[
+  {
+    "benchmark_id": "BENCH-COCOA-KUAPA-GHANA",
+    "commodity": "cocoa",
+    "origin_country": "GH",
+    "model_name": "Kuapa Kokoo Direct-Traceability Cooperative Model",
+    "historical_era": "2018-2025 Fairtrade & Direct Origin Sourcing",
+    "success_factors": [
+      "100% smallholder farm GPS polygon boundary mapping prior to harvest",
+      "Direct cooperative-to-importer escrow settlement bypassing informal predatory intermediaries",
+      "Zero-deforestation canopy retention verifiable via Sentinel-2 NDVI >0.65",
+      "Full living income differential (LID) compliance recorded in transparent electronic ledger"
+    ],
+    "eu_customs_advantage": "Eligible for EUDR Art. 13 Simplified Due Diligence and accelerated Green Lane clearance at Port of Rotterdam (NLRTM) and Antwerp (BEANR).",
+    "optimal_yield_range_kg_ha": [400.0, 850.0],
+    "historical_clearance_success_rate": 0.998,
+    "statutory_archetype": "GOLDEN_DIRECT_FAIRTRADE"
+  },
+  {
+    "benchmark_id": "BENCH-TIMBER-NORDIC-FSC",
+    "commodity": "wood",
+    "origin_country": "FI",
+    "model_name": "Nordic Verifiable Silviculture & AEO-C Certified Chain of Custody",
+    "historical_era": "2015-2026 Sustainable Silviculture & EU Dual-Key Precedent",
+    "success_factors": [
+      "FSC / PEFC Dual Certification cross-anchored with national forest inventory cadastre",
+      "Continuous digital harvest concession audit (100% replanting ratio within 36 months)",
+      "Tamper-proof WORM electronic transport permits (Waybill QR + cryptographic timber tags)",
+      "Authorized Economic Operator (AEO-C) status with EU member state customs"
+    ],
+    "eu_customs_advantage": "Statutory inspection exemption under EUTR Art. 13 and EUDR Low-Risk Country classification (inspection audit rate <0.1%).",
+    "optimal_yield_range_kg_ha": [1200.0, 3200.0],
+    "historical_clearance_success_rate": 1.000,
+    "statutory_archetype": "GOLDEN_NORDIC_SILVICULTURE"
+  },
+  {
+    "benchmark_id": "BENCH-COFFEE-ETHIOPIA-SPECIALTY",
+    "commodity": "coffee",
+    "origin_country": "ET",
+    "model_name": "Yirgacheffe / Sidama Micro-Lot Agroforestry Heritage",
+    "historical_era": "2019-2025 High-Canopy Shade Coffee Sourcing",
+    "success_factors": [
+      "Biodiverse canopy preservation (100% natural shade-grown agroforestry)",
+      "Zero post-2020 primary forest conversion with documented multi-generational land title",
+      "First-mile mobile money / digital escrow split ensuring prompt smallholder payment",
+      "DNA fingerprinting and micro-lot batch segregation at dry-mill staging"
+    ],
+    "eu_customs_advantage": "Zero customs dispute history; premium specialty classification commanding 35% higher CIF price in Hamburg and Le Havre.",
+    "optimal_yield_range_kg_ha": [450.0, 1100.0],
+    "historical_clearance_success_rate": 0.995,
+    "statutory_archetype": "GOLDEN_AGROFORESTRY_SPECIALTY"
+  },
+  {
+    "benchmark_id": "BENCH-SOYA-BRAZIL-MORATORIUM",
+    "commodity": "soya",
+    "origin_country": "BR",
+    "model_name": "Amazon Soy Moratorium & Cerrado Zero-Conversion Initiative",
+    "historical_era": "2006-2025 Post-Moratorium Strict Geospatial Monitoring",
+    "success_factors": [
+      "Rigorous pre-cleared satellite boundary cross-matching with PRODES / DETER databases",
+      "CAR (Cadastro Ambiental Rural) valid status with no overlapping indigenous reserves or conservation units",
+      "Automated silo intake verification ensuring zero grain mixing from uncertified plots",
+      "Transparent ESG audit sign-off by accredited independent verifiers"
+    ],
+    "eu_customs_advantage": "Full institutional compliance with EUDR Article 3(a); rapid clearance at Spanish and Dutch feed-grain terminals.",
+    "optimal_yield_range_kg_ha": [2800.0, 3900.0],
+    "historical_clearance_success_rate": 0.992,
+    "statutory_archetype": "GOLDEN_MORATORIUM_COMPLIANT"
+  },
+  {
+    "benchmark_id": "BENCH-PALM-MALAYSIA-MSPO",
+    "commodity": "oil_palm",
+    "origin_country": "MY",
+    "model_name": "Malaysian Sustainable Palm Oil (MSPO Trace) Smallholder Alliance",
+    "historical_era": "2020-2026 National Mandatory Traceability System",
+    "success_factors": [
+      "National mandatory geo-fencing registered under MSPO Trace central database",
+      "Zero primary peatland conversion post-2020 cut-off date",
+      "Direct mill-to-refinery chain of custody certified under Mass Balance / Identity Preserved",
+      "Digital weighbridge API integration with instant digital tax invoice"
+    ],
+    "eu_customs_advantage": "Pre-screened verification code accepted by EU Single Window Environment for Customs (SWE-C).",
+    "optimal_yield_range_kg_ha": [3200.0, 5200.0],
+    "historical_clearance_success_rate": 0.989,
+    "statutory_archetype": "GOLDEN_NATIONAL_MANDATORY_TRACE"
+  },
+  {
+    "benchmark_id": "BENCH-RUBBER-VIETNAM-VRG",
+    "commodity": "rubber",
+    "origin_country": "VN",
+    "model_name": "Vietnam Rubber Group (VRG) Sustainable Plantation Cadastre",
+    "historical_era": "2021-2026 PEFC-Certified Rubberwood & Latex Export Rail",
+    "success_factors": [
+      "Historic replanting on long-established 1980s rubber concessions with zero natural forest encroachment",
+      "Full digital chain of custody from latex tapping collection centers to export compounding mills",
+      "Clean statutory harvest permits registered under Ministry of Agriculture (MARD)"
+    ],
+    "eu_customs_advantage": "Expedited customs clearance for European automotive tire manufacturers; zero penalty records under EU technical audits.",
+    "optimal_yield_range_kg_ha": [1100.0, 2100.0],
+    "historical_clearance_success_rate": 0.997,
+    "statutory_archetype": "GOLDEN_ESTABLISHED_PLANTATION"
+  }
+]
+

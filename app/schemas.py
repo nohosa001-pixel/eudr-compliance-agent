@@ -489,7 +489,7 @@ class EvidencePackageResponse(BaseModel):
 class ApiKeyCreateRequest(BaseModel):
     company_name: str
     contact_email: str
-    tier: str = "STARTER"  # STARTER, PRO, ENTERPRISE
+    tier: str = "PRO"  # PRO, ENTERPRISE
 
 
 class ApiKeyResponse(BaseModel):

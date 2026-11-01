@@ -279,14 +279,14 @@ def test_agent_create_payment_order_and_budget_cap():
             "company_name": "Autonomous Cocoa Agents LLC",
             "contact_email": "bot@cocoa-agents.io",
             "chain": "Base (Low Gas $0.01)",
-            "max_budget_usdc": 500.0  # PRO is 299 USDC <= 500
+            "max_budget_usdc": 800.0  # PRO is 700 USDC <= 800
         }
     }
     res = client.post("/api/v1/agent/tools/execute", json=payload)
     assert res.status_code == 200
     data = res.json()["result"]
     assert "ORD-" in data["order_id"]
-    assert data["amount_usdc"] == 299.0
+    assert data["amount_usdc"] == 700.0
     assert "0x" in data["deposit_wallet_address"]
     assert "qr_code_payload" in data
 
@@ -294,7 +294,7 @@ def test_agent_create_payment_order_and_budget_cap():
     budget_exceeded_payload = {
         "tool_name": "eudr_create_payment_order",
         "arguments": {
-            "plan_tier": "ENTERPRISE",  # 1990 USDC
+            "plan_tier": "ENTERPRISE",  # 2500 USDC
             "company_name": "Rogue Agent Inc",
             "contact_email": "rogue@agent.ai",
             "max_budget_usdc": 100.0  # Budget is only 100 USDC!
@@ -313,7 +313,7 @@ def test_agent_confirm_payment():
     create_payload = {
         "tool_name": "eudr_create_payment_order",
         "arguments": {
-            "plan_tier": "STARTER",
+            "plan_tier": "PRO",
             "company_name": "Green Timber Agent",
             "contact_email": "timber@greentimber.com"
         }
@@ -334,7 +334,7 @@ def test_agent_confirm_payment():
     conf_data = res_conf.json()["result"]
     assert conf_data["status"] == "CONFIRMED"
     assert "eudr_live_" in conf_data["api_key_issued"]
-    assert conf_data["plan_tier"] == "STARTER"
+    assert conf_data["plan_tier"] == "PRO"
 
 
 def test_agent_render_satellite_map():

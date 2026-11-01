@@ -65,6 +65,7 @@ def execute_eudr_cycle():
                 ElizaOSBrainSecurityBridge,
                 run_phase_1_domain_sft,
                 run_phase_spatial_satellite_grounding,
+                run_phase_historical_trade_learning,
                 run_phase_2_episodic_clearance,
                 run_phase_3_adversarial_red_teaming,
                 run_phase_4_swarm_simulation,
@@ -78,6 +79,7 @@ def execute_eudr_cycle():
 
             run_phase_1_domain_sft(bridge)
             run_phase_spatial_satellite_grounding(bridge)
+            run_phase_historical_trade_learning(bridge)
             run_phase_2_episodic_clearance(bridge)
             run_phase_3_adversarial_red_teaming(bridge)
             run_phase_4_swarm_simulation(bridge, runs=10)

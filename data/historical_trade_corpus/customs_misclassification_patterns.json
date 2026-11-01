@@ -27,3 +27,4 @@
     "detection_rule": "IF HS in ['4012.11', '4012.12'] AND origin in ['TH', 'VN', 'KH', 'ID'] THEN CROSS_CHECK_FACTORY_ACCREDITATION"
   }
 ]
+

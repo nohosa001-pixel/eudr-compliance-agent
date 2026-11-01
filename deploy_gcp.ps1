@@ -8,6 +8,10 @@ Write-Host "  EUDRAgent.com Cloud Run Production Deployment" -ForegroundColor Cy
 Write-Host "========================================================" -ForegroundColor Cyan
 
 # 1. Check gcloud CLI
+$gcloudBin = "C:\Users\nohos\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin"
+if (Test-Path $gcloudBin) {
+    $env:PATH = "$gcloudBin;$env:PATH"
+}
 if (-not (Get-Command gcloud -ErrorAction SilentlyContinue)) {
     Write-Host "[ERROR] gcloud CLI is not installed or not in PATH." -ForegroundColor Red
     exit 1

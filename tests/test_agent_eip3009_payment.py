@@ -51,7 +51,7 @@ def test_eip3009_authorization_endpoint_success():
     assert data["authorization_type"] == "EIP-3009_TRANSFER_WITH_AUTHORIZATION"
     assert data["gasless_for_agent"] is True
     assert data["amount_usdc"] == 2.50
-    assert data["num_plots_credited"] == 25  # $2.50 / $0.10
+    assert data["num_plots_credited"] == 50  # $2.50 / $0.05
     assert data["auth_token"].startswith("eudr_eip3009_")
     assert data["nonce"] == random_nonce.lower()
     assert "usdc_contract" in data

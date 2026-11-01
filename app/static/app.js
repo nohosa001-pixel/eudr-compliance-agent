@@ -269,6 +269,82 @@ const PRESETS = {
         }
       ]
     }
+  },
+
+  eu_importer_pilot: {
+    name: "🇪🇺 6. EU Importer Pilot (Rotterdam Multi-Plot Clearance)",
+    description: "Rotterdam/Hamburg inbound consignment with multi-plot coffee & furniture wood, showing automated 4ha polygon self-healing and TRACES-NT XML compliance.",
+    payload: {
+      operator_id: "NL-ROTTERDAM-IMP-8820",
+      operator_name: "Rotterdam Gateway Commodities B.V.",
+      eori_number: "NL823456789012",
+      commodity: "COFFEE",
+      hs_code: "0901.11.00",
+      product_description: "Arabica and Robusta Coffee Beans Inbound Consignment",
+      net_mass_kg: 48000.0,
+      plots: [
+        {
+          plot_id: "EU-PILOT-PLOT-01",
+          country_code: "VN",
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [108.4350, 11.9380],
+                [108.4410, 11.9380],
+                [108.4410, 11.9440],
+                [108.4350, 11.9440],
+                [108.4350, 11.9380]
+              ]
+            ]
+          },
+          declared_area_ha: 14.2,
+          production_date_start: "2024-01-01",
+          production_date_end: "2024-03-31",
+          producer_name: "Highland Smallholders Co-op (Encrypted Identity)"
+        },
+        {
+          plot_id: "EU-PILOT-PLOT-02",
+          country_code: "CI",
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [-6.4520, 6.8720],
+                [-6.4460, 6.8720],
+                [-6.4460, 6.8780],
+                [-6.4520, 6.8780],
+                [-6.4520, 6.8720]
+              ]
+            ]
+          },
+          declared_area_ha: 8.5,
+          production_date_start: "2024-02-01",
+          production_date_end: "2024-04-15",
+          producer_name: "Daloa Agroforestry Cluster"
+        }
+      ],
+      documents: [
+        {
+          document_type: "LAND_TITLE",
+          document_id: "LURC-PILOT-2024-01",
+          country_code: "VN",
+          issuing_authority: "Department of Natural Resources",
+          issue_date: "2020-01-15",
+          expiry_date: "2030-01-15",
+          plot_ids: ["EU-PILOT-PLOT-01"]
+        },
+        {
+          document_type: "HARVEST_PERMIT",
+          document_id: "HP-PILOT-CI-2024",
+          country_code: "CI",
+          issuing_authority: "Ministry of Water and Forests",
+          issue_date: "2023-11-01",
+          expiry_date: "2025-11-01",
+          plot_ids: ["EU-PILOT-PLOT-02"]
+        }
+      ]
+    }
   }
 };
 
@@ -2501,8 +2577,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.switchCockpitTab(requestedTab);
   }
 
-  // Load default preset (Compliant Vietnam) preserving pre-rendered compliance view
-  loadPreset('compliant_vietnam', true);
+  const requestedAction = urlParams.get('action');
+  if (requestedAction === 'pilot_audit') {
+    loadPreset('eu_importer_pilot', false);
+    if (typeof showToast === 'function') {
+      showToast('🇪🇺 EU Importer Pilot Loaded: Rotterdam Multi-Plot Inbound Clearance active.', 'success');
+    }
+  } else {
+    // Load default preset (Compliant Vietnam) preserving pre-rendered compliance view
+    loadPreset('compliant_vietnam', true);
+  }
 
   // Automatically execute live evaluation in the background to update with fresh telemetry
   setTimeout(() => {

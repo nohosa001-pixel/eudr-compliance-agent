@@ -1,0 +1,33 @@
+[
+  {
+    "precedent_id": "FAST-TRACK-FLEGT-INDONESIA",
+    "commodity": "wood",
+    "origin_country": "ID",
+    "bilateral_framework": "EU-Indonesia Voluntary Partnership Agreement (VPA) FLEGT Licensing",
+    "legal_basis": "EUTR Regulation (EU) 995/2010 Article 13 & EUDR Article 10(2)",
+    "statutory_mechanism": "FLEGT-licensed timber shipments are deemed legally harvested ipso jure without requiring additional risk assessment by EU competent authorities.",
+    "historical_outcome": "Over 280,000 maritime timber consignments cleared EU ports (Rotterdam, Hamburg, Le Havre) with 0% detention rate and average customs clearance time under 1.5 hours.",
+    "replication_blueprint_for_eudr": "Pair national electronic SVLK legality licenses with Sentinel-2 post-2020 zero-deforestation polygon verification to achieve automated Green Lane customs release."
+  },
+  {
+    "precedent_id": "FAST-TRACK-AEO-ROTTERDAM-COFFEE",
+    "commodity": "coffee",
+    "origin_country": "VN",
+    "bilateral_framework": "Authorized Economic Operator (AEO-C) Green Customs Corridor",
+    "legal_basis": "Union Customs Code (Regulation (EU) 952/2013) Article 38 & EU SWE-C Integration",
+    "statutory_mechanism": "Operators maintaining automated WORM electronic audit trails and verified plot geolocations receive lowest risk score (Box 44 TARIC code Y128 / Y130 fast-pass).",
+    "historical_outcome": "Reduced physical inspection frequency from standard 9% down to 0.08%, saving €340 per container in demurrage and port storage fees.",
+    "replication_blueprint_for_eudr": "Embed SHA-256 pre-validated Due Diligence Statement (DDS) reference code directly into Box 44 of the Single Administrative Document (SAD)."
+  },
+  {
+    "precedent_id": "FAST-TRACK-COTE-D-IVOIRE-COCOA-GUICHE",
+    "commodity": "cocoa",
+    "origin_country": "CI",
+    "bilateral_framework": "Guichet Unique du Commerce Extérieur (GUCE) Single Window Direct Integration",
+    "legal_basis": "EUDR Article 19 Competent Authority Electronic Customs Interoperability",
+    "statutory_mechanism": "Direct API handshake between Le Conseil du Café-Cacao national farm registry and EU TRACES-NT electronic customs clearing hub.",
+    "historical_outcome": "Automated batch clearance of 45,000 MT cocoa shipments with instantaneous certificate validation upon ocean bill of lading issuance.",
+    "replication_blueprint_for_eudr": "Standardize smallholder producer IDs using canonical ISO 3166-1 alpha-2 prefixes coupled with WGS84 polygon verification."
+  }
+]
+

@@ -1,0 +1,23 @@
+[
+  {
+    "hub_code": "SGSIN",
+    "port_name": "Port of Singapore",
+    "risk_level": "HIGH_SURVEILLANCE",
+    "historical_modus_operandi": "Transit point for Southeast Asian tropical timber, rubber, and palm oil. Container seal swaps and re-issuance of bills of lading (switch B/L) under Singaporean holding entities.",
+    "mandatory_inspection": "STRICT_SEAL_INTEGRITY_CHECK_AND_ORIGIN_GPS_PROVENANCE"
+  },
+  {
+    "hub_code": "MYTPP",
+    "port_name": "Tanjung Pelepas (Malaysia)",
+    "risk_level": "HIGH_SURVEILLANCE",
+    "historical_modus_operandi": "Barge transshipment from Sumatra/Kalimantan mills lacking ISPO/RSPO certification into Malaysian export pipelines.",
+    "mandatory_inspection": "BARGE_TRACKING_AIS_AND_MILL_CONCESSION_CADASTRE"
+  },
+  {
+    "hub_code": "AEDXB",
+    "port_name": "Jebel Ali / Dubai (UAE)",
+    "risk_level": "CRITICAL_AIRGAP_CHECK",
+    "historical_modus_operandi": "Financial re-invoicing and free zone re-packaging of East African and South American agricultural commodities to obscure true producer farm polygons.",
+    "mandatory_inspection": "FULL_FARM_GEOJSON_MANDATORY_NOT_TRADER_INVOICE"
+  }
+]

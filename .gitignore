@@ -42,4 +42,5 @@ project.tar.gz
 Thumbs.db
 
 # Runtime Data & Storage
-data/
+data/*
+!data/historical_trade_corpus/

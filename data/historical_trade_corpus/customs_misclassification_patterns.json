@@ -1,0 +1,29 @@
+[
+  {
+    "pattern_id": "MISCLASS-WOOD-01",
+    "declared_hs": "4401.31",
+    "declared_desc": "Wood pellets for renewable biomass fuel",
+    "true_commodity_hs": "4403.11",
+    "true_desc": "High-value roundwood and logs from primary virgin forest",
+    "fraud_mechanism": "Grinding or chipping roundwood or mislabeling whole logs as industrial pellets to bypass stringent EUTR/EUDR DDS scrutiny.",
+    "detection_rule": "IF HS in ['4401.31', '4401.39'] AND declared_value_per_kg > 0.85 USD THEN FLAG_MISCLASSIFICATION_AUDIT"
+  },
+  {
+    "pattern_id": "MISCLASS-COCOA-02",
+    "declared_hs": "1802.00",
+    "declared_desc": "Cocoa shells, husks, skins and other waste",
+    "true_commodity_hs": "1801.00",
+    "true_desc": "Raw cocoa beans harvested from deforested protected zones",
+    "fraud_mechanism": "Concealing whole beans under cocoa waste tariff codes with zero import duty and lower sanitary inspection rates.",
+    "detection_rule": "IF HS == '1802.00' AND net_mass_kg > 5000.0 THEN FLAG_SENSITIVITY_SCAN"
+  },
+  {
+    "pattern_id": "MISCLASS-RUBBER-03",
+    "declared_hs": "4012.11",
+    "declared_desc": "Retreaded pneumatic tyres for motor cars",
+    "true_commodity_hs": "4001.10",
+    "true_desc": "Natural rubber latex compounded in illegal plantations",
+    "fraud_mechanism": "Exploiting EU Delegated Act Annex I exemptions for retreaded rubber tyres to smuggle unverified natural rubber vulcanizates.",
+    "detection_rule": "IF HS in ['4012.11', '4012.12'] AND origin in ['TH', 'VN', 'KH', 'ID'] THEN CROSS_CHECK_FACTORY_ACCREDITATION"
+  }
+]

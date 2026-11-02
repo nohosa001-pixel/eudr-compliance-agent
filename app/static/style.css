@@ -1112,7 +1112,7 @@ pre.code-viewer {
   margin-top: 4px;
 }
 
-/* Responsive Rules for Mobile */
+/* Responsive Rules for Mobile (Pixel & Modern Smartphones) */
 @media (max-width: 900px) {
   header {
     padding: 0.85rem 1rem;
@@ -1162,6 +1162,126 @@ pre.code-viewer {
 
   .apm-metrics-row {
     grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .executive-top-bar {
+    padding: 6px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    font-size: 0.7rem;
+  }
+
+  .executive-top-left {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .executive-top-center, .executive-top-right {
+    font-size: 0.68rem;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  header {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .header-actions {
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .header-actions .btn {
+    flex-shrink: 0;
+  }
+
+  .preset-bar {
+    padding: 0.6rem 0.75rem;
+    gap: 8px;
+  }
+
+  .preset-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .preset-btn {
+    padding: 6px 8px;
+    font-size: 0.72rem;
+    text-align: center;
+    white-space: normal;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dashboard-grid {
+    padding: 0 0.5rem;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 0.85rem;
+    border-radius: 10px;
+  }
+
+  #map {
+    height: 280px !important;
+    border-radius: 8px;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .table-container, .table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .apm-metrics-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px;
+  }
+
+  .apm-metric-card {
+    padding: 8px 10px;
+  }
+
+  .apm-metric-val {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-title h1 {
+    font-size: 1.1rem;
+  }
+
+  .preset-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    padding: 0 0.25rem;
+  }
+
+  .card {
+    padding: 0.75rem 0.6rem;
   }
 }
 

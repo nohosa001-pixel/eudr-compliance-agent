@@ -1112,7 +1112,11 @@ pre.code-viewer {
   margin-top: 4px;
 }
 
-/* Responsive Rules for Mobile (Pixel & Modern Smartphones) */
+/* Responsive Rules for Mobile (Pixel 9 Pro XL & Modern Smartphones) */
+.cockpit-main {
+  padding: 1.25rem 1.5rem;
+}
+
 @media (max-width: 900px) {
   header {
     padding: 0.85rem 1rem;
@@ -1148,10 +1152,6 @@ pre.code-viewer {
     align-items: stretch;
   }
 
-  .preset-buttons {
-    flex-wrap: wrap;
-  }
-
   .dashboard-grid {
     grid-template-columns: 1fr !important;
   }
@@ -1171,7 +1171,7 @@ pre.code-viewer {
   }
 
   .executive-top-bar {
-    padding: 6px 12px;
+    padding: 6px 10px;
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
@@ -1205,31 +1205,49 @@ pre.code-viewer {
     flex-shrink: 0;
   }
 
+  .cockpit-tabs-bar {
+    padding: 8px 10px;
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cockpit-tab-btn {
+    padding: 6px 12px;
+    font-size: 0.74rem;
+    flex-shrink: 0;
+  }
+
+  .cockpit-main {
+    padding: 0.6rem 0.5rem !important;
+  }
+
   .preset-bar {
-    padding: 0.6rem 0.75rem;
+    padding: 0.6rem 0.65rem;
     gap: 8px;
   }
 
   .preset-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 6px;
     width: 100%;
   }
 
-  .preset-btn {
-    padding: 6px 8px;
-    font-size: 0.72rem;
-    text-align: center;
+  .btn-preset {
+    width: 100%;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.76rem;
+    justify-content: flex-start;
+    min-height: 42px;
     white-space: normal;
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: left;
   }
 
   .dashboard-grid {
-    padding: 0 0.5rem;
+    padding: 0 0.25rem;
     gap: 12px;
   }
 
@@ -1238,9 +1256,96 @@ pre.code-viewer {
     border-radius: 10px;
   }
 
-  #map {
+  .map-wrapper {
     height: 280px !important;
+  }
+
+  #map {
+    height: 100% !important;
     border-radius: 8px;
+  }
+
+  .map-overlay-legend {
+    bottom: 6px;
+    right: 6px;
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    gap: 2px;
+  }
+
+  #overall-status-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+
+  #overall-status-card .status-left {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #overall-status-card #btn-submit-traces {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pipeline-stepper {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+  }
+
+  .step-box {
+    padding: 8px 10px;
+  }
+
+  .step-name {
+    font-size: 0.82rem;
+  }
+
+  .step-detail {
+    font-size: 0.72rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 0.74rem;
+  }
+
+  #payload-editor {
+    height: 180px;
+    font-size: 0.72rem;
+    width: 100%;
+  }
+
+  #btn-evaluate {
+    min-height: 48px;
+    font-size: 0.88rem;
+    width: 100%;
+  }
+
+  .hs-lookup-group {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hs-lookup-group input, .hs-lookup-group button {
+    width: 100%;
+    min-height: 42px;
   }
 
   .btn {
@@ -1269,19 +1374,15 @@ pre.code-viewer {
 
 @media (max-width: 480px) {
   .logo-title h1 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
-  .preset-buttons {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-grid {
-    padding: 0 0.25rem;
+  .preset-bar {
+    padding: 0.5rem;
   }
 
   .card {
-    padding: 0.75rem 0.6rem;
+    padding: 0.75rem 0.5rem;
   }
 }
 

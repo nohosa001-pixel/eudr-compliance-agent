@@ -140,24 +140,25 @@
       gap: 8px;
     }
 
-    .btn-top-icon {
-      background: rgba(255, 255, 255, 0.05);
+    .btn-top-home {
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-sm);
+      color: #f8fafc;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      cursor: pointer;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
       text-decoration: none;
+      transition: all 0.15s;
     }
 
-    .btn-top-icon:active {
-      transform: scale(0.95);
-      background: rgba(255, 255, 255, 0.1);
+    .btn-top-home:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     /* 1-Tap Role Switcher Bar */
@@ -803,7 +804,7 @@
 
   <!-- Top Navigation Bar -->
   <header class="top-bar">
-    <a href="/dashboard" class="brand-wrap">
+    <a href="/" class="brand-wrap">
       <div class="brand-logo-badge">🌿</div>
       <div>
         <span class="brand-title">EUDR.agent</span>
@@ -811,10 +812,11 @@
       </div>
     </a>
     <div class="top-actions">
-      <!-- QR Scanner quick trigger -->
-      <button class="btn-top-icon" onclick="openQrScannerModal()" title="Scan QR Code">📷</button>
-      <!-- Switch to Desktop Cockpit -->
-      <a href="/dashboard?view=desktop" class="btn-top-icon" title="Switch to 1920px Desktop Cockpit">🖥️</a>
+      <!-- Clean Home Return Button -->
+      <a href="/" class="btn-top-home" title="Return to Home">
+        <span>🏠</span>
+        <span>Home</span>
+      </a>
     </div>
   </header>
 
@@ -1155,6 +1157,10 @@
 
   <!-- Fixed Bottom Role Navigation Bar -->
   <nav class="mobile-bottom-nav">
+    <a href="/" class="nav-tab-btn" style="text-decoration: none;">
+      <span class="nav-tab-icon">🏠</span>
+      <span>Home</span>
+    </a>
     <button class="nav-tab-btn active" id="nav-btn-ops" onclick="switchRole('ops')">
       <span class="nav-tab-icon">🔍</span>
       <span>Field Ops</span>

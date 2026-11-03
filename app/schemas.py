@@ -227,24 +227,30 @@ class EUDRSupplyChainPayload(BaseModel):
         if "supplier_id" not in data or not data["supplier_id"]:
             data["supplier_id"] = "DEMO-SUPPLIER-01"
             
-        # 2. Default operator
-        if "operator" not in data or not isinstance(data["operator"], dict):
+        # 2. Default operator: if object (OperatorInfo) already provided, preserve it!
+        if "operator" not in data or not data["operator"]:
             data["operator"] = {
                 "operator_name": "EU Importer Demo B.V.",
                 "eori_number": "NL849302194",
                 "country": "NL",
                 "address": "Wilhelminakade 901, 3072 AP Rotterdam, Netherlands"
             }
-        else:
+        elif isinstance(data["operator"], dict):
             op = data["operator"]
             if not op.get("operator_name"): op["operator_name"] = "EU Importer Demo B.V."
             if not op.get("eori_number"): op["eori_number"] = "NL849302194"
             if not op.get("country"): op["country"] = "NL"
             if not op.get("address"): op["address"] = "Wilhelminakade 901, Rotterdam"
 
-        # 3. Default commodity
-        if "commodity" not in data or not isinstance(data["commodity"], dict):
-            comm_str = str(data.get("commodity", "coffee")).lower()
+        # 3. Default commodity: if object (CommodityInfo) already provided, preserve it!
+        if "commodity" not in data or not data["commodity"]:
+            data["commodity"] = {
+                "hs_code": "090111",
+                "description": "Specialty Arabica Coffee beans",
+                "net_mass_kg": 18400.0
+            }
+        elif isinstance(data["commodity"], str):
+            comm_str = data["commodity"].lower()
             hs = "090111" if "coffee" in comm_str else ("440711" if "timber" in comm_str or "wood" in comm_str else ("180100" if "cocoa" in comm_str else "090111"))
             desc = "Specialty Arabica Coffee beans" if "coffee" in comm_str else ("FSC Sawn Timber" if "timber" in comm_str else "Raw Cocoa Beans")
             data["commodity"] = {
@@ -252,13 +258,13 @@ class EUDRSupplyChainPayload(BaseModel):
                 "description": desc,
                 "net_mass_kg": 18400.0
             }
-        else:
+        elif isinstance(data["commodity"], dict):
             c = data["commodity"]
             if not c.get("hs_code"): c["hs_code"] = "090111"
             if not c.get("description"): c["description"] = "Coffee, not roasted"
             if not c.get("net_mass_kg") or c["net_mass_kg"] <= 0: c["net_mass_kg"] = 1000.0
 
-        # 4. Default plots
+        # 4. Default plots: if list of ProductionPlotInput objects already provided, preserve them!
         if "plots" not in data or not data["plots"] or not isinstance(data["plots"], list):
             lat = data.get("lat") or data.get("latitude") or 0.7893
             lon = data.get("lon") or data.get("lng") or data.get("longitude") or 101.4421
@@ -272,7 +278,7 @@ class EUDRSupplyChainPayload(BaseModel):
                 },
                 "production_date": str(date.today())
             }]
-        else:
+        elif len(data["plots"]) > 0 and isinstance(data["plots"][0], dict):
             for idx, p in enumerate(data["plots"]):
                 if isinstance(p, dict):
                     if not p.get("plot_id"): p["plot_id"] = f"PLOT-{idx+1:02d}"

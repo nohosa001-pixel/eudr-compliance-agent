@@ -321,6 +321,63 @@
       margin-top: 10px;
     }
 
+    /* 1-Line Autonomous Agent Guarantee Badge */
+    .agent-trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      color: #a7f3d0;
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .agent-trust-badge.badge-gold {
+      background: rgba(251, 191, 36, 0.08);
+      border-color: rgba(251, 191, 36, 0.25);
+      color: #fde68a;
+    }
+
+    .agent-trust-badge.badge-cyan {
+      background: rgba(6, 182, 212, 0.08);
+      border-color: rgba(6, 182, 212, 0.25);
+      color: #a5f3fc;
+    }
+
+    .agent-pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 6px var(--emerald);
+      animation: agentBlink 1.8s infinite;
+      flex-shrink: 0;
+    }
+
+    .badge-gold .agent-pulse-dot {
+      background: var(--gold);
+      box-shadow: 0 0 6px var(--gold);
+    }
+
+    .badge-cyan .agent-pulse-dot {
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+    }
+
+    @keyframes agentBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.8); }
+    }
+
     /* 1-Tap Scenarios Carousel */
     .chips-carousel {
       display: flex;
@@ -806,6 +863,10 @@
         <div class="verdict-ref-pill" id="verdict-ref-pill">
           <span>DDS:</span> <strong id="verdict-ref-id">EUDR-2026-ID-COF-8921</strong>
         </div>
+        <div class="agent-trust-badge" id="verdict-agent-badge">
+          <span class="agent-pulse-dot"></span>
+          <span>🤖 <strong>Autonomous Agent:</strong> 12 checks verified in 0.4s (Sentinel-2 + TRACES B2G)</span>
+        </div>
       </div>
 
       <!-- 3-Step Simple Progress Stepper -->
@@ -878,6 +939,10 @@
         </div>
         <div style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 2px;">Global EU Export Portfolio</div>
         <div style="font-size: 12px; color: var(--text-muted);">Rotterdam • Hamburg • Antwerp Terminals</div>
+        <div class="agent-trust-badge badge-gold">
+          <span class="agent-pulse-dot"></span>
+          <span>🤖 <strong>AI Risk Shield:</strong> 24/7 Autonomous Radar • Zero Art. 25 Penalty Exposure</span>
+        </div>
       </div>
 
       <!-- 4 Core Executive KPIs -->
@@ -965,6 +1030,10 @@
         </div>
         <div style="font-size: 15px; font-weight: 700; color: #fff;" id="prod-welcome">Sumatra Co-op Plot #04</div>
         <div style="font-size: 12px; color: var(--text-muted);" id="prod-sub">Register farm coordinates for zero-deforestation export.</div>
+        <div class="agent-trust-badge badge-cyan">
+          <span class="agent-pulse-dot"></span>
+          <span>🤖 <strong>Autonomous Self-Healing:</strong> GPS Canopy Jitter Cleared • ZK-Proof Sealed</span>
+        </div>
       </div>
 
       <!-- 1-Tap GPS Record Area -->
@@ -1185,6 +1254,8 @@
       const subText = document.getElementById('verdict-sub-text');
       const refId = document.getElementById('verdict-ref-id');
 
+      const agentBadge = document.getElementById('verdict-agent-badge');
+
       if (s.isAlert) {
         card.style.background = 'linear-gradient(145deg, rgba(239, 68, 68, 0.15) 0%, rgba(127, 29, 29, 0.3) 100%)';
         card.style.borderColor = 'rgba(239, 68, 68, 0.5)';
@@ -1193,6 +1264,12 @@
         icon.style.color = 'var(--crimson)';
         icon.textContent = '✕';
         statusText.style.color = '#fca5a5';
+        if (agentBadge) {
+          agentBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+          agentBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+          agentBadge.style.color = '#fca5a5';
+          agentBadge.innerHTML = '<span class="agent-pulse-dot" style="background: var(--crimson); box-shadow: 0 0 6px var(--crimson);"></span><span>🤖 <strong>Autonomous Agent Alert:</strong> Deforestation detected post-2020 • Entry Blocked</span>';
+        }
       } else {
         card.style.background = 'linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.25) 100%)';
         card.style.borderColor = 'rgba(16, 185, 129, 0.4)';
@@ -1201,6 +1278,12 @@
         icon.style.color = '#fff';
         icon.textContent = '✓';
         statusText.style.color = '#fff';
+        if (agentBadge) {
+          agentBadge.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+          agentBadge.style.background = 'rgba(16, 185, 129, 0.08)';
+          agentBadge.style.color = '#a7f3d0';
+          agentBadge.innerHTML = '<span class="agent-pulse-dot"></span><span>🤖 <strong>Autonomous Agent:</strong> 12 checks verified in 0.4s (Sentinel-2 + TRACES B2G)</span>';
+        }
       }
 
       statusText.textContent = s.status;

@@ -382,12 +382,38 @@ async def serve_landing(request: Request):
         return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>EUDR.agent Platform is running. Visit /docs for Swagger UI.</h2>", headers=NO_CACHE_HEADERS)
 
+def is_mobile_request(request: Request) -> bool:
+    """Detects whether incoming request is from a mobile device or specifically requested mobile view."""
+    view_param = request.query_params.get("view", "").lower()
+    if view_param == "desktop":
+        return False
+    if view_param == "mobile":
+        return True
+    ua = request.headers.get("user-agent", "").lower()
+    return any(keyword in ua for keyword in ["android", "iphone", "ipod", "mobile", "blackberry", "webos", "pixel"])
+
+@app.api_route("/mobile", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/m", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_mobile_hub(request: Request):
+    """Serves the dedicated 3-Tier Mobile Compliance Hub for Producers, Field Ops, and C-Suite."""
+    if request.method == "HEAD":
+        return Response(status_code=200, headers={"Content-Type": "text/html"})
+    mobile_file = STATIC_DIR / "mobile_hub.html"
+    if mobile_file.exists():
+        return FileResponse(str(mobile_file), headers=NO_CACHE_HEADERS)
+    return HTMLResponse("<h2>EUDR Mobile Hub is running.</h2>", headers=NO_CACHE_HEADERS)
+
 @app.api_route("/dashboard", methods=["GET", "HEAD"], include_in_schema=False)
 @app.api_route("/app", methods=["GET", "HEAD"], include_in_schema=False)
 async def serve_dashboard(request: Request):
-    """Serves the interactive EUDR Compliance Console & Operator Workbench."""
+    """Serves the interactive EUDR Compliance Console & Operator Workbench (Auto-routes mobile to mobile_hub)."""
     if request.method == "HEAD":
         return Response(status_code=200, headers={"Content-Type": "text/html"})
+    
+    mobile_file = STATIC_DIR / "mobile_hub.html"
+    if is_mobile_request(request) and mobile_file.exists():
+        return FileResponse(str(mobile_file), headers=NO_CACHE_HEADERS)
+
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file), headers=NO_CACHE_HEADERS)
@@ -399,6 +425,11 @@ async def serve_supplier_portal(request: Request):
     """Serves the Supplier EUDR Pre-Clearance & Onboarding Portal."""
     if request.method == "HEAD":
         return Response(status_code=200, headers={"Content-Type": "text/html"})
+    
+    mobile_file = STATIC_DIR / "mobile_hub.html"
+    if is_mobile_request(request) and mobile_file.exists():
+        return FileResponse(str(mobile_file), headers=NO_CACHE_HEADERS)
+
     portal_file = STATIC_DIR / "supplier_portal.html"
     if portal_file.exists():
         return FileResponse(str(portal_file), headers=NO_CACHE_HEADERS)

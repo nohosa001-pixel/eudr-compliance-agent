@@ -27,6 +27,7 @@ eudr_compliance_agent-*/
 .pytest_cache/
 .coverage
 htmlcov/
+scratch/
 
 # Local DB & Secret Environment Files
 *.db

@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>EUDR.agent Mobile — Zero-Deforestation Global Clearance</title>
+  <meta name="description" content="Mobile EUDR Compliance Command Hub for Producers, Port Inspectors, and Export Executives.">
+  <meta name="theme-color" content="#030712">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #030712;
+      --bg-surface: #0b1120;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --bg-card-hover: rgba(30, 41, 59, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(16, 185, 129, 0.4);
+      
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --emerald-dark: #064e3b;
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.2);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.2);
+      --crimson: #ef4444;
+      --crimson-glow: rgba(239, 68, 68, 0.25);
+      --gold: #fbbf24;
+      --purple: #8b5cf6;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.45;
+      min-height: 100vh;
+      overflow-x: hidden !important;
+      position: relative;
+      padding-top: calc(var(--safe-top) + 64px);
+      padding-bottom: calc(var(--safe-bottom) + 84px);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* Top Navigation Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--safe-top) + 58px);
+      padding-top: var(--safe-top);
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 16px;
+      padding-right: 16px;
+      z-index: 100;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .brand-logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 0 12px var(--emerald-glow);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-top-icon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-top-icon:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 1-Tap Role Switcher Bar */
+    .role-switcher-container {
+      padding: 0 16px 12px 16px;
+    }
+
+    .role-switcher {
+      display: flex;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .role-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 4px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .role-btn.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .role-btn.role-csuite.active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(139, 92, 246, 0.15));
+      border-color: rgba(251, 191, 36, 0.5);
+      color: #fef08a;
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+    }
+
+    /* Main Container */
+    .main-content {
+      padding: 0 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Views */
+    .role-view {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    .role-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .mobile-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Hero Verdict Badge */
+    .verdict-hero {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.25) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 20px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.15);
+    }
+
+    .verdict-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .verdict-icon-wrap {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 10px auto;
+      background: rgba(16, 185, 129, 0.2);
+      border: 2px solid var(--emerald);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 0 20px var(--emerald-glow);
+    }
+
+    .verdict-status {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .verdict-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .verdict-ref-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--emerald);
+      margin-top: 10px;
+    }
+
+    /* 1-Tap Scenarios Carousel */
+    .chips-carousel {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .chips-carousel::-webkit-scrollbar { display: none; }
+
+    .chip-btn {
+      flex: 0 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 9px 14px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:active, .chip-btn.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: var(--emerald);
+      color: #fff;
+      transform: scale(0.97);
+    }
+
+    .chip-btn.alert:active, .chip-btn.alert.active {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: var(--crimson);
+      color: #fca5a5;
+    }
+
+    /* 3-Step Simple Progress Stepper */
+    .stepper-wrap {
+      margin-top: 6px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      padding-bottom: 18px;
+    }
+
+    .step-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 26px;
+      left: 13px;
+      width: 2px;
+      bottom: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .step-item.done:not(:last-child)::after {
+      background: var(--emerald);
+    }
+
+    .step-icon-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-faint);
+      z-index: 2;
+    }
+
+    .step-item.done .step-icon-dot {
+      background: var(--emerald-dark);
+      border-color: var(--emerald);
+      color: #fff;
+    }
+
+    .step-item.active .step-icon-dot {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      animation: pulseDot 1.4s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(6, 182, 212, 0); }
+    }
+
+    .step-info {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Big Action Buttons */
+    .btn-action-primary {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--emerald-glow);
+      transition: all 0.15s;
+      margin-top: 10px;
+    }
+
+    .btn-action-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px var(--emerald-glow);
+    }
+
+    .btn-action-secondary {
+      width: 100%;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.15s;
+    }
+
+    .btn-action-secondary:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* C-Suite Executive Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .kpi-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      position: relative;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .kpi-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .kpi-emerald { background: rgba(16, 185, 129, 0.15); color: var(--emerald); }
+    .kpi-amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+
+    .csuite-alert-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .csuite-alert-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #fef08a;
+      margin-bottom: 4px;
+    }
+
+    /* Producer Gateway Elements */
+    .gps-tap-area {
+      background: linear-gradient(145deg, rgba(6, 182, 212, 0.1) 0%, rgba(15, 23, 42, 0.6) 100%);
+      border: 2px dashed rgba(6, 182, 212, 0.35);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .gps-tap-area:active {
+      border-color: var(--cyan);
+      background: rgba(6, 182, 212, 0.15);
+      transform: scale(0.99);
+    }
+
+    .gps-icon-ring {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 10px auto;
+      border-radius: var(--radius-full);
+      background: rgba(6, 182, 212, 0.15);
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    /* Search & Short Code Bar */
+    .search-box-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      color: #fff;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .btn-search-go {
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Map Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Toast Notification */
+    .toast-msg {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 90px);
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--emerald);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: var(--radius-full);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 300;
+      white-space: nowrap;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Fixed Bottom Footer Links */
+    .mobile-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--safe-bottom) + 60px);
+      padding-bottom: var(--safe-bottom);
+      background: rgba(3, 7, 18, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 100;
+    }
+
+    .nav-tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: transparent;
+      border: none;
+      color: var(--text-faint);
+      font-family: var(--font-sans);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      height: 100%;
+    }
+
+    .nav-tab-btn.active {
+      color: var(--emerald);
+    }
+
+    .nav-tab-btn.nav-csuite.active {
+      color: var(--gold);
+    }
+
+    .nav-tab-icon {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-bar">
+    <a href="/dashboard" class="brand-wrap">
+      <div class="brand-logo-badge">🌿</div>
+      <div>
+        <span class="brand-title">EUDR.agent</span>
+        <span class="brand-tag">v2.4</span>
+      </div>
+    </a>
+    <div class="top-actions">
+      <!-- QR Scanner quick trigger -->
+      <button class="btn-top-icon" onclick="openQrScannerModal()" title="Scan QR Code">📷</button>
+      <!-- Switch to Desktop Cockpit -->
+      <a href="/dashboard?view=desktop" class="btn-top-icon" title="Switch to 1920px Desktop Cockpit">🖥️</a>
+    </div>
+  </header>
+
+  <!-- 1-Tap Role Switcher Bar -->
+  <div class="role-switcher-container">
+    <div class="role-switcher">
+      <button class="role-btn active" id="btn-role-ops" onclick="switchRole('ops')">
+        <span>🔍</span> Field Ops
+      </button>
+      <button class="role-btn role-csuite" id="btn-role-csuite" onclick="switchRole('csuite')">
+        <span>👔</span> C-Suite
+      </button>
+      <button class="role-btn" id="btn-role-producer" onclick="switchRole('producer')">
+        <span>🚜</span> Producer
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: FIELD OPERATIONS HUB (항만·현장실무) -->
+    <!-- ========================================== -->
+    <section id="view-ops" class="role-view active">
+
+      <!-- Search & 6-Digit Short Code Bar -->
+      <div class="search-box-wrap">
+        <input type="text" id="ops-search-input" class="search-input" placeholder="Enter B/L, DDS ID, or Short Code (#8921)" value="#EUDR-8921">
+        <button class="btn-search-go" onclick="runSearchAudit()">🔍</button>
+      </div>
+
+      <!-- 1-Tap Audit Scenarios Chips -->
+      <div class="chips-carousel">
+        <button class="chip-btn active" onclick="loadScenario('sumatra')">☕ Sumatra Coffee</button>
+        <button class="chip-btn" onclick="loadScenario('gabon')">🪵 Gabon Timber</button>
+        <button class="chip-btn" onclick="loadScenario('ivory')">🍫 Ivory Cocoa</button>
+        <button class="chip-btn alert" onclick="loadScenario('violation')">⚠️ Test Violation</button>
+      </div>
+
+      <!-- Hero Verdict Badge -->
+      <div class="verdict-hero" id="verdict-card">
+        <div class="verdict-icon-wrap" id="verdict-icon">✓</div>
+        <div class="verdict-status" id="verdict-status-text">CLEARED FOR EU ENTRY</div>
+        <div class="verdict-sub" id="verdict-sub-text">18.4 MT Sumatra Arabica • Port of Rotterdam</div>
+        <div class="verdict-ref-pill" id="verdict-ref-pill">
+          <span>DDS:</span> <strong id="verdict-ref-id">EUDR-2026-ID-COF-8921</strong>
+        </div>
+      </div>
+
+      <!-- 3-Step Simple Progress Stepper -->
+      <div class="mobile-card">
+        <div class="card-title">
+          <span>LIVE PIPELINE PROGRESS</span>
+          <span style="color: var(--emerald); font-weight: 700;">100% COMPLETE</span>
+        </div>
+
+        <div class="stepper-wrap">
+          <div class="step-item done" id="step-1">
+            <div class="step-icon-dot">✓</div>
+            <div class="step-info">
+              <div class="step-title">1. Location Verified</div>
+              <div class="step-desc">12 Farm polygons checked • WGS84 Valid</div>
+            </div>
+          </div>
+
+          <div class="step-item done" id="step-2">
+            <div class="step-icon-dot">✓</div>
+            <div class="step-info">
+              <div class="step-title">2. Satellite Radar Clear</div>
+              <div class="step-desc">Copernicus Sentinel-2: 0.00 ha loss post-2020</div>
+            </div>
+          </div>
+
+          <div class="step-item done" id="step-3">
+            <div class="step-icon-dot">✓</div>
+            <div class="step-info">
+              <div class="step-title">3. EU Customs Statement Ready</div>
+              <div class="step-desc">TRACES NT XML Signed with SHA-256 Seal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Satellite Preview Thumbnail Card -->
+      <div class="mobile-card" style="padding: 12px; cursor: pointer;" onclick="openMapModal()">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">🛰️</span>
+            <div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff;">Parcel Boundary Satellite Map</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">Coordinates: 0.7893° N, 101.4421° E</div>
+            </div>
+          </div>
+          <span style="color: var(--cyan); font-size: 12px; font-weight: 600;">⤢ Open</span>
+        </div>
+      </div>
+
+      <!-- 1-Tap Action Buttons -->
+      <button class="btn-action-primary" onclick="shareCompliancePass()">
+        <span>📤</span> Share Compliance Pass (WhatsApp / Port)
+      </button>
+      <button class="btn-action-secondary" onclick="copyDdsRef()">
+        <span>📋</span> Copy TRACES Reference Number
+      </button>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: C-SUITE EXECUTIVE WAR ROOM (임원진)  -->
+    <!-- ========================================== -->
+    <section id="view-csuite" class="role-view">
+
+      <div class="mobile-card" style="background: linear-gradient(145deg, rgba(251, 191, 36, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%); border-color: rgba(251, 191, 36, 0.3);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 0.05em;">👔 CEO COMPLIANCE RADAR</span>
+          <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-faint);">ERP SYNC: 14m ago</span>
+        </div>
+        <div style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 2px;">Global EU Export Portfolio</div>
+        <div style="font-size: 12px; color: var(--text-muted);">Rotterdam • Hamburg • Antwerp Terminals</div>
+      </div>
+
+      <!-- 4 Core Executive KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">Monitored Volume</div>
+          <div class="kpi-val">€38.5M</div>
+          <span class="kpi-badge kpi-emerald">100% Tracked</span>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">EU Clearance</div>
+          <div class="kpi-val" style="color: var(--emerald);">96.4%</div>
+          <span class="kpi-badge kpi-emerald">€37.1M Cleared</span>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">At-Risk Cargo</div>
+          <div class="kpi-val" style="color: var(--amber);">€1.4M</div>
+          <span class="kpi-badge kpi-amber">1 Action Pending</span>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Penalty Exposure</div>
+          <div class="kpi-val" style="color: var(--emerald);">€0.00</div>
+          <span class="kpi-badge kpi-emerald">Article 25 Safe</span>
+        </div>
+      </div>
+
+      <!-- CEO Action Required Banner -->
+      <div class="csuite-alert-box">
+        <div class="csuite-alert-head">
+          <span>🚨</span> 1 Shipment Requires Executive Sign-Off
+        </div>
+        <div style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px;">
+          Container <strong>#MSCU-8891</strong> (Gabon Timber • €420K) auto-sliced to comply with &le;4ha parcel rules.
+        </div>
+        <button class="btn-action-primary" style="height: 42px; font-size: 13.5px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);" onclick="ceoSignOff()">
+          <span>✍️</span> 1-Tap CEO Sign-Off & Release to EU
+        </button>
+      </div>
+
+      <!-- Commodity Breakdown -->
+      <div class="mobile-card">
+        <div class="card-title">
+          <span>PORTFOLIO BY COMMODITY</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>☕ Specialty Coffee (Indonesia)</span>
+            <strong style="color: var(--emerald);">100% Cleared (€18M)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>🪵 FSC Timber Concessions (Gabon)</span>
+            <strong style="color: var(--amber);">94% Cleared (€12M)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>🍫 Smallholder Cocoa (Ivory Coast)</span>
+            <strong style="color: var(--emerald);">100% Cleared (€8.5M)</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executive Action -->
+      <button class="btn-action-secondary" onclick="downloadBoardPdf()">
+        <span>📄</span> Download 1-Page Board Briefing PDF
+      </button>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: PRODUCER GATEWAY (산지 농장·생산자)   -->
+    <!-- ========================================== -->
+    <section id="view-producer" class="role-view">
+
+      <div class="mobile-card" style="background: linear-gradient(145deg, rgba(6, 182, 212, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%); border-color: rgba(6, 182, 212, 0.3);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em;">🚜 PRODUCER FARM PASSPORT</span>
+          <!-- Language Switcher -->
+          <select id="lang-select" onchange="changeLanguage()" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); color: #fff; font-size: 11px; padding: 2px 6px; border-radius: var(--radius-sm);">
+            <option value="en">🇬🇧 English</option>
+            <option value="id">🇮🇩 Bahasa Indonesia</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="pt">🇧🇷 Português</option>
+            <option value="kr">🇰🇷 한국어</option>
+          </select>
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: #fff;" id="prod-welcome">Sumatra Co-op Plot #04</div>
+        <div style="font-size: 12px; color: var(--text-muted);" id="prod-sub">Register farm coordinates for zero-deforestation export.</div>
+      </div>
+
+      <!-- 1-Tap GPS Record Area -->
+      <div class="gps-tap-area" onclick="recordGpsBoundary()">
+        <div class="gps-icon-ring">📍</div>
+        <div style="font-weight: 800; font-size: 16px; color: #fff;" id="prod-gps-title">Record Farm GPS Boundary</div>
+        <div style="font-size: 12px; color: var(--cyan); margin-top: 4px;" id="prod-gps-sub">Tap to walk parcel perimeter (±1.2m Accuracy)</div>
+      </div>
+
+      <!-- Land Title Snapshot -->
+      <div class="mobile-card" style="padding: 12px; cursor: pointer;" onclick="snapLandTitle()">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 22px;">📷</span>
+            <div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff;">Snap Land Permit / Harvest Title</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">Encrypted on-device (Zero-Knowledge)</div>
+            </div>
+          </div>
+          <span style="color: var(--emerald); font-size: 18px;">+</span>
+        </div>
+      </div>
+
+      <!-- Zero-Knowledge Privacy Seal -->
+      <div class="mobile-card" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="font-size: 16px;">🛡️</span>
+          <span style="font-size: 12px; font-weight: 700; color: var(--emerald);">ZERO-KNOWLEDGE PRIVACY ACTIVE</span>
+        </div>
+        <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">
+          Your exact farm yield and coordinates are shielded from middleman price-gouging. Only cryptographic proof is sent to EU Customs.
+        </div>
+      </div>
+
+      <!-- Action -->
+      <button class="btn-action-primary" onclick="generateFarmQr()">
+        <span>📲</span> Generate Farm QR Passport
+      </button>
+
+    </section>
+
+  </main>
+
+  <!-- Satellite Map Modal -->
+  <div class="modal-backdrop" id="map-modal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeMapModal()">✕</button>
+      <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">🛰️ Copernicus Satellite Boundary</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">10m Multi-Spectral Sentinel-2 • Zero Deforestation</div>
+      
+      <!-- Visual SVG Polygon Simulated Map -->
+      <div style="width: 100%; height: 220px; background: #022c22; border-radius: var(--radius-md); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(16, 185, 129, 0.4);">
+        <svg viewBox="0 0 300 200" style="width: 100%; height: 100%;">
+          <!-- Grid lines -->
+          <defs>
+            <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(16, 185, 129, 0.15)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          
+          <!-- Forest parcel polygon -->
+          <polygon points="60,40 180,30 240,90 220,160 100,170 40,110" 
+                   fill="rgba(16, 185, 129, 0.35)" 
+                   stroke="#10b981" 
+                   stroke-width="2.5" 
+                   stroke-dasharray="4,2"/>
+          
+          <!-- Vertices -->
+          <circle cx="60" cy="40" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+          <circle cx="180" cy="30" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+          <circle cx="240" cy="90" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+          <circle cx="220" cy="160" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+          <circle cx="100" cy="170" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+          <circle cx="40" cy="110" r="4" fill="#fff" stroke="#10b981" stroke-width="2"/>
+
+          <!-- Center Label -->
+          <text x="140" y="105" fill="#fff" font-size="12" font-weight="700" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif">18.4 ha Verified</text>
+          <text x="140" y="122" fill="#6ee7b7" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">0.00 ha loss</text>
+        </svg>
+      </div>
+
+      <div style="margin-top: 12px; font-size: 11.5px; color: var(--text-faint); text-align: center;">
+        Cutoff Date: Dec 31, 2020 Compliant • SHA-256 Polygon Hash Verified
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div class="modal-backdrop" id="qr-modal">
+    <div class="modal-box" style="text-align: center;">
+      <button class="modal-close-btn" onclick="closeQrModal()">✕</button>
+      <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">📷 Point at Container or Pallet QR</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Instant 1-second EUDR verification</div>
+      
+      <!-- Simulated Camera Viewport -->
+      <div style="width: 240px; height: 240px; margin: 0 auto; background: #000; border-radius: var(--radius-md); position: relative; border: 2px solid var(--emerald); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <div style="position: absolute; width: 180px; height: 180px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 12px;"></div>
+        <!-- Laser Scanner Animation Line -->
+        <div style="position: absolute; width: 100%; height: 2px; background: var(--emerald); box-shadow: 0 0 8px var(--emerald); animation: scanLine 2s infinite ease-in-out;"></div>
+        <span style="font-size: 40px; opacity: 0.3;">📦</span>
+      </div>
+
+      <style>
+        @keyframes scanLine {
+          0%, 100% { top: 15%; }
+          50% { top: 85%; }
+        }
+      </style>
+
+      <button class="btn-action-primary" style="margin-top: 16px;" onclick="simulateQrDetection()">
+        <span>⚡</span> Simulate Scan Detection (#8921)
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-msg">Copied to clipboard!</div>
+
+  <!-- Fixed Bottom Role Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <button class="nav-tab-btn active" id="nav-btn-ops" onclick="switchRole('ops')">
+      <span class="nav-tab-icon">🔍</span>
+      <span>Field Ops</span>
+    </button>
+    <button class="nav-tab-btn nav-csuite" id="nav-btn-csuite" onclick="switchRole('csuite')">
+      <span class="nav-tab-icon">👔</span>
+      <span>C-Suite</span>
+    </button>
+    <button class="nav-tab-btn" id="nav-btn-producer" onclick="switchRole('producer')">
+      <span class="nav-tab-icon">🚜</span>
+      <span>Producer</span>
+    </button>
+  </nav>
+
+  <!-- Logic Script (Vanilla ES6, < 8KB) -->
+  <script>
+    // Role Switching
+    function switchRole(role) {
+      document.querySelectorAll('.role-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.role-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById('view-' + role);
+      const targetBtn = document.getElementById('btn-role-' + role);
+      const targetNav = document.getElementById('nav-btn-' + role);
+
+      if (targetView) targetView.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Auto-detect role or scenario from URL query parameters
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roleParam = urlParams.get('role');
+      if (roleParam && ['ops', 'csuite', 'producer'].includes(roleParam)) {
+        switchRole(roleParam);
+      }
+      const scenarioParam = urlParams.get('scenario');
+      if (scenarioParam && scenarios[scenarioParam]) {
+        loadScenario(scenarioParam);
+      }
+    });
+
+    // Scenarios Engine
+    const scenarios = {
+      sumatra: {
+        status: "CLEARED FOR EU ENTRY",
+        sub: "18.4 MT Sumatra Arabica • Port of Rotterdam",
+        ref: "EUDR-2026-ID-COF-8921",
+        isAlert: false,
+        step1: "12 Farm polygons checked • WGS84 Valid",
+        step2: "Copernicus Sentinel-2: 0.00 ha loss post-2020",
+        step3: "TRACES NT XML Signed with SHA-256 Seal"
+      },
+      gabon: {
+        status: "CLEARED (AUTO-SLICED)",
+        sub: "24.6 MT Okoumé Timber • Port of Hamburg",
+        ref: "EUDR-2026-GA-TMB-4102",
+        isAlert: false,
+        step1: "Large 16ha parcel auto-sliced into 4x 4ha plots",
+        step2: "Forest Stewardship (FSC) & Sentinel-2 Verified",
+        step3: "Customs Pre-Clearance Accepted (SWEC Code: 200)"
+      },
+      ivory: {
+        status: "CLEARED FOR EU ENTRY",
+        sub: "12.0 MT Cocoa Co-op • Port of Antwerp",
+        ref: "EUDR-2026-CI-COC-7719",
+        isAlert: false,
+        step1: "6 Smallholder family plots boundary verified",
+        step2: "Zero post-2020 deforestation detected",
+        step3: "Article 31 Due Diligence Statement Issued"
+      },
+      violation: {
+        status: "DEFORESTATION ALERT: REJECTED",
+        sub: "8.2 MT Rubber • Violation at Border Inspection",
+        ref: "EUDR-ALERT-NON-COMPLIANT",
+        isAlert: true,
+        step1: "Coordinates located inside protected national park",
+        step2: "WARNING: 1.42 ha tree cover loss detected (2022)",
+        step3: "BLOCKED: TRACES NT rejected automatically"
+      }
+    };
+
+    function loadScenario(name) {
+      document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const s = scenarios[name];
+      if (!s) return;
+
+      const card = document.getElementById('verdict-card');
+      const icon = document.getElementById('verdict-icon');
+      const statusText = document.getElementById('verdict-status-text');
+      const subText = document.getElementById('verdict-sub-text');
+      const refId = document.getElementById('verdict-ref-id');
+
+      if (s.isAlert) {
+        card.style.background = 'linear-gradient(145deg, rgba(239, 68, 68, 0.15) 0%, rgba(127, 29, 29, 0.3) 100%)';
+        card.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+        icon.style.background = 'rgba(239, 68, 68, 0.2)';
+        icon.style.borderColor = 'var(--crimson)';
+        icon.style.color = 'var(--crimson)';
+        icon.textContent = '✕';
+        statusText.style.color = '#fca5a5';
+      } else {
+        card.style.background = 'linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.25) 100%)';
+        card.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        icon.style.background = 'rgba(16, 185, 129, 0.2)';
+        icon.style.borderColor = 'var(--emerald)';
+        icon.style.color = '#fff';
+        icon.textContent = '✓';
+        statusText.style.color = '#fff';
+      }
+
+      statusText.textContent = s.status;
+      subText.textContent = s.sub;
+      refId.textContent = s.ref;
+
+      showToast("Loaded: " + s.status);
+    }
+
+    // Modal Control
+    function openMapModal() { document.getElementById('map-modal').classList.add('open'); }
+    function closeMapModal() { document.getElementById('map-modal').classList.remove('open'); }
+    function openQrScannerModal() { document.getElementById('qr-modal').classList.add('open'); }
+    function closeQrModal() { document.getElementById('qr-modal').classList.remove('open'); }
+
+    function simulateQrDetection() {
+      closeQrModal();
+      loadScenario('sumatra');
+      showToast("QR Detected: EUDR-2026-ID-COF-8921 (Verified)");
+    }
+
+    // Share & Copy
+    function shareCompliancePass() {
+      const text = "🌿 EUDR Due Diligence Statement: CLEARED\nRef: EUDR-2026-ID-COF-8921\nRisk Score: 0.02 (Zero Deforestation)\nVerified under EUDR Article 31\nURL: https://eudragent.com/dashboard";
+      if (navigator.share) {
+        navigator.share({ title: 'EUDR Compliance Passport', text: text, url: 'https://eudragent.com' }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text);
+        showToast("Compliance Pass copied to clipboard!");
+      }
+    }
+
+    function copyDdsRef() {
+      const ref = document.getElementById('verdict-ref-id').textContent;
+      navigator.clipboard.writeText(ref);
+      showToast("Copied: " + ref);
+    }
+
+    // C-Suite Actions
+    function ceoSignOff() {
+      showToast("✍️ Signed & Released: Container #MSCU-8891 to EU Customs!");
+    }
+
+    function downloadBoardPdf() {
+      showToast("📄 Generating 1-Page C-Suite Briefing PDF...");
+      setTimeout(() => {
+        window.open('/api/v1/eudr/export-bundle?bundle_type=audit_dossier', '_blank');
+      }, 700);
+    }
+
+    // Producer Actions
+    function recordGpsBoundary() {
+      showToast("📍 GPS Active: Recording 12 perimeter points...");
+    }
+
+    function snapLandTitle() {
+      showToast("📷 Camera ready: Snapshot encrypted on-device.");
+    }
+
+    function generateFarmQr() {
+      showToast("📲 Farm Passport QR Generated & Sealed!");
+    }
+
+    function runSearchAudit() {
+      const query = document.getElementById('ops-search-input').value;
+      showToast("Searching audit trail: " + query);
+      setTimeout(() => loadScenario('sumatra'), 400);
+    }
+
+    function changeLanguage() {
+      const lang = document.getElementById('lang-select').value;
+      const dict = {
+        en: { welcome: "Sumatra Co-op Plot #04", sub: "Register farm coordinates for zero-deforestation export." },
+        id: { welcome: "Koperasi Tani Sumatra Lahan #04", sub: "Daftarkan koordinat kebun untuk ekspor bebas deforestasi." },
+        fr: { welcome: "Coopérative Sumatra Parcelle #04", sub: "Enregistrer les parcelles pour l'exportation sans déforestation." },
+        es: { welcome: "Cooperativa Sumatra Parcela #04", sub: "Registre las coordenadas de su finca para exportar a la UE." },
+        pt: { welcome: "Cooperativa Sumatra Parcela #04", sub: "Cadastre as coordenadas da fazenda para exportação UE." },
+        kr: { welcome: "수마트라 커피 협동농장 4호 필지", sub: "산림벌채 방지 EU 수출 적합 좌표를 등록하세요." }
+      };
+      if (dict[lang]) {
+        document.getElementById('prod-welcome').textContent = dict[lang].welcome;
+        document.getElementById('prod-sub').textContent = dict[lang].sub;
+        showToast("Language switched: " + lang.toUpperCase());
+      }
+    }
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+  </script>
+</body>
+</html>

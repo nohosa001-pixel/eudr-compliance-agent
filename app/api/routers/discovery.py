@@ -129,3 +129,57 @@ async def serve_glama_json(request: Request):
     if target_file.exists():
         return FileResponse(str(target_file), media_type="application/json", headers=NO_CACHE_HEADERS)
     return JSONResponse({"name": "eudr-compliance-agent", "status": "active"}, headers=NO_CACHE_HEADERS)
+
+
+@router.api_route("/.well-known/mcp.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_wellknown_mcp(request: Request):
+    """Serves standard .well-known/mcp.json discovery descriptor for MCP clients."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
+    return JSONResponse({
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "name": "eudr-compliance-agent",
+        "description": "Autonomous AI Agent compliance engine for European Union Deforestation Regulation (EU 2023/1115) and TRACES-NT Due Diligence Statements.",
+        "homepage": "https://eudragent.com",
+        "mcp": {
+            "version": "2024-11-05",
+            "servers": [
+                {
+                    "id": "eudr-compliance",
+                    "name": "EUDR Compliance & TRACES-NT Server",
+                    "transport": "http",
+                    "url": "https://eudragent.com/api/v1/mcp"
+                }
+            ]
+        }
+    }, headers=NO_CACHE_HEADERS)
+
+
+@router.api_route("/.well-known/oauth-authorization-server", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_oauth_authorization_server_metadata(request: Request):
+    """RFC 8414: OAuth 2.0 Authorization Server Metadata for Agent Evidence Scanners."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
+    return JSONResponse({
+        "issuer": "https://eudragent.com",
+        "authorization_endpoint": "https://eudragent.com/docs",
+        "token_endpoint": "https://eudragent.com/docs",
+        "token_endpoint_auth_methods_supported": ["client_secret_post", "none"],
+        "response_types_supported": ["token"],
+        "grant_types_supported": ["client_credentials"],
+        "service_documentation": "https://eudragent.com/docs",
+        "code_challenge_methods_supported": ["S256"]
+    }, headers=NO_CACHE_HEADERS)
+
+
+@router.api_route("/.well-known/oauth-protected-resource", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+async def serve_oauth_protected_resource_metadata(request: Request):
+    """RFC 9449: OAuth Protected Resource Metadata for Agent Evidence Scanners."""
+    if request.method in ("HEAD", "OPTIONS"):
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
+    return JSONResponse({
+        "resource": "https://eudragent.com",
+        "authorization_servers": ["https://eudragent.com"],
+        "scopes_supported": ["read", "write", "eudr:audit"],
+        "bearer_methods_supported": ["header"]
+    }, headers=NO_CACHE_HEADERS)

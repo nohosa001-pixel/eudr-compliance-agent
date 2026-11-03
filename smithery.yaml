@@ -1,0 +1,14 @@
+# Smithery configuration file
+# https://smithery.ai/docs/config#spec
+startCommand:
+  type: stdio
+  config:
+    command: python
+    args:
+      - mcp_server_stdio.py
+    env:
+      PYTHONPATH: .
+
+# Remote SSE / HTTP connection for hosted MCP clients
+remote:
+  url: https://eudragent.com/api/v1/mcp

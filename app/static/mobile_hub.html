@@ -852,6 +852,7 @@
       <!-- 1-Tap Audit Scenarios Chips -->
       <div class="chips-carousel">
         <button class="chip-btn active" onclick="loadScenario('sumatra')">☕ Sumatra Coffee</button>
+        <button class="chip-btn" onclick="loadScenario('balkan')">🌲 Balkan Timber</button>
         <button class="chip-btn" onclick="loadScenario('gabon')">🪵 Gabon Timber</button>
         <button class="chip-btn" onclick="loadScenario('ivory')">🍫 Ivory Cocoa</button>
         <button class="chip-btn alert" onclick="loadScenario('violation')">⚠️ Test Violation</button>
@@ -1217,6 +1218,15 @@
         step1: "12 Farm polygons checked • WGS84 Valid",
         step2: "Copernicus Sentinel-2: 0.00 ha loss post-2020",
         step3: "TRACES NT XML Signed with SHA-256 Seal"
+      },
+      balkan: {
+        status: "CLEARED FOR EU ENTRY",
+        sub: "32.0 MT Sawn Oak & Beech (Serbia/EU) • Port of Koper / Graz",
+        ref: "EUDR-2026-RS-TMB-5510",
+        isAlert: false,
+        step1: "Tara & Zlatibor forest plots mapped (WGS84 Closed Polygon)",
+        step2: "Copernicus Sentinel-2: 0.00 ha loss post-2020 verified",
+        step3: "TRACES NT XML Signed with SHA-256 Seal (HS 440791 Sawn Wood)"
       },
       gabon: {
         status: "CLEARED (AUTO-SLICED)",

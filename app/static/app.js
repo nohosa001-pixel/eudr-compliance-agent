@@ -345,6 +345,62 @@ const PRESETS = {
         }
       ]
     }
+  },
+
+  balkan_timber_serbia: {
+    name: "🌲 7. Balkan Timber (Serbia / Tara Forest Sawn Oak - HS 4407)",
+    description: "Serbian export of FSC certified Oak & Beech sawn timber into the EU via Austria/Slovenia, showing compliant WGS84 closed polygon and zero deforestation.",
+    payload: {
+      operator_id: "RS-BALKAN-TIMBER-01",
+      operator_name: "Balkan Wood & Foresters d.o.o. Belgrade",
+      eori_number: "AT123456789012",
+      commodity: "WOOD",
+      hs_code: "4407.91.90",
+      product_description: "FSC Certified Sawn Oak & Beech Timber Boards",
+      net_mass_kg: 36000.0,
+      plots: [
+        {
+          plot_id: "RS-TARA-PARCEL-08",
+          country_code: "RS",
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [19.4600, 43.8800],
+                [19.4680, 43.8800],
+                [19.4680, 43.8860],
+                [19.4600, 43.8860],
+                [19.4600, 43.8800]
+              ]
+            ]
+          },
+          declared_area_ha: 14.2,
+          production_date_start: "2024-02-01",
+          production_date_end: "2024-04-15",
+          producer_name: "Tara Forest Sustainable Concession"
+        }
+      ],
+      documents: [
+        {
+          document_type: "FSC_CERTIFICATE",
+          document_id: "FSC-RS-2023-8812",
+          country_code: "RS",
+          issuing_authority: "Forest Stewardship Council (FSC)",
+          issue_date: "2021-04-10",
+          expiry_date: "2027-04-10",
+          plot_ids: ["RS-TARA-PARCEL-08"]
+        },
+        {
+          document_type: "HARVEST_PERMIT",
+          document_id: "SRB-SUME-2023-99",
+          country_code: "RS",
+          issuing_authority: "Public Enterprise Srbijasume",
+          issue_date: "2023-01-15",
+          expiry_date: "2025-01-15",
+          plot_ids: ["RS-TARA-PARCEL-08"]
+        }
+      ]
+    }
   }
 };
 

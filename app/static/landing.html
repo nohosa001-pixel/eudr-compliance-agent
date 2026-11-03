@@ -1346,8 +1346,8 @@
     // CODE SNIPPET TABS
     const SNIPPETS = {
       mcp: `{\n  "mcpServers": {\n    "eudr-compliance": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-fetch", "https://eudragent.com/api/v1/mcp"]\n    }\n  }\n}`,
-      curl: `# 1-Turn M2M RFC 9110 x402 Challenge & Validation Request\ncurl -X POST "https://eudragent.com/api/v1/agent/tools/execute" \\\n  -H "Content-Type: application/json" \\\n  -d '{"name": "eudr_verify_plot", "arguments": {"plot_id": "GH-001", "commodity": "cocoa", "coordinates": [[-1.62, 6.68], [-1.62, 6.69], [-1.61, 6.69], [-1.61, 6.68], [-1.62, 6.68]]}}'`,
-      python: `# Autonomous EUDR Agent 3-Line Integration\nimport httpx\nres = httpx.post("https://eudragent.com/api/v1/agent/tools/execute", json={\n    "name": "eudr_check_deforestation",\n    "arguments": {"plot_id": "GH-COCOA-01", "commodity": "cocoa"}\n})\nprint(res.json())`,
+      curl: `# 1-Second Instant EUDR Compliance Evaluation (Try in Terminal)\ncurl -X POST "https://eudragent.com/api/v1/eudr/evaluate?compact=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{"commodity": "coffee", "country": "ID", "lat": 0.7893, "lon": 101.4421}'`,
+      python: `# Autonomous EUDR Agent 4-Line Pipeline Integration\nimport httpx\nres = httpx.post("https://eudragent.com/api/v1/eudr/evaluate?compact=true", json={\n    "commodity": "coffee",\n    "country": "ID",\n    "lat": 0.7893,\n    "lon": 101.4421\n})\nprint(res.json())`,
       json: `// Visit https://eudragent.com/server-card.json for machine-readable discovery specifications.`
     };
 

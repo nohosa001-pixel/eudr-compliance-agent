@@ -177,6 +177,21 @@ app.add_middleware(
 app.add_middleware(SecurityGateMiddleware)
 
 @app.middleware("http")
+async def clean_markdown_trailing_url_middleware(request: Request, call_next):
+    """
+    Catches and auto-redirects URLs with trailing punctuation artifacts from markdown / chat auto-linkers
+    (e.g., '/mobile)', '/dashboard]', etc.) back to clean endpoints with HTTP 301.
+    """
+    path = request.url.path
+    if any(path.endswith(ch) for ch in [")", "]", ">", "}", "\"", "'"]):
+        clean_path = path.rstrip(")]}>\"'")
+        clean_url = clean_path
+        if request.url.query:
+            clean_url = f"{clean_path}?{request.url.query}"
+        return RedirectResponse(url=clean_url, status_code=301)
+    return await call_next(request)
+
+@app.middleware("http")
 async def add_legal_disclaimer_headers(request: Request, call_next):
     """
     Enforces Pillar 4: Zero-Liability AS-IS Warranty and Legal Disclaimer headers

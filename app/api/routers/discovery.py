@@ -85,7 +85,7 @@ async def serve_agent_manifest():
 @router.api_route("/mcp/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 @router.api_route("/server-card.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def serve_mcp_server_card(request: Request):
-    """Serves the standard MCP server-card.json metadata for Smithery.ai, Glama.ai, and MCP registries."""
+    """Serves the standard MCP server-card.json metadata for Glama.ai and standard MCP registries."""
     if request is not None and request.method in ("HEAD", "OPTIONS"):
         return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS", "Content-Type": "application/json"})
     

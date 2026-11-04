@@ -11,5 +11,5 @@ if [ -n "$PORT" ]; then
     exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
 fi
 
-# 3. Default fallback for Glama inspection / Smithery / Docker stdio MCP client
+# 3. Default fallback for Glama.ai inspection / Docker stdio MCP client
 exec python mcp_server_stdio.py

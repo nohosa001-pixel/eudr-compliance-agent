@@ -42,6 +42,6 @@ RUN chmod +x /app/entrypoint.sh
 
 # Intelligent Dual-Mode Entrypoint:
 # - Runs uvicorn on Google Cloud Run (when $PORT is defined)
-# - Runs mcp_server_stdio.py on Glama / Smithery / Docker stdio inspectors (when $PORT is empty)
+# - Runs mcp_server_stdio.py on Glama.ai / Docker stdio inspectors (when $PORT is empty)
 ENTRYPOINT ["/app/entrypoint.sh"]
 

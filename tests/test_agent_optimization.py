@@ -32,7 +32,7 @@ def test_llms_txt_and_manifest_endpoints():
     assert data["name_for_model"] == "eudr_compliance_agent"
     assert "mcp" in data
 
-    # 4. .well-known/mcp/server-card.json (Smithery.ai fallback)
+    # 4. .well-known/mcp/server-card.json (Glama.ai & MCP standard server card)
     res_card = client.get("/.well-known/mcp/server-card.json")
     assert res_card.status_code == 200
     card_data = res_card.json()

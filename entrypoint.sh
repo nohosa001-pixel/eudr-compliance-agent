@@ -1,12 +1,12 @@
 #!/bin/sh
 set -e
 
-# 1. If explicit arguments are provided (e.g. docker run <image> python mcp_server_stdio.py)
-if [ $# -gt 0 ]; then
-    exec "$@"
-fi
+# ========================================================
+# EUDRAgent Dual-Mode Container Entrypoint
+# ========================================================
 
-# 2. If PORT is set (Google Cloud Run / Production Web Container)
+# 1. Google Cloud Run dynamically injects $PORT (usually 8080)
+# 2. If $PORT is provided, run production FastAPI HTTP / MCP SSE Server
 if [ -n "$PORT" ]; then
     exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
 fi

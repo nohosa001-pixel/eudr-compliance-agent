@@ -6,9 +6,11 @@ specifically Articles 26, 27, 28, and the Union Customs Code (UCC) Data Model.
 
 Key Standards & Capabilities:
 1. Official EU TARIC Document Codes:
-   - C081: TRACES-NT Due Diligence Statement (DDS) Reference & Verification Code.
+   - C716: TRACES-NT Due Diligence Statement (DDS) Reference & Verification Code (Official DG TAXUD Code).
+   - C081: Legacy pilot working code alias for C716.
+   - Y141: Article 38 transitional provisions exemption (pre-enforcement stock).
    - C082: Downstream Operator Reference to Upstream Declaration (Article 4(8)).
-   - Y120: Goods excluded from EUDR scope (Article 1(2)).
+   - Y120: Goods excluded from EUDR scope (Article 1(2), alias for Y141 transitional exemption).
    - Y121: 100% Recycled waste materials exemption (Annex I footnote 1).
    - Y122: Packaging materials exemption (used exclusively to support/protect goods).
 2. UCC Data Element 12 03 000 000 (Supporting Documents / Box 44) Generator.
@@ -97,12 +99,19 @@ MAJOR_EU_PORTS = {
 # Official EU TARIC Document Codes for Regulation (EU) 2023/1115
 # -----------------------------------------------------------------------------
 TARIC_DOCUMENT_CODES = {
-    "C081": {
+    "C716": {
         "name": "Due Diligence Statement (DDS) Reference & Verification Code",
-        "description": "Due Diligence Statement reference number and verification code issued through TRACES-NT for EUDR (Regulation (EU) 2023/1115).",
+        "description": "Official European Commission DG TAXUD TARIC Certificate Code for EUDR Due Diligence Statement (DDS) 16-character reference number and security verification code in Box 44 / DE 12 03 000 000.",
         "format": "DDS_REF/VERIFICATION_CODE",
-        "regulation": "Regulation (EU) 2023/1115 Art. 4(2) & Art. 26",
-        "action": "Indicate in Box 44 (Data Element 12 03 000 000) for Release for Free Circulation."
+        "regulation": "Regulation (EU) 2023/1115 Art. 4(2), Art. 26 & DG TAXUD TARIC Standard",
+        "action": "Enter C716 in Box 44 (Data Element 12 03 000 000) for automated CERTEX clearance against TRACES-NT."
+    },
+    "C081": {
+        "name": "Due Diligence Statement (DDS) Reference (Legacy Working Code Alias)",
+        "description": "Legacy draft code alias for C716 from early pilot releases.",
+        "format": "DDS_REF/VERIFICATION_CODE",
+        "regulation": "Regulation (EU) 2023/1115 Art. 4(2) (Superseded by C716)",
+        "action": "Accepted as backward-compatible alias; C716 recommended for all official 2026 customs declarations."
     },
     "C082": {
         "name": "Downstream Operator Reference to Existing Upstream Statement",
@@ -111,12 +120,19 @@ TARIC_DOCUMENT_CODES = {
         "regulation": "Regulation (EU) 2023/1115 Art. 4(8)",
         "action": "Declare upstream statement reference. No redundant geolocation coordinates required."
     },
+    "Y141": {
+        "name": "Transitional Exemption (Article 38 / Pre-Enforcement Stock)",
+        "description": "Official DG TAXUD TARIC Exemption Code for goods subject to Article 38 transitional provisions (produced or cleared prior to enforcement cut-off) or statutory non-application.",
+        "format": "STATUTORY_TRANSITIONAL_EXEMPTION",
+        "regulation": "Regulation (EU) 2023/1115 Art. 38 & DG TAXUD TARIC Standard",
+        "action": "Enter Y141 in Box 44 to claim exemption from deforestation due diligence obligations under CERTEX."
+    },
     "Y120": {
-        "name": "Goods Excluded from EUDR Scope",
-        "description": "Goods not falling within the substantive scope of Regulation (EU) 2023/1115 pursuant to Article 1(2) or Annex I exemptions.",
+        "name": "Goods Excluded from EUDR Scope (Legacy Working Code Alias)",
+        "description": "Legacy working code for goods outside EUDR Annex I scope (superseded by Y141 for transitional entries).",
         "format": "STATUTORY_EXEMPTION",
         "regulation": "Regulation (EU) 2023/1115 Art. 1(2)",
-        "action": "Declare Y120 on import entry to claim non-application of deforestation checks."
+        "action": "Declare Y141/Y120 on import entry to claim non-application of deforestation checks."
     },
     "Y121": {
         "name": "100% Recycled Waste Exemption",
@@ -165,12 +181,19 @@ class EUCustomsAdapter:
             stmt = f"TARIC {code} - Exemption under Annex I (Transport packaging supporting primary commodity)."
             action = "File Y122 in Box 44. No DDS reference number required for protective packaging."
             is_mandated = False
+        elif getattr(req, "is_transitional_stock", False):
+            code = "Y141"
+            info = TARIC_DOCUMENT_CODES["Y141"]
+            ref_str = f"Y141:TRANSITIONAL-STOCK-ART38-HS{clean_hs}"
+            stmt = f"TARIC {code} - Exemption under Article 38 Transitional Provisions (Pre-Enforcement Inventory)."
+            action = "Enter Y141 in Box 44 to claim statutory transitional exemption under CERTEX."
+            is_mandated = False
         elif not is_regulated:
-            code = "Y120"
-            info = TARIC_DOCUMENT_CODES["Y120"]
-            ref_str = f"Y120:NON-EUDR-HS{clean_hs}"
-            stmt = f"TARIC {code} - Commodity under HS {clean_hs} is outside the substantive scope of EUDR Annex I."
-            action = "Declare Y120 for customs automated green light clearance."
+            code = "Y141"
+            info = TARIC_DOCUMENT_CODES["Y141"]
+            ref_str = f"Y141:NON-EUDR-HS{clean_hs}"
+            stmt = f"TARIC {code} - Commodity under HS {clean_hs} is outside the substantive scope of EUDR Annex I (Legacy Alias: Y120)."
+            action = "Declare Y141 (or legacy Y120) for customs automated green light clearance."
             is_mandated = False
         elif req.is_downstream_operator and req.upstream_dds_reference:
             code = "C082"
@@ -180,14 +203,14 @@ class EUCustomsAdapter:
             action = "File C082 referencing valid upstream DDS. Customs automated match via EU SWE-C."
             is_mandated = True
         else:
-            # Standard or Simplified Due Diligence Statement (C081)
-            code = "C081"
-            info = TARIC_DOCUMENT_CODES["C081"]
+            # Official DG TAXUD Standard Due Diligence Statement (C716)
+            code = "C716"
+            info = TARIC_DOCUMENT_CODES["C716"]
             dds_id = req.dds_reference_id or f"26EUDR{uuid.uuid4().hex[:10].upper()}"
             ver_code = req.verification_code or f"V-{uuid.uuid4().hex[:5].upper()}"
             ref_str = f"{dds_id}/{ver_code}"
             stmt = f"TARIC {code} - Due Diligence Statement (Regulation (EU) 2023/1115): Ref {dds_id}, VerCode {ver_code}."
-            action = "Enter C081 with DDS Reference and Verification Code in Box 44 / DE 12 03 000 000."
+            action = "Enter C716 (or legacy C081) with 16-character DDS Reference and Verification Code in Box 44 / DE 12 03 000 000."
             is_mandated = True
 
         return CustomsTaricEvaluateResponse(
@@ -215,7 +238,7 @@ class EUCustomsAdapter:
             "electronic_system": "EU SWE-C Interoperability Gateway"
         })
 
-        taric_code = "C081"
+        taric_code = "C716"
         clean_dds = str(req.dds_reference_id or "").strip()
         clean_ver = str(req.verification_code or "").strip()
         clean_hs = str(req.hs_code or "").replace(".", "").strip()
@@ -224,7 +247,7 @@ class EUCustomsAdapter:
         origin_country = str(req.country_of_origin or "").upper().strip()
 
         formatted_ref = f"{clean_dds}/{clean_ver}"
-        box44_text = f"C081 | Ref: {clean_dds} | VerCode: {clean_ver} | Mass: {req.net_mass_kg:,.1f}kg"
+        box44_text = f"C716 | Ref: {clean_dds} | VerCode: {clean_ver} | Mass: {req.net_mass_kg:,.1f}kg"
 
         # UCC Data Element 12 03 structure (WCO / UCC Data Model v3)
         de_1203 = [

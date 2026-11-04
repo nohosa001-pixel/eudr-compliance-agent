@@ -1270,11 +1270,12 @@ class CustomsTaricEvaluateRequest(BaseModel):
     is_packaging_only: Optional[bool] = Field(False, description="Whether commodity is packaging material used exclusively to protect or support another product")
     is_downstream_operator: Optional[bool] = Field(False, description="Whether declarant is a downstream operator referencing an upstream DDS (Art. 4(8))")
     upstream_dds_reference: Optional[str] = Field(None, description="Upstream DDS reference for downstream operator pass-through")
+    is_transitional_stock: Optional[bool] = Field(False, description="Whether commodity is pre-enforcement inventory covered by Article 38 transitional exemption (TARIC Y141)")
 
 
 class CustomsTaricEvaluateResponse(BaseModel):
     hs_code: str
-    taric_document_code: str = Field(..., description="Official EU TARIC Document Code: C081, C082, Y120, Y121, Y122")
+    taric_document_code: str = Field(..., description="Official EU TARIC Document Code: C716 (DDS), C082 (Downstream), Y141 (Transitional/Exemption), Y121 (Recycled), Y122 (Packaging)")
     taric_code_description: str
     box44_formatted_statement: str
     box44_reference_code: str

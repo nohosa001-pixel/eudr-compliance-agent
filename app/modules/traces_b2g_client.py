@@ -30,8 +30,10 @@ class TracesNTB2GClient:
     under EU Single Window Environment for Customs (EU SWE-C) & Regulation (EU) 2023/1115 Art. 4.
     """
 
-    TRACES_ENDPOINT_PRODUCTION = "https://webgate.ec.europa.eu/tracesnt/api/v1/eudr/due-diligence-statements"
-    TRACES_ENDPOINT_TEST = "https://webgate.acceptance.ec.europa.eu/tracesnt/api/v1/eudr/due-diligence-statements"
+    MAX_PAYLOAD_BYTES = 25 * 1024 * 1024  # 25MB TRACES NT M2M Hard Limit
+    TRACES_ENDPOINT_PRODUCTION = "https://eudr.webcloud.ec.europa.eu/tracesnt/api/v1/eudr/due-diligence-statements"
+    TRACES_ENDPOINT_TEST = "https://acceptance.eudr.webcloud.ec.europa.eu/tracesnt/api/v1/eudr/due-diligence-statements"
+    TRACES_LEGACY_GATEWAY = "https://webgate.ec.europa.eu/tracesnt/api/v1/eudr/due-diligence-statements"
 
     @classmethod
     def generate_b2g_signature(cls, payload_dict: Dict[str, Any], secret_key: Optional[str] = None) -> str:

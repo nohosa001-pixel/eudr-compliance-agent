@@ -19,7 +19,38 @@ class BulkFileParser:
     - KML (.kml)
     - CSV (.csv)
     - Excel (.xlsx)
+    - Shapefile Zip (.zip, .shp)
+    Strictly conforms to European Commission TRACES NT 25MB M2M API payload limit.
     """
+    MAX_TRACES_PAYLOAD_BYTES: int = 25 * 1024 * 1024  # Official 25MB M2M Limit
+
+    @classmethod
+    def chunk_plots_for_traces(
+        cls,
+        plots: List[ProductionPlotInput],
+        max_bytes_per_chunk: int = 20 * 1024 * 1024  # Safe 20MB buffer to stay under 25MB hard ceiling
+    ) -> List[List[ProductionPlotInput]]:
+        """
+        Chunks large plot datasets to strictly comply with the European Commission 25MB TRACES NT M2M API payload limit.
+        Estimates serialized GeoJSON byte size and returns sliced batches.
+        """
+        chunks = []
+        current_chunk = []
+        current_bytes = 0
+        
+        for p in plots:
+            est_size = len(json.dumps(p.geometry)) + 300
+            if current_bytes + est_size > max_bytes_per_chunk and current_chunk:
+                chunks.append(current_chunk)
+                current_chunk = [p]
+                current_bytes = est_size
+            else:
+                current_chunk.append(p)
+                current_bytes += est_size
+                
+        if current_chunk:
+            chunks.append(current_chunk)
+        return chunks
 
     @classmethod
     def parse_file(

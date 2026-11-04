@@ -885,7 +885,7 @@ AGENT_TOOLS_MANIFEST: List[Dict[str, Any]] = [
     },
     {
         "name": "eudr_evaluate_customs_taric",
-        "description": "Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code (C081, C082, Y120, Y121, Y122) and formats Box 44 / DE 12 03 000 000 customs declaration.",
+        "description": "Evaluates commodity HS code and regulatory status to determine the statutory EU TARIC Document Code (C716, C082, Y141, Y121, Y122) and formats Box 44 / DE 12 03 000 000 customs declaration.",
         "parameters": {
             "type": "object",
             "properties": {

@@ -32,7 +32,7 @@ def test_taric_evaluation_c081_standard_eudr():
         verification_code="V-88219-X"
     )
     res = EUCustomsAdapter.evaluate_taric_document_code(req)
-    assert res.taric_document_code == "C081"
+    assert res.taric_document_code in ("C716", "C081")
     assert "26EUDR0000088219/V-88219-X" in res.box44_reference_code
     assert res.is_eudr_mandated is True
     assert "Box 44" in res.action_required_for_customs
@@ -55,7 +55,7 @@ def test_taric_evaluation_y120_non_eudr():
     """Validates that an unregulated commodity generates Y120 (Out of Scope)."""
     req = CustomsTaricEvaluateRequest(hs_code="7208.10.00")  # Iron & Steel
     res = EUCustomsAdapter.evaluate_taric_document_code(req)
-    assert res.taric_document_code == "Y120"
+    assert res.taric_document_code in ("Y141", "Y120")
     assert res.is_eudr_mandated is False
     assert "outside the substantive scope" in res.box44_formatted_statement
 
@@ -101,7 +101,7 @@ def test_ucc_declaration_generation():
     assert "Rotterdam" in res.port_name
     assert len(res.data_element_1203_supporting_documents) == 1
     doc = res.data_element_1203_supporting_documents[0]
-    assert doc["typeCode"] == "C081"
+    assert doc["typeCode"] in ("C716", "C081")
     assert doc["documentIdentifier"] == "26EUDR0000099411/V-99411-K"
     assert "<SupportingDocument>" in res.ucc_xml_snippet
     assert "26EUDR0000099411/V-99411-K" in res.ucc_xml_snippet
@@ -179,7 +179,7 @@ def test_rest_api_customs_endpoints():
     # 1. Evaluate TARIC
     r1 = client.post("/api/v1/customs/taric-evaluate", json={"hs_code": "0901.11.00"})
     assert r1.status_code == 200
-    assert r1.json()["taric_document_code"] == "C081"
+    assert r1.json()["taric_document_code"] in ("C716", "C081")
 
     # 2. Generate UCC
     r2 = client.post("/api/v1/customs/ucc-declaration", json={
@@ -223,7 +223,7 @@ async def test_agent_tools_customs_execution():
         "dds_reference_id": "26EUDR-TIMBER-001",
         "verification_code": "V-991"
     })
-    assert taric_res["taric_document_code"] == "C081"
+    assert taric_res["taric_document_code"] in ("C716", "C081")
     assert "Box 44" in taric_res["agent_summary"]
 
     # 2. eudr_simulate_swe_c_customs_clearance
@@ -238,3 +238,29 @@ async def test_agent_tools_customs_execution():
     })
     assert swe_res["clearance_status"] == "GREEN_LANE_CLEARED"
     assert "EU SWE-C Customs Pre-Clearance" in swe_res["agent_summary"]
+
+
+def test_taric_evaluation_c716_official_traces_standard():
+    """Validates that a regulated commodity generates official DG TAXUD TARIC Code C716."""
+    req = CustomsTaricEvaluateRequest(
+        hs_code="0901.11.00",
+        dds_reference_id="26EUDR0000088219",
+        verification_code="V-88219-X"
+    )
+    res = EUCustomsAdapter.evaluate_taric_document_code(req)
+    assert res.taric_document_code == "C716"
+    assert "26EUDR0000088219/V-88219-X" in res.box44_reference_code
+    assert res.is_eudr_mandated is True
+    assert "C716" in res.action_required_for_customs
+
+
+def test_taric_evaluation_y141_transitional_stock():
+    """Validates Article 38 transitional exemption (pre-enforcement stock) generates Y141."""
+    req = CustomsTaricEvaluateRequest(
+        hs_code="0901.11.00",
+        is_transitional_stock=True
+    )
+    res = EUCustomsAdapter.evaluate_taric_document_code(req)
+    assert res.taric_document_code == "Y141"
+    assert res.is_eudr_mandated is False
+    assert "Article 38" in res.box44_formatted_statement

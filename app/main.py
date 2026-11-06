@@ -180,14 +180,38 @@ app.add_middleware(SecurityGateMiddleware)
 async def clean_markdown_trailing_url_middleware(request: Request, call_next):
     """
     Catches and auto-redirects URLs with trailing punctuation artifacts from markdown / chat auto-linkers
-    (e.g., '/mobile)', '/dashboard]', etc.) back to clean endpoints with HTTP 301.
+    (e.g., '/mobile)', '/mobile.', '/dashboard]', '/supplier-portal%29', etc.) back to clean endpoints with HTTP 301.
+    Preserves legit static file extensions like .xml, .txt, .html, .webp, .png, .json, .js, .css.
     """
     path = request.url.path
-    if any(path.endswith(ch) for ch in [")", "]", ">", "}", "\"", "'"]):
-        clean_path = path.rstrip(")]}>\"'")
-        clean_url = clean_path
+    clean_path = path
+
+    # 1. Handle common URL-encoded punctuation suffixes
+    encoded_suffixes = [
+        ("%29", ")"), ("%5D", "]"), ("%7D", "}"), ("%3E", ">"),
+        ("%22", "\""), ("%27", "'"), ("%2C", ","), ("%3B", ";")
+    ]
+    changed = False
+    for enc, _ in encoded_suffixes:
+        if clean_path.endswith(enc):
+            clean_path = clean_path[:-len(enc)]
+            changed = True
+
+    # 2. Strip raw trailing punctuation characters
+    trailing_chars = ")]}>\"',;:!?"
+    if any(clean_path.endswith(ch) for ch in trailing_chars):
+        clean_path = clean_path.rstrip(trailing_chars)
+        changed = True
+
+    # 3. Strip trailing period ONLY if it is not part of a known file extension
+    if clean_path.endswith("."):
+        clean_path = clean_path.rstrip(".")
+        changed = True
+
+    if changed and clean_path != path:
+        clean_url = clean_path or "/"
         if request.url.query:
-            clean_url = f"{clean_path}?{request.url.query}"
+            clean_url = f"{clean_url}?{request.url.query}"
         return RedirectResponse(url=clean_url, status_code=301)
     return await call_next(request)
 
@@ -206,7 +230,7 @@ async def add_legal_disclaimer_headers(request: Request, call_next):
     response.headers["X-Protocol"] = "A.GRID-AP2/1.0"
     response.headers["X-Agrid-Hub"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/"
     response.headers["X-Agrid-Directive"] = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/AGENTS.md"
-    response.headers["X-Agrid-EUDR"] = "https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/api/v1/audit/polygon"
+    response.headers["X-Agrid-EUDR"] = "https://eudragent.com/api/v1/audit/polygon"
     response.headers["X-Agrid-Rebate-Bps"] = "2000"
     response.headers["X-Robots-Tag"] = "all, index, follow"
     return response
@@ -349,11 +373,29 @@ NO_CACHE_HEADERS = {
     "Expires": "0"
 }
 
-@app.api_route("/", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@app.api_route("/", methods=["GET", "HEAD", "OPTIONS", "POST"], include_in_schema=False)
 async def serve_landing(request: Request):
     """Serves the eudragent.com Official SaaS Landing Page, or JSON index for autonomous agents."""
     if request.method in ("HEAD", "OPTIONS"):
-        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS"})
+        return Response(status_code=200, headers={"Allow": "GET, HEAD, OPTIONS, POST"})
+    
+    if request.method == "POST":
+        tools = AgentToolsRegistry.list_tools()
+        return JSONResponse({
+            "service": "eudr-compliance-agent",
+            "platform": "EUDRAgent",
+            "name": "EUDRAgent EUDR Compliance Platform",
+            "status": "online",
+            "protocol": "A.GRID AP2/1.0 & Model Context Protocol (MCP)",
+            "message": "Welcome to EUDRAgent Autonomous Compliance Engine. Tool calls and MCP protocols supported.",
+            "mcp_endpoint": f"{settings.API_V1_PREFIX}/mcp",
+            "tools_endpoint": f"{settings.API_V1_PREFIX}/agent/tools",
+            "tool_execute_endpoint": f"{settings.API_V1_PREFIX}/agent/tools/execute",
+            "documentation": "https://eudragent.com/llms.txt",
+            "total_tools": len(tools),
+            "tools": tools,
+            "meta": get_default_meta_dict()
+        }, headers=NO_CACHE_HEADERS)
     
     accept = request.headers.get("Accept", "")
     ua = request.headers.get("User-Agent", "").lower()
@@ -461,6 +503,75 @@ async def serve_about(request: Request):
     if about_file.exists():
         return FileResponse(str(about_file), headers=NO_CACHE_HEADERS)
     return HTMLResponse("<h2>About EUDRAgent Platform</h2>", headers=NO_CACHE_HEADERS)
+
+# -------------------------------------------------------------------
+# Root AI Agent, Search Engine & Compliance Discovery Endpoints
+# -------------------------------------------------------------------
+
+@app.api_route("/robots.txt", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_robots_txt():
+    """Serves root robots.txt for AI crawlers (ClaudeBot, GPTBot, PerplexityBot)."""
+    f = STATIC_DIR / "robots.txt"
+    if f.exists():
+        return FileResponse(str(f), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return PlainTextResponse("User-agent: *\nAllow: /\nSitemap: https://eudragent.com/sitemap.xml\n")
+
+@app.api_route("/sitemap.xml", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_sitemap_xml():
+    """Serves root sitemap.xml with updated 2026 eudragent.com canonical index."""
+    f = STATIC_DIR / "sitemap.xml"
+    if f.exists():
+        return FileResponse(str(f), media_type="application/xml", headers=NO_CACHE_HEADERS)
+    return Response(content="<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'><url><loc>https://eudragent.com/</loc></url></urlset>", media_type="application/xml")
+
+@app.api_route("/llms.txt", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_llms_txt():
+    """Serves root llms.txt standard specification for AI Agents and RAG systems."""
+    f = STATIC_DIR / "llms.txt"
+    if f.exists():
+        return FileResponse(str(f), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return PlainTextResponse("# EUDR Agent Platform\nhttps://eudragent.com\n")
+
+@app.api_route("/llms-full.txt", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_llms_full_txt():
+    """Serves full extended context llms-full.txt for autonomous reasoning engines."""
+    f = STATIC_DIR / "llms-full.txt"
+    if f.exists():
+        return FileResponse(str(f), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return PlainTextResponse("# EUDR Agent Platform Full Specifications\nhttps://eudragent.com\n")
+
+@app.api_route("/.well-known/security.txt", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/security.txt", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_security_txt():
+    """Serves RFC 9116 security.txt for institutional vendor risk assessment."""
+    content = (
+        "Contact: mailto:security@eudragent.com\n"
+        "Expires: 2027-12-31T23:59:59.000Z\n"
+        "Preferred-Languages: en, ko, de, fr\n"
+        "Canonical: https://eudragent.com/.well-known/security.txt\n"
+        "Policy: https://eudragent.com/about\n"
+    )
+    return PlainTextResponse(content)
+
+@app.api_route("/api/v1/eudr/sample/traces-xml", methods=["GET", "HEAD"], tags=["EUDR Regulations"], summary="Download official European Commission TRACES-NT XML Sample (XSD v2.4)")
+@app.api_route("/sample-traces-nt.xml", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/api/v1/traces-nt/sample", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_sample_traces_xml():
+    """
+    Returns official European Commission TRACES-NT XML sample document according to
+    EU Regulation 2023/1115 Annex II and XSD schema v2.4 standards for enterprise customs clearance evaluation.
+    """
+    f = STATIC_DIR / "TRACES_NT_SAMPLE_DDS_EUDR.xml"
+    if f.exists():
+        return FileResponse(
+            str(f),
+            media_type="application/xml",
+            headers={
+                "Content-Disposition": 'attachment; filename="TRACES_NT_SAMPLE_DDS_EUDR.xml"',
+                "Cache-Control": "public, max-age=3600"
+            }
+        )
+    return Response(content="<error>Sample XML not found</error>", status_code=404, media_type="application/xml")
 
 # -------------------------------------------------------------------
 # Core EUDR Regulatory & Spatial Validation Endpoints

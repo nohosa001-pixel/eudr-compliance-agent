@@ -3,8 +3,12 @@
 #   Domain Target: eudragent.com
 # ========================================================
 
+
+
 Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host "  EUDRAgent.com Cloud Run Production Deployment" -ForegroundColor Cyan
+
+
 Write-Host "========================================================" -ForegroundColor Cyan
 
 # 1. Check gcloud CLI
@@ -34,7 +38,7 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 # 4. Read Environment Variables from .env
 $tgToken = ""
 $tgChatId = ""
-$polygonWallet = "0xA185B43fDD19619f99952AAed6eabf1029bF36a1"
+$polygonWallet = "0x356ECeA957b85120fef8cF5D89b85Cb3d4c13D5b"
 $copernicusId = ""
 $copernicusSecret = ""
 $useLiveCopernicus = "true"

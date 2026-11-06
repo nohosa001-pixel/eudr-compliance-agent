@@ -20,27 +20,35 @@ User-agent: CCBot
 
 # Full Access to EUDR Satellite Verification & Geofence Invariants
 Allow: /
-Allow: /llms.txt
+Allow: /robots.txt
 Allow: /sitemap.xml
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /mobile
+Allow: /dashboard
+Allow: /supplier-portal
+Allow: /about
 Allow: /api/v1/audit/polygon
 Allow: /api/v1/audit/satellite-eudr
 Allow: /api/v1/audit/legal-doc
-Allow: /dashboard
-Allow: /supplier-portal
+Allow: /api/v1/agent/tools
 Allow: /health
 Disallow: /metrics
 
 # 2. General Web Crawlers
 User-agent: *
 Allow: /
-Allow: /llms.txt
+Allow: /robots.txt
 Allow: /sitemap.xml
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /mobile
 Allow: /dashboard
 Allow: /supplier-portal
+Allow: /about
 Disallow: /metrics
 
 # 3. Protocol Discovery References
-Sitemap: https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/sitemap.xml
-LLMs-Txt: https://eudr-compliance-agent-212942243360.asia-northeast3.run.app/llms.txt
-Agent-Hub: https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/hub/
-Agent-Directive: https://agent-security-gate-x402-212942243360.asia-northeast3.run.app/AGENTS.md
+Sitemap: https://eudragent.com/sitemap.xml
+LLMs-Txt: https://eudragent.com/llms.txt
+LLMs-Full: https://eudragent.com/llms-full.txt

@@ -40,7 +40,7 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 # 4. Read Environment Variables from .env
 $tgToken = ""
 $tgChatId = ""
-$polygonWallet = "0x356ECeA957b85120fef8cF5D89b85Cb3d4c13D5b"
+$polygonWallet = "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"
 $copernicusId = ""
 $copernicusSecret = ""
 $useLiveCopernicus = "true"
@@ -48,7 +48,7 @@ if (Test-Path ".env") {
     foreach ($line in (Get-Content ".env")) {
         if ($line -match "^TELEGRAM_BOT_TOKEN=(.+)$") { $tgToken = $matches[1].Trim() }
         if ($line -match "^TELEGRAM_CHAT_ID=(.+)$") { $tgChatId = $matches[1].Trim() }
-        if ($line -match "^POLYGON_METAMASK_WALLET_ADDRESS=(.+)$") { $polygonWallet = $matches[1].Trim() }
+        if ($line -match "^POLYGON_METAMASK_WALLET_ADDRESS=(.+)$" -or $line -match "^POLYGON_D'CENT_WALLET_ADDRESS=(.+)$" -or $line -match "^SERVER_WALLET_ADDRESS=(.+)$") { $polygonWallet = $matches[1].Trim() }
         if ($line -match "^COPERNICUS_CLIENT_ID=(.+)$") { $copernicusId = $matches[1].Trim() }
         if ($line -match "^COPERNICUS_CLIENT_SECRET=(.+)$") { $copernicusSecret = $matches[1].Trim() }
         if ($line -match "^USE_LIVE_COPERNICUS_API=(.+)$") { $useLiveCopernicus = $matches[1].Trim() }
@@ -61,7 +61,7 @@ if (Test-Path ".env") {
 
 if ([string]::IsNullOrEmpty($solanaRpc)) { $solanaRpc = "https://api.mainnet-beta.solana.com" }
 if ([string]::IsNullOrEmpty($solanaMint)) { $solanaMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" }
-if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp" }
+if ([string]::IsNullOrEmpty($solanaTreasury)) { $solanaTreasury = "G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT" }
 if ([string]::IsNullOrEmpty($solanaProgram)) { $solanaProgram = "EUDRScrw11111111111111111111111111111111111" }
 
 $secGateBase = "https://agent-security-gate-x402-212942243360.asia-northeast3.run.app"

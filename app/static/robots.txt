@@ -28,6 +28,8 @@ Allow: /mobile
 Allow: /dashboard
 Allow: /supplier-portal
 Allow: /about
+Allow: /pricing
+Allow: /pricing.json
 Allow: /api/v1/audit/polygon
 Allow: /api/v1/audit/satellite-eudr
 Allow: /api/v1/audit/legal-doc
@@ -46,6 +48,8 @@ Allow: /mobile
 Allow: /dashboard
 Allow: /supplier-portal
 Allow: /about
+Allow: /pricing
+Allow: /pricing.json
 Disallow: /metrics
 
 # 3. Protocol Discovery References

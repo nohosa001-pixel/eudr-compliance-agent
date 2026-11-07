@@ -11,6 +11,8 @@ Write-Host "  EUDRAgent.com Cloud Run Production Deployment" -ForegroundColor Cy
 
 Write-Host "========================================================" -ForegroundColor Cyan
 
+Set-Location $PSScriptRoot
+
 # 1. Check gcloud CLI
 $gcloudBin = "C:\Users\nohos\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin"
 if (Test-Path $gcloudBin) {

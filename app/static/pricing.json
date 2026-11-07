@@ -1,0 +1,80 @@
+{
+  "status": "success",
+  "service": "eudr-compliance-agent",
+  "schema_version": "2026.1",
+  "statutory_framework": "Regulation (EU) 2023/1115 (EUDR) / European Commission TRACES-NT / UNCITRAL MLETR",
+  "currency": "USD / EUR / USDC",
+  "payment_protocols": [
+    "RFC 9110 x402 (HTTP 402 Monetized)",
+    "EIP-3009 Gasless USDC",
+    "EVM Milestone Escrow",
+    "Direct Corporate Invoicing"
+  ],
+  "supported_networks": [
+    "Polygon (Chain ID 137)",
+    "Base (Chain ID 8453)",
+    "Arbitrum One (Chain ID 42161)",
+    "Ethereum Mainnet (Chain ID 1)"
+  ],
+  "pricing_models": {
+    "free_sandbox_pilot": {
+      "tier_name": "EU Importer Pilot Desk",
+      "cost_usd": 0.0,
+      "cost_eur": 0.0,
+      "quota": "10 WGS84 Production Plots",
+      "features": [
+        "Full Sentinel-1/2 SAR radar deforestation check (2020-12-31 baseline cutoff)",
+        "WGS84 topological bowtie & self-intersection geometry repair",
+        "Official European Commission TRACES-NT XML (XSD v2.4) generation",
+        "Polygon PoS on-chain EIP-712 cryptographic attestation seal"
+      ],
+      "requires_payment_method": false
+    },
+    "m2m_micropayment": {
+      "tier_name": "RFC 9110 x402 Agent Micro-Settlement",
+      "cost_per_plot_usd": 0.05,
+      "cost_per_plot_eur": 0.046,
+      "protocol": "HTTP 402 Micropayment (USDC on Polygon / Base)",
+      "latency_sla": "< 50ms per plot verification",
+      "gas_fees": "$0.00 (Sponsored via EIP-3009 Meta-Transactions)",
+      "ideal_for": "Autonomous AI trading agents, ERP batch workers, and real-time logistics brokers"
+    },
+    "escrow_clearing": {
+      "tier_name": "Autonomous Commodity Milestone Escrow",
+      "fee_percentage": 0.15,
+      "settlement_condition": "Customs clearance & TRACES-NT DDS acceptance by EU member state competent authority",
+      "features": [
+        "Non-custodial smart contract lockup",
+        "Multi-signature release",
+        "Automatic refund on non-compliant shipment"
+      ]
+    },
+    "b2b_saas_subscriptions": {
+      "professional": {
+        "monthly_fee_usd": 700.0,
+        "monthly_fee_eur": 650.0,
+        "included_plots": 50000,
+        "overage_per_plot_usd": 0.03,
+        "invoicing": "Automated monthly HMAC WORM invoice with EU VAT reverse-charge compliance"
+      },
+      "enterprise": {
+        "monthly_fee_usd": 2500.0,
+        "monthly_fee_eur": 2300.0,
+        "included_plots": 200000,
+        "overage_per_plot_usd": 0.015,
+        "features": [
+          "Unlimited sub-accounts & multi-tenant supplier portals",
+          "Dedicated high-throughput Cloud Run instances in asia-northeast3 and europe-west3",
+          "99.99% uptime guarantee with 24/7 priority compliance engineering SLA",
+          "Custom ERP/SAP integration adapter and direct TRACES-NT machine API tunnel"
+        ]
+      }
+    }
+  },
+  "contact": {
+    "enterprise_sales": "contact@eudragent.com",
+    "operator_url": "https://eudragent.com",
+    "documentation": "https://eudragent.com/llms.txt"
+  }
+}
+

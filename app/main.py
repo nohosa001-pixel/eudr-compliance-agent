@@ -573,6 +573,51 @@ async def serve_sample_traces_xml():
         )
     return Response(content="<error>Sample XML not found</error>", status_code=404, media_type="application/xml")
 
+
+@app.api_route("/pricing", methods=["GET", "HEAD"], tags=["Pricing & Economics"], summary="Official EUDR Agent Pricing & M2M Micropayment Schedule")
+@app.api_route("/pricing.json", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/rates", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route(f"{settings.API_V1_PREFIX}/pricing", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_pricing_schedule(request: Request):
+    """
+    Returns the official statutory EUDR compliance pricing schedule.
+    Serves structured JSON for autonomous AI crawlers/agents and styled HTML for human browsers.
+    """
+    accept = request.headers.get("Accept", "")
+    ua = request.headers.get("User-Agent", "").lower()
+    path = request.url.path.lower()
+
+    is_json_request = (
+        path.endswith(".json") or
+        request.headers.get("X-Agent", "").lower() in ("true", "1") or
+        request.query_params.get("format") == "json" or
+        "application/json" in accept or
+        (
+            "text/html" not in accept and
+            any(bot in ua for bot in ("agent", "bot", "python", "curl", "httpx", "aiohttp", "price", "crawler"))
+        )
+    )
+
+    if is_json_request:
+        json_file = STATIC_DIR / "pricing.json"
+        if json_file.exists():
+            return FileResponse(str(json_file), media_type="application/json; charset=utf-8", headers=NO_CACHE_HEADERS)
+        return JSONResponse({
+            "service": "eudr-compliance-agent",
+            "statutory_framework": "Regulation (EU) 2023/1115 (EUDR) / TRACES-NT",
+            "pilot_desk": "10 WGS84 Plots 100% Free",
+            "m2m_x402": "$0.05 USDC / plot",
+            "pro_saas": "$700.00 / month (50,000 plots)",
+            "enterprise": "$2,500.00 / month (200,000 plots)"
+        }, headers=NO_CACHE_HEADERS)
+
+    html_file = STATIC_DIR / "pricing.html"
+    if html_file.exists():
+        return FileResponse(str(html_file), media_type="text/html; charset=utf-8", headers=NO_CACHE_HEADERS)
+
+    return RedirectResponse(url="/#pricing", status_code=302)
+
+
 # -------------------------------------------------------------------
 # Core EUDR Regulatory & Spatial Validation Endpoints
 # -------------------------------------------------------------------

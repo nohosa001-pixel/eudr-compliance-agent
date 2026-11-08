@@ -534,8 +534,57 @@ class SpatialValidator:
             standardized_geojson=standardized_geojson,
             healing_applied=healing_applied,
             healing_actions=healing_actions,
-            original_geometry=original_geometry if healing_applied else None
+            original_geometry=original_geometry if healing_applied else None,
+            next_step="For full Copernicus Sentinel-2 Deforestation Audit & Signed TRACES-NT XML certificate, submit to POST /api/v1/audit/polygon ($0.05 USDC / plot via x402)."
         )
+
+    @classmethod
+    def validate_batch(cls, plots: List[ProductionPlotInput], auto_heal: bool = True) -> List[SpatialPlotResult]:
+        """
+        Validates multiple production plots concurrently, performing individual GIS checks,
+        automated self-healing, and batch pairwise overlap detection.
+        """
+        results: List[SpatialPlotResult] = []
+        shapely_map: Dict[str, Any] = {}
+
+        for plot in plots:
+            res = cls.validate_plot(plot, auto_heal=auto_heal)
+            results.append(res)
+            if HAS_SHAPELY and res.is_valid and res.standardized_geojson:
+                try:
+                    s_geom = shape(res.standardized_geojson["geometry"])
+                    if s_geom.is_valid and not s_geom.is_empty:
+                        shapely_map[plot.plot_id] = s_geom
+                except Exception:
+                    pass
+
+        # Pairwise overlap detection across batch plots
+        if HAS_SHAPELY and len(shapely_map) > 1:
+            plot_ids = list(shapely_map.keys())
+            for i in range(len(plot_ids)):
+                for j in range(i + 1, len(plot_ids)):
+                    id_a = plot_ids[i]
+                    id_b = plot_ids[j]
+                    geom_a = shapely_map[id_a]
+                    geom_b = shapely_map[id_b]
+
+                    try:
+                        if geom_a.intersects(geom_b):
+                            intersection = geom_a.intersection(geom_b)
+                            if not intersection.is_empty and getattr(intersection, "area", 0.0) > 1e-9:
+                                for r in results:
+                                    if r.plot_id == id_a:
+                                        r.overlap_detected = True
+                                        if id_b not in r.overlapping_plot_ids:
+                                            r.overlapping_plot_ids.append(id_b)
+                                    elif r.plot_id == id_b:
+                                        r.overlap_detected = True
+                                        if id_a not in r.overlapping_plot_ids:
+                                            r.overlapping_plot_ids.append(id_a)
+                    except Exception:
+                        pass
+
+        return results
 
     @classmethod
     def partition_clean_timber_batch(

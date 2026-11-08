@@ -27,6 +27,8 @@ from app.schemas import (
     CompactDDSReport, 
     ProductionPlotInput,
     SpatialPlotResult,
+    SpatialBatchValidationRequest,
+    SpatialBatchValidationResponse,
     EUDRCommodityCategory,
     ComplianceStatusEnum,
     ReviewStatusEnum,
@@ -712,8 +714,43 @@ async def validate_single_plot(plot: ProductionPlotInput):
     - Automatically repairs inverted coordinates ([lat, lon] -> [lon, lat]).
     - Repairs topological defects (self-intersection bowties, unclosed rings, duplicate vertices <0.1m).
     - Checks 4ha polygon rule and computes WGS84 geodesic area.
+    - Recommends next-step satellite deforestation audit endpoint.
     """
-    return SpatialValidator.validate_plot(plot, auto_heal=True)
+    res = SpatialValidator.validate_plot(plot, auto_heal=True)
+    res.next_step = "For full Copernicus Sentinel-2 Deforestation Audit & Signed TRACES-NT XML certificate, submit to POST /api/v1/audit/polygon ($0.05 USDC / plot via x402)."
+    return res
+
+@app.post(
+    f"{settings.API_V1_PREFIX}/eudr/validate-spatial-batch",
+    response_model=SpatialBatchValidationResponse,
+    tags=["Spatial GIS Validation"],
+    summary="Batch validate multiple production plot geometries with self-healing and overlap detection"
+)
+async def validate_spatial_batch(batch_request: SpatialBatchValidationRequest):
+    """
+    Enterprise batch validation endpoint for large-scale EUDR spatial datasets.
+    - Validates N production plots concurrently with automated self-healing.
+    - Checks 4ha threshold rules, WGS84 coordinates, and closed rings.
+    - Performs automated pairwise overlap detection across all plots in the batch.
+    - Provides frictionless next-step bridge to full satellite deforestation audit.
+    """
+    results = SpatialValidator.validate_batch(batch_request.plots, auto_heal=batch_request.auto_heal)
+    total_plots = len(results)
+    valid_plots = sum(1 for r in results if r.is_valid)
+    healed_plots = sum(1 for r in results if r.healing_applied)
+    invalid_plots = total_plots - valid_plots
+    overall_compliant = (invalid_plots == 0) and not any(r.overlap_detected for r in results)
+
+    return SpatialBatchValidationResponse(
+        status="COMPLETED",
+        total_plots=total_plots,
+        valid_plots=valid_plots,
+        healed_plots=healed_plots,
+        invalid_plots=invalid_plots,
+        overall_compliant=overall_compliant,
+        results=results,
+        next_step="For full Copernicus Sentinel-2 Deforestation Audit & Signed TRACES-NT XML certificate, submit to POST /api/v1/audit/polygon ($0.05 USDC / plot via x402)."
+    )
 
 # -------------------------------------------------------------------------
 # Advanced EUDR Elevation: Article 29 Country Benchmarking (Low/Standard/High)

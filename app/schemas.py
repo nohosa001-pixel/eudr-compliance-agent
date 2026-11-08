@@ -324,6 +324,28 @@ class SpatialPlotResult(BaseModel):
     healing_applied: bool = False
     healing_actions: List[str] = Field(default_factory=list)
     original_geometry: Optional[Dict[str, Any]] = None
+    next_step: Optional[str] = Field(
+        default="For full Copernicus Sentinel-2 Deforestation Audit & Signed TRACES-NT XML certificate, submit to POST /api/v1/audit/polygon ($0.05 USDC / plot via x402).",
+        description="Next automated action recommendation for enterprise and autonomous M2M workflows"
+    )
+
+class SpatialBatchValidationRequest(BaseModel):
+    plots: List[ProductionPlotInput] = Field(..., min_items=1, description="List of production plot geometries to validate")
+    auto_heal: bool = Field(True, description="Enable automatic topological and axis-inversion repairs")
+
+class SpatialBatchValidationResponse(BaseModel):
+    status: str = "COMPLETED"
+    total_plots: int
+    valid_plots: int
+    healed_plots: int
+    invalid_plots: int
+    overall_compliant: bool
+    results: List[SpatialPlotResult]
+    next_step: str = Field(
+        default="For full Copernicus Sentinel-2 Deforestation Audit & Signed TRACES-NT XML certificate, submit to POST /api/v1/audit/polygon ($0.05 USDC / plot via x402).",
+        description="Next automated action recommendation for enterprise and autonomous M2M workflows"
+    )
+    meta: ResponseMetaDisclaimer = Field(default_factory=ResponseMetaDisclaimer)
 
 class CanopyThresholdResult(BaseModel):
     threshold_pct: int = Field(..., description="Tree canopy cover threshold percentage (e.g. 10 for FAO, 20 for standard, 30 for UNEP)")

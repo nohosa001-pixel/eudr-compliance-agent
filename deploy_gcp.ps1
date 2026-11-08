@@ -84,7 +84,7 @@ gcloud run deploy eudr-compliance-agent `
     --allow-unauthenticated `
     --memory 1Gi `
     --cpu 1 `
-    --min-instances 0 `
+    --min-instances 1 `
     --max-instances 10 `
     --set-env-vars="$envVars" `
     --quiet
@@ -98,7 +98,7 @@ gcloud run deploy eudr-compliance-agent `
     --allow-unauthenticated `
     --memory 1Gi `
     --cpu 1 `
-    --min-instances 0 `
+    --min-instances 1 `
     --max-instances 10 `
     --set-env-vars="$envVars" `
     --quiet

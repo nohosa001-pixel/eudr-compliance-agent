@@ -620,6 +620,25 @@ async def serve_pricing_schedule(request: Request):
     return RedirectResponse(url="/#pricing", status_code=302)
 
 
+@app.get("/terms", tags=["General"], summary="Institutional Terms of Service & Privacy Policy")
+@app.get("/terms.html", include_in_schema=False)
+@app.get("/legal", include_in_schema=False)
+async def serve_eudr_terms():
+    terms_file = STATIC_DIR / "terms.html"
+    if terms_file.exists():
+        return FileResponse(str(terms_file), media_type="text/html; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return RedirectResponse(url="/docs")
+
+
+@app.get("/og-card.png", include_in_schema=False)
+@app.get("/static/og-card.png", include_in_schema=False)
+async def serve_eudr_og_card():
+    og_file = STATIC_DIR / "og-card.png"
+    if og_file.exists():
+        return FileResponse(str(og_file), media_type="image/png")
+    return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+
 @app.api_route("/api/v1/audit/polygon", methods=["GET", "POST", "HEAD"], tags=["Audit & Verification"], summary="EUDR GIS Polygon Audit & Self-Healing Protocol Specification")
 @app.api_route(f"{settings.API_V1_PREFIX}/audit/polygon", methods=["GET", "POST", "HEAD"], include_in_schema=False)
 async def audit_or_describe_polygon(request: Request):

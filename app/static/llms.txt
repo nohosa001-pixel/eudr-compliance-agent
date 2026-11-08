@@ -11,7 +11,8 @@ AI agents can invoke EUDR capabilities through:
 2. **Unified Agent Tools API**: Inspect tool schemas at `GET /api/v1/agent/tools` and execute tools via `POST /api/v1/agent/tools/execute`.
 3. **RESTful OpenAPI**: Full interactive documentation at `/docs` and raw specification at `/openapi.json`.
 
-## Core Agent Tools (37 Autonomous Tools)
+## Core Agent Tools (38 Autonomous Tools)
+- `eudr_verify_spatial_batch`: High-throughput enterprise batch spatial validation (`POST /api/v1/eudr/validate-spatial-batch`). Validates hundreds of production plot geometries in sub-30ms, executes topological self-healing, pairwise parcel overlap detection, and provides automatic bridge to paid Copernicus Sentinel-2 deforestation audit contracts.
 - `eudr_verify_plot`: Validates WGS84 coordinates and polygons. Auto-heals inverted coordinates and enforces the Art. 9 polygon rule (plots >= 4.0 ha require polygons).
 - `eudr_check_deforestation`: Runs Sentinel-1 SAR and Sentinel-2 optical radar verification against the 2020-12-31 regulatory cut-off baseline.
 - `eudr_render_satellite_map`: Generates multi-spectral Sentinel-2 visualization metadata, SVG radar preview, and canopy health NDVI score.
@@ -60,7 +61,7 @@ AI agents can invoke EUDR capabilities through:
 Human payment interfaces (Credit Card, Stripe Checkout, UI forms) are **completely excluded**. The platform is settled exclusively by autonomous agents via:
 - **Autonomous Agent Smart Escrow & AgentEscrow.sol**: `POST /api/v1/payment/escrow/*` and on-chain EIP-712 attestation engine eliminate commercial default, counterparty risk, and bad data through automatic staking & slashing.
 - **RFC 9110 / x402 Protocol**: `GET /api/v1/payment/x402/challenge` returning machine-readable payment required instructions.
-- **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0xA185B43fDD19619f99952AAed6eabf1029bF36a1`), Base, Arbitrum, and Solana.
+- **On-Chain USDC**: Micro-gas settlement on Polygon PoS (`0xEbA2821B8E37eb5a231c074345c991Cb1F139920`), Base, Arbitrum, and Solana (`G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT`).
 - **MCP Native Settlement Tools**: Agents autonomously create, sign, and confirm payment orders within programmed budget caps.
 
 

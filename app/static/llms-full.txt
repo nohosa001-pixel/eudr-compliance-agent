@@ -63,6 +63,12 @@ The European Union Deforestation Regulation (EUDR) mandates that operators and t
 
 ## 3. Tool Specifications & Schemas
 
+### 0. `eudr_verify_spatial_batch`
+- **Purpose**: High-throughput enterprise batch spatial validation for supply chains (`POST /api/v1/eudr/validate-spatial-batch`). Validates hundreds of production plots simultaneously, auto-corrects inverted coordinates and topological defects, detects pairwise polygon boundary overlaps, and bridges directly to Copernicus satellite deforestation audits.
+- **Parameters**:
+  - `plots` (array of ProductionPlotInput, required): Array of plot objects with `plot_id`, `country_code`, `area_hectares`, `geometry`, `production_date`.
+  - `auto_heal` (boolean, default: true): Automatic repair of axis inversion and topological self-intersections.
+
 ### 1. `eudr_verify_plot`
 - **Purpose**: Verifies WGS84 coordinates, detects self-intersection in polygons, ensures counter-clockwise ring winding, and verifies the 4.0 hectare polygon threshold.
 - **Parameters**:

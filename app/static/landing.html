@@ -7,6 +7,7 @@
   <meta name="application-name" content="EUDRAgent - EUDR Compliance Automation Mission Control with Transparent M2M Pricing" />
   <meta name="description" content="100% Autonomous AI Agent Mission Control for Regulation (EU) 2023/1115 (EUDR). High-frequency MCP JSON-RPC 2.0 dispatch, RFC 9110 x402 micro-settlements, and real-time TRACES-NT XML execution." />
   <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://eudragent.com/" />
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 
   <!-- Monospace & Sans Fonts -->
@@ -969,7 +970,7 @@
             <span>SELECT AGENT TOOL:</span>
             <span style="color: var(--cyan); font-weight: 600;" id="tool-selected-desc">Article 9 Spatial Validation</span>
           </label>
-          <select class="code-input" id="tool-select" onchange="onToolChange()">
+          <select class="code-input" id="tool-select" aria-label="Select MCP Tool" title="Select MCP Tool" onchange="onToolChange()">
             <option value="eudr_verify_plot">eudr_verify_plot (4ha Polygon &amp; Coordinates Repair)</option>
             <option value="eudr_check_deforestation">eudr_check_deforestation (Sentinel-2 Radar &amp; Forest Baseline)</option>
             <option value="eudr_create_payment_order">eudr_create_payment_order (PRO $700 / ENT $2,500 Order)</option>
@@ -998,7 +999,7 @@
             <span>TOOL ARGUMENTS (JSON):</span>
             <span style="color: var(--emerald);" id="json-valid-indicator">✓ SYNTAX VALID</span>
           </label>
-          <textarea class="code-input" id="tool-arguments-json" rows="9" spellcheck="false">{
+          <textarea class="code-input" id="tool-arguments-json" aria-label="Tool Arguments JSON" title="Tool Arguments JSON" rows="9" spellcheck="false">{
   "plot_id": "GH-COCOA-ASHANTI-001",
   "coordinates": [
     [-1.6244, 6.6885],
@@ -1042,7 +1043,7 @@
       <div class="modal-body">
         <div>
           <label class="form-label">NUMBER OF PLOTS TO AUDIT:</label>
-          <input type="number" class="code-input" id="micro-num-plots" value="100" min="1" oninput="updateMicroCost()" />
+          <input type="number" class="code-input" id="micro-num-plots" aria-label="Number of Production Plots" title="Number of Production Plots" value="100" min="1" oninput="updateMicroCost()" />
         </div>
         <div class="m2m-rate-card">
           <div class="rate-title-row">
@@ -1056,11 +1057,11 @@
         </div>
         <div>
           <label class="form-label">SENDER WALLET ADDRESS:</label>
-          <input type="text" class="code-input" id="micro-sender-wallet" value="0x1111222233334444555566667777888899990000" />
+          <input type="text" class="code-input" id="micro-sender-wallet" aria-label="Sender Crypto Wallet Address" title="Sender Crypto Wallet Address" value="0x1111222233334444555566667777888899990000" />
         </div>
         <div>
           <label class="form-label">SIMULATED TX HASH (0x + 64 hex):</label>
-          <input type="text" class="code-input" id="micro-tx-hash" value="0x8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa" />
+          <input type="text" class="code-input" id="micro-tx-hash" aria-label="Transaction Hash" title="Transaction Hash" value="0x8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa8888aaaa" />
         </div>
         <button class="btn-action btn-action-emerald" onclick="submitMicroSettle()">CONFIRM &amp; ISSUE AGENT AUTH TOKEN</button>
       </div>
@@ -1077,22 +1078,22 @@
       <div class="modal-body">
         <div>
           <label class="form-label">PLAN TIER:</label>
-          <select class="code-input" id="order-plan-tier" onchange="updateOrderPrice()">
+          <select class="code-input" id="order-plan-tier" aria-label="Select API Subscription Plan" title="Select API Subscription Plan" onchange="updateOrderPrice()">
             <option value="PRO">PRO PLAN ($700.00 USDC / month · 50k plots)</option>
             <option value="ENTERPRISE">ENTERPRISE CUSTOM ($2,500.00 USDC / month · 200k plots)</option>
           </select>
         </div>
         <div>
           <label class="form-label">COMPANY / ENTITY NAME:</label>
-          <input type="text" class="code-input" id="order-company" value="Autonomous Global Trade Mesh AG" />
+          <input type="text" class="code-input" id="order-company" aria-label="Company or Agent Name" title="Company or Agent Name" value="Autonomous Global Trade Mesh AG" />
         </div>
         <div>
           <label class="form-label">CONTACT EMAIL:</label>
-          <input type="email" class="code-input" id="order-email" value="agent-ops@trade-mesh.org" />
+          <input type="email" class="code-input" id="order-email" aria-label="Contact Email" title="Contact Email" value="agent-ops@trade-mesh.org" />
         </div>
         <div>
           <label class="form-label">SETTLEMENT CHAIN:</label>
-          <select class="code-input" id="order-chain">
+          <select class="code-input" id="order-chain" aria-label="Settlement Blockchain Network" title="Settlement Blockchain Network">
             <option value="Base (Low Gas $0.01)">Base (Low Gas $0.01)</option>
             <option value="Polygon (PoS)">Polygon (PoS)</option>
             <option value="Arbitrum One">Arbitrum One</option>
@@ -1115,7 +1116,7 @@
       <div class="modal-body">
         <div>
           <label class="form-label">TOTAL ESCROW AMOUNT (USDC):</label>
-          <input type="number" class="code-input" id="escrow-amount" value="50000" oninput="updateEscrowFee()" />
+          <input type="number" class="code-input" id="escrow-amount" aria-label="Escrow Transaction Amount" title="Escrow Transaction Amount" value="50000" oninput="updateEscrowFee()" />
         </div>
         <div class="m2m-rate-card">
           <div class="rate-title-row">
@@ -1130,7 +1131,7 @@
         </div>
         <div>
           <label class="form-label">COMMODITY &amp; HS CODE:</label>
-          <input type="text" class="code-input" id="escrow-commodity" value="Certified Sustainable Cocoa Beans (HS 18010000)" />
+          <input type="text" class="code-input" id="escrow-commodity" aria-label="Escrow Commodity Description" title="Escrow Commodity Description" value="Certified Sustainable Cocoa Beans (HS 18010000)" />
         </div>
         <button class="btn-action btn-action-emerald" onclick="submitCreateEscrow()">DEPLOY MILESTONE ESCROW</button>
       </div>

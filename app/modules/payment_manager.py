@@ -598,6 +598,20 @@ class PaymentManager:
         except Exception:
             pass
 
+        # Dispatch Instant Telegram Receipt to Maintainer
+        try:
+            tx_short = f"{tx_hash[:10]}...{tx_hash[-6:]}" if len(tx_hash) > 16 else tx_hash
+            NotificationManager.send_telegram_message(
+                f"💰 *[EUDRAgent.com] 온체인 결제 정산 완료!*\n\n"
+                f"• *체인*: `{chain_name.upper()}`\n"
+                f"• *정산 금액*: `+{expected_usdc:.4f} USDC` ({num_plots}개 필지)\n"
+                f"• *결제 에이전트*: `{payload.agent_id[:12]}`\n"
+                f"• *수취 금고*: D'CENT 생체인증 하드웨어 지갑\n"
+                f"• *트랜잭션*: `{tx_short}`"
+            )
+        except Exception:
+            pass
+
         return {
             "status": "SETTLED",
             "agent_id": payload.agent_id,
@@ -729,6 +743,19 @@ class PaymentManager:
                 )
                 if not db_session:
                     db.close()
+        except Exception:
+            pass
+
+        # Dispatch Instant Telegram Receipt to Maintainer
+        try:
+            NotificationManager.send_telegram_message(
+                f"⚡ *[EUDRAgent.com] EIP-3009 가스리스 정산 승인!*\n\n"
+                f"• *체인*: `{chain_name.upper()}`\n"
+                f"• *승인 금액*: `+{payload.value_usdc:.4f} USDC` ({num_plots}개 필지)\n"
+                f"• *송신 지갑*: `{sender[:8]}...{sender[-6:]}`\n"
+                f"• *수취 금고*: D'CENT 생체인증 하드웨어 지갑 (`{recipient[:8]}...`)\n"
+                f"• *논스*: `{clean_nonce[:12]}...`"
+            )
         except Exception:
             pass
 

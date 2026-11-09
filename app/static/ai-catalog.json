@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "catalog_version": "1.0.0",
   "name": "EUDRAgent Compliance & GIS Spatial Engine",
   "version": "2.2.0",

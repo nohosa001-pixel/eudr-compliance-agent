@@ -1,5 +1,5 @@
 {
-  "$schema": "https://agentprobe.org/schemas/ard-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "ard_version": "1.0",
   "agent_id": "eudragent-com",
   "name": "EUDRAgent Compliance & GIS Engine",
@@ -22,3 +22,4 @@
     "EIP-3009 / EIP-712"
   ]
 }
+

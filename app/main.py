@@ -555,6 +555,24 @@ async def serve_security_txt():
     )
     return PlainTextResponse(content)
 
+@app.api_route("/.well-known/ai-catalog.json", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/ai-catalog.json", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_ai_catalog_json():
+    """Serves standard machine-readable AI catalog schema for autonomous agent liveness and discovery probes."""
+    f = STATIC_DIR / "ai-catalog.json"
+    if f.exists():
+        return FileResponse(str(f), media_type="application/json; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return JSONResponse({"status": "active", "service": "EUDRAgent Compliance Engine"}, headers=NO_CACHE_HEADERS)
+
+@app.api_route("/.well-known/ard.json", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/ard.json", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_ard_json():
+    """Serves Agent Resource Directory (ARD) metadata for global AI agent registry indexers."""
+    f = STATIC_DIR / "ard.json"
+    if f.exists():
+        return FileResponse(str(f), media_type="application/json; charset=utf-8", headers=NO_CACHE_HEADERS)
+    return JSONResponse({"status": "active", "service": "EUDRAgent ARD"}, headers=NO_CACHE_HEADERS)
+
 @app.api_route("/api/v1/eudr/sample/traces-xml", methods=["GET", "HEAD"], tags=["EUDR Regulations"], summary="Download official European Commission TRACES-NT XML Sample (XSD v2.4)")
 @app.api_route("/sample-traces-nt.xml", methods=["GET", "HEAD"], include_in_schema=False)
 @app.api_route("/api/v1/traces-nt/sample", methods=["GET", "HEAD"], include_in_schema=False)

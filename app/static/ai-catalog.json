@@ -1,0 +1,57 @@
+{
+  "$schema": "https://agentprobe.org/schemas/ai-catalog-v1.json",
+  "name": "EUDRAgent Compliance & GIS Spatial Engine",
+  "version": "2.2.0",
+  "description": "Autonomous EU Deforestation Regulation (EU 2023/1115) Compliance, Copernicus Sentinel-1/2 Satellite Triangulation, Self-Healing GIS, and TRACES-NT DDS Generation for AI Agents.",
+  "homepage": "https://eudragent.com",
+  "documentation": "https://eudragent.com/docs",
+  "llms_spec": "https://eudragent.com/llms.txt",
+  "llms_full_spec": "https://eudragent.com/llms-full.txt",
+  "provider": {
+    "name": "A-GRID Autonomous Infrastructure",
+    "url": "https://eudragent.com",
+    "contact": "security@eudragent.com"
+  },
+  "capabilities": [
+    "mcp",
+    "x402_micropayments",
+    "eip3009_gasless",
+    "gis_spatial_validation",
+    "sentinel2_deforestation_radar",
+    "traces_nt_xml_generation"
+  ],
+  "interfaces": {
+    "mcp": {
+      "endpoint": "https://eudragent.com/api/v1/mcp",
+      "transport": "http-post",
+      "protocol_version": "2024-11-05",
+      "tools_count": 38
+    },
+    "openapi": {
+      "url": "https://eudragent.com/openapi.json",
+      "docs_url": "https://eudragent.com/docs"
+    },
+    "agent_tools": {
+      "manifest": "https://eudragent.com/api/v1/agent/tools",
+      "execution_endpoint": "https://eudragent.com/api/v1/agent/tools/execute"
+    },
+    "batch_spatial": {
+      "endpoint": "https://eudragent.com/api/v1/eudr/validate-spatial-batch",
+      "method": "POST",
+      "features": ["pairwise_overlap_detection", "topological_self_healing", "4ha_rule_enforcement"]
+    }
+  },
+  "payment": {
+    "protocol": "x402-v1",
+    "challenge_endpoint": "https://eudragent.com/api/v1/payment/x402/challenge",
+    "supported_currencies": ["USDC"],
+    "supported_chains": [
+      {"chain": "polygon", "chain_id": 137, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "base", "chain_id": 8453, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "arbitrum", "chain_id": 42161, "recipient": "0xEbA2821B8E37eb5a231c074345c991Cb1F139920"},
+      {"chain": "solana", "cluster": "mainnet-beta", "recipient": "G7doJyFj1tw2mTpApCoyeCPqA3QzyuuKwKNAZvzLErsT"}
+    ],
+    "vault_custody": "D'CENT Biometric Hardware Wallet (Cold Storage)"
+  },
+  "status": "HEALTHY_ONLINE"
+}

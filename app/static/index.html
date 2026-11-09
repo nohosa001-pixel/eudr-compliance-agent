@@ -6,12 +6,12 @@
   <title>EUDR Autonomous Agent Cockpit • Regulation (EU) 2023/1115 &amp; Multi-Chain Escrow</title>
   <meta name="description" content="Autonomous Agent-to-Agent (M2M) Compliance &amp; Settlement Cockpit for Regulation (EU) 2023/1115. Sub-second Sentinel-1/2 SAR radar, 4ha polygon self-healing, Solana SPL-USDC instant direct-split, and official TRACES-NT XML DDS export." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://eudragent.com/dashboard" />
+  <link rel="canonical" href="https://eudragent.com/" />
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://eudragent.com/dashboard" />
+  <meta property="og:url" content="https://eudragent.com/" />
   <meta property="og:site_name" content="EUDR.agent" />
   <meta property="og:title" content="EUDR Autonomous Agent Cockpit | M2M Escrow &amp; Compliance" />
   <meta property="og:description" content="Autonomous Agent Due Diligence Statement (DDS) &amp; Multi-Chain Smart Escrow Settlement Rail." />
@@ -167,7 +167,7 @@
             <span style="font-size: 0.72rem; color: #60a5fa;">.csv, .xlsx, .geojson, .kml, .json, .zip (Shapefile)</span>
           </div>
           <div id="dropzone" style="border: 2px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
-            <input type="file" id="bulk-file-input" accept=".csv,.xlsx,.geojson,.json,.kml,.zip" style="display: none;" />
+            <input type="file" id="bulk-file-input" aria-label="Upload Geolocation File" title="Upload Geolocation File" accept=".csv,.xlsx,.geojson,.json,.kml,.zip" style="display: none;" />
             <div style="font-size: 1.8rem; margin-bottom: 6px;">📂</div>
             <div style="font-size: 0.85rem; font-weight: 600; color: #f8fafc;">Click or Drag &amp; Drop Supply Chain Parcel Files</div>
             <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">Automatic WGS84 parsing, 4ha geodesic polygon repair, and multi-satellite cross-check</div>
@@ -181,7 +181,7 @@
             <div class="card-title">🔍 EUDR Annex I HS Code Classifier</div>
           </div>
           <div class="hs-lookup-group">
-            <input type="text" id="hs-code-input" placeholder="e.g. 0901.11 (Coffee), 1511.10 (Palm), 1801.00 (Cocoa), 4407.10 (Wood)" value="0901.11" />
+            <input type="text" id="hs-code-input" aria-label="HS Commodity Code" title="HS Commodity Code" placeholder="e.g. 0901.11 (Coffee), 1511.10 (Palm), 1801.00 (Cocoa), 4407.10 (Wood)" value="0901.11" />
             <button id="btn-hs-lookup" class="btn btn-secondary" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">Classify Code</button>
           </div>
           <div id="hs-result-badge" class="hs-result-badge">
@@ -196,7 +196,7 @@
             <span style="font-size: 0.72rem; color: var(--text-muted);">JSON-LD / Schema Compliant</span>
           </div>
           <div class="form-group">
-            <textarea id="payload-editor" spellcheck="false"></textarea>
+            <textarea id="payload-editor" aria-label="GeoJSON or DDS Payload Editor" title="GeoJSON or DDS Payload Editor" placeholder="GeoJSON or DDS Payload Editor..." spellcheck="false"></textarea>
           </div>
           <button id="btn-evaluate" class="btn btn-primary" style="font-weight: 700; font-size: 0.88rem; padding: 0.75rem;">
             ⚡ Execute 5-Pillar EUDR Compliance Evaluation
@@ -456,11 +456,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Job Identifier</label>
-                <input type="text" id="solana-job-id" value="JOB-SOL-SUMATRA-2026-01" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="solana-job-id" aria-label="Solana Job ID" title="Solana Job ID" value="JOB-SOL-SUMATRA-2026-01" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity</label>
-                <select id="solana-commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                <select id="solana-commodity" aria-label="Solana Escrow Commodity" title="Solana Escrow Commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
                   <option value="COFFEE" selected>COFFEE (Arabica Beans)</option>
                   <option value="OIL_PALM">OIL_PALM (Crude Palm Oil)</option>
                   <option value="COCOA">COCOA (Bulk Beans)</option>
@@ -471,7 +471,7 @@
             </div>
             <div style="display: flex; gap: 12px; margin-bottom: 12px; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">
               <label style="font-size: 0.76rem; color: #f8fafc; display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                <input type="checkbox" id="solana-deforest-flag" />
+                <input type="checkbox" id="solana-deforest-flag" aria-label="Deforestation Free Verification Flag" title="Deforestation Free Verification Flag" />
                 <span>Simulate Deforestation Breach (Trigger Slashing)</span>
               </label>
             </div>
@@ -489,11 +489,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Recipient Public Key</label>
-                <input type="text" id="solana-pay-recipient" value="411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="solana-pay-recipient" aria-label="Solana Pay Recipient Public Key" title="Solana Pay Recipient Public Key" value="411ksMz9RHYVtVMe6RUUErzZYtrU9zzvkgzswKbqx9qp" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Amount (SPL-USDC)</label>
-                <input type="number" id="solana-pay-amount" value="5000.00" step="10.0" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="number" id="solana-pay-amount" aria-label="Solana Pay Amount in USDC" title="Solana Pay Amount in USDC" value="5000.00" step="10.0" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-solana-generate-pay-url" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(153, 69, 255, 0.5); color: #c084fc;">
@@ -586,13 +586,13 @@
 
           <div class="form-group" style="margin-bottom: 10px;">
             <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; display: block;">Verification Payload / Dossier Notes:</label>
-            <textarea id="sec-text-input" style="height: 120px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false" placeholder="Enter unstructured text, document memo, or agent prompt for zero-trust inspection..."></textarea>
+            <textarea id="sec-text-input" aria-label="EUDR Regulatory Text Input" title="EUDR Regulatory Text Input" style="height: 120px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false" placeholder="Enter unstructured text, document memo, or agent prompt for zero-trust inspection..."></textarea>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity</label>
-              <select id="sec-commodity-select" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+              <select id="sec-commodity-select" aria-label="Regulatory Compliance Commodity" title="Regulatory Compliance Commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
                 <option value="COFFEE" selected>COFFEE</option>
                 <option value="OIL_PALM">OIL_PALM</option>
                 <option value="COCOA">COCOA</option>
@@ -603,11 +603,11 @@
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Net Mass (kg)</label>
-              <input type="number" id="sec-mass-input" value="24000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="number" id="sec-mass-input" aria-label="Declared Net Mass in kg" title="Declared Net Mass in kg" value="24000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Total Area (ha)</label>
-              <input type="number" id="sec-area-input" value="10.0" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="number" id="sec-area-input" aria-label="Declared Production Plot Area in Hectares" title="Declared Production Plot Area in Hectares" value="10.0" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
           </div>
 
@@ -657,7 +657,7 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity</label>
-              <select id="rfq-commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+              <select id="rfq-commodity" aria-label="RFQ Sourcing Commodity" title="RFQ Sourcing Commodity" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
                 <option value="COFFEE">COFFEE (Arabica Green)</option>
                 <option value="COCOA">COCOA (Bulk Beans)</option>
                 <option value="OIL_PALM">OIL_PALM (Crude Palm Oil)</option>
@@ -666,17 +666,17 @@
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Required Volume (kg)</label>
-              <input type="number" id="rfq-volume" value="30000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="number" id="rfq-volume" aria-label="RFQ Volume in kg" title="RFQ Volume in kg" value="30000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Max Price Ceiling (USDC)</label>
-              <input type="number" id="rfq-max-price" value="75000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="number" id="rfq-max-price" aria-label="RFQ Max Price in USDC" title="RFQ Max Price in USDC" value="75000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Destination Hub</label>
-              <input type="text" id="rfq-dest" value="Port of Rotterdam (NLRTM)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="text" id="rfq-dest" aria-label="RFQ Delivery Destination Port" title="RFQ Delivery Destination Port" value="Port of Rotterdam (NLRTM)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
           </div>
           <button id="btn-create-rfq-submit" class="btn btn-primary" style="width: 100%; font-size: 0.8rem; padding: 7px;">
@@ -693,16 +693,16 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Target RFQ ID</label>
-              <input type="text" id="bid-target-rfq" placeholder="Enter active RFQ ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="text" id="bid-target-rfq" aria-label="Bid Target RFQ ID" title="Bid Target RFQ ID" placeholder="Enter active RFQ ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
             <div>
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Offered Bid Price (USDC)</label>
-              <input type="number" id="bid-price" value="71000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+              <input type="number" id="bid-price" aria-label="Supplier Bid Price in USDC" title="Supplier Bid Price in USDC" value="71000" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Geolocated Production Plot (WGS84)</label>
-            <input type="text" id="bid-plot-id" value="VN-LAMDONG-001 (108.4400, 11.9400)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+            <input type="text" id="bid-plot-id" aria-label="Supplier Plot ID and Coordinates" title="Supplier Plot ID and Coordinates" value="VN-LAMDONG-001 (108.4400, 11.9400)" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
           </div>
           <button id="btn-submit-bid-submit" class="btn btn-emerald" style="width: 100%; font-size: 0.8rem; padding: 7px;">
             🚀 Submit Geovalidated Bid
@@ -799,7 +799,7 @@
           </p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <input type="text" id="mcp-search-input" placeholder="Search 37 tools..." style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; color: #fff; width: 180px;" />
+          <input type="text" id="mcp-search-input" aria-label="Search FastMCP Tools" title="Search FastMCP Tools" placeholder="Search 37 tools..." style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; color: #fff; width: 180px;" />
           <span class="threat-badge safe">37 Tools Registered</span>
         </div>
       </div>
@@ -824,7 +824,7 @@
           </div>
           <div class="form-group" style="margin-bottom: 10px;">
             <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Tool Arguments (JSON Payload):</label>
-            <textarea id="mcp-args-editor" style="height: 140px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false">{ "commodity": "COFFEE", "net_mass_kg": 24000 }</textarea>
+            <textarea id="mcp-args-editor" aria-label="FastMCP Tool Arguments JSON Editor" title="FastMCP Tool Arguments JSON Editor" placeholder="FastMCP Tool Arguments JSON Editor..." style="height: 140px; font-family: var(--font-mono); font-size: 0.78rem;" spellcheck="false">{ "commodity": "COFFEE", "net_mass_kg": 24000 }</textarea>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <button id="btn-execute-mcp-tool" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 14px;">
@@ -929,11 +929,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Declarant EORI</label>
-                <input type="text" id="v3-issue-eori" value="NL823456789" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-issue-eori" aria-label="Issuer EORI Number" title="Issuer EORI Number" value="NL823456789" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Operator Role</label>
-                <select id="v3-issue-role" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                <select id="v3-issue-role" aria-label="Issuer Supply Chain Role" title="Issuer Supply Chain Role" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
                   <option value="PRIMARY_OPERATOR" selected>Primary Operator</option>
                   <option value="MSPO_PRODUCER">MSPO Micro-Producer</option>
                   <option value="SME_DOWNSTREAM">SME Downstream Trader</option>
@@ -945,11 +945,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Commodity Code (HS)</label>
-                <input type="text" id="v3-issue-hs" value="0901.11" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-issue-hs" aria-label="Issued Commodity HS Code" title="Issued Commodity HS Code" value="0901.11" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Net Mass (kg)</label>
-                <input type="number" id="v3-issue-mass" value="24000.0" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="number" id="v3-issue-mass" aria-label="Issued Commodity Net Mass in kg" title="Issued Commodity Net Mass in kg" value="24000.0" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-v3-issue-dual-key" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; margin-bottom: 10px;">
@@ -990,11 +990,11 @@
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Smallholder / Cooperative Name</label>
-                <input type="text" id="v3-mspo-name" value="Koperasi Pekebun Sawit Mandiri" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-mspo-name" aria-label="Smallholder Cooperatives Name" title="Smallholder Cooperatives Name" value="Koperasi Pekebun Sawit Mandiri" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Country</label>
-                <input type="text" id="v3-mspo-country" value="MY" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-mspo-country" aria-label="Smallholder Country Code" title="Smallholder Country Code" value="MY" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-v3-issue-mspo" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(16, 185, 129, 0.5); color: #34d399; font-weight: 700;">
@@ -1023,11 +1023,11 @@
             <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">DDS Reference Number</label>
-                <input type="text" id="v3-verify-ref" value="EU-DDS-2026-VN-8F7B2C" placeholder="e.g. EU-DDS-2026-VN-8F7B2C" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-verify-ref" aria-label="DDS Verification Reference" title="DDS Verification Reference" value="EU-DDS-2026-VN-8F7B2C" placeholder="e.g. EU-DDS-2026-VN-8F7B2C" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Secret Verification Number</label>
-                <input type="text" id="v3-verify-key" value="VERIF-9A4B-8C2D-1E0F-55AA" placeholder="e.g. VERIF-9A4B-8C2D-1E0F-55AA" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-verify-key" aria-label="DDS Verification Cryptographic Key" title="DDS Verification Cryptographic Key" value="VERIF-9A4B-8C2D-1E0F-55AA" placeholder="e.g. VERIF-9A4B-8C2D-1E0F-55AA" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-v3-verify-dual-key" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; border-color: rgba(99, 102, 241, 0.5); color: #c7d2fe;">
@@ -1056,11 +1056,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Group Name</label>
-                <input type="text" id="v3-group-name" value="Sumatra Smallholders Alliance" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-group-name" aria-label="Producer Group Name" title="Producer Group Name" value="Sumatra Smallholders Alliance" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Head Operator EORI</label>
-                <input type="text" id="v3-group-head-eori" value="NL890123456" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="v3-group-head-eori" aria-label="Group Representative EORI Number" title="Group Representative EORI Number" value="NL890123456" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
             <button id="btn-v3-create-group-head" class="btn btn-secondary" style="width: 100%; padding: 7px; font-size: 0.8rem; border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; font-weight: 700;">
@@ -1143,7 +1143,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Critical Mineral</label>
-                <select id="minerals-select-symbol" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
+                <select id="minerals-select-symbol" aria-label="Critical Mineral Element Symbol" title="Critical Mineral Element Symbol" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;">
                   <option value="LI" selected>Lithium (Li) - 2836.91</option>
                   <option value="CO">Cobalt (Co) - 8105.20</option>
                   <option value="NI">Nickel (Ni) - 7502.10</option>
@@ -1153,7 +1153,7 @@
               </div>
               <div>
                 <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Origin Country</label>
-                <input type="text" id="minerals-country" value="AU" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
+                <input type="text" id="minerals-country" aria-label="Critical Mineral Extraction Country Code" title="Critical Mineral Extraction Country Code" value="AU" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; color: #fff; font-size: 0.78rem;" />
               </div>
             </div>
 
@@ -1165,25 +1165,25 @@
               
               <div class="feoc-slider-row">
                 <label>🇨🇳 China (CN) Equity:</label>
-                <input type="range" id="slider-feoc-cn" min="0" max="100" value="12" />
+                <input type="range" id="slider-feoc-cn" aria-label="China FEOC Effective Ownership Percentage" title="China FEOC Effective Ownership Percentage" min="0" max="100" value="12" />
                 <span id="val-feoc-cn" class="feoc-slider-val">12%</span>
               </div>
               
               <div class="feoc-slider-row">
                 <label>🇷🇺 Russia (RU) Equity:</label>
-                <input type="range" id="slider-feoc-ru" min="0" max="100" value="0" />
+                <input type="range" id="slider-feoc-ru" aria-label="Russia FEOC Effective Ownership Percentage" title="Russia FEOC Effective Ownership Percentage" min="0" max="100" value="0" />
                 <span id="val-feoc-ru" class="feoc-slider-val">0%</span>
               </div>
 
               <div class="feoc-slider-row">
                 <label>🇮🇷 Iran (IR) Equity:</label>
-                <input type="range" id="slider-feoc-ir" min="0" max="100" value="0" />
+                <input type="range" id="slider-feoc-ir" aria-label="Iran FEOC Effective Ownership Percentage" title="Iran FEOC Effective Ownership Percentage" min="0" max="100" value="0" />
                 <span id="val-feoc-ir" class="feoc-slider-val">0%</span>
               </div>
 
               <div class="feoc-slider-row">
                 <label>🇰🇵 North Korea (KP) Equity:</label>
-                <input type="range" id="slider-feoc-kp" min="0" max="100" value="0" />
+                <input type="range" id="slider-feoc-kp" aria-label="North Korea FEOC Effective Ownership Percentage" title="North Korea FEOC Effective Ownership Percentage" min="0" max="100" value="0" />
                 <span id="val-feoc-kp" class="feoc-slider-val">0%</span>
               </div>
             </div>
@@ -1348,12 +1348,12 @@
 
             <div style="margin-bottom: 10px;">
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Target Supplier URL</label>
-              <input type="text" id="cleanweb-target-url" value="https://pt-agro-lestari.example.co.id/concession-transparency" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
+              <input type="text" id="cleanweb-target-url" aria-label="Target Concession Web URL" title="Target Concession Web URL" value="https://pt-agro-lestari.example.co.id/concession-transparency" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
             </div>
 
             <div style="margin-bottom: 10px;">
               <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Country of Production</label>
-              <input type="text" id="cleanweb-country-code" value="ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
+              <input type="text" id="cleanweb-country-code" aria-label="Concession ISO Country Code" title="Concession ISO Country Code" value="ID" style="width: 100%; background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.78rem;" />
             </div>
 
             <button id="btn-run-cleanweb-audit" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #a855f7, #3b82f6); border: none;">
@@ -1414,7 +1414,7 @@
       <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
         <h2 style="font-size: 1.05rem; font-weight: 700; color: #f9fafb; margin: 0;">💾 EUDR Statutory Compliance Audit Dossier</h2>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <select id="report-lang-select" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+          <select id="report-lang-select" aria-label="Select Intelligence Report Language" title="Select Intelligence Report Language" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
             <option value="en" selected>English (EN)</option>
             <option value="fr">Français (FR)</option>
             <option value="es">Español (ES)</option>
@@ -1502,17 +1502,17 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
             <div>
               <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Agent / Company Identifier</label>
-              <input type="text" id="apikey-company-input" placeholder="e.g. autonomous-trader-node-01" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+              <input type="text" id="apikey-company-input" aria-label="API Key Organization Name" title="API Key Organization Name" placeholder="e.g. autonomous-trader-node-01" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
             </div>
             <div>
               <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Contact Email / Webhook</label>
-              <input type="text" id="apikey-email-input" placeholder="agent-ops@enterprise.eu" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+              <input type="text" id="apikey-email-input" aria-label="API Key Notification Email" title="API Key Notification Email" placeholder="agent-ops@enterprise.eu" style="width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
             </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 0.78rem; color: #94a3b8;">Plan Tier:</span>
-              <select id="apikey-tier-select" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 0.8rem;">
+              <select id="apikey-tier-select" aria-label="Select API Key Access Tier" title="Select API Key Access Tier" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 0.8rem;">
                 <option value="PRO" selected>Pro (50,000 plots / month)</option>
                 <option value="ENTERPRISE">Enterprise (1,000,000 plots / month)</option>
               </select>

@@ -962,6 +962,60 @@ async def evaluate_supply_chain(
 
     return report
 
+
+def get_sample_eudr_payload() -> EUDRSupplyChainPayload:
+    """Returns a valid reference supply-chain payload for demo evaluations and GET requests."""
+    return EUDRSupplyChainPayload.model_validate({
+        "supplier_id": "COFFEE-COOP-SUMATRA",
+        "operator": {
+            "operator_name": "EU Agro Import Hub B.V.",
+            "eori_number": "NL849302194",
+            "country": "NL",
+            "address": "Wilhelminakade 901, 3072 AP Rotterdam, Netherlands"
+        },
+        "commodity": {
+            "hs_code": "090111",
+            "description": "Coffee, not roasted, not decaffeinated",
+            "quantity_kg": 18500.0
+        },
+        "plots": [
+            {
+                "plot_id": "PLOT-IDN-ACEH-01",
+                "producer_name": "Gayo Sustainable Coffee Farmer Collective",
+                "country": "ID",
+                "region": "Aceh Central",
+                "area_ha": 3.42,
+                "coordinates": [
+                    [96.845, 4.623],
+                    [96.848, 4.623],
+                    [96.848, 4.626],
+                    [96.845, 4.626],
+                    [96.845, 4.623]
+                ]
+            }
+        ]
+    })
+
+
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/evaluate",
+    response_model=Union[CompactDDSReport, DDSReport],
+    tags=["EUDR Pipeline Evaluation"],
+    summary="EUDR Compliance Live Sample & Guide (GET-friendly)",
+    description="For autonomous agents and browser probes via HTTP GET: Returns an instantaneous live compliance evaluation of a reference supply chain (Coffee HS 090111). To evaluate custom supply chain payloads, submit your JSON via HTTP POST."
+)
+@app.get(
+    f"{settings.API_V1_PREFIX}/eudr/simulate",
+    response_model=Union[CompactDDSReport, DDSReport],
+    include_in_schema=False
+)
+async def evaluate_supply_chain_get(
+    compact: bool = Query(True, description="When true, returns an ultra-compact summary report optimized for LLM agent context windows"),
+    db: Session = Depends(get_db)
+):
+    sample_payload = get_sample_eudr_payload()
+    return await evaluate_supply_chain(sample_payload, compact=compact, db=db)
+
 @app.get(
     f"{settings.API_V1_PREFIX}/eudr/report/languages",
     tags=["EUDR Regulations"],
@@ -1890,6 +1944,9 @@ async def get_copernicus_status():
     tags=["Autonomous AI Agent Tools"],
     summary="List available AI agent tools in OpenAI / Anthropic / Gemini JSON Schema format"
 )
+@app.get("/mcp/tools", include_in_schema=False)
+@app.get(f"{settings.API_V1_PREFIX}/mcp/tools", include_in_schema=False)
+@app.get(f"{settings.API_V1_PREFIX}/mcp/tool-specs", include_in_schema=False)
 async def list_agent_tools():
     """
     Exposes high-level deterministic tool definitions optimized for function calling
@@ -1911,6 +1968,8 @@ async def list_agent_tools():
     tags=["Autonomous AI Agent Tools"],
     summary="Direct unified execution endpoint for AI agent tools with self-correction hints"
 )
+@app.post("/mcp/invoke", include_in_schema=False)
+@app.post(f"{settings.API_V1_PREFIX}/mcp/invoke", include_in_schema=False)
 async def execute_agent_tool(payload: AgentToolExecuteRequest):
     """
     Executes an agent tool directly. Returns self-correction guidance on failure.

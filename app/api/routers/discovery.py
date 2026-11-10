@@ -132,6 +132,8 @@ async def serve_glama_json(request: Request):
 
 
 @router.api_route("/.well-known/mcp.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@router.api_route("/.cursor/mcp.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
+@router.api_route("/mcp.json", methods=["GET", "HEAD", "OPTIONS"], include_in_schema=False)
 async def serve_wellknown_mcp(request: Request):
     """Serves standard .well-known/mcp.json discovery descriptor for MCP clients."""
     if request.method in ("HEAD", "OPTIONS"):

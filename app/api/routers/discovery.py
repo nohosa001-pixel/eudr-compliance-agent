@@ -53,12 +53,29 @@ async def serve_sitemap():
 
 
 @router.get("/llms.txt", include_in_schema=False)
+@router.get("/ai.txt", include_in_schema=False)
 async def serve_llms_txt():
     """Serves the standard llms.txt summary file for AI agents and LLM crawlers."""
     llms_file = STATIC_DIR / "llms.txt"
     if llms_file.exists():
         return FileResponse(str(llms_file), media_type="text/plain; charset=utf-8", headers=NO_CACHE_HEADERS)
     return PlainTextResponse("EUDR.agent: Visit https://eudragent.com/docs for API details.", headers=NO_CACHE_HEADERS)
+
+
+@router.get("/humans.txt", include_in_schema=False)
+async def serve_humans_txt():
+    """Serves humans.txt for enterprise and regulatory compliance auditors."""
+    content = (
+        "/* TEAM */\n"
+        "Lead System Architect & Operator: EUDRAgent Compliance Team\n"
+        "Contact: regulatory@eudragent.com\n"
+        "Location: Seoul, South Korea & Global Cloud\n\n"
+        "/* SITE */\n"
+        "Software: EUDRAgent Autonomous Compliance Engine\n"
+        "Standards: EU Regulation 2023/1115 (EUDR) & TRACES-NT v2.4\n"
+        "Status: 100% Operational\n"
+    )
+    return PlainTextResponse(content=content, media_type="text/plain; charset=utf-8")
 
 
 @router.get("/llms-full.txt", include_in_schema=False)

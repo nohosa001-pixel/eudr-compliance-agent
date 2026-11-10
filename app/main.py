@@ -638,10 +638,19 @@ async def serve_pricing_schedule(request: Request):
     return RedirectResponse(url="/#pricing", status_code=302)
 
 
-@app.get("/terms", tags=["General"], summary="Institutional Terms of Service & Privacy Policy")
-@app.get("/terms.html", include_in_schema=False)
-@app.get("/legal", include_in_schema=False)
-async def serve_eudr_terms():
+@app.api_route("/terms", methods=["GET", "HEAD"], tags=["General"], summary="Institutional Terms of Service & Privacy Policy")
+@app.api_route("/terms.html", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/legal", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/privacy", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/privacy-policy", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/privacy.html", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/about", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/about.html", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/contact", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/contact.html", methods=["GET", "HEAD"], include_in_schema=False)
+async def serve_eudr_terms(request: Request):
+    if request.method == "HEAD":
+        return Response(status_code=200, headers={"Content-Type": "text/html; charset=utf-8"})
     terms_file = STATIC_DIR / "terms.html"
     if terms_file.exists():
         return FileResponse(str(terms_file), media_type="text/html; charset=utf-8", headers=NO_CACHE_HEADERS)

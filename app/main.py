@@ -588,7 +588,10 @@ async def serve_sample_traces_xml():
             media_type="application/xml",
             headers={
                 "Content-Disposition": 'attachment; filename="TRACES_NT_SAMPLE_DDS_EUDR.xml"',
-                "Cache-Control": "public, max-age=3600"
+                "Cache-Control": "public, max-age=86400",
+                "X-TRACES-NT-Schema-Version": "2.4",
+                "X-EUDR-Legal-Status": "Compliant-Annex-II",
+                "X-EU-Regulation": "Regulation (EU) 2023/1115"
             }
         )
     return Response(content="<error>Sample XML not found</error>", status_code=404, media_type="application/xml")

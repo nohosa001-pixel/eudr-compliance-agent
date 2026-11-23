@@ -1,0 +1,10 @@
+include README.md
+include pyproject.toml
+include eudr_mcp_proxy.py
+prune app
+prune tests
+prune docs
+prune scripts
+prune scratch
+prune data
+global-exclude *.pyc *.pyo __pycache__ .env* *.db *.sqlite*

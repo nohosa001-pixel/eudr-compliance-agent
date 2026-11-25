@@ -14,9 +14,14 @@ import json
 import os
 import secrets
 import sys
+import urllib.error
+import urllib.request
 from typing import Any, Dict, Optional
 
-import httpx
+try:
+    import httpx  # type: ignore
+except ImportError:
+    httpx = None  # Stdlib urllib.request fallback when container Python lacks httpx
 
 DEFAULT_GATEWAY_URL = os.getenv("EUDR_GATEWAY_URL", "https://eudragent.com").rstrip("/")
 
@@ -40,6 +45,21 @@ def build_gateway_headers() -> Dict[str, str]:
     return headers
 
 
+def _post_json_stdlib(url: str, payload: Dict[str, Any], headers: Dict[str, str], timeout_sec: float) -> tuple[int, Dict[str, Any]]:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as err:
+        body_raw = err.read().decode("utf-8", errors="ignore")
+        try:
+            body_json = json.loads(body_raw)
+        except Exception:
+            body_json = {"detail": body_raw}
+        return err.code, body_json
+
+
 async def forward_jsonrpc_to_gateway(
     req_data: Dict[str, Any],
     gateway_url: Optional[str] = None,
@@ -59,22 +79,32 @@ async def forward_jsonrpc_to_gateway(
     mcp_endpoint = f"{base}/api/v1/mcp"
 
     try:
-        async with httpx.AsyncClient(timeout=timeout_sec) as client:
-            resp = await client.post(mcp_endpoint, json=req_data, headers=build_gateway_headers())
-            if resp.status_code == 402:
-                return {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "error": {
-                        "code": -32002,
-                        "message": (
-                            "Payment Required (HTTP 402): Set EUDR_API_KEY or EUDR_X402_TX_HASH "
-                            "after settling USDC via https://eudragent.com/api/v1/payment/x402/challenge"
-                        ),
-                    },
-                }
-            resp.raise_for_status()
-            return resp.json()
+        headers = build_gateway_headers()
+        if httpx is not None:
+            async with httpx.AsyncClient(timeout=timeout_sec) as client:
+                resp = await client.post(mcp_endpoint, json=req_data, headers=headers)
+                status_code = resp.status_code
+                if status_code != 402:
+                    resp.raise_for_status()
+                body = resp.json() if status_code != 402 else {}
+        else:
+            status_code, body = await asyncio.to_thread(_post_json_stdlib, mcp_endpoint, req_data, headers, timeout_sec)
+            if status_code >= 400 and status_code != 402:
+                raise RuntimeError(f"HTTP {status_code}: {body}")
+
+        if status_code == 402:
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {
+                    "code": -32002,
+                    "message": (
+                        "Payment Required (HTTP 402): Set EUDR_API_KEY or EUDR_X402_TX_HASH "
+                        "after settling USDC via https://eudragent.com/api/v1/payment/x402/challenge"
+                    ),
+                },
+            }
+        return body
     except Exception as exc:
         return {
             "jsonrpc": "2.0",
